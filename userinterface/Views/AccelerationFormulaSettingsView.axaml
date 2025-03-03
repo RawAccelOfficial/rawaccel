@@ -6,16 +6,25 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.AccelerationFormulaSettingsView"
              x:DataType="vm:AccelerationFormulaSettingsViewModel">
+
   <StackPanel Orientation="Vertical">
-    <StackPanel
-      Orientation="Horizontal">
+
+    <Grid ColumnDefinitions="*,*">
       <TextBlock
-        Text="Formula type:"/>
+        Grid.Column="0"
+        Margin="5,0,5,0"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Center">
+        Formula Type
+      </TextBlock>
       <ComboBox
+        Grid.Column="1"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Center"
         ItemsSource="{Binding FormulaTypesLocal}"
-        SelectedItem="{Binding FormulaAccelBE.FormulaType.InterfaceValue}"
-        />
-    </StackPanel>
+        SelectedItem="{Binding FormulaAccelBE.FormulaType.InterfaceValue}"/>
+    </Grid>
+
     <Carousel Name="FormulaCarousel"
               SelectedIndex="{Binding FormulaAccelBE.FormulaType.CurrentValidatedValue}">
       <Carousel.Items>
@@ -62,5 +71,6 @@
         </StackPanel>
       </Carousel.Items>
     </Carousel>
+
   </StackPanel>
 </UserControl>

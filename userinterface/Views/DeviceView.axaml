@@ -7,23 +7,26 @@
              x:Class="userinterface.Views.DeviceView"
              x:DataType="vm:DeviceViewModel">
 
-  <Expander BorderThickness="1" BorderBrush="Gray" HorizontalAlignment="Stretch">
+  <Expander BorderThickness="1"
+            BorderBrush="Gray"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
 
     <Expander.Header>
       <Grid ColumnDefinitions="2*,*,*,2*" HorizontalAlignment="Stretch">
-        <ContentControl Content="{Binding NameField}" Grid.Column="0" Grid.Row="0"/>
-        <ContentControl Content="{Binding DPIField}" Grid.Column="1" Grid.Row="0"/>
-        <ContentControl Content="{Binding IgnoreBool}" Grid.Column="2" Grid.Row="0"/>
-        <ContentControl Content="{Binding DeviceGroup}" Grid.Column="3" Grid.Row="0"/>
+        <ContentControl Grid.Column="0" HorizontalAlignment="Left" Content="{Binding NameField}"/>
+        <ContentControl Grid.Column="1" HorizontalAlignment="Left" Content="{Binding DPIField}"/>
+        <ContentControl Grid.Column="2" HorizontalAlignment="Left" Content="{Binding IgnoreBool}"/>
+        <ContentControl Grid.Column="3" HorizontalAlignment="Left" Content="{Binding DeviceGroup}"/>
       </Grid>
     </Expander.Header>
 
     <Grid ColumnDefinitions="32,*,*" HorizontalAlignment="Stretch">
-      <Button Click="DeleteSelf" Grid.Column="0" Grid.Row="0">
+      <Button Grid.Column="0" Click="DeleteSelf">
         <PathIcon Data="{StaticResource delete_regular}"/>
       </Button>
-      <ContentControl Content="{Binding HWIDField}" Grid.Column="1" Grid.Row="0"/>
-      <ContentControl Content="{Binding PollRateField}" Grid.Column="2" Grid.Row="0"/>
+      <ContentControl Grid.Column="1" HorizontalAlignment="Center" Content="{Binding HWIDField}"/>
+      <ContentControl Grid.Column="2" HorizontalAlignment="Left" Content="{Binding PollRateField}"/>
     </Grid>
 
   </Expander>

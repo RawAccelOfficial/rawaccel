@@ -7,18 +7,23 @@
              x:Class="userinterface.Views.NamedEditableFieldView"
              x:DataType="vm:NamedEditableFieldViewModel"
              x:CompileBindings="True">
-     <Grid ColumnDefinitions="*,*">
-      <TextBlock
-        Margin="5,0,5,0"
-        Name="textBlock"
-        HorizontalAlignment="Right"
-        VerticalAlignment="Center"
-        Grid.Row="0"
-        Grid.Column="0"
-        Text="{Binding Name}"/>
-      <ContentControl
-        Grid.Row="0"
-        Grid.Column="1"
-        Content="{Binding Field}"/>
-     </Grid>
+
+  <Grid ColumnDefinitions="*,*">
+
+    <TextBlock
+      Grid.Column="0"
+      Name="textBlock"
+      Margin="5,2,5,2"
+      HorizontalAlignment="Left"
+      VerticalAlignment="Center"
+      TextWrapping="Wrap"
+      Text="{Binding Name}"/>
+
+    <ContentControl
+      Grid.Column="1"
+      HorizontalAlignment="Right"
+      VerticalAlignment="Center"
+      Content="{Binding Field}"/>
+
+  </Grid>
 </UserControl>

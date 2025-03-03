@@ -6,10 +6,12 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.AnisotropyProfileSettingsView"
              x:DataType="vm:AnisotropyProfileSettingsViewModel">
-  <Expander VerticalAlignment="Top"
-            Header="Anisotropy"
-            HorizontalAlignment="Center">
-    <StackPanel>
+
+  <Expander Header="Anisotropy"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+
+    <StackPanel Orientation="Vertical">
       <Grid
         ColumnDefinitions="*,*,*"
         RowDefinitions="*,*,*">
@@ -50,5 +52,6 @@
       </Grid>
       <ContentControl Content="{Binding LPNorm}"/>
     </StackPanel>
+
   </Expander>
 </UserControl>

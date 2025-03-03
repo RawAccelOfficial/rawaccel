@@ -6,27 +6,38 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.AccelerationProfileSettingsView"
              x:DataType="vm:AccelerationProfileSettingsViewModel">
-  <Expander VerticalAlignment="Top"
-            Header="Acceleration"
-            HorizontalAlignment="Center">
+
+  <Expander Header="Acceleration"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+
     <StackPanel Orientation="Vertical">
-      <StackPanel
-        Orientation="Horizontal">
+      <Grid ColumnDefinitions="*,*">
         <TextBlock
-          Text="Acceleration:"/>
+          Grid.Column="0"
+          Margin="5,0,5,0"
+          HorizontalAlignment="Left"
+          VerticalAlignment="Center">
+            Acceleration
+          </TextBlock>
         <ComboBox
+          Grid.Column="1"
+          HorizontalAlignment="Right"
+          VerticalAlignment="Center"
           ItemsSource="{Binding DefinitionTypesLocal}"
-          SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"
-          />
-      </StackPanel>
-		<Carousel
-			SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
-		<Panel IsVisible="False"/>
-	    <UserControl Content="{Binding AccelerationFormulaSettings}" />
-	    <UserControl Content="{Binding AccelerationLUTSettings}" />
+          SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
+      </Grid>
+
+		  <Carousel
+			  SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
+		    <Panel IsVisible="False"/>
+	      <UserControl Content="{Binding AccelerationFormulaSettings}" />
+	      <UserControl Content="{Binding AccelerationLUTSettings}" />
       </Carousel>
+
       <UserControl Content="{Binding AnisotropySettings}" IsVisible="{Binding AreAccelSettingsVisible}"/>
       <UserControl Content="{Binding CoalescionSettings}" IsVisible="{Binding AreAccelSettingsVisible}"/>
     </StackPanel>
+
   </Expander>
 </UserControl>

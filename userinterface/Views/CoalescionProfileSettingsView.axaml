@@ -6,13 +6,15 @@
              xmlns:vm="using:userinterface.ViewModels"
              x:Class="userinterface.Views.CoalescionProfileSettingsView"
              x:DataType="vm:CoalescionProfileSettingsViewModel">
-             
-  <Expander VerticalAlignment="Top"
-            Header="Coalescion"
-            HorizontalAlignment="Center">
-      <StackPanel Orientation="Vertical">
-        <ContentControl Content="{Binding InputSmoothingHalfLife}"/>
-        <ContentControl Content="{Binding ScaleSmoothingHalfLife}"/>
-      </StackPanel>
-    </Expander>
+
+  <Expander Header="Coalescion"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+
+    <StackPanel Orientation="Vertical">
+      <ContentControl Content="{Binding InputSmoothingHalfLife}"/>
+      <ContentControl Content="{Binding ScaleSmoothingHalfLife}"/>
+    </StackPanel>
+
+  </Expander>
 </UserControl>
