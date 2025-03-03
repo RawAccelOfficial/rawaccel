@@ -7,21 +7,24 @@
              x:Class="userinterface.Views.EditableBoolView"
              x:DataType="vm:EditableBoolViewModel"
              x:CompileBindings="True">
-     <Grid ColumnDefinitions="*,*">
-      <TextBlock
-        Margin="5,0,5,0"
-        Name="textBlock"
-        HorizontalAlignment="Right"
-        VerticalAlignment="Center"
-        Grid.Row="0"
-        Grid.Column="0"
-        Text="{Binding Name}"/>
-       <CheckBox
-         Margin="5,0,5,0"
-         HorizontalAlignment="Left"
-         VerticalAlignment="Center"
-         Grid.Row="0"
-         Grid.Column="1"
-         IsChecked="{Binding ValueInDisplay}"/>
-     </Grid>
+
+  <Grid ColumnDefinitions="*,*">
+
+    <TextBlock
+      Grid.Column="0"
+      Name="textBlock"
+      Margin="5,0,5,0"
+      HorizontalAlignment="Left"
+      VerticalAlignment="Center"
+      TextWrapping="Wrap"
+      Text="{Binding Name}"/>
+
+    <CheckBox
+      Grid.Column="1"
+      Margin="5,0,5,0"
+      HorizontalAlignment="Right"
+      VerticalAlignment="Center"
+      IsChecked="{Binding ValueInDisplay}"/>
+
+  </Grid>
 </UserControl>
