@@ -27,7 +27,7 @@
         <ListBox.ItemTemplate>
           <DataTemplate>
             <TextBlock
-              Margin="5 5 5 5"
+              Margin="5,5,5,5"
               Text="{Binding CurrentNameForDisplay}"/>
           </DataTemplate>
         </ListBox.ItemTemplate>
@@ -37,12 +37,10 @@
     <StackPanel
       DockPanel.Dock="Bottom"
       Orientation="Horizontal">
-      <Button
-        Click="AddProfile">
+      <Button Click="AddProfile">
         Add Profile
       </Button>
-      <Button
-        Click="RemoveProfile">
+      <Button Click="RemoveProfile">
         Delete Selected Profile
       </Button>
     </StackPanel>

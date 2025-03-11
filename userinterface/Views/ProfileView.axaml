@@ -7,15 +7,16 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.ProfileView"
              x:DataType="vm:ProfileViewModel">
-   <Grid ColumnDefinitions="*,3*"
-         ShowGridLines="True">
+
+   <Grid ColumnDefinitions="*,3*">
+
      <ContentControl
-       Grid.Row="0"
        Grid.Column="0"
        Content="{Binding Settings}"/>
+
      <ContentControl
-       Grid.Row="0"
        Grid.Column="1"
        Content="{Binding Chart}"/>
+
    </Grid>
 </UserControl>
