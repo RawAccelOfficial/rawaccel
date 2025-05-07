@@ -94,7 +94,7 @@ The authors of this program feel that Whole is the best style for most users, bu
 As described above, the "sensitivity multiplier" parameter is a multiplier used on the post-calculation output vector. The "Y/X Ratio" parameter is then only applied to the Y component of the output, so that it defines the ratio of vertical to horizontal output sensitivity without acceleration.
 
 ### Gain Switch
-The acceleration curve styles below (see "[Acceleration Styles](#acceleration-styles)") each describe a certain shape mathematically. The gain switch determines whether that shape is applied in the sensitivity graph or the gain graph. For styles [Linear](#linear), [Classic](#classic), and [Power](#power), this setting does not change the possible shapes of the velocity curve - that is, for any particular settings with the gain switch set to Sensitivity, there is a different set of settings that will replicate the exact same velocity curve (output for a given hand motion) with the switch set to Gain. For styles [Natural](#natural), [Jump](#jump), and [Motivity](#motivity), this is not true, and the gain switch allows new velocity curves for each style. 
+The acceleration curve styles below (see "[Acceleration Styles](#acceleration-styles)") each describe a certain shape mathematically. The gain switch determines whether that shape is applied in the sensitivity graph or the gain graph. For styles [Linear](#linear), [Classic](#classic), and [Power](#power), this setting does not change the possible shapes of the velocity curve - that is, for any particular settings with the gain switch set to Sensitivity, there is a different set of settings that will replicate the exact same velocity curve (output for a given hand motion) with the switch set to Gain. For styles [Natural](#natural), [Jump](#jump), and [Synchronous](#synchronous), this is not true, and the gain switch allows new velocity curves for each style. 
 
 ### Offsets
 An offset, sometimes called a threshold, is a speed in counts before acceleration "kicks in". The legacy way of applying an offset is having a multiplier of 1 below and at the offset, and applying the sensitivity of (speed-offset) above. This legacy "sensitivity offset" is not available because it causes a discontinuity in gain at the point of offset, leading to non-smooth feeling at offset cross. The new "gain offset" does a little extra math to simply shift the gain graph by the offset amount without any discontinuity. This feels smoother and has almost no effect on sensitivity. The theory behind "gain offsets" is developed in [this document](https://docs.google.com/document/d/1P6LygpeEazyHfjVmaEygCsyBjwwW2A-eMBl81ZfxXZk).
@@ -128,8 +128,16 @@ This is still an experimental setting, which perhaps will be more clearly presen
 ## Acceleration Styles
 The examples of various types below show some typical settings for a mouse at, or normalized to, 1000 DPI.
 
+### Synchronous
+This accel type is what we think is most "correct". It achieves a (logarithmically symmetrical) change in sensitivity around a speed called the "synchronous speed". The idea is that we perceive differences in sensitivity and hand speed by proportion (i.e. logarithmically) instead of linearly, and also that we have some central or anchor speed we use for estimating changes. Hence, making a logarithmically symmetrical sensitivity change around the central speed causes that change to be in sync with our natural estimating. 
+The most important variable is the synchronous speed. If this value is correct, then the curve will be estimable in use for any reasonable values of the other variables.
+The motivity variable expresses how much change will occur. Since the change is proportionally symmetric, the curve will start at sensitivity "1/motivity" and end at "motivity".
+The gamma variable expresses how fast the change occurs. It is equivalent to the "exponent" value in Power mode (as Power mode can be thought of as a synchronous curve with infinite motivity.)
+Lastly, "smooth" affects how fast the changes tails in and out. We recommend leaving this at default value of 0.5 for some mathematical reasons (corresponds to tanh() function). Value of 0 causes instant tailing in and out - makes the "s" of the curve into a "z".
+![SynchronousExample](images/synchronous_example.png)
+
 ### Linear
-This is simplest style used by most; it is simply a line rising at a given rate. This is a good choice for new users.
+This is simplest style; it is simply a line rising at a given rate.
 ![LinearExample](images/linear_example.png)
 
 ### Classic
@@ -137,26 +145,18 @@ This is the style found in Quake 3, Quake Live, and countless inspired followers
 ![ClassicExample](images/classic_example.png)
 
 ### Power
-This is the style found in CS:GO and Source Engine games (m_customaccel 3). The user can set a rate by which the speed is multiplied, and then an exponent to which the product is raised, which is then the final multiplier (no adding to 1). The  formula for this curve starts at 0 for an input of 0, so the user can also set a ratio of the sens multiplier for the curve to start at, effectively an output offset.
+This is the style found in CS:GO and Source Engine games (m_customaccel 3). The user can set a rate by which the speed is multiplied, and then an exponent to which the product is raised, which is then the final multiplier (no adding to 1). The formula for this curve starts at 0 for an input of 0, so the user can also set a ratio of the sens multiplier for the curve to start at, effectively an output offset.
 
 In the aforementioned games the default m_customaccel_exponent value of 1.05 would be a value of 0.05 in Raw Accel, leading to a concave slowly rising curve. CS:GO and Source Engine games apply acceleration in an fps-dependent manner, so Raw Accel can only simulate acceleration from these games at a given fps. To do so, set scale to 1000/(in-game fps) and the output offset to 1.
 ![PowerExample](images/power_example.png)
 
 ### Natural
-Natural features a concave curve which starts at 1 and approaches some maximum sensitivity. The sensitivity version of this curve can be found in the game Diabotical. This style is unique and useful but causes an ugly dip in the gain graph. The gain version of this curve recreates the Natural style shape in the gain graph without any dips and therefore we recommend this version. Natural is an excellent choice for new users due to only needing a two intuitive parameters which achieve what many users are looking for.
+Natural features a concave curve which starts at 1 and approaches some maximum sensitivity. The sensitivity version of this curve can be found in the game Diabotical.
 ![NaturalGainExample](images/natural_gain_example.png)
 
 ### Jump
  This style applies one sensitivity or gain below a certain threshold, and another above it. It can be useful for those who want one constant sensitivity and gain for slow hand motions and a different constant sensitivity or gain for fast hand motions. Users can set a "smooth" parameter which dictates whether the jump happens instaneously (at smooth 0) or with a slight tailing in and out (smooth 1) leading to a small sigmoid shape (s-shape). (Note that this "smooth" parameter has nothing to do with averaging over mouse counts like in sensor smoothing on mice or mouse smoothing in games.)
-![NaturalGainExample](images/jump_example.png)
-
-### Motivity
-This accel type is removed from latest RawAccel master, in favor of "synchronous" below, which we believe is a more powerful and correct expression of the framework of ideas underlying the motivity mode.
-This curve looks like an "S" with the top half bigger than the bottom. Mathematically it's a "Sigmoid function on a log-log plot". A user can set the "midpoint" of the S, the "growth rate" (i.e. slantedness) of the S, and the "motivity". "Motivity" sets min and max sensitivity, where the maximum is just "motivity", and the minimum is "1/motivity." (Sensitivity or gain is 1 at the midpoint.) The gain version of this curve is calculated and stored in a lookup table before applying acceleration, which makes the gain graph look a little funny.  This is an excellent choice for power users and new users who don't mind playing with the settings a little.
-![MotivityExample](images/motivity_example.png)
-
-### Synchronous
-(This section under construction)
+![JumpExample](images/jump_example.png)
 
 ### Look Up Table
 This curve style is a blank canvas on which to create a curve. It allows the user to define the points which will make up the curve. For this reason, this mode is only for experts who know exactly what they want. Points can be supplied in the GUI according to format x1,y1;x2,y2;...xn.yn or in the settings.json in json format. The default Windows mouse acceleration settings (Enhanced Pointer Precision) can be very closely emulated with this style, using velocity points: "1.505035,0.85549892;4.375,3.30972978;13.51,15.17478447;140,354.7026875;".
