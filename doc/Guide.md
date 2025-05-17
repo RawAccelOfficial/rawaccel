@@ -39,6 +39,18 @@ Then our input speed is $\sqrt{30^2 + 40^2} = 50$ counts/ms. Our accelerated sen
 
 ![SensVelocityGainExample](images/accel_readme_example.png)
 
+### Coalescion
+Mouse packets in theory arrive every poll time, but in practice sometimes are not so evenly spaced. For instance, if a user moves their hand exactly 30 counts/ms horizontally over three poll times of 1ms, the expected packets in would come in like: (30, 0), wait time of 1 ms, (30, 0), wait time of 1ms, (30, 0). But in practice, sometimes these packets may come in like: (28, 0), 1.2 ms wait time, (35, 0), 0.8 ms wait time, (27, 0).  
+Coalescion allows averaging of the current and previous packets to mitigate the possibility of unevenness. There are different points in Raw Accel's packet processing where this averaging can occur:  
+- When determining input speed for sensitivity. Uses linear EMA. Only affects acceleration and therefore does not feel like classic "mouse smoothing."  
+- When determining accelerated sensitivity. Uses simple EMA. Only affects acceleration and therefore does not feel like classic "mouse smoothing."  
+- When determining output. Uses linear EMA. Effects output directly and therefore is and feels like classic "mouse smoothing".  
+
+"Classic mouse smoothing" is a setting present in many programs that take mouse input, such as games. This setting smooths the mouse packets together directly, which has the affect of adding an input delay between your physical mouse and cursor reaching the target, as well as making the connection between the two less direct. Only "output smoothing" in Raw Accel is like this. Input and sensitivity smoothing affect only the values used to determine the amount of acceleration.  
+
+Exponential moving average, or EMA, is the algorithm by which packets are averaged together. For each packet, an existing moving average undergoes exponential decay and then is averaged with the information from the new packet. The user can give the half-life for the decay of the moving average. Linear EMA adds a moving average for the trend (rate of change) as well. More info can be found about these algorithms online.
+
+
 ### Horizontal and Vertical
 Due to the mechanics of holding a mouse on a desk, users generally move their mouses horizontally (left and right) differently than they move them vertically (forward and back), with more freedom for the wrist and\or arm to move the mouse horizontally than vertically. A user may then desire for various aspects of their output to change based on the direction of their input. For settings which allow this we have co-opted the term "anisotropy", which is "the property of a material which allows it to change or assume different properties in different directions."
 
@@ -111,6 +123,9 @@ See "[Horizontal and Vertical](#horizontal-and-vertical)" in the philosophy sect
 
 ### Last Mouse Move
 The Raw Accel GUI reads the output of the raw input stream, and thus the output of the Raw Accel Driver, and displays on the graphs red points corresponding to the last mouse movements. These calulations should be fast and your graph responsive, but it comes at the cost of higher CPU usage due to needing to refresh the graph often. This feature can be turned off in the "Charts" menu.
+
+### Input coalescion
+See "[Coalescion](#coalescion)" in the philosophy section to understand what these options do. These settings are currently exposed only in the settings file, for now, as "Time in ms after which [setting name] is weighted at half its original value".
 
 ### Menu Options
 
