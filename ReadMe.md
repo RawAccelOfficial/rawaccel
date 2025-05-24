@@ -26,5 +26,5 @@ Raw Accel is not affiliated with any external websites, such as rawaccel.net or 
 simon - Driver & Acceleration Logic  
 \_m00se\_ - GUI, Gain features, Acceleration types  
 Sidiouth  - Primary tester and sounding board  
-TauntyArmordillo - Originator of the alternate curve ideas (Natural and Motivity types)  
+TauntyArmordillo - Originator of the ideas behind Synchronous and Natural curve types
 Kovaak - Brought us together

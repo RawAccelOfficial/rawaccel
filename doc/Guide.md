@@ -39,6 +39,18 @@ Then our input speed is $\sqrt{30^2 + 40^2} = 50$ counts/ms. Our accelerated sen
 
 ![SensVelocityGainExample](images/accel_readme_example.png)
 
+### Coalescion
+Mouse packets in theory arrive every poll time, but in practice sometimes are not so evenly spaced. For instance, if a user moves their hand exactly 30 counts/ms horizontally over three poll times of 1ms, the expected packets in would come in like: (30, 0), wait time of 1 ms, (30, 0), wait time of 1ms, (30, 0). But in practice, sometimes these packets may come in like: (28, 0), 1.2 ms wait time, (35, 0), 0.8 ms wait time, (27, 0).  
+Coalescion allows averaging of the current and previous packets to mitigate the possibility of unevenness. There are different points in Raw Accel's packet processing where this averaging can occur:  
+- When determining input speed for sensitivity. Uses linear EMA. Only affects acceleration and therefore does not feel like classic "mouse smoothing."  
+- When determining accelerated sensitivity. Uses simple EMA. Only affects acceleration and therefore does not feel like classic "mouse smoothing."  
+- When determining output. Uses linear EMA. Effects output directly and therefore is and feels like classic "mouse smoothing".  
+
+"Classic mouse smoothing" is a setting present in many programs that take mouse input, such as games. This setting smooths the mouse packets together directly, which has the affect of adding an input delay between your physical mouse and cursor reaching the target, as well as making the connection between the two less direct. Only "output smoothing" in Raw Accel is like this. Input and sensitivity smoothing affect only the values used to determine the amount of acceleration.  
+
+Exponential moving average, or EMA, is the algorithm by which packets are averaged together. For each packet, an existing moving average undergoes exponential decay and then is averaged with the information from the new packet. The user can give the half-life for the decay of the moving average. Linear EMA adds a moving average for the trend (rate of change) as well. More info can be found about these algorithms online.
+
+
 ### Horizontal and Vertical
 Due to the mechanics of holding a mouse on a desk, users generally move their mouses horizontally (left and right) differently than they move them vertically (forward and back), with more freedom for the wrist and\or arm to move the mouse horizontally than vertically. A user may then desire for various aspects of their output to change based on the direction of their input. For settings which allow this we have co-opted the term "anisotropy", which is "the property of a material which allows it to change or assume different properties in different directions."
 
@@ -94,7 +106,7 @@ The authors of this program feel that Whole is the best style for most users, bu
 As described above, the "sensitivity multiplier" parameter is a multiplier used on the post-calculation output vector. The "Y/X Ratio" parameter is then only applied to the Y component of the output, so that it defines the ratio of vertical to horizontal output sensitivity without acceleration.
 
 ### Gain Switch
-The acceleration curve styles below (see "[Acceleration Styles](#acceleration-styles)") each describe a certain shape mathematically. The gain switch determines whether that shape is applied in the sensitivity graph or the gain graph. For styles [Linear](#linear), [Classic](#classic), and [Power](#power), this setting does not change the possible shapes of the velocity curve - that is, for any particular settings with the gain switch set to Sensitivity, there is a different set of settings that will replicate the exact same velocity curve (output for a given hand motion) with the switch set to Gain. For styles [Natural](#natural), [Jump](#jump), and [Motivity](#motivity), this is not true, and the gain switch allows new velocity curves for each style. 
+The acceleration curve styles below (see "[Acceleration Styles](#acceleration-styles)") each describe a certain shape mathematically. The gain switch determines whether that shape is applied in the sensitivity graph or the gain graph. For styles [Linear](#linear), [Classic](#classic), and [Power](#power), this setting does not change the possible shapes of the velocity curve - that is, for any particular settings with the gain switch set to Sensitivity, there is a different set of settings that will replicate the exact same velocity curve (output for a given hand motion) with the switch set to Gain. For styles [Natural](#natural), [Jump](#jump), and [Synchronous](#synchronous), this is not true, and the gain switch allows new velocity curves for each style. 
 
 ### Offsets
 An offset, sometimes called a threshold, is a speed in counts before acceleration "kicks in". The legacy way of applying an offset is having a multiplier of 1 below and at the offset, and applying the sensitivity of (speed-offset) above. This legacy "sensitivity offset" is not available because it causes a discontinuity in gain at the point of offset, leading to non-smooth feeling at offset cross. The new "gain offset" does a little extra math to simply shift the gain graph by the offset amount without any discontinuity. This feels smoother and has almost no effect on sensitivity. The theory behind "gain offsets" is developed in [this document](https://docs.google.com/document/d/1P6LygpeEazyHfjVmaEygCsyBjwwW2A-eMBl81ZfxXZk).
@@ -112,6 +124,9 @@ See "[Horizontal and Vertical](#horizontal-and-vertical)" in the philosophy sect
 ### Last Mouse Move
 The Raw Accel GUI reads the output of the raw input stream, and thus the output of the Raw Accel Driver, and displays on the graphs red points corresponding to the last mouse movements. These calulations should be fast and your graph responsive, but it comes at the cost of higher CPU usage due to needing to refresh the graph often. This feature can be turned off in the "Charts" menu.
 
+### Input coalescion
+See "[Coalescion](#coalescion)" in the philosophy section to understand what these options do. These settings are currently exposed only in the settings file, for now, as "Time in ms after which [setting name] is weighted at half its original value".
+
 ### Menu Options
 
 #### Charts >> Scale by DPI and Poll Rate
@@ -128,8 +143,16 @@ This is still an experimental setting, which perhaps will be more clearly presen
 ## Acceleration Styles
 The examples of various types below show some typical settings for a mouse at, or normalized to, 1000 DPI.
 
+### Synchronous
+This accel type is what we think is most "correct". It achieves a (logarithmically symmetrical) change in sensitivity around a speed called the "synchronous speed". The idea is that we perceive differences in sensitivity and hand speed by proportion (i.e. logarithmically) instead of linearly, and also that we have some central or anchor speed we use for estimating changes. Hence, making a logarithmically symmetrical sensitivity change around the central speed causes that change to be in sync with our natural estimating. 
+The most important variable is the synchronous speed. If this value is correct, then the curve will be estimable in use for any reasonable values of the other variables.
+The motivity variable expresses how much change will occur. Since the change is proportionally symmetric, the curve will start at sensitivity "1/motivity" and end at "motivity".
+The gamma variable expresses how fast the change occurs. It is equivalent to the "exponent" value in Power mode (as Power mode can be thought of as a synchronous curve with infinite motivity.)
+Lastly, "smooth" affects how fast the changes tails in and out. We recommend leaving this at default value of 0.5 for some mathematical reasons (corresponds to tanh() function). Value of 0 causes instant tailing in and out - makes the "s" of the curve into a "z".
+![SynchronousExample](images/synchronous_example.png)
+
 ### Linear
-This is simplest style used by most; it is simply a line rising at a given rate. This is a good choice for new users.
+This is simplest style; it is simply a line rising at a given rate.
 ![LinearExample](images/linear_example.png)
 
 ### Classic
@@ -137,26 +160,18 @@ This is the style found in Quake 3, Quake Live, and countless inspired followers
 ![ClassicExample](images/classic_example.png)
 
 ### Power
-This is the style found in CS:GO and Source Engine games (m_customaccel 3). The user can set a rate by which the speed is multiplied, and then an exponent to which the product is raised, which is then the final multiplier (no adding to 1). The  formula for this curve starts at 0 for an input of 0, so the user can also set a ratio of the sens multiplier for the curve to start at, effectively an output offset.
+This is the style found in CS:GO and Source Engine games (m_customaccel 3). The user can set a rate by which the speed is multiplied, and then an exponent to which the product is raised, which is then the final multiplier (no adding to 1). The formula for this curve starts at 0 for an input of 0, so the user can also set a ratio of the sens multiplier for the curve to start at, effectively an output offset.
 
 In the aforementioned games the default m_customaccel_exponent value of 1.05 would be a value of 0.05 in Raw Accel, leading to a concave slowly rising curve. CS:GO and Source Engine games apply acceleration in an fps-dependent manner, so Raw Accel can only simulate acceleration from these games at a given fps. To do so, set scale to 1000/(in-game fps) and the output offset to 1.
 ![PowerExample](images/power_example.png)
 
 ### Natural
-Natural features a concave curve which starts at 1 and approaches some maximum sensitivity. The sensitivity version of this curve can be found in the game Diabotical. This style is unique and useful but causes an ugly dip in the gain graph. The gain version of this curve recreates the Natural style shape in the gain graph without any dips and therefore we recommend this version. Natural is an excellent choice for new users due to only needing a two intuitive parameters which achieve what many users are looking for.
+Natural features a concave curve which starts at 1 and approaches some maximum sensitivity. The sensitivity version of this curve can be found in the game Diabotical.
 ![NaturalGainExample](images/natural_gain_example.png)
 
 ### Jump
  This style applies one sensitivity or gain below a certain threshold, and another above it. It can be useful for those who want one constant sensitivity and gain for slow hand motions and a different constant sensitivity or gain for fast hand motions. Users can set a "smooth" parameter which dictates whether the jump happens instaneously (at smooth 0) or with a slight tailing in and out (smooth 1) leading to a small sigmoid shape (s-shape). (Note that this "smooth" parameter has nothing to do with averaging over mouse counts like in sensor smoothing on mice or mouse smoothing in games.)
-![NaturalGainExample](images/jump_example.png)
-
-### Motivity
-This accel type is removed from latest RawAccel master, in favor of "synchronous" below, which we believe is a more powerful and correct expression of the framework of ideas underlying the motivity mode.
-This curve looks like an "S" with the top half bigger than the bottom. Mathematically it's a "Sigmoid function on a log-log plot". A user can set the "midpoint" of the S, the "growth rate" (i.e. slantedness) of the S, and the "motivity". "Motivity" sets min and max sensitivity, where the maximum is just "motivity", and the minimum is "1/motivity." (Sensitivity or gain is 1 at the midpoint.) The gain version of this curve is calculated and stored in a lookup table before applying acceleration, which makes the gain graph look a little funny.  This is an excellent choice for power users and new users who don't mind playing with the settings a little.
-![MotivityExample](images/motivity_example.png)
-
-### Synchronous
-(This section under construction)
+![JumpExample](images/jump_example.png)
 
 ### Look Up Table
 This curve style is a blank canvas on which to create a curve. It allows the user to define the points which will make up the curve. For this reason, this mode is only for experts who know exactly what they want. Points can be supplied in the GUI according to format x1,y1;x2,y2;...xn.yn or in the settings.json in json format. The default Windows mouse acceleration settings (Enhanced Pointer Precision) can be very closely emulated with this style, using velocity points: "1.505035,0.85549892;4.375,3.30972978;13.51,15.17478447;140,354.7026875;".
