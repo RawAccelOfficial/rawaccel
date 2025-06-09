@@ -382,16 +382,39 @@ namespace grapher
 
         private void RawAcceleration_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (Width > 900 && Height > 550)
+            {
+                Properties.Settings.Default.Size = Size;
+            }
             Properties.Settings.Default.Location = Location;
-            Properties.Settings.Default.Size = Size;
-
             Properties.Settings.Default.Save();
         }
 
         private void RawAcceleration_Load(object sender, EventArgs e)
         {
-            Location = Properties.Settings.Default.Location;
-            Size = Properties.Settings.Default.Size;
+            // Minimum reasonable size
+            var minSize = new Size(900, 550);
+
+            var savedSize = Properties.Settings.Default.Size;
+            if (savedSize.Width < minSize.Width || savedSize.Height < minSize.Height)
+            {
+                Size = minSize;
+            }
+            else
+            {
+                Size = savedSize;
+            }
+
+            var savedLocation = Properties.Settings.Default.Location;
+            //Check if the location is on a visible area of window manager
+            if (Screen.AllScreens.Any(s => s.WorkingArea.Contains(savedLocation)))
+            {
+                Location = savedLocation;
+            }
+            else
+            {
+                StartPosition = FormStartPosition.CenterScreen;
+            }
         }
     }
 }
