@@ -304,8 +304,8 @@ namespace grapher
 
             Size = new Size
             {
-                Width = Math.Min(workingArea.Width, optionsPanel.Size.Width + chartsPreferredSize.Width),
-                Height = Math.Min(workingArea.Height, chartsPreferredSize.Height + 48)
+                Width = Math.Max(900, Math.Min(workingArea.Width, optionsPanel.Size.Width + chartsPreferredSize.Width)),
+                Height = Math.Max(900, Math.Min(workingArea.Height, chartsPreferredSize.Height + 48))
             };
 
             Location = new Point
