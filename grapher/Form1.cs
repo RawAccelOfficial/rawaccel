@@ -22,6 +22,8 @@ namespace grapher
         {
             InitializeComponent();
 
+            this.MinimumSize = new Size(900, 550);
+
             Version driverVersion = VersionHelper.ValidOrThrow();
 
             ToolStripMenuItem HelpMenuItem = new ToolStripMenuItem("&Help");
