@@ -41,7 +41,8 @@ public enum class AccelMode
 };
 
 [JsonConverter(Converters::StringEnumConverter::typeid)]
-public enum class CapMode {
+public enum class CapMode
+{
     in_out, input, output
 };
 
@@ -95,6 +96,93 @@ public value struct AccelArgs
         // data->Length must match SizeConst when marshalling
         length = data->Length;
         array<float>::Resize(data, ra::LUT_RAW_DATA_CAPACITY);
+    }
+
+    bool IsEquivalentTo(AccelArgs other)
+    {
+        if (mode != other.mode)
+        {
+            return false;
+        }
+
+        if (mode != AccelMode::noaccel && gain != other.gain)
+        {
+            return false;
+        }
+
+        bool isEquivalent = false;
+
+        switch (mode)
+        {
+            case AccelMode::noaccel:
+                isEquivalent = true;
+            case AccelMode::synchronous:
+                isEquivalent =
+                    syncSpeed == other.syncSpeed &&
+                    motivity == other.motivity &&
+                    gamma == other.gamma &&
+                    smooth == other.smooth;
+                break;
+            case AccelMode::classic:
+                isEquivalent =
+                    exponentClassic == other.exponentClassic &&
+                    inputOffset == other.inputOffset &&
+                    capMode == other.capMode &&
+                    (capMode == CapMode::in_out ?
+                        (cap.x == other.cap.x && cap.y == other.cap.y) :
+                    capMode == CapMode::output ?
+                        (acceleration == other.acceleration && cap.y == other.cap.y) :
+                        (acceleration == other.acceleration && cap.x == other.cap.x));
+                break;
+            case AccelMode::power:
+                isEquivalent =
+                    exponentPower == other.exponentPower &&
+                    outputOffset == other.outputOffset &&
+                    capMode == other.capMode &&
+                    (capMode == CapMode::in_out ?
+                        (cap.x == other.cap.x && cap.y == other.cap.y) :
+                    capMode == CapMode::output ?
+                        (acceleration == other.scale && cap.y == other.cap.y) :
+                        (acceleration == other.scale && cap.x == other.cap.x));
+                break;
+            case AccelMode::natural:
+                isEquivalent =
+                    decayRate == other.decayRate &&
+                    inputOffset == other.inputOffset &&
+                    limit == other.limit;
+                break;
+            case AccelMode::jump:
+                isEquivalent =
+                    cap.x == other.cap.x &&
+                    cap.y == other.cap.y &&
+                    smooth == other.smooth;
+                break;
+            case AccelMode::lut:
+                isEquivalent = true;
+
+                if (length != other.length)
+                {
+                    isEquivalent = false;
+                    break;
+                }
+
+                for (int i = 0; i < length; i++)
+                {
+                    int index = i * 2;
+                    if (data[index] != other.data[index] ||
+                        data[index+1] != other.data[index+1])
+                    {
+                        isEquivalent = false;
+                        break;
+                    }
+                }
+
+                break;
+            default:
+                break;
+        }
+
+        return isEquivalent;
     }
 };
 
@@ -501,8 +589,10 @@ public:
         void set(Profile^ val)
         {
             instance->init(val);
+            ra::speed_args speedArgs;
+            Marshal::StructureToPtr(val->inputSpeedArgs, IntPtr(&speedArgs), false);
+            speed_instance->speed_calculator.init(speedArgs);
         }
-
     }
 
     ra::modifier_settings NativeSettings()
