@@ -108,7 +108,7 @@ namespace grapher.Models.Options
             
             WholeVectorCheckBox.Checked = settings.inputSpeedArgs.combineMagnitudes;
             ByComponentVectorCheckBox.Checked = !settings.inputSpeedArgs.combineMagnitudes;
-            ByComponentVectorXYLock.Checked = settings.argsX.Equals(settings.argsY);
+            ByComponentVectorXYLock.Checked = settings.argsX.IsEquivalentTo(settings.argsY);
             OptionSetX.SetActiveValues(ref settings.argsX);
             OptionSetY.SetActiveValues(ref settings.argsY);
 
