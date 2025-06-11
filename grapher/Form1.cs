@@ -22,8 +22,6 @@ namespace grapher
         {
             InitializeComponent();
 
-            this.MinimumSize = new Size(900, 550);
-
             Version driverVersion = VersionHelper.ValidOrThrow();
 
             ToolStripMenuItem HelpMenuItem = new ToolStripMenuItem("&Help");
@@ -303,8 +301,8 @@ namespace grapher
 
             Size = new Size
             {
-                Width = Math.Max(900, Math.Min(workingArea.Width, optionsPanel.Size.Width + chartsPreferredSize.Width)),
-                Height = Math.Max(900, Math.Min(workingArea.Height, chartsPreferredSize.Height + 48))
+                Width = Math.Min(workingArea.Width, optionsPanel.Size.Width + chartsPreferredSize.Width),
+                Height = Math.Min(workingArea.Height, chartsPreferredSize.Height + 48)
             };
 
             Location = new Point
@@ -381,10 +379,7 @@ namespace grapher
 
         private void RawAcceleration_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Width > 900 && Height > 550)
-            {
-                Properties.Settings.Default.Size = Size;
-            }
+            Properties.Settings.Default.Size = Size;
             Properties.Settings.Default.Location = Location;
             Properties.Settings.Default.Save();
         }
@@ -410,8 +405,6 @@ namespace grapher
                 Properties.Settings.Default.Save();
                 this.BeginInvoke(new MethodInvoker(() =>
                 {
-                    this.PerformLayout();
-                    chartsPanel.PerformLayout();
                     ResizeAndCenter();
                 }));
             }
