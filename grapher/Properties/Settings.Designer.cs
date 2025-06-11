@@ -45,6 +45,23 @@ namespace grapher.Properties {
             set {
                 this["Size"] = value;
             }
+
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool HasRunBefore
+        {
+            get
+            {
+                return ((bool)(this["HasRunBefore"]));
+            }
+            set
+            {
+                this["HasRunBefore"] = value;
+            }
+        }
+
     }
 }

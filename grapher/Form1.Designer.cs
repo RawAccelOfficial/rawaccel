@@ -2369,7 +2369,7 @@ namespace grapher
             this.Name = "RawAcceleration";
             this.Text = "Raw Accel";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RawAcceleration_FormClosing);
-            this.Load += new System.EventHandler(this.RawAcceleration_Load);
+            this.Shown += new System.EventHandler(this.RawAcceleration_Shown);
             this.optionsPanel.ResumeLayout(false);
             this.optionsPanel.PerformLayout();
             this.DirectionalityPanel.ResumeLayout(false);
