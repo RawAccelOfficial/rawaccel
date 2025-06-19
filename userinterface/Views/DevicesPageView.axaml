@@ -10,7 +10,6 @@
   <Grid RowDefinitions="3*, *">
     <Border Margin="10,10,10,10"
           CornerRadius="5"
-          BorderBrush="Gray" BorderThickness="1"
           Padding="5"
           Grid.Row="0"
           Grid.Column="0">
@@ -18,7 +17,6 @@
     </Border>
     <Border Margin="10,10,10,10"
           CornerRadius="5"
-          BorderBrush="Gray" BorderThickness="1"
           Padding="5"
           Grid.Row="1"
           Grid.Column="0">

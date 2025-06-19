@@ -7,16 +7,13 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.ProfileSettingsView"
              x:DataType="vm:ProfileSettingsViewModel">
-
-    <StackPanel
+	<StackPanel
         Orientation="Vertical"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Center">
-
-        <ContentControl Content="{Binding OutputDPIField}"/>
-        <ContentControl Content="{Binding YXRatioField}"/>
-        <ContentControl Content="{Binding AccelerationSettings}"/>
-        <ContentControl Content="{Binding HiddenSettings}"/>
-
-    </StackPanel>
+		<ContentControl Content="{Binding OutputDPIField}" Margin="5,5,5,5"/>
+		<ContentControl Content="{Binding YXRatioField}" Margin="5,5,5,5"/>
+		<ContentControl Content="{Binding AccelerationSettings}" Margin="5,5,5,5"/>
+		<ContentControl Content="{Binding HiddenSettings}" Margin="5,5,5,5"/>
+	</StackPanel>
 </UserControl>

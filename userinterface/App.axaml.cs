@@ -79,8 +79,8 @@ public partial class App : Application
 
             MappingsToLoad = new DATA.MappingSet()
             {
-                Mappings = new DATA.Mapping[]
-                {
+                Mappings =
+                [
                     new DATA.Mapping() {
                         Name = "Usual",
                         GroupsToProfiles = new DATA.Mapping.GroupsToProfilesMapping()
@@ -97,7 +97,7 @@ public partial class App : Application
                             { "Testing", "SpecificGame" },
                         },
                     },
-                },
+                ],
             },
         };
     }

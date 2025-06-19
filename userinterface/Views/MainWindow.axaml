@@ -9,46 +9,63 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="userinterface">
-
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-  <Panel>
-    <TabControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TabStripPlacement = "Left" ZIndex="0">
-      <TabControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <WrapPanel Width="130"/>
-        </ItemsPanelTemplate>
-      </TabControl.ItemsPanel>
-      <TabItem Header = "Devices">
-        <ContentControl Content="{Binding DevicesPage}"/>
-      </TabItem>
-      <TabItem Header = "Mappings">
-        <ContentControl Content="{Binding MappingsPage}"/>
-      </TabItem>
-      <TabItem Header = "Profiles">
-        <ContentControl Content="{Binding ProfilesPage}"/>
-      </TabItem>
-    </TabControl>
-    <Panel
-      VerticalAlignment="Bottom"
-      HorizontalAlignment="Left"
-      Width="130"
-      ZIndex="1">
-      <Button
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        Margin="16"
-        Click="ApplyButtonHandler">
-        <TextBlock
-          VerticalAlignment="Center"
-          HorizontalAlignment="Center"
-          FontSize="25">
-          Apply
-        </TextBlock>
-      </Button>
-    </Panel>
-  </Panel>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+	<Panel>
+		<TabControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TabStripPlacement = "Left" ZIndex="0">
+			<TabControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel Width="130"/>
+				</ItemsPanelTemplate>
+			</TabControl.ItemsPanel>
+			<TabItem Header = "Devices">
+				<Border Margin="5,5,5,5"
+						CornerRadius="5"
+						BorderBrush="Gray"
+						BorderThickness="1"
+						Padding="5">
+					<ContentControl Content="{Binding DevicesPage}"/>
+				</Border>
+			</TabItem>
+			<TabItem Header = "Mappings">
+				<Border Margin="5,5,5,5"
+						CornerRadius="5"
+						BorderBrush="Gray"
+						BorderThickness="1"
+						Padding="5">
+					<ContentControl Content="{Binding MappingsPage}"/>
+				</Border>
+			</TabItem>
+			<TabItem Header = "Profiles">
+				<Border Margin="5,5,5,5"
+						CornerRadius="5"
+						BorderBrush="Gray"
+						BorderThickness="1"
+						Padding="5">
+					<ContentControl Content="{Binding ProfilesPage}"/>
+				</Border>
+			</TabItem>
+		</TabControl>
+		<Panel
+		  VerticalAlignment="Bottom"
+		  HorizontalAlignment="Left"
+		  Width="130"
+		  ZIndex="1">
+			<Button
+			  HorizontalAlignment="Center"
+			  VerticalAlignment="Center"
+			  Margin="16"
+			  Click="ApplyButtonHandler">
+				<TextBlock
+				  VerticalAlignment="Center"
+				  HorizontalAlignment="Center"
+				  FontSize="25">
+					Apply
+				</TextBlock>
+			</Button>
+		</Panel>
+	</Panel>
 </Window>
