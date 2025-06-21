@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Settings.AccelerationFormulaSettingsView"
+             x:DataType="vm:AccelerationFormulaSettingsViewModel">
+
+  <StackPanel Orientation="Vertical">
+
+    <Grid ColumnDefinitions="*,*">
+      <TextBlock
+        Grid.Column="0"
+        Margin="5,0,5,0"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Center">
+        Formula Type
+      </TextBlock>
+      <ComboBox
+        Grid.Column="1"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Center"
+        ItemsSource="{Binding FormulaTypesLocal}"
+        SelectedItem="{Binding FormulaAccelBE.FormulaType.InterfaceValue}"/>
+    </Grid>
+
+    <Carousel Name="FormulaCarousel"
+              SelectedIndex="{Binding FormulaAccelBE.FormulaType.CurrentValidatedValue}">
+      <Carousel.Items>
+        <!-- The accel formula carousel items must appear in same order as in
+             accel formula data enum declaration, because that enum is used to determine selected index -->
+        <StackPanel Name="SynchronousFormulaSettings"
+                    Orientation="Vertical">
+          <UserControl Content="{Binding SynchronousSettings.SyncSpeed}"/>
+          <UserControl Content="{Binding SynchronousSettings.Motivity}"/>
+          <UserControl Content="{Binding SynchronousSettings.Gamma}"/>
+          <UserControl Content="{Binding SynchronousSettings.Smoothness}"/>
+        </StackPanel>
+        <StackPanel Name="LinearFormulaSettings"
+                    Orientation="Vertical">
+          <UserControl Content="{Binding LinearSettings.Acceleration}"/>
+          <UserControl Content="{Binding LinearSettings.Offset}"/>
+          <UserControl Content="{Binding LinearSettings.Cap}"/>
+        </StackPanel>
+        <StackPanel Name="ClassicFormulaSettings"
+                    Orientation="Vertical">
+          <UserControl Content="{Binding ClassicSettings.Acceleration}"/>
+          <UserControl Content="{Binding ClassicSettings.Exponent}"/>
+          <UserControl Content="{Binding ClassicSettings.Offset}"/>
+          <UserControl Content="{Binding ClassicSettings.Cap}"/>
+        </StackPanel>
+        <StackPanel Name="PowerFormulaSettings"
+                    Orientation="Vertical">
+          <UserControl Content="{Binding PowerSettings.Scale}"/>
+          <UserControl Content="{Binding PowerSettings.Exponent}"/>
+          <UserControl Content="{Binding PowerSettings.OutputOffset}"/>
+          <UserControl Content="{Binding PowerSettings.Cap}"/>
+        </StackPanel>
+        <StackPanel Name="NaturalFormulaSettings"
+                    Orientation="Vertical">
+          <UserControl Content="{Binding NaturalSettings.DecayRate}"/>
+          <UserControl Content="{Binding NaturalSettings.InputOffset}"/>
+          <UserControl Content="{Binding NaturalSettings.Limit}"/>
+        </StackPanel>
+        <StackPanel Name="JumpFormulaSettings"
+                    Orientation="Vertical">
+          <UserControl Content="{Binding JumpSettings.Smooth}"/>
+          <UserControl Content="{Binding JumpSettings.Input}"/>
+          <UserControl Content="{Binding JumpSettings.Output}"/>
+        </StackPanel>
+      </Carousel.Items>
+    </Carousel>
+
+  </StackPanel>
+</UserControl>

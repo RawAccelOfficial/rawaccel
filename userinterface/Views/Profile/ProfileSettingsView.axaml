@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="using:userinterface.Views"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Profile.ProfileSettingsView"
+             x:DataType="vm:ProfileSettingsViewModel">
+	<StackPanel
+        Orientation="Vertical"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Center">
+		<ContentControl Content="{Binding OutputDPIField}" Margin="5,5,5,5"/>
+		<ContentControl Content="{Binding YXRatioField}" Margin="5,5,5,5"/>
+		<ContentControl Content="{Binding AccelerationSettings}" Margin="5,5,5,5"/>
+		<ContentControl Content="{Binding HiddenSettings}" Margin="5,5,5,5"/>
+	</StackPanel>
+</UserControl>
