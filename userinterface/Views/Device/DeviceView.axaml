@@ -3,23 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Device"
+             xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Device.DeviceView"
              x:DataType="vm:DeviceViewModel">
 
 	<UserControl.Styles>
-		<Style Selector="Expander">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="8"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
-		</Style>
-
-		<Style Selector="Expander:expanded">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-		</Style>
-
 		<Style Selector="Button.DeleteButton">
 			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -29,53 +18,77 @@
 			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
 
+		<!-- Override default button states for DeleteButton -->
 		<Style Selector="Button.DeleteButton:pointerover">
-			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
 		<Style Selector="Button.DeleteButton:pressed">
-			<Setter Property="Background" Value="#B91C1C"/>
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:focus">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="controls|EditableExpanderView">
+			<Setter Property="Margin" Value="0,0,0,8"/>
 		</Style>
 	</UserControl.Styles>
 
-	<Expander HorizontalAlignment="Stretch"
-			  VerticalAlignment="Stretch">
-		<Expander.Header>
+	<controls:EditableExpanderView HorizontalAlignment="Stretch"
+								   VerticalAlignment="Stretch"
+								   IsExpanded="False">
+
+		<controls:EditableExpanderView.Header>
 			<Grid ColumnDefinitions="2*,*,*,2*"
 				  HorizontalAlignment="Stretch"
 				  Background="Transparent"
-				  Margin="16,12">
+				  Margin="8,4">
+
 				<ContentControl Grid.Column="0"
 							   HorizontalAlignment="Left"
 							   Content="{Binding NameField}"/>
+
 				<ContentControl Grid.Column="1"
 							   HorizontalAlignment="Left"
 							   Content="{Binding DPIField}"/>
+
 				<ContentControl Grid.Column="2"
 							   HorizontalAlignment="Left"
 							   Content="{Binding IgnoreBool}"/>
+
 				<ContentControl Grid.Column="3"
 							   HorizontalAlignment="Left"
 							   Content="{Binding DeviceGroup}"/>
 			</Grid>
-		</Expander.Header>
+		</controls:EditableExpanderView.Header>
 
-		<Grid ColumnDefinitions="Auto,*,*"
-			  HorizontalAlignment="Stretch"
-			  Margin="16,8,16,16">
-			<Button Grid.Column="0"
-					Classes="DeleteButton"
-					Click="DeleteSelf"
-					Margin="0,0,16,0">
-				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
-			</Button>
-			<ContentControl Grid.Column="1"
-						   HorizontalAlignment="Stretch"
-						   Content="{Binding HWIDField}"
-						   Margin="0,0,16,0"/>
-			<ContentControl Grid.Column="2"
-						   HorizontalAlignment="Left"
-						   Content="{Binding PollRateField}"/>
-		</Grid>
-	</Expander>
+		<controls:EditableExpanderView.ExpanderContent>
+			<Grid ColumnDefinitions="Auto,*,*"
+				  HorizontalAlignment="Stretch"
+				  Margin="8">
+
+				<Button Grid.Column="0"
+						Classes="DeleteButton"
+						Click="DeleteSelf"
+						Margin="0,0,16,0">
+					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
+				</Button>
+
+				<ContentControl Grid.Column="1"
+							   HorizontalAlignment="Stretch"
+							   Content="{Binding HWIDField}"
+							   Margin="0,0,16,0"/>
+
+				<ContentControl Grid.Column="2"
+							   HorizontalAlignment="Left"
+							   Content="{Binding PollRateField}"/>
+			</Grid>
+		</controls:EditableExpanderView.ExpanderContent>
+
+	</controls:EditableExpanderView>
 </UserControl>

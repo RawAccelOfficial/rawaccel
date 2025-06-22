@@ -1,0 +1,27 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<Styles.Resources>
+		<ControlTemplate x:Key="NoInteractionButtonTemplate" TargetType="Button">
+			<Border Name="PART_Border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Padding="{TemplateBinding Padding}">
+				<ContentPresenter Name="PART_ContentPresenter"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                TextBlock.Foreground="{TemplateBinding Foreground}" />
+			</Border>
+		</ControlTemplate>
+	</Styles.Resources>
+
+	<Style Selector="Button.NoInteractionButton">
+		<Setter Property="Template" Value="{StaticResource NoInteractionButtonTemplate}" />
+		<Setter Property="Cursor" Value="Hand" />
+	</Style>
+
+</Styles>

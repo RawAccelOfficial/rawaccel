@@ -35,7 +35,6 @@
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 		</Style>
 
-		<!-- ComboBox Button (dropdown arrow) styling -->
 		<Style Selector="ComboBox /template/ Button#PART_Button">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
@@ -46,7 +45,6 @@
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
-		<!-- ComboBox TextBlock styling -->
 		<Style Selector="ComboBox /template/ ContentPresenter#PART_ContentPresenter">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 		</Style>
@@ -59,12 +57,10 @@
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
-		<!-- Popup styling -->
 		<Style Selector="ComboBox /template/ Popup">
 			<Setter Property="MaxHeight" Value="200"/>
 		</Style>
 
-		<!-- ComboBox dropdown list styling -->
 		<Style Selector="ComboBox /template/ Border#PopupBorder">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -72,13 +68,11 @@
 			<Setter Property="CornerRadius" Value="4"/>
 		</Style>
 
-		<!-- ListBox inside ComboBox popup -->
 		<Style Selector="ComboBox ListBox">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 
-		<!-- ListBox items in ComboBox popup -->
 		<Style Selector="ComboBox ListBoxItem">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>

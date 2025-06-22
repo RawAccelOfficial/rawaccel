@@ -47,4 +47,10 @@
   <ItemGroup>
     <ProjectReference Include="..\userspace-backend\userspace-backend.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Controls\EditableExpanderView.axaml.cs">
+      <DependentUpon>EditableExpanderView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

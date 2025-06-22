@@ -26,15 +26,21 @@ public partial class App : Application
             // Line below is needed to remove Avalonia data validation.
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
+
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(backEnd),
             };
+
+            #if DEBUG
+                desktop.MainWindow.AttachDevTools();
+            #endif
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
+    // ... rest of your code remains the same
     protected Bootstrapper BootstrapBackEnd()
     {
         return new Bootstrapper()
@@ -46,7 +52,6 @@ public partial class App : Application
                 new DATA.Device() { Name = "Outset AX", DPI = 1200, HWID = @"HID\VID_3057&PID_0001", PollingRate = 1000, DeviceGroup = "Testing" },
                 new DATA.Device() { Name = "Razer Viper 8K", DPI = 1200, HWID = @"HID\VID_31E3&PID_1310", PollingRate = 1000, DeviceGroup = "Testing" },
             ],
-
             ProfilesToLoad =
             [
                 new DATA.Profile()
@@ -72,11 +77,11 @@ public partial class App : Application
                             ScaleSmoothingHalfLife = 0,
                         },
                     },
-                    Hidden = new DATA.Profiles.Hidden() { RotationDegrees = 8, }, },
+                    Hidden = new DATA.Profiles.Hidden() { RotationDegrees = 8, },
+                },
                 new DATA.Profile() { Name = "Test", OutputDPI = 1200, YXRatio = 1.0 },
                 new DATA.Profile() { Name = "SpecificGame", OutputDPI = 3200, YXRatio = 1.333 },
             ],
-
             MappingsToLoad = new DATA.MappingSet()
             {
                 Mappings =
