@@ -7,51 +7,52 @@
              x:Class="userinterface.Views.Profile.AnisotropyProfileSettingsView"
              x:DataType="vm:AnisotropyProfileSettingsViewModel">
 
-  <Expander Header="Anisotropy"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch">
+	<UserControl.Styles>
+		<Style Selector="Expander">
+			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
+		</Style>
 
-    <StackPanel Orientation="Vertical">
-      <Grid
-        ColumnDefinitions="*,*,*"
-        RowDefinitions="*,*,*">
-        <TextBlock
-          HorizontalAlignment="Center"
-          Grid.Column="1"
-          Grid.Row="0"
-          Text="X"/>
-        <TextBlock
-          HorizontalAlignment="Center"
-          Grid.Column="2"
-          Grid.Row="0"
-          Text="Y"/>
-        <TextBlock
-          Grid.Column="0"
-          Grid.Row="1"
-          Text="Domain"/>
-        <TextBlock
-          Grid.Column="0"
-          Grid.Row="2"
-          Text="Range"/>
-        <ContentControl
-          Grid.Column="1"
-          Grid.Row="1"
-          Content="{Binding DomainX}"/>
-        <ContentControl
-          Grid.Column="2"
-          Grid.Row="1"
-          Content="{Binding DomainY}"/>
-        <ContentControl
-          Grid.Column="1"
-          Grid.Row="2"
-          Content="{Binding RangeX}"/>
-        <ContentControl
-          Grid.Column="2"
-          Grid.Row="2"
-          Content="{Binding RangeY}"/>
-      </Grid>
-      <ContentControl Content="{Binding LPNorm}"/>
-    </StackPanel>
+		<Style Selector="Expander:expanded">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
 
-  </Expander>
+		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Padding" Value="16,12"/>
+		</Style>
+
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Expander Header="Anisotropy" HorizontalAlignment="Stretch">
+		<StackPanel Orientation="Vertical" Margin="16">
+			<Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
+				<!-- Header Row -->
+				<TextBlock Grid.Column="1" Grid.Row="0" Text="X" FontWeight="SemiBold" Margin="0,0,0,8"/>
+				<TextBlock Grid.Column="2" Grid.Row="0" Text="Y" FontWeight="SemiBold" Margin="0,0,0,8"/>
+
+				<!-- Domain Row -->
+				<TextBlock Grid.Column="0" Grid.Row="1" Text="Domain" HorizontalAlignment="Left" Margin="0,8,0,8"/>
+				<ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding DomainX}" Margin="8,8,0,8"/>
+				<ContentControl Grid.Column="2" Grid.Row="1" Content="{Binding DomainY}" Margin="8,8,0,8"/>
+
+				<!-- Range Row -->
+				<TextBlock Grid.Column="0" Grid.Row="2" Text="Range" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+				<ContentControl Grid.Column="1" Grid.Row="2" Content="{Binding RangeX}" Margin="8,8,0,0"/>
+				<ContentControl Grid.Column="2" Grid.Row="2" Content="{Binding RangeY}" Margin="8,8,0,0"/>
+			</Grid>
+
+			<ContentControl Content="{Binding LPNorm}" Margin="0,16,0,0"/>
+		</StackPanel>
+	</Expander>
 </UserControl>

@@ -4,40 +4,87 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="userinterface.Views.Settings.AccelerationProfileSettingsView"
+             x:Class="userinterface.Views.Profile.AccelerationProfileSettingsView"
              x:DataType="vm:AccelerationProfileSettingsViewModel">
 
-  <Expander Header="Acceleration"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch">
+	<UserControl.Styles>
+		<Style Selector="Expander">
+			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
+		</Style>
 
-    <StackPanel Orientation="Vertical">
-      <Grid ColumnDefinitions="*,*">
-        <TextBlock
-          Grid.Column="0"
-          Margin="5,0,5,0"
-          HorizontalAlignment="Left"
-          VerticalAlignment="Center">
-            Acceleration
-          </TextBlock>
-        <ComboBox
-          Grid.Column="1"
-          HorizontalAlignment="Right"
-          VerticalAlignment="Center"
-          ItemsSource="{Binding DefinitionTypesLocal}"
-          SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
-      </Grid>
+		<Style Selector="Expander:expanded">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
 
-		  <Carousel
-			  SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
-		    <Panel IsVisible="False"/>
-	      <UserControl Content="{Binding AccelerationFormulaSettings}" />
-	      <UserControl Content="{Binding AccelerationLUTSettings}" />
-      </Carousel>
+		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Padding" Value="16,12"/>
+		</Style>
 
-      <UserControl Content="{Binding AnisotropySettings}" IsVisible="{Binding AreAccelSettingsVisible}"/>
-      <UserControl Content="{Binding CoalescionSettings}" IsVisible="{Binding AreAccelSettingsVisible}"/>
-    </StackPanel>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
 
-  </Expander>
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="MinWidth" Value="120"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#252526"/>
+		</Style>
+
+		<Style Selector="Carousel">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Margin" Value="0,12,0,0"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Expander Header="Acceleration" HorizontalAlignment="Stretch">
+		<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
+			<Grid ColumnDefinitions="*,*">
+				<TextBlock Grid.Column="0"
+						   HorizontalAlignment="Left"
+						   VerticalAlignment="Center"
+						   Text="Acceleration"
+						   Margin="0,0,12,0"/>
+				<ComboBox Grid.Column="1"
+						  HorizontalAlignment="Stretch"
+						  VerticalAlignment="Center"
+						  ItemsSource="{Binding DefinitionTypesLocal}"
+						  SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
+			</Grid>
+
+			<Carousel SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
+				<Carousel.Items>
+					<Panel IsVisible="False"/>
+					<ContentControl Content="{Binding AccelerationFormulaSettings}"/>
+					<ContentControl Content="{Binding AccelerationLUTSettings}"/>
+				</Carousel.Items>
+			</Carousel>
+
+			<ContentControl Content="{Binding AnisotropySettings}"
+							IsVisible="{Binding AreAccelSettingsVisible}"/>
+			<ContentControl Content="{Binding CoalescionSettings}"
+							IsVisible="{Binding AreAccelSettingsVisible}"/>
+		</StackPanel>
+	</Expander>
 </UserControl>

@@ -4,21 +4,70 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="userinterface.Views.Settings.AccelerationLUTSettingsView"
+             x:Class="userinterface.Views.Profile.AccelerationLUTSettingsView"
              x:DataType="vm:AccelerationLUTSettingsViewModel">
-	 <StackPanel>
-		 <TextBlock>This mode is for experts only.</TextBlock>
-		 <TextBlock>Format: x1,y1,x2,y2,...xn,yn;</TextBlock>
-		 <UserControl Content="{Binding LUTPoints}"
-			 Height="100"
-			 />
-		 <StackPanel
-			 Orientation="Horizontal">
-			 <TextBlock>Apply as:</TextBlock>
-			 <ComboBox>
-				 <TextBlock>Velocity</TextBlock>
-				 <TextBlock>Sensitivity</TextBlock>
-			 </ComboBox>
-		 </StackPanel>
-	 </StackPanel>
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
+		</Style>
+
+		<Style Selector="TextBlock.Warning">
+			<Setter Property="Foreground" Value="#F59E0B"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+		</Style>
+
+		<Style Selector="TextBlock.Instructions">
+			<Setter Property="Foreground" Value="#9CA3AF"/>
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="FontStyle" Value="Italic"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="MinWidth" Value="120"/>
+			<Setter Property="Margin" Value="8,0,0,0"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#252526"/>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Spacing="16">
+		<TextBlock Classes="Warning">
+			This mode is for experts only.
+		</TextBlock>
+
+		<TextBlock Classes="Instructions">
+			Format: x1,y1,x2,y2,...xn,yn;
+		</TextBlock>
+
+		<ContentControl Content="{Binding LUTPoints}" Height="100"/>
+
+		<StackPanel Orientation="Horizontal">
+			<TextBlock Text="Apply as:" VerticalAlignment="Center" Margin="0"/>
+			<ComboBox>
+				<ComboBoxItem>
+					<TextBlock Text="Velocity"/>
+				</ComboBoxItem>
+				<ComboBoxItem>
+					<TextBlock Text="Sensitivity"/>
+				</ComboBoxItem>
+			</ComboBox>
+		</StackPanel>
+	</StackPanel>
 </UserControl>

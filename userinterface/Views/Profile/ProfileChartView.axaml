@@ -7,8 +7,18 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileChartView"
              x:DataType="vm:ProfileChartViewModel">
-             
-  <lvc:CartesianChart
-               Series="{Binding Series}"
-               YAxes="{Binding YAxes}"/>
+
+	<UserControl.Styles>
+		<Style Selector="lvc|CartesianChart">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Margin" Value="8"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Border Background="#252526"
+			BorderBrush="#3F3F46"
+			BorderThickness="1"
+			CornerRadius="8">
+		<lvc:CartesianChart Series="{Binding Series}" YAxes="{Binding YAxes}"/>
+	</Border>
 </UserControl>

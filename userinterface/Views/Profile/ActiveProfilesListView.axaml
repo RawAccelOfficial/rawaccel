@@ -6,26 +6,61 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ActiveProfilesListView"
              x:DataType="vm:ActiveProfilesListViewModel">
-  <DockPanel>
-    <TextBlock
-      DockPanel.Dock="Top"
-      HorizontalAlignment="Left"
-      FontSize="18"
-      FontStyle="Italic"
-      Margin="10,10,10,10">
-      Active Profiles
-    </TextBlock>
-    <StackPanel Orientation="Vertical">
-      <ListBox
-        ItemsSource="{Binding ActiveProfiles}">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <TextBlock
-              Margin="5 5 5 5"
-              Text="{Binding CurrentNameForDisplay}"/>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </StackPanel>
-  </DockPanel>
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="0,0,0,16"/>
+		</Style>
+
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="8"/>
+		</Style>
+
+		<Style Selector="ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Margin" Value="0,2"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pointerover">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="ListBoxItem TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected TextBlock">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+	</UserControl.Styles>
+
+	<DockPanel>
+		<TextBlock DockPanel.Dock="Top" Classes="SectionHeader">
+			Active Profiles
+		</TextBlock>
+
+		<ListBox ItemsSource="{Binding ActiveProfiles}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding CurrentNameForDisplay}"/>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</DockPanel>
 </UserControl>

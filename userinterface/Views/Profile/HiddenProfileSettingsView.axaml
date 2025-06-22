@@ -5,21 +5,38 @@
              xmlns:v="using:userinterface.Views"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="userinterface.Views.Settings.HiddenProfileSettingsView"
+             x:Class="userinterface.Views.Profile.HiddenProfileSettingsView"
              x:DataType="vm:HiddenProfileSettingsViewModel">
 
-  <Expander Header="Hidden"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch">
+	<UserControl.Styles>
+		<Style Selector="Expander">
+			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
+		</Style>
 
-    <StackPanel Orientation="Vertical">
-      <ContentControl Content="{Binding RotationField}"/>
-      <ContentControl Content="{Binding LRRatioField}"/>
-      <ContentControl Content="{Binding UDRatioField}"/>
-      <ContentControl Content="{Binding SpeedCapField}"/>
-      <ContentControl Content="{Binding AngleSnappingField}"/>
-      <ContentControl Content="{Binding OutputSmoothingHalfLifeField}"/>
-    </StackPanel>
+		<Style Selector="Expander:expanded">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
 
-  </Expander>
+		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Padding" Value="16,12"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Expander Header="Hidden" HorizontalAlignment="Stretch">
+		<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
+			<ContentControl Content="{Binding RotationField}"/>
+			<ContentControl Content="{Binding LRRatioField}"/>
+			<ContentControl Content="{Binding UDRatioField}"/>
+			<ContentControl Content="{Binding SpeedCapField}"/>
+			<ContentControl Content="{Binding AngleSnappingField}"/>
+			<ContentControl Content="{Binding OutputSmoothingHalfLifeField}"/>
+		</StackPanel>
+	</Expander>
 </UserControl>

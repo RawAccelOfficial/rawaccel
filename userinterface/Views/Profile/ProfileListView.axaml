@@ -7,43 +7,113 @@
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
 
-  <DockPanel>
+	<UserControl.Styles>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="0,0,0,16"/>
+		</Style>
 
-    <TextBlock
-      DockPanel.Dock="Top"
-      HorizontalAlignment="Left"
-      FontSize="18"
-      FontStyle="Italic"
-      Margin="10,10,10,10">
-      Saved Profiles
-    </TextBlock>
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="MinHeight" Value="200"/>
+		</Style>
 
-    <StackPanel
-      DockPanel.Dock="Top"
-      Orientation="Vertical">
-      <ListBox
-        ItemsSource="{Binding Profiles}"
-        SelectionChanged="OnSelectionChanged">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <TextBlock
-              Margin="5,5,5,5"
-              Text="{Binding CurrentNameForDisplay}"/>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </StackPanel>
+		<Style Selector="ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Margin" Value="0,2"/>
+		</Style>
 
-    <StackPanel
-      DockPanel.Dock="Bottom"
-      Orientation="Horizontal">
-      <Button Click="AddProfile">
-        Add Profile
-      </Button>
-      <Button Click="RemoveProfile">
-        Delete Selected Profile
-      </Button>
-    </StackPanel>
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="#0E639C"/>
+		</Style>
 
-  </DockPanel>
+		<Style Selector="ListBoxItem:pointerover">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="ListBoxItem TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected TextBlock">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="Button.ActionButton">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,0,8,0"/>
+		</Style>
+
+		<Style Selector="Button.ActionButton:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="Button.ActionButton:pressed">
+			<Setter Property="Background" Value="#0D5A94"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="#DC2626"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="#EF4444"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pressed">
+			<Setter Property="Background" Value="#B91C1C"/>
+		</Style>
+	</UserControl.Styles>
+
+	<DockPanel>
+		<TextBlock DockPanel.Dock="Top" Classes="SectionHeader">
+			Saved Profiles
+		</TextBlock>
+
+		<StackPanel DockPanel.Dock="Bottom"
+					Orientation="Horizontal"
+					HorizontalAlignment="Center"
+					Margin="0,16,0,0">
+			<Button Classes="ActionButton" Click="AddProfile">
+				Add Profile
+			</Button>
+			<Button Classes="DeleteButton" Click="RemoveProfile">
+				Delete Selected Profile
+			</Button>
+		</StackPanel>
+
+		<ListBox ItemsSource="{Binding Profiles}"
+				 SelectionChanged="OnSelectionChanged">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding CurrentNameForDisplay}"/>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</DockPanel>
 </UserControl>

@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace userinterface.Views.Settings;
+namespace userinterface.Views.Profile;
 
 public partial class AccelerationFormulaSettingsView : UserControl
 {

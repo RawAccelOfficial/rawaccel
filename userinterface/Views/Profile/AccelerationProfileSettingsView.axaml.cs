@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace userinterface.Views.Settings;
+namespace userinterface.Views.Profile;
 
 public partial class AccelerationProfileSettingsView : UserControl
 {
