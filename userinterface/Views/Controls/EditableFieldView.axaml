@@ -8,10 +8,37 @@
              x:DataType="vm:EditableFieldViewModel"
              x:CompileBindings="True">
 
-  <TextBox
-    KeyDown="TextBox_KeyDown"
-    LostFocus="LostFocusHandler"
-    Margin="5,0,5,0"
-    TextWrapping="Wrap"
-    Text="{Binding ValueText, UpdateSourceTrigger=LostFocus}"/>
+	<UserControl.Styles>
+		<Style Selector="TextBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="SelectionBrush" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="TextBox:focus">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#252526"/>
+		</Style>
+
+		<Style Selector="TextBox:pointerover">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="TextBox:disabled">
+			<Setter Property="Background" Value="#1A1A1A"/>
+			<Setter Property="Foreground" Value="#666666"/>
+			<Setter Property="BorderBrush" Value="#2A2A2A"/>
+		</Style>
+	</UserControl.Styles>
+
+	<TextBox KeyDown="TextBox_KeyDown"
+			 LostFocus="LostFocusHandler"
+			 Margin="8"
+			 TextWrapping="Wrap"
+			 Text="{Binding ValueText, UpdateSourceTrigger=LostFocus}"/>
 </UserControl>

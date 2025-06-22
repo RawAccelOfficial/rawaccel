@@ -8,23 +8,52 @@
              x:DataType="vm:EditableBoolViewModel"
              x:CompileBindings="True">
 
-  <Grid ColumnDefinitions="*,*">
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
 
-    <TextBlock
-      Grid.Column="0"
-      Name="textBlock"
-      Margin="5,0,5,0"
-      HorizontalAlignment="Left"
-      VerticalAlignment="Center"
-      TextWrapping="Wrap"
-      Text="{Binding Name}"/>
+		<Style Selector="CheckBox">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
 
-    <CheckBox
-      Grid.Column="1"
-      Margin="5,0,5,0"
-      HorizontalAlignment="Right"
-      VerticalAlignment="Center"
-      IsChecked="{Binding ValueInDisplay}"/>
+		<Style Selector="CheckBox /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="3"/>
+		</Style>
 
-  </Grid>
+		<Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#252526"/>
+		</Style>
+
+		<Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="CheckBox:checked:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="#1177BB"/>
+			<Setter Property="BorderBrush" Value="#1177BB"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid ColumnDefinitions="*,*" Margin="8">
+		<TextBlock Grid.Column="0"
+				   Name="textBlock"
+				   HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   TextWrapping="Wrap"
+				   Text="{Binding Name}"
+				   Margin="0,0,12,0"/>
+		<CheckBox Grid.Column="1"
+				  HorizontalAlignment="Right"
+				  VerticalAlignment="Center"
+				  IsChecked="{Binding ValueInDisplay}"/>
+	</Grid>
 </UserControl>
