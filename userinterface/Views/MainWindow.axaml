@@ -4,68 +4,190 @@
         xmlns:v="using:userinterface.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="userinterface.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="userinterface">
+        Title="userinterface"
+        Background="#1E1E1E">
+
 	<Design.DataContext>
-		<!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
+
+	<Window.Styles>
+		<Style Selector="TabControl">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<Style Selector="TabItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Padding" Value="20,15"/>
+			<Setter Property="Margin" Value="0"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="HorizontalContentAlignment" Value="Left"/>
+
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="PART_LayoutRoot"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							Padding="{TemplateBinding Padding}">
+
+						<Panel>
+							<Border Name="IndicatorBar"
+									Width="3"
+									CornerRadius="4"
+									HorizontalAlignment="Left"
+									Background="Transparent"
+									IsVisible="False"/>
+
+							<!-- The borer is to move the text away from the indicator bar -->
+							<Border Margin="15,0,0,0" Background="Transparent">
+								<ContentPresenter Name="PART_ContentPresenter"
+												ContentTemplate="{TemplateBinding HeaderTemplate}"
+												Content="{TemplateBinding Header}"
+												HorizontalAlignment="Left"
+												VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+												TextBlock.FontFamily="{TemplateBinding FontFamily}"
+												TextBlock.FontSize="{TemplateBinding FontSize}"
+												TextBlock.FontWeight="{TemplateBinding FontWeight}"
+												TextBlock.Foreground="{TemplateBinding Foreground}"/>
+							</Border>
+						</Panel>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+
+		<Style Selector="TabItem:pointerover /template/ Border#IndicatorBar">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="IsVisible" Value="True"/>
+		</Style>
+
+		<Style Selector="TabItem:pointerover">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="TabItem:selected">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="TabItem:selected:pointerover /template/ Border#PART_LayoutRoot">
+			<Setter Property="Background" Value="#1A1A1C"/>
+		</Style>
+
+		<!-- The ContentPresenter inside the item -->
+		<Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="RenderTransform" Value="scale(1.05)"/>
+		</Style>
+
+
+
+		<Style Selector="Border.ContentArea">
+			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="24"/>
+			<Setter Property="Margin" Value="16"/>
+		</Style>
+
+		<Style Selector="Button.ApplyButton">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="24,12"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+
+		<Style Selector="Button.ApplyButton:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="Button.ApplyButton:pressed">
+			<Setter Property="Background" Value="#0D5A94"/>
+		</Style>
+
+		<!-- Transitions -->
+		<Style Selector="TabItem /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+
+		<Style Selector="TabItem /template/ Border#IndicatorBar">
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.ApplyButton">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.ApplyButton:pressed">
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+	</Window.Styles>
+
 	<Panel>
-		<TabControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TabStripPlacement = "Left" ZIndex="0">
+		<TabControl VerticalAlignment="Stretch"
+					HorizontalAlignment="Stretch"
+					TabStripPlacement="Left">
 			<TabControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<WrapPanel Width="130"/>
+					<StackPanel Width="300" Background="#2D2D30"/>
 				</ItemsPanelTemplate>
 			</TabControl.ItemsPanel>
-			<TabItem Header = "Devices">
-				<Border Margin="5,5,5,5"
-						CornerRadius="5"
-						BorderBrush="Gray"
-						BorderThickness="1"
-						Padding="5">
+
+			<TabItem Header="Devices">
+				<Border Classes="ContentArea">
 					<ContentControl Content="{Binding DevicesPage}"/>
 				</Border>
 			</TabItem>
-			<TabItem Header = "Mappings">
-				<Border Margin="5,5,5,5"
-						CornerRadius="5"
-						BorderBrush="Gray"
-						BorderThickness="1"
-						Padding="5">
+
+			<TabItem Header="Mappings">
+				<Border Classes="ContentArea">
 					<ContentControl Content="{Binding MappingsPage}"/>
 				</Border>
 			</TabItem>
-			<TabItem Header = "Profiles">
-				<Border Margin="5,5,5,5"
-						CornerRadius="5"
-						BorderBrush="Gray"
-						BorderThickness="1"
-						Padding="5">
+
+			<TabItem Header="Profiles">
+				<Border Classes="ContentArea">
 					<ContentControl Content="{Binding ProfilesPage}"/>
 				</Border>
 			</TabItem>
 		</TabControl>
-		<Panel
-		  VerticalAlignment="Bottom"
-		  HorizontalAlignment="Left"
-		  Width="130"
-		  ZIndex="1">
-			<Button
-			  HorizontalAlignment="Center"
-			  VerticalAlignment="Center"
-			  Margin="16"
-			  Click="ApplyButtonHandler">
-				<TextBlock
-				  VerticalAlignment="Center"
-				  HorizontalAlignment="Center"
-				  FontSize="25">
-					Apply
-				</TextBlock>
-			</Button>
-		</Panel>
+
+		<Button Classes="ApplyButton"
+				VerticalAlignment="Bottom"
+				HorizontalAlignment="Left"
+				Width="268"
+				Margin="16"
+				Click="ApplyButtonHandler">
+			Apply Settings
+		</Button>
 	</Panel>
 </Window>
