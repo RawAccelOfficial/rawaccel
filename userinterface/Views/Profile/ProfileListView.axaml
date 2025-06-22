@@ -9,15 +9,15 @@
 
 	<UserControl.Styles>
 		<Style Selector="TextBlock.SectionHeader">
-			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="FontSize" Value="18"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
 			<Setter Property="Margin" Value="0,0,0,16"/>
 		</Style>
 
 		<Style Selector="ListBox">
-			<Setter Property="Background" Value="#1E1E1E"/>
-			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="8"/>
@@ -31,28 +31,28 @@
 		</Style>
 
 		<Style Selector="ListBoxItem:selected">
-			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
 		<Style Selector="ListBoxItem:pointerover">
-			<Setter Property="Background" Value="#2D2D30"/>
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 		</Style>
 
 		<Style Selector="ListBoxItem:selected:pointerover">
-			<Setter Property="Background" Value="#1177BB"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="ListBoxItem TextBlock">
-			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 		</Style>
 
 		<Style Selector="ListBoxItem:selected TextBlock">
-			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
 		<Style Selector="Button.ActionButton">
-			<Setter Property="Background" Value="#0E639C"/>
-			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="16,8"/>
@@ -63,16 +63,16 @@
 		</Style>
 
 		<Style Selector="Button.ActionButton:pointerover">
-			<Setter Property="Background" Value="#1177BB"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Button.ActionButton:pressed">
-			<Setter Property="Background" Value="#0D5A94"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 		</Style>
 
 		<Style Selector="Button.DeleteButton">
-			<Setter Property="Background" Value="#DC2626"/>
-			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="16,8"/>
@@ -82,7 +82,7 @@
 		</Style>
 
 		<Style Selector="Button.DeleteButton:pointerover">
-			<Setter Property="Background" Value="#EF4444"/>
+			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Button.DeleteButton:pressed">

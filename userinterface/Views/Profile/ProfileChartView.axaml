@@ -10,13 +10,13 @@
 
 	<UserControl.Styles>
 		<Style Selector="lvc|CartesianChart">
-			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Margin" Value="8"/>
 		</Style>
 	</UserControl.Styles>
 
-	<Border Background="#252526"
-			BorderBrush="#3F3F46"
+	<Border Background="{DynamicResource HoverBackgroundBrush}"
+			BorderBrush="{DynamicResource BorderBrush}"
 			BorderThickness="1"
 			CornerRadius="8">
 		<lvc:CartesianChart Series="{Binding Series}" YAxes="{Binding YAxes}"/>

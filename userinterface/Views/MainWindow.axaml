@@ -9,7 +9,7 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="userinterface"
-        Background="#1E1E1E">
+        Background="{DynamicResource AppBackgroundBrush}">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
@@ -17,13 +17,13 @@
 
 	<Window.Styles>
 		<Style Selector="TabControl">
-			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 
 		<Style Selector="TabItem">
 			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="Padding" Value="20,15"/>
 			<Setter Property="Margin" Value="0"/>
 			<Setter Property="FontSize" Value="16"/>
@@ -31,7 +31,6 @@
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="BorderBrush" Value="Transparent"/>
 			<Setter Property="HorizontalContentAlignment" Value="Left"/>
-
 			<Setter Property="Template">
 				<ControlTemplate>
 					<Border Name="PART_LayoutRoot"
@@ -40,7 +39,6 @@
 							BorderThickness="{TemplateBinding BorderThickness}"
 							CornerRadius="{TemplateBinding CornerRadius}"
 							Padding="{TemplateBinding Padding}">
-
 						<Panel>
 							<Border Name="IndicatorBar"
 									Width="3"
@@ -48,18 +46,17 @@
 									HorizontalAlignment="Left"
 									Background="Transparent"
 									IsVisible="False"/>
-
-							<!-- The borer is to move the text away from the indicator bar -->
+							<!-- The border is to move the text away from the indicator bar -->
 							<Border Margin="15,0,0,0" Background="Transparent">
 								<ContentPresenter Name="PART_ContentPresenter"
-												ContentTemplate="{TemplateBinding HeaderTemplate}"
-												Content="{TemplateBinding Header}"
-												HorizontalAlignment="Left"
-												VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-												TextBlock.FontFamily="{TemplateBinding FontFamily}"
-												TextBlock.FontSize="{TemplateBinding FontSize}"
-												TextBlock.FontWeight="{TemplateBinding FontWeight}"
-												TextBlock.Foreground="{TemplateBinding Foreground}"/>
+												  ContentTemplate="{TemplateBinding HeaderTemplate}"
+												  Content="{TemplateBinding Header}"
+												  HorizontalAlignment="Left"
+												  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+												  TextBlock.FontFamily="{TemplateBinding FontFamily}"
+												  TextBlock.FontSize="{TemplateBinding FontSize}"
+												  TextBlock.FontWeight="{TemplateBinding FontWeight}"
+												  TextBlock.Foreground="{TemplateBinding Foreground}"/>
 							</Border>
 						</Panel>
 					</Border>
@@ -68,21 +65,21 @@
 		</Style>
 
 		<Style Selector="TabItem:pointerover /template/ Border#IndicatorBar">
-			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="IsVisible" Value="True"/>
 		</Style>
 
 		<Style Selector="TabItem:pointerover">
-			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
 		<Style Selector="TabItem:selected">
-			<Setter Property="Background" Value="#0E639C"/>
-			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
 		<Style Selector="TabItem:selected:pointerover /template/ Border#PART_LayoutRoot">
-			<Setter Property="Background" Value="#1A1A1C"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<!-- The ContentPresenter inside the item -->
@@ -90,11 +87,9 @@
 			<Setter Property="RenderTransform" Value="scale(1.05)"/>
 		</Style>
 
-
-
 		<Style Selector="Border.ContentArea">
-			<Setter Property="Background" Value="#252526"/>
-			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="Padding" Value="24"/>
@@ -102,8 +97,8 @@
 		</Style>
 
 		<Style Selector="Button.ApplyButton">
-			<Setter Property="Background" Value="#0E639C"/>
-			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="24,12"/>
@@ -113,11 +108,47 @@
 		</Style>
 
 		<Style Selector="Button.ApplyButton:pointerover">
-			<Setter Property="Background" Value="#1177BB"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Button.ApplyButton:pressed">
-			<Setter Property="Background" Value="#0D5A94"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+		</Style>
+
+		<!-- Theme Toggle Button Styles -->
+		<Style Selector="ToggleButton.ThemeToggle">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="25"/>
+			<Setter Property="Width" Value="50"/>
+			<Setter Property="Height" Value="50"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="ToggleButton.ThemeToggle:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+		</Style>
+
+		<Style Selector="ToggleButton.ThemeToggle:checked">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="ToggleButton.ThemeToggle:checked:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="ToggleButton.ThemeToggle:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
 		<!-- Transitions -->
@@ -128,7 +159,6 @@
 				</Transitions>
 			</Setter>
 		</Style>
-
 
 		<Style Selector="TabItem /template/ Border#IndicatorBar">
 			<Setter Property="Transitions">
@@ -150,6 +180,16 @@
 		<Style Selector="Button.ApplyButton:pressed">
 			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
+
+		<Style Selector="ToggleButton.ThemeToggle">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+				</Transitions>
+			</Setter>
+		</Style>
 	</Window.Styles>
 
 	<Panel>
@@ -158,22 +198,19 @@
 					TabStripPlacement="Left">
 			<TabControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<StackPanel Width="300" Background="#2D2D30"/>
+					<StackPanel Width="300" Background="{DynamicResource CardBackgroundBrush}"/>
 				</ItemsPanelTemplate>
 			</TabControl.ItemsPanel>
-
 			<TabItem Header="Devices">
 				<Border Classes="ContentArea">
 					<ContentControl Content="{Binding DevicesPage}"/>
 				</Border>
 			</TabItem>
-
 			<TabItem Header="Mappings">
 				<Border Classes="ContentArea">
 					<ContentControl Content="{Binding MappingsPage}"/>
 				</Border>
 			</TabItem>
-
 			<TabItem Header="Profiles">
 				<Border Classes="ContentArea">
 					<ContentControl Content="{Binding ProfilesPage}"/>
@@ -181,13 +218,27 @@
 			</TabItem>
 		</TabControl>
 
-		<Button Classes="ApplyButton"
-				VerticalAlignment="Bottom"
-				HorizontalAlignment="Left"
-				Width="268"
-				Margin="16"
-				Click="ApplyButtonHandler">
-			Apply Settings
-		</Button>
+		<StackPanel VerticalAlignment="Bottom"
+					HorizontalAlignment="Left"
+					Margin="16"
+					Spacing="12">
+
+			<ToggleButton Classes="ThemeToggle"
+						  Click="ToggleTheme"
+						  Name="ThemeToggleButton"
+						  HorizontalAlignment="Center">
+				<PathIcon Data="{StaticResource weather_moon_regular}"
+						  Width="20"
+						  Height="20"
+						  Name="ThemeIcon"/>
+			</ToggleButton>
+
+			<Button Classes="ApplyButton"
+					Width="268"
+					Click="ApplyButtonHandler">
+				Apply Settings
+			</Button>
+
+		</StackPanel>
 	</Panel>
 </Window>

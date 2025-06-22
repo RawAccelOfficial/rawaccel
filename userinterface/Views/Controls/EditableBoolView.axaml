@@ -10,36 +10,36 @@
 
 	<UserControl.Styles>
 		<Style Selector="TextBlock">
-			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 		</Style>
 
 		<Style Selector="CheckBox">
-			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 		</Style>
 
 		<Style Selector="CheckBox /template/ Border#NormalRectangle">
-			<Setter Property="Background" Value="#1E1E1E"/>
-			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="3"/>
 		</Style>
 
 		<Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
-			<Setter Property="BorderBrush" Value="#0E639C"/>
-			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
 
 		<Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
-			<Setter Property="Background" Value="#0E639C"/>
-			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
 		<Style Selector="CheckBox:checked:pointerover /template/ Border#NormalRectangle">
-			<Setter Property="Background" Value="#1177BB"/>
-			<Setter Property="BorderBrush" Value="#1177BB"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 	</UserControl.Styles>
 

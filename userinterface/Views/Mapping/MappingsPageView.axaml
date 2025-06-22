@@ -9,8 +9,8 @@
 
 	<UserControl.Styles>
 		<Style Selector="Border.MappingCard">
-			<Setter Property="Background" Value="#2D2D30"/>
-			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="Padding" Value="16"/>
@@ -19,13 +19,13 @@
 		</Style>
 
 		<Style Selector="Border.MappingCard:pointerover">
-			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="#353537"/>
 		</Style>
 
 		<Style Selector="Button.AddButton">
-			<Setter Property="Background" Value="#0E639C"/>
-			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="24,12"/>
@@ -36,11 +36,11 @@
 		</Style>
 
 		<Style Selector="Button.AddButton:pointerover">
-			<Setter Property="Background" Value="#1177BB"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Button.AddButton:pressed">
-			<Setter Property="Background" Value="#0D5A94"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 		</Style>
 
 		<Style Selector="Panel.MappingContainer">

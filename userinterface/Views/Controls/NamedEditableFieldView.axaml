@@ -10,7 +10,7 @@
 
 	<UserControl.Styles>
 		<Style Selector="TextBlock">
-			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 		</Style>

@@ -3,14 +3,84 @@
              x:Class="userinterface.App"
              xmlns:local="using:userinterface"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+	<!-- "Default" ThemeVariant follows system theme variant. -->
 
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
+	<Application.DataTemplates>
+		<local:ViewLocator/>
+	</Application.DataTemplates>
 
-    <Application.Styles>
-        <FluentTheme />
-        <StyleInclude Source="/Styles/Icons.axaml"/>
-    </Application.Styles>
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<!-- Light -->
+				<ResourceDictionary x:Key="Light">
+					<!-- Backgrounds -->
+					<SolidColorBrush x:Key="AppBackgroundBrush">#FFFFFF</SolidColorBrush>
+					<SolidColorBrush x:Key="CardBackgroundBrush">#F8F9FA</SolidColorBrush>
+					<SolidColorBrush x:Key="ControlBackgroundBrush">#FFFFFF</SolidColorBrush>
+					<SolidColorBrush x:Key="HoverBackgroundBrush">#F1F3F4</SolidColorBrush>
+					<SolidColorBrush x:Key="SelectedBackgroundBrush">#E3F2FD</SolidColorBrush>
+
+					<!-- Borders -->
+					<SolidColorBrush x:Key="BorderBrush">#E0E0E0</SolidColorBrush>
+					<SolidColorBrush x:Key="FocusBorderBrush">#1976D2</SolidColorBrush>
+
+					<!-- Text -->
+					<SolidColorBrush x:Key="PrimaryTextBrush">#212121</SolidColorBrush>
+					<SolidColorBrush x:Key="SecondaryTextBrush">#757575</SolidColorBrush>
+					<SolidColorBrush x:Key="DisabledTextBrush">#BDBDBD</SolidColorBrush>
+
+					<!-- Buttons -->
+					<SolidColorBrush x:Key="PrimaryButtonBrush">#1976D2</SolidColorBrush>
+					<SolidColorBrush x:Key="PrimaryButtonHoverBrush">#1565C0</SolidColorBrush>
+					<SolidColorBrush x:Key="PrimaryButtonPressedBrush">#0D47A1</SolidColorBrush>
+
+					<SolidColorBrush x:Key="DangerButtonBrush">#D32F2F</SolidColorBrush>
+					<SolidColorBrush x:Key="DangerButtonHoverBrush">#C62828</SolidColorBrush>
+					<SolidColorBrush x:Key="DangerButtonPressedBrush">#B71C1C</SolidColorBrush>
+
+					<SolidColorBrush x:Key="SuccessButtonBrush">#388E3C</SolidColorBrush>
+					<SolidColorBrush x:Key="SuccessButtonHoverBrush">#2E7D32</SolidColorBrush>
+					<SolidColorBrush x:Key="SuccessButtonPressedBrush">#1B5E20</SolidColorBrush>
+				</ResourceDictionary>
+
+				<!-- Dark -->
+				<ResourceDictionary x:Key="Dark">
+					<!-- Backgrounds -->
+					<SolidColorBrush x:Key="AppBackgroundBrush">#1E1E1E</SolidColorBrush>
+					<SolidColorBrush x:Key="CardBackgroundBrush">#2D2D30</SolidColorBrush>
+					<SolidColorBrush x:Key="ControlBackgroundBrush">#1E1E1E</SolidColorBrush>
+					<SolidColorBrush x:Key="HoverBackgroundBrush">#252526</SolidColorBrush>
+					<SolidColorBrush x:Key="SelectedBackgroundBrush">#0E639C</SolidColorBrush>
+
+					<!-- Borders -->
+					<SolidColorBrush x:Key="BorderBrush">#3F3F46</SolidColorBrush>
+					<SolidColorBrush x:Key="FocusBorderBrush">#0E639C</SolidColorBrush>
+
+					<!-- Text -->
+					<SolidColorBrush x:Key="PrimaryTextBrush">#FFFFFF</SolidColorBrush>
+					<SolidColorBrush x:Key="SecondaryTextBrush">#CCCCCC</SolidColorBrush>
+					<SolidColorBrush x:Key="DisabledTextBrush">#666666</SolidColorBrush>
+
+					<!-- Buttons -->
+					<SolidColorBrush x:Key="PrimaryButtonBrush">#0E639C</SolidColorBrush>
+					<SolidColorBrush x:Key="PrimaryButtonHoverBrush">#1177BB</SolidColorBrush>
+					<SolidColorBrush x:Key="PrimaryButtonPressedBrush">#0D5A94</SolidColorBrush>
+
+					<SolidColorBrush x:Key="DangerButtonBrush">#DC2626</SolidColorBrush>
+					<SolidColorBrush x:Key="DangerButtonHoverBrush">#EF4444</SolidColorBrush>
+					<SolidColorBrush x:Key="DangerButtonPressedBrush">#B91C1C</SolidColorBrush>
+
+					<SolidColorBrush x:Key="SuccessButtonBrush">#059669</SolidColorBrush>
+					<SolidColorBrush x:Key="SuccessButtonHoverBrush">#10B981</SolidColorBrush>
+					<SolidColorBrush x:Key="SuccessButtonPressedBrush">#047857</SolidColorBrush>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="/Styles/Icons.axaml"/>
+	</Application.Styles>
 </Application>

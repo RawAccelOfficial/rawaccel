@@ -10,29 +10,29 @@
 
 	<UserControl.Styles>
 		<Style Selector="TextBox">
-			<Setter Property="Background" Value="#1E1E1E"/>
-			<Setter Property="Foreground" Value="#CCCCCC"/>
-			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="4"/>
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="SelectionBrush" Value="#0E639C"/>
+			<Setter Property="SelectionBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
 		<Style Selector="TextBox:focus">
-			<Setter Property="BorderBrush" Value="#0E639C"/>
-			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
 
 		<Style Selector="TextBox:pointerover">
-			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 		</Style>
 
 		<Style Selector="TextBox:disabled">
-			<Setter Property="Background" Value="#1A1A1A"/>
-			<Setter Property="Foreground" Value="#666666"/>
-			<Setter Property="BorderBrush" Value="#2A2A2A"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource DisabledTextBrush}"/>
 		</Style>
 	</UserControl.Styles>
 
