@@ -3,36 +3,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationProfileSettingsView"
              x:DataType="vm:AccelerationProfileSettingsViewModel">
 
 	<UserControl.Styles>
-		<Style Selector="Expander">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="8"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
-		</Style>
-
-		<Style Selector="Expander:expanded">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-		</Style>
-
-		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Padding" Value="16,12"/>
-		</Style>
-
 		<Style Selector="TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 		</Style>
-
 		<Style Selector="ComboBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -42,49 +23,49 @@
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="MinWidth" Value="120"/>
 		</Style>
-
 		<Style Selector="ComboBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
-
 		<Style Selector="ComboBox:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
-
 		<Style Selector="Carousel">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Margin" Value="0,12,0,0"/>
 		</Style>
 	</UserControl.Styles>
 
-	<Expander Header="Acceleration" HorizontalAlignment="Stretch">
-		<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-			<Grid ColumnDefinitions="*,*">
-				<TextBlock Grid.Column="0"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center"
-						   Text="Acceleration"
-						   Margin="0,0,12,0"/>
-				<ComboBox Grid.Column="1"
-						  HorizontalAlignment="Stretch"
-						  VerticalAlignment="Center"
-						  ItemsSource="{Binding DefinitionTypesLocal}"
-						  SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
-			</Grid>
+	<controls:EditableExpanderView Header="Acceleration"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,0,0,8">
+		<controls:EditableExpanderView.ExpanderContent>
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
+				<Grid ColumnDefinitions="*,*">
+					<TextBlock Grid.Column="0"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center"
+							   Text="Acceleration"
+							   Margin="0,0,12,0"/>
+					<ComboBox Grid.Column="1"
+							  HorizontalAlignment="Stretch"
+							  VerticalAlignment="Center"
+							  ItemsSource="{Binding DefinitionTypesLocal}"
+							  SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
+				</Grid>
+				<Carousel SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
+					<Carousel.Items>
+						<Panel IsVisible="False"/>
+						<ContentControl Content="{Binding AccelerationFormulaSettings}"/>
+						<ContentControl Content="{Binding AccelerationLUTSettings}"/>
+					</Carousel.Items>
+				</Carousel>
+				<ContentControl Content="{Binding AnisotropySettings}"
+								IsVisible="{Binding AreAccelSettingsVisible}"/>
+				<ContentControl Content="{Binding CoalescionSettings}"
+								IsVisible="{Binding AreAccelSettingsVisible}"/>
+			</StackPanel>
+		</controls:EditableExpanderView.ExpanderContent>
+	</controls:EditableExpanderView>
 
-			<Carousel SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
-				<Carousel.Items>
-					<Panel IsVisible="False"/>
-					<ContentControl Content="{Binding AccelerationFormulaSettings}"/>
-					<ContentControl Content="{Binding AccelerationLUTSettings}"/>
-				</Carousel.Items>
-			</Carousel>
-
-			<ContentControl Content="{Binding AnisotropySettings}"
-							IsVisible="{Binding AreAccelSettingsVisible}"/>
-			<ContentControl Content="{Binding CoalescionSettings}"
-							IsVisible="{Binding AreAccelSettingsVisible}"/>
-		</StackPanel>
-	</Expander>
 </UserControl>

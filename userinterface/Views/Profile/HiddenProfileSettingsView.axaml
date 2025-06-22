@@ -4,39 +4,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:v="using:userinterface.Views"
              xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.HiddenProfileSettingsView"
              x:DataType="vm:HiddenProfileSettingsViewModel">
 
-	<UserControl.Styles>
-		<Style Selector="Expander">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="8"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
-		</Style>
+	<controls:EditableExpanderView Header="Hidden"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,0,0,8">
+		<controls:EditableExpanderView.ExpanderContent>
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
+				<ContentControl Content="{Binding RotationField}"/>
+				<ContentControl Content="{Binding LRRatioField}"/>
+				<ContentControl Content="{Binding UDRatioField}"/>
+				<ContentControl Content="{Binding SpeedCapField}"/>
+				<ContentControl Content="{Binding AngleSnappingField}"/>
+				<ContentControl Content="{Binding OutputSmoothingHalfLifeField}"/>
+			</StackPanel>
+		</controls:EditableExpanderView.ExpanderContent>
+	</controls:EditableExpanderView>
 
-		<Style Selector="Expander:expanded">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-		</Style>
-
-		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Padding" Value="16,12"/>
-		</Style>
-	</UserControl.Styles>
-
-	<Expander Header="Hidden" HorizontalAlignment="Stretch">
-		<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-			<ContentControl Content="{Binding RotationField}"/>
-			<ContentControl Content="{Binding LRRatioField}"/>
-			<ContentControl Content="{Binding UDRatioField}"/>
-			<ContentControl Content="{Binding SpeedCapField}"/>
-			<ContentControl Content="{Binding AngleSnappingField}"/>
-			<ContentControl Content="{Binding OutputSmoothingHalfLifeField}"/>
-		</StackPanel>
-	</Expander>
 </UserControl>

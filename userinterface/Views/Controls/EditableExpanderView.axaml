@@ -5,9 +5,7 @@
              xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Controls.EditableExpanderView">
-
 	<UserControl.Styles>
-		<!-- Header Button Styling -->
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -16,7 +14,6 @@
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="12,8"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="MinHeight" Value="40"/>
 			<Setter Property="Transitions">
 				<Transitions>
 					<BrushTransition Property="Background" Duration="0:0:0.15"/>
@@ -24,29 +21,20 @@
 				</Transitions>
 			</Setter>
 		</Style>
-
-		<!-- Header Button Hover Effect -->
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource AccentBorderBrush}"/>
 		</Style>
-
-		<!-- Header when expanded -->
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.Expanded">
 			<Setter Property="CornerRadius" Value="6,6,0,0"/>
 			<Setter Property="BorderThickness" Value="1,1,1,0"/>
-			<Setter Property="MinHeight" Value="80"/>
 		</Style>
-
-		<!-- Header when expanded and hovered -->
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.Expanded.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource AccentBorderBrush}"/>
 			<Setter Property="CornerRadius" Value="6,6,0,0"/>
 			<Setter Property="BorderThickness" Value="1,1,1,0"/>
 		</Style>
-
-		<!-- Content Button Styling -->
 		<Style Selector="controls|NoInteractionButtonView.ExpanderContent">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -62,16 +50,12 @@
 				</Transitions>
 			</Setter>
 		</Style>
-
-		<!-- Content Button Hover Effect - maintains border connection -->
 		<Style Selector="controls|NoInteractionButtonView.ExpanderContent.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource AccentBorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1,0,1,1"/>
 			<Setter Property="CornerRadius" Value="0,0,6,6"/>
 		</Style>
-
-		<!-- Icon -->
 		<Style Selector="PathIcon.ExpandIcon">
 			<Setter Property="Width" Value="12"/>
 			<Setter Property="Height" Value="12"/>
@@ -84,9 +68,8 @@
 			</Setter>
 		</Style>
 	</UserControl.Styles>
-
 	<StackPanel Orientation="Vertical">
-		<controls:NoInteractionButtonView Classes="ExpanderHeader" 
+		<controls:NoInteractionButtonView Classes="ExpanderHeader"
                                           Name="HeaderButton"
                                           Click="ToggleButton_Click"
                                           PointerEntered="HeaderButton_PointerEntered"
@@ -96,8 +79,7 @@
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
-
-				<PathIcon Grid.Column="0" Grid.Row="0"
+				<PathIcon Grid.Column="0"
                          Classes="ExpandIcon"
                          Name="ExpandIcon"
                          Data="{StaticResource chevron_right_regular}">
@@ -105,13 +87,11 @@
 						<RotateTransform Angle="{Binding Angle, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}"/>
 					</PathIcon.RenderTransform>
 				</PathIcon>
-
-				<ContentPresenter Grid.Column="1" Grid.Row="0"
+				<ContentPresenter Grid.Column="1"
                                 Content="{Binding Header, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}"
                                 VerticalAlignment="Center"/>
 			</Grid>
 		</controls:NoInteractionButtonView>
-
 		<controls:NoInteractionButtonView Classes="ExpanderContent"
                                           Name="ContentButton"
                                           IsVisible="False"
