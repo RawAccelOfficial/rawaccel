@@ -7,27 +7,75 @@
              x:Class="userinterface.Views.Device.DeviceView"
              x:DataType="vm:DeviceViewModel">
 
-  <Expander BorderThickness="1"
-            BorderBrush="Gray"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch">
+	<UserControl.Styles>
+		<Style Selector="Expander">
+			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
+		</Style>
 
-    <Expander.Header>
-      <Grid ColumnDefinitions="2*,*,*,2*" HorizontalAlignment="Stretch">
-        <ContentControl Grid.Column="0" HorizontalAlignment="Left" Content="{Binding NameField}"/>
-        <ContentControl Grid.Column="1" HorizontalAlignment="Left" Content="{Binding DPIField}"/>
-        <ContentControl Grid.Column="2" HorizontalAlignment="Left" Content="{Binding IgnoreBool}"/>
-        <ContentControl Grid.Column="3" HorizontalAlignment="Left" Content="{Binding DeviceGroup}"/>
-      </Grid>
-    </Expander.Header>
+		<Style Selector="Expander:expanded">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
 
-    <Grid ColumnDefinitions="32,*,*" HorizontalAlignment="Stretch">
-      <Button Grid.Column="0" Click="DeleteSelf">
-        <PathIcon Data="{StaticResource delete_regular}"/>
-      </Button>
-      <ContentControl Grid.Column="1" HorizontalAlignment="Center" Content="{Binding HWIDField}"/>
-      <ContentControl Grid.Column="2" HorizontalAlignment="Left" Content="{Binding PollRateField}"/>
-    </Grid>
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="#DC2626"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
 
-  </Expander>
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="#EF4444"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pressed">
+			<Setter Property="Background" Value="#B91C1C"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Expander HorizontalAlignment="Stretch"
+			  VerticalAlignment="Stretch">
+		<Expander.Header>
+			<Grid ColumnDefinitions="2*,*,*,2*"
+				  HorizontalAlignment="Stretch"
+				  Background="Transparent"
+				  Margin="16,12">
+				<ContentControl Grid.Column="0"
+							   HorizontalAlignment="Left"
+							   Content="{Binding NameField}"/>
+				<ContentControl Grid.Column="1"
+							   HorizontalAlignment="Left"
+							   Content="{Binding DPIField}"/>
+				<ContentControl Grid.Column="2"
+							   HorizontalAlignment="Left"
+							   Content="{Binding IgnoreBool}"/>
+				<ContentControl Grid.Column="3"
+							   HorizontalAlignment="Left"
+							   Content="{Binding DeviceGroup}"/>
+			</Grid>
+		</Expander.Header>
+
+		<Grid ColumnDefinitions="Auto,*,*"
+			  HorizontalAlignment="Stretch"
+			  Margin="16,8,16,16">
+			<Button Grid.Column="0"
+					Classes="DeleteButton"
+					Click="DeleteSelf"
+					Margin="0,0,16,0">
+				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
+			</Button>
+			<ContentControl Grid.Column="1"
+						   HorizontalAlignment="Stretch"
+						   Content="{Binding HWIDField}"
+						   Margin="0,0,16,0"/>
+			<ContentControl Grid.Column="2"
+						   HorizontalAlignment="Left"
+						   Content="{Binding PollRateField}"/>
+		</Grid>
+	</Expander>
 </UserControl>

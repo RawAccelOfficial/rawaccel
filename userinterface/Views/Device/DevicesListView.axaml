@@ -8,27 +8,74 @@
              x:Class="userinterface.Views.Device.DevicesListView"
              x:DataType="vm:DevicesListViewModel">
 
-  <StackPanel Orientation="Vertical">
+	<UserControl.Styles>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="0,0,0,16"/>
+		</Style>
 
-    <TextBlock
-      HorizontalAlignment="Left"
-      FontSize="18"
-      FontStyle="Italic"
-      Margin="10,10,10,10">
-      Devices
-    </TextBlock>
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="8"/>
+		</Style>
 
-    <ListBox
-      Background="Black"
-      Name="DevicesListInView"
-      ItemsSource="{Binding DeviceViews}"/>
+		<Style Selector="ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Margin" Value="0,2"/>
+		</Style>
 
-    <Button
-      HorizontalAlignment="Center"
-      Margin="10,10,10,10"
-      Click="AddDevice">
-      Add Device
-    </Button>
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="#0E639C"/>
+		</Style>
 
-  </StackPanel>
+		<Style Selector="ListBoxItem:pointerover">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="Button.AddButton">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,16,0,0"/>
+		</Style>
+
+		<Style Selector="Button.AddButton:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="Button.AddButton:pressed">
+			<Setter Property="Background" Value="#0D5A94"/>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Orientation="Vertical">
+		<TextBlock Classes="SectionHeader">
+			Devices
+		</TextBlock>
+
+		<ListBox Name="DevicesListInView"
+				 ItemsSource="{Binding DeviceViews}"
+				 MinHeight="200"/>
+
+		<Button Classes="AddButton"
+				HorizontalAlignment="Center"
+				Click="AddDevice">
+			Add Device
+		</Button>
+	</StackPanel>
 </UserControl>

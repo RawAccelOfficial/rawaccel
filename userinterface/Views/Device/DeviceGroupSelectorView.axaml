@@ -7,31 +7,119 @@
              x:Class="userinterface.Views.Device.DeviceGroupSelectorView"
              x:DataType="vm:DeviceGroupSelectorViewModel">
 
-  <Grid ColumnDefinitions="*,*">
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
 
-    <TextBlock
-      Grid.Column="0"
-      Margin="5,0,5,0"
-      HorizontalAlignment="Left"
-      VerticalAlignment="Center">
-      Device Group
-    </TextBlock>
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="#252526"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8,6"/>
+			<Setter Property="MinWidth" Value="120"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
 
-    <ComboBox
-      Grid.Column="1"
-      Name="Selector"
-      Margin="5,0,5,0"
-      HorizontalAlignment="Right"
-      VerticalAlignment="Center"
-      ItemsSource="{Binding DeviceGroupEntries}"
-      SelectedItem="{Binding SelectedEntry}">
-      <ComboBox.ItemTemplate>
-        <DataTemplate>
-          <TextBlock
-            Text="{Binding CurrentValidatedValue}"/>
-        </DataTemplate>
-      </ComboBox.ItemTemplate>
-    </ComboBox>
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
 
-  </Grid>
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
+
+		<!-- ComboBox Button (dropdown arrow) styling -->
+		<Style Selector="ComboBox /template/ Button#PART_Button">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover /template/ Button#PART_Button">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<!-- ComboBox TextBlock styling -->
+		<Style Selector="ComboBox /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<!-- Popup styling -->
+		<Style Selector="ComboBox /template/ Popup">
+			<Setter Property="MaxHeight" Value="200"/>
+		</Style>
+
+		<!-- ComboBox dropdown list styling -->
+		<Style Selector="ComboBox /template/ Border#PopupBorder">
+			<Setter Property="Background" Value="#2D2D30"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+		</Style>
+
+		<!-- ListBox inside ComboBox popup -->
+		<Style Selector="ComboBox ListBox">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<!-- ListBox items in ComboBox popup -->
+		<Style Selector="ComboBox ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="Padding" Value="8,6"/>
+			<Setter Property="Margin" Value="2"/>
+			<Setter Property="CornerRadius" Value="3"/>
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:pointerover">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:selected">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid ColumnDefinitions="Auto,*">
+		<TextBlock Grid.Column="0"
+				   VerticalAlignment="Center"
+				   Text="Device Group"
+				   Margin="0,0,12,0"/>
+
+		<ComboBox Grid.Column="1"
+				  Name="Selector"
+				  HorizontalAlignment="Stretch"
+				  VerticalAlignment="Center"
+				  ItemsSource="{Binding DeviceGroupEntries}"
+				  SelectedItem="{Binding SelectedEntry}"
+				  Margin="12,0,0,0">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding CurrentValidatedValue}"/>
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
+	</Grid>
 </UserControl>

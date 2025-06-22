@@ -7,20 +7,24 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Device.DevicesPageView"
              x:DataType="vm:DevicesPageViewModel">
-  <Grid RowDefinitions="3*, *">
-    <Border Margin="10,10,10,10"
-          CornerRadius="5"
-          Padding="5"
-          Grid.Row="0"
-          Grid.Column="0">
-          <ContentControl Content="{Binding DevicesList}"/>
-    </Border>
-    <Border Margin="10,10,10,10"
-          CornerRadius="5"
-          Padding="5"
-          Grid.Row="1"
-          Grid.Column="0">
-          <ContentControl Content="{Binding DeviceGroups}"/>
-    </Border>
-  </Grid>
+
+	<UserControl.Styles>
+		<Style Selector="Border.SectionBorder">
+			<Setter Property="Background" Value="#2D2D30"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="16"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid RowDefinitions="2*,*">
+		<Border Grid.Row="0" Classes="SectionBorder" Margin="0,0,0,8">
+			<ContentControl Content="{Binding DevicesList}"/>
+		</Border>
+
+		<Border Grid.Row="1" Classes="SectionBorder" Margin="0,8,0,0">
+			<ContentControl Content="{Binding DeviceGroups}"/>
+		</Border>
+	</Grid>
 </UserControl>

@@ -7,34 +7,55 @@
              x:Class="userinterface.Views.Device.DeviceGroupsView"
              x:DataType="vm:DeviceGroupsViewModel">
 
-  <StackPanel
-    Orientation="Vertical"
-    VerticalAlignment="Stretch">
+	<UserControl.Styles>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="0,0,0,16"/>
+		</Style>
 
-    <TextBlock
-      HorizontalAlignment="Left"
-      FontSize="18"
-      FontStyle="Italic"
-      Margin="10,10,10,10">
-      Device Groups
-    </TextBlock>
+		<Style Selector="Button.AddButton">
+			<Setter Property="Background" Value="#0E639C"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,16,0,0"/>
+		</Style>
 
-    <ItemsControl
-      ItemsSource="{Binding DeviceGroupViews}">
-      <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <StackPanel Orientation="Horizontal"/>
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-    </ItemsControl>
+		<Style Selector="Button.AddButton:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
 
-    <Button
-      HorizontalAlignment="Center"
-      VerticalAlignment="Bottom"
-      Margin="10,10,10,10"
-      Click="AddDeviceGroup">
-      Add Device Group
-    </Button>
+		<Style Selector="Button.AddButton:pressed">
+			<Setter Property="Background" Value="#0D5A94"/>
+		</Style>
+	</UserControl.Styles>
 
-  </StackPanel>
+	<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+		<TextBlock Classes="SectionHeader">
+			Device Groups
+		</TextBlock>
+
+		<ScrollViewer HorizontalScrollBarVisibility="Auto"
+					  VerticalScrollBarVisibility="Disabled">
+			<ItemsControl ItemsSource="{Binding DeviceGroupViews}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Orientation="Horizontal"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+			</ItemsControl>
+		</ScrollViewer>
+		<Button Classes="AddButton"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Click="AddDeviceGroup">
+			Add Device Group
+		</Button>
+	</StackPanel>
 </UserControl>
