@@ -7,74 +7,193 @@
              x:Class="userinterface.Views.Mapping.MappingView"
              x:DataType="vm:MappingViewModel">
 
-  <DockPanel>
+	<UserControl.Styles>
+		<Style Selector="TextBlock.MappingTitle">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="FontSize" Value="25"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="8,0,0,0"/>
+		</Style>
 
-    <TextBlock
-      DockPanel.Dock="Top"
-      HorizontalAlignment="Left"
-      Text="{Binding MappingBE.Name.CurrentValidatedValue}"/>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
 
-    <Button
-      DockPanel.Dock="Left"
-      Click="DeleteSelf">
-      <PathIcon Data="{StaticResource delete_regular}"/>
-    </Button>
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="#DC2626"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
 
-    <Button
-      DockPanel.Dock="Bottom"
-      HorizontalAlignment="Center"
-      Content="Add Entry">
-      <Button.Flyout>
-        <Flyout>
-          <ListBox
-            Name="DeviceGroupSelectorToAddMapping"
-            SelectionChanged="AddMappingSelectionChanged"
-            ItemsSource="{Binding MappingBE.DeviceGroupsStillUnmapped}">
-            <ListBox.ItemTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding CurrentValidatedValue}"/>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </Flyout>
-      </Button.Flyout>
-    </Button>
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="#EF4444"/>
+		</Style>
 
-    <ListBox
-      ItemsSource="{Binding IndividualMappings}">
-      <ListBox.ItemTemplate>
-        <DataTemplate>
-          <Grid
-            ColumnDefinitions="*, Auto, *"
-            HorizontalAlignment="Stretch">
-            <TextBlock
-              Grid.Column="0"
-              Grid.Row="0"
-              HorizontalAlignment="Left"
-              Text="{Binding DeviceGroup.CurrentValidatedValue}"/>
-            <TextBlock
-              Grid.Column="1"
-              Grid.Row="0"
-              HorizontalAlignment="Center"
-              Text=" --> "/>
-            <ComboBox
-              Grid.Column="2"
-              Grid.Row="0"
-              HorizontalAlignment="Stretch"
-              ItemsSource="{Binding Profiles.Profiles}"
-              SelectedItem="{Binding Profile}">
-              <ComboBox.ItemTemplate>
-                <DataTemplate>
-                  <TextBlock
-                    HorizontalAlignment="Right"
-                    Text="{Binding Name.CurrentValidatedValue}"/>
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </Grid>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
+		<Style Selector="Button.DeleteButton:pressed">
+			<Setter Property="Background" Value="#B91C1C"/>
+		</Style>
 
-  </DockPanel>
+		<Style Selector="Button.AddEntryButton">
+			<Setter Property="Background" Value="#059669"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,12,0,0"/>
+		</Style>
+
+		<Style Selector="Button.AddEntryButton:pointerover">
+			<Setter Property="Background" Value="#10B981"/>
+		</Style>
+
+		<Style Selector="Button.AddEntryButton:pressed">
+			<Setter Property="Background" Value="#047857"/>
+		</Style>
+
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Margin" Value="0,8,0,0"/>
+		</Style>
+
+		<Style Selector="ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Margin" Value="0,2"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pointerover">
+			<Setter Property="Background" Value="#2D2D30"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="#1177BB"/>
+		</Style>
+
+		<Style Selector="ListBoxItem TextBlock">
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected TextBlock">
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="#1E1E1E"/>
+			<Setter Property="Foreground" Value="#CCCCCC"/>
+			<Setter Property="BorderBrush" Value="#3F3F46"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="#0E639C"/>
+			<Setter Property="Background" Value="#252526"/>
+		</Style>
+
+		<Style Selector="Grid.MappingEntry">
+			<Setter Property="Margin" Value="0,4"/>
+		</Style>
+
+		<Style Selector="TextBlock.Arrow">
+			<Setter Property="Foreground" Value="#6B7280"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+	</UserControl.Styles>
+
+	<DockPanel>
+		<Grid DockPanel.Dock="Top"
+			  ColumnDefinitions="Auto,*"
+			  Margin="0,0,0,12">
+			<Button Grid.Column="0"
+					Classes="DeleteButton"
+					Click="DeleteSelf"
+					VerticalAlignment="Center">
+				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
+			</Button>
+			<TextBlock Grid.Column="1"
+					   Classes="MappingTitle"
+					   Text="{Binding MappingBE.Name.CurrentValidatedValue}"
+					   VerticalAlignment="Center"/>
+		</Grid>
+
+		<Button DockPanel.Dock="Bottom"
+				Classes="AddEntryButton"
+				HorizontalAlignment="Center"
+				Content="Add Entry">
+			<Button.Flyout>
+				<Flyout>
+					<Border Background="#2D2D30"
+							BorderBrush="#3F3F46"
+							BorderThickness="1"
+							CornerRadius="6"
+							Padding="8">
+						<ListBox Name="DeviceGroupSelectorToAddMapping"
+								 SelectionChanged="AddMappingSelectionChanged"
+								 ItemsSource="{Binding MappingBE.DeviceGroupsStillUnmapped}"
+								 MinWidth="200"
+								 Background="Transparent"
+								 BorderThickness="0">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding CurrentValidatedValue}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Border>
+				</Flyout>
+			</Button.Flyout>
+		</Button>
+
+		<ListBox ItemsSource="{Binding IndividualMappings}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Grid Classes="MappingEntry"
+						  ColumnDefinitions="*,Auto,*"
+						  HorizontalAlignment="Stretch">
+						<TextBlock Grid.Column="0"
+								   HorizontalAlignment="Left"
+								   VerticalAlignment="Center"
+								   Text="{Binding DeviceGroup.CurrentValidatedValue}"/>
+						<TextBlock Grid.Column="1"
+								   Classes="Arrow"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"
+								   Text=" → "
+								   Margin="8,0"/>
+						<ComboBox Grid.Column="2"
+								  HorizontalAlignment="Stretch"
+								  VerticalAlignment="Center"
+								  ItemsSource="{Binding Profiles.Profiles}"
+								  SelectedItem="{Binding Profile}">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Name.CurrentValidatedValue}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</DockPanel>
 </UserControl>
