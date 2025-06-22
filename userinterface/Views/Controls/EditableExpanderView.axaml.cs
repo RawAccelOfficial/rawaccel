@@ -1,13 +1,17 @@
 ﻿using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Styling;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace userinterface.Controls
 {
@@ -64,7 +68,6 @@ namespace userinterface.Controls
         {
             if (EqualityComparer<T>.Default.Equals(backingField, value))
                 return false;
-
             backingField = value;
             OnPropertyChanged(propertyName);
             return true;
@@ -76,39 +79,83 @@ namespace userinterface.Controls
             UpdateExpandedState();
         }
 
-        private void UpdateExpandedState()
+        private async void UpdateExpandedState()
         {
             var headerButton = this.FindControl<NoInteractionButtonView>("HeaderButton");
             var contentButton = this.FindControl<NoInteractionButtonView>("ContentButton");
+            var expandIcon = this.FindControl<PathIcon>("ExpandIcon");
 
-            if (headerButton != null && contentButton != null)
+            if (headerButton != null && contentButton != null && expandIcon != null)
             {
                 contentButton.IsVisible = IsExpanded;
 
                 if (IsExpanded)
                 {
                     headerButton.Classes.Add("Expanded");
-                    Angle = 90;          
+                    await AnimateChevron(expandIcon, 90);
                 }
                 else
                 {
                     headerButton.Classes.Remove("Expanded");
-                    Angle = 0;
+                    await AnimateChevron(expandIcon, 0);
                 }
             }
         }
 
+        private async System.Threading.Tasks.Task AnimateChevron(PathIcon expandIcon, double targetAngle)
+        {
+            if (expandIcon.RenderTransform is RotateTransform rotateTransform)
+            {
+                var currentAngle = rotateTransform.Angle;
+
+                var animation = new Animation
+                {
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    Easing = new CubicEaseInOut(),
+                    FillMode = FillMode.Forward,
+                    Children =
+                    {
+                        new KeyFrame
+                        {
+                            Cue = new Cue(0.0),
+                            Setters =
+                            {
+                                new Setter
+                                {
+                                    Property = RotateTransform.AngleProperty,
+                                    Value = currentAngle
+                                }
+                            }
+                        },
+                        new KeyFrame
+                        {
+                            Cue = new Cue(1.0),
+                            Setters =
+                            {
+                                new Setter
+                                {
+                                    Property = RotateTransform.AngleProperty,
+                                    Value = targetAngle
+                                }
+                            }
+                        }
+                    }
+                };
+
+                await animation.RunAsync(expandIcon, CancellationToken.None);
+
+                rotateTransform.Angle = targetAngle;
+            }
+        }
 
         private void ApplyHoverEffect()
         {
             var headerButton = this.FindControl<NoInteractionButtonView>("HeaderButton");
             var contentButton = this.FindControl<NoInteractionButtonView>("ContentButton");
-
             if (headerButton != null)
             {
                 headerButton.Classes.Add("SyncHover");
             }
-
             if (contentButton != null)
             {
                 contentButton.Classes.Add("SyncHover");
@@ -119,12 +166,10 @@ namespace userinterface.Controls
         {
             var headerButton = this.FindControl<NoInteractionButtonView>("HeaderButton");
             var contentButton = this.FindControl<NoInteractionButtonView>("ContentButton");
-
             if (headerButton != null)
             {
                 headerButton.Classes.Remove("SyncHover");
             }
-
             if (contentButton != null)
             {
                 contentButton.Classes.Remove("SyncHover");
