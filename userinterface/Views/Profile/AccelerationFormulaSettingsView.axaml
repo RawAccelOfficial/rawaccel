@@ -6,14 +6,13 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationFormulaSettingsView"
              x:DataType="vm:AccelerationFormulaSettingsViewModel">
-
 	<UserControl.Styles>
 		<Style Selector="TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
 		</Style>
-
 		<Style Selector="ComboBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -22,45 +21,42 @@
 			<Setter Property="CornerRadius" Value="4"/>
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="MinWidth" Value="120"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 		</Style>
-
 		<Style Selector="ComboBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
-
 		<Style Selector="ComboBox:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
-
 		<Style Selector="Carousel">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="16"/>
 			<Setter Property="Margin" Value="0,12,0,0"/>
 		</Style>
-
 		<Style Selector="StackPanel.FormulaSettings">
 			<Setter Property="Spacing" Value="12"/>
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+		<Style Selector="Grid.FormRow">
+			<Setter Property="ColumnDefinitions" Value="200,*"/>
+			<Setter Property="Margin" Value="0,0,0,12"/>
+		</Style>
+		<Style Selector="Grid.FormRow TextBlock">
+			<Setter Property="Margin" Value="0,0,12,0"/>
 		</Style>
 	</UserControl.Styles>
-
-	<StackPanel Orientation="Vertical">
-		<Grid ColumnDefinitions="*,*">
-			<TextBlock Grid.Column="0"
-					   HorizontalAlignment="Left"
-					   VerticalAlignment="Center"
-					   Text="Formula Type"
-					   Margin="0,0,12,0"/>
+	<StackPanel Orientation="Vertical" Spacing="12">
+		<Grid Classes="FormRow">
+			<TextBlock Grid.Column="0" Text="Formula Type"/>
 			<ComboBox Grid.Column="1"
-					  HorizontalAlignment="Stretch"
-					  VerticalAlignment="Center"
 					  ItemsSource="{Binding FormulaTypesLocal}"
 					  SelectedItem="{Binding FormulaAccelBE.FormulaType.InterfaceValue}"/>
 		</Grid>
-
 		<Carousel Name="FormulaCarousel"
 				  SelectedIndex="{Binding FormulaAccelBE.FormulaType.CurrentValidatedValue}">
 			<Carousel.Items>
@@ -70,33 +66,28 @@
 					<ContentControl Content="{Binding SynchronousSettings.Gamma}"/>
 					<ContentControl Content="{Binding SynchronousSettings.Smoothness}"/>
 				</StackPanel>
-
 				<StackPanel Name="LinearFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
 					<ContentControl Content="{Binding LinearSettings.Acceleration}"/>
 					<ContentControl Content="{Binding LinearSettings.Offset}"/>
 					<ContentControl Content="{Binding LinearSettings.Cap}"/>
 				</StackPanel>
-
 				<StackPanel Name="ClassicFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
 					<ContentControl Content="{Binding ClassicSettings.Acceleration}"/>
 					<ContentControl Content="{Binding ClassicSettings.Exponent}"/>
 					<ContentControl Content="{Binding ClassicSettings.Offset}"/>
 					<ContentControl Content="{Binding ClassicSettings.Cap}"/>
 				</StackPanel>
-
 				<StackPanel Name="PowerFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
 					<ContentControl Content="{Binding PowerSettings.Scale}"/>
 					<ContentControl Content="{Binding PowerSettings.Exponent}"/>
 					<ContentControl Content="{Binding PowerSettings.OutputOffset}"/>
 					<ContentControl Content="{Binding PowerSettings.Cap}"/>
 				</StackPanel>
-
 				<StackPanel Name="NaturalFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
 					<ContentControl Content="{Binding NaturalSettings.DecayRate}"/>
 					<ContentControl Content="{Binding NaturalSettings.InputOffset}"/>
 					<ContentControl Content="{Binding NaturalSettings.Limit}"/>
 				</StackPanel>
-
 				<StackPanel Name="JumpFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
 					<ContentControl Content="{Binding JumpSettings.Smooth}"/>
 					<ContentControl Content="{Binding JumpSettings.Input}"/>

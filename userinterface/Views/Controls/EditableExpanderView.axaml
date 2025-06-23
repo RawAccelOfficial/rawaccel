@@ -23,7 +23,8 @@
 		</Style>
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource AccentBorderBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
 		</Style>
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.Expanded">
 			<Setter Property="CornerRadius" Value="6,6,0,0"/>
@@ -31,7 +32,7 @@
 		</Style>
 		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.Expanded.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource AccentBorderBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="CornerRadius" Value="6,6,0,0"/>
 			<Setter Property="BorderThickness" Value="1,1,1,0"/>
 		</Style>
@@ -41,7 +42,7 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1,0,1,1"/>
 			<Setter Property="CornerRadius" Value="0,0,6,6"/>
-			<Setter Property="Padding" Value="12"/>
+			<Setter Property="Padding" Value="12,8,12,12"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="Transitions">
 				<Transitions>
@@ -52,7 +53,7 @@
 		</Style>
 		<Style Selector="controls|NoInteractionButtonView.ExpanderContent.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource AccentBorderBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1,0,1,1"/>
 			<Setter Property="CornerRadius" Value="0,0,6,6"/>
 		</Style>
@@ -95,7 +96,6 @@
 		<controls:NoInteractionButtonView Classes="ExpanderContent"
                                           Name="ContentButton"
                                           IsVisible="False"
-                                          Click="ToggleButton_Click"
                                           PointerEntered="ContentButton_PointerEntered"
                                           PointerExited="ContentButton_PointerExited">
 			<ContentPresenter Content="{Binding ExpanderContent, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}"/>

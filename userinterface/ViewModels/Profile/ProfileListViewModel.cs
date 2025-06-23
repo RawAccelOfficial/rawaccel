@@ -45,7 +45,6 @@ namespace userinterface.ViewModels.Profile
 
         public void RemoveSelectedProfile()
         {
-            // pressing delete multiple times without re-selecting just does nothing
             _ = profilesModel.RemoveProfile(CurrentSelectedProfile);
         }
     }

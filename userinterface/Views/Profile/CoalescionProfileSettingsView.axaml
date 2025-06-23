@@ -2,36 +2,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.CoalescionProfileSettingsView"
              x:DataType="vm:CoalescionProfileSettingsViewModel">
-
 	<UserControl.Styles>
-		<Style Selector="Expander">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="8"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
+		<Style Selector="Grid.FormRow">
+			<Setter Property="ColumnDefinitions" Value="200,*"/>
+			<Setter Property="Margin" Value="0,0,0,12"/>
 		</Style>
-
-		<Style Selector="Expander:expanded">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-		</Style>
-
-		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Padding" Value="16,12"/>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Margin" Value="0,0,12,0"/>
 		</Style>
 	</UserControl.Styles>
-
-	<Expander Header="Coalescion" HorizontalAlignment="Stretch">
-		<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-			<ContentControl Content="{Binding InputSmoothingHalfLife}"/>
-			<ContentControl Content="{Binding ScaleSmoothingHalfLife}"/>
-		</StackPanel>
-	</Expander>
+	<controls:EditableExpanderView Header="Coalescion" HorizontalAlignment="Stretch" Margin="0,0,0,12">
+		<controls:EditableExpanderView.ExpanderContent>
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="Input Smoothing Half Life"/>
+					<ContentControl Grid.Column="1" Content="{Binding InputSmoothingHalfLife}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="Scale Smoothing Half Life"/>
+					<ContentControl Grid.Column="1" Content="{Binding ScaleSmoothingHalfLife}"/>
+				</Grid>
+			</StackPanel>
+		</controls:EditableExpanderView.ExpanderContent>
+	</controls:EditableExpanderView>
 </UserControl>

@@ -7,29 +7,26 @@
              x:Class="userinterface.Views.Controls.NamedEditableFieldView"
              x:DataType="vm:NamedEditableFieldViewModel"
              x:CompileBindings="True">
-
 	<UserControl.Styles>
 		<Style Selector="TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 		</Style>
-
 		<Style Selector="ContentControl">
-			<Setter Property="MinWidth" Value="120"/>
+			<Setter Property="MinWidth" Value="80"/>
 		</Style>
 	</UserControl.Styles>
-
-	<Grid ColumnDefinitions="*,*" Margin="8">
+	<Grid ColumnDefinitions="Auto,*" Margin="0,2,0,2">
 		<TextBlock Grid.Column="0"
 				   Name="textBlock"
 				   HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
 				   TextWrapping="Wrap"
 				   Text="{Binding Name}"
-				   Margin="0,0,12,0"/>
+				   Margin="0,0,0,0"/>
 		<ContentControl Grid.Column="1"
-						HorizontalAlignment="Stretch"
+						HorizontalAlignment="Left"
 						VerticalAlignment="Center"
 						Content="{Binding Field}"/>
 	</Grid>

@@ -8,20 +8,48 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.HiddenProfileSettingsView"
              x:DataType="vm:HiddenProfileSettingsViewModel">
-
+	<UserControl.Styles>
+		<Style Selector="Grid.FormRow">
+			<Setter Property="ColumnDefinitions" Value="200,*"/>
+			<Setter Property="Margin" Value="0,0,0,12"/>
+		</Style>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Margin" Value="0,0,12,0"/>
+		</Style>
+	</UserControl.Styles>
 	<controls:EditableExpanderView Header="Hidden"
                                    HorizontalAlignment="Stretch"
-                                   Margin="0,0,0,8">
+                                   Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
 			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<ContentControl Content="{Binding RotationField}"/>
-				<ContentControl Content="{Binding LRRatioField}"/>
-				<ContentControl Content="{Binding UDRatioField}"/>
-				<ContentControl Content="{Binding SpeedCapField}"/>
-				<ContentControl Content="{Binding AngleSnappingField}"/>
-				<ContentControl Content="{Binding OutputSmoothingHalfLifeField}"/>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="Rotation"/>
+					<ContentControl Grid.Column="1" Content="{Binding RotationField}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="LR Ratio"/>
+					<ContentControl Grid.Column="1" Content="{Binding LRRatioField}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="UD Ratio"/>
+					<ContentControl Grid.Column="1" Content="{Binding UDRatioField}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="Speed Cap"/>
+					<ContentControl Grid.Column="1" Content="{Binding SpeedCapField}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="Angle Snapping"/>
+					<ContentControl Grid.Column="1" Content="{Binding AngleSnappingField}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Text="Output Smoothing Half Life"/>
+					<ContentControl Grid.Column="1" Content="{Binding OutputSmoothingHalfLifeField}"/>
+				</Grid>
 			</StackPanel>
 		</controls:EditableExpanderView.ExpanderContent>
 	</controls:EditableExpanderView>
-
 </UserControl>

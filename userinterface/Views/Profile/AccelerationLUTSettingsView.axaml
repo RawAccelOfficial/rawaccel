@@ -6,26 +6,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationLUTSettingsView"
              x:DataType="vm:AccelerationLUTSettingsViewModel">
-
 	<UserControl.Styles>
 		<Style Selector="TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
 		</Style>
-
 		<Style Selector="TextBlock.Warning">
 			<Setter Property="Foreground" Value="#F59E0B"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
 		</Style>
-
 		<Style Selector="TextBlock.Instructions">
 			<Setter Property="Foreground" Value="#9CA3AF"/>
 			<Setter Property="FontSize" Value="12"/>
 			<Setter Property="FontStyle" Value="Italic"/>
 		</Style>
-
 		<Style Selector="ComboBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -34,33 +30,37 @@
 			<Setter Property="CornerRadius" Value="4"/>
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="MinWidth" Value="120"/>
-			<Setter Property="Margin" Value="8,0,0,0"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 		</Style>
-
 		<Style Selector="ComboBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
-
 		<Style Selector="ComboBox:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
+		<Style Selector="Grid.FormRow">
+			<Setter Property="ColumnDefinitions" Value="200,*"/>
+			<Setter Property="Margin" Value="0,0,0,12"/>
+		</Style>
+		<Style Selector="Grid.FormRow TextBlock">
+			<Setter Property="Margin" Value="0,0,12,0"/>
+		</Style>
 	</UserControl.Styles>
-
-	<StackPanel Spacing="16">
+	<StackPanel Spacing="12">
 		<TextBlock Classes="Warning">
 			This mode is for experts only.
 		</TextBlock>
-
 		<TextBlock Classes="Instructions">
 			Format: x1,y1,x2,y2,...xn,yn;
 		</TextBlock>
-
-		<ContentControl Content="{Binding LUTPoints}" Height="100"/>
-
-		<StackPanel Orientation="Horizontal">
-			<TextBlock Text="Apply as:" VerticalAlignment="Center" Margin="0"/>
-			<ComboBox>
+		<Grid ColumnDefinitions="200,*">
+			<TextBlock Grid.Column="0" Text="LUT Points" VerticalAlignment="Top" Margin="0,0,12,0"/>
+			<ContentControl Grid.Column="1" Content="{Binding LUTPoints}" Height="100"/>
+		</Grid>
+		<Grid Classes="FormRow">
+			<TextBlock Grid.Column="0" Text="Apply as:"/>
+			<ComboBox Grid.Column="1">
 				<ComboBoxItem>
 					<TextBlock Text="Velocity"/>
 				</ComboBoxItem>
@@ -68,6 +68,6 @@
 					<TextBlock Text="Sensitivity"/>
 				</ComboBoxItem>
 			</ComboBox>
-		</StackPanel>
+		</Grid>
 	</StackPanel>
 </UserControl>

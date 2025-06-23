@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace userinterface.Controls
 {
@@ -27,6 +28,9 @@ namespace userinterface.Controls
             AvaloniaProperty.Register<EditableExpanderView, bool>(nameof(IsExpanded));
 
         private int _angle;
+        private CancellationTokenSource? _hoverDelayCancellationTokenSource;
+        // Remove flicker caused by two buttons
+        private const int HoverDelayMs = 50;
 
         public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -88,7 +92,6 @@ namespace userinterface.Controls
             if (headerButton != null && contentButton != null && expandIcon != null)
             {
                 contentButton.IsVisible = IsExpanded;
-
                 if (IsExpanded)
                 {
                     headerButton.Classes.Add("Expanded");
@@ -107,7 +110,6 @@ namespace userinterface.Controls
             if (expandIcon.RenderTransform is RotateTransform rotateTransform)
             {
                 var currentAngle = rotateTransform.Angle;
-
                 var animation = new Animation
                 {
                     Duration = TimeSpan.FromMilliseconds(200),
@@ -143,13 +145,15 @@ namespace userinterface.Controls
                 };
 
                 await animation.RunAsync(expandIcon, CancellationToken.None);
-
                 rotateTransform.Angle = targetAngle;
             }
         }
 
         private void ApplyHoverEffect()
         {
+            _hoverDelayCancellationTokenSource?.Cancel();
+            _hoverDelayCancellationTokenSource = null;
+
             var headerButton = this.FindControl<NoInteractionButtonView>("HeaderButton");
             var contentButton = this.FindControl<NoInteractionButtonView>("ContentButton");
             if (headerButton != null)
@@ -162,17 +166,34 @@ namespace userinterface.Controls
             }
         }
 
-        private void RemoveHoverEffect()
+        private async void RemoveHoverEffectWithDelay()
         {
-            var headerButton = this.FindControl<NoInteractionButtonView>("HeaderButton");
-            var contentButton = this.FindControl<NoInteractionButtonView>("ContentButton");
-            if (headerButton != null)
+            _hoverDelayCancellationTokenSource?.Cancel();
+            _hoverDelayCancellationTokenSource = new CancellationTokenSource();
+
+            try
             {
-                headerButton.Classes.Remove("SyncHover");
+                await Task.Delay(HoverDelayMs, _hoverDelayCancellationTokenSource.Token);
+
+                var headerButton = this.FindControl<NoInteractionButtonView>("HeaderButton");
+                var contentButton = this.FindControl<NoInteractionButtonView>("ContentButton");
+                if (headerButton != null)
+                {
+                    headerButton.Classes.Remove("SyncHover");
+                }
+                if (contentButton != null)
+                {
+                    contentButton.Classes.Remove("SyncHover");
+                }
             }
-            if (contentButton != null)
+            catch (OperationCanceledException)
             {
-                contentButton.Classes.Remove("SyncHover");
+                // Do nothing
+            }
+            finally
+            {
+                _hoverDelayCancellationTokenSource?.Dispose();
+                _hoverDelayCancellationTokenSource = null;
             }
         }
 
@@ -183,7 +204,7 @@ namespace userinterface.Controls
 
         private void HeaderButton_PointerExited(object sender, PointerEventArgs e)
         {
-            RemoveHoverEffect();
+            RemoveHoverEffectWithDelay();
         }
 
         private void ContentButton_PointerEntered(object sender, PointerEventArgs e)
@@ -193,7 +214,7 @@ namespace userinterface.Controls
 
         private void ContentButton_PointerExited(object sender, PointerEventArgs e)
         {
-            RemoveHoverEffect();
+            RemoveHoverEffectWithDelay();
         }
     }
 }

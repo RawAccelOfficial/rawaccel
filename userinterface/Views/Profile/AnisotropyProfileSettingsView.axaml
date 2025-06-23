@@ -3,56 +3,50 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AnisotropyProfileSettingsView"
              x:DataType="vm:AnisotropyProfileSettingsViewModel">
-
 	<UserControl.Styles>
-		<Style Selector="Expander">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="8"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
-		</Style>
-
-		<Style Selector="Expander:expanded">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-		</Style>
-
-		<Style Selector="Expander /template/ ToggleButton#PART_Toggle">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Padding" Value="16,12"/>
-		</Style>
-
 		<Style Selector="TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
+		<Style Selector="TextBlock.Header">
 			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+		</Style>
+		<Style Selector="TextBlock.Label">
+			<Setter Property="HorizontalAlignment" Value="Left"/>
+			<Setter Property="Margin" Value="0,0,12,0"/>
+		</Style>
+		<Style Selector="Grid.FormRow">
+			<Setter Property="ColumnDefinitions" Value="200,*"/>
+			<Setter Property="Margin" Value="0,0,0,12"/>
 		</Style>
 	</UserControl.Styles>
-
-	<Expander Header="Anisotropy" HorizontalAlignment="Stretch">
-		<StackPanel Orientation="Vertical" Margin="16">
-			<Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
-				<!-- Header Row -->
-				<TextBlock Grid.Column="1" Grid.Row="0" Text="X" FontWeight="SemiBold" Margin="0,0,0,8"/>
-				<TextBlock Grid.Column="2" Grid.Row="0" Text="Y" FontWeight="SemiBold" Margin="0,0,0,8"/>
-
-				<!-- Domain Row -->
-				<TextBlock Grid.Column="0" Grid.Row="1" Text="Domain" HorizontalAlignment="Left" Margin="0,8,0,8"/>
-				<ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding DomainX}" Margin="8,8,0,8"/>
-				<ContentControl Grid.Column="2" Grid.Row="1" Content="{Binding DomainY}" Margin="8,8,0,8"/>
-
-				<!-- Range Row -->
-				<TextBlock Grid.Column="0" Grid.Row="2" Text="Range" HorizontalAlignment="Left" Margin="0,8,0,0"/>
-				<ContentControl Grid.Column="1" Grid.Row="2" Content="{Binding RangeX}" Margin="8,8,0,0"/>
-				<ContentControl Grid.Column="2" Grid.Row="2" Content="{Binding RangeY}" Margin="8,8,0,0"/>
-			</Grid>
-
-			<ContentControl Content="{Binding LPNorm}" Margin="0,16,0,0"/>
-		</StackPanel>
-	</Expander>
+	<controls:EditableExpanderView Header="Anisotropy" HorizontalAlignment="Stretch" Margin="0,0,0,12">
+		<controls:EditableExpanderView.ExpanderContent>
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
+				<Grid ColumnDefinitions="200,*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+					<!-- Header Row -->
+					<TextBlock Grid.Column="1" Grid.Row="0" Classes="Header" Text="X"/>
+					<TextBlock Grid.Column="2" Grid.Row="0" Classes="Header" Text="Y"/>
+					<!-- Domain Row -->
+					<TextBlock Grid.Column="0" Grid.Row="1" Classes="Label" Text="Domain"/>
+					<ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding DomainX}" Margin="8,0,8,0"/>
+					<ContentControl Grid.Column="2" Grid.Row="1" Content="{Binding DomainY}"/>
+					<!-- Range Row -->
+					<TextBlock Grid.Column="0" Grid.Row="2" Classes="Label" Text="Range"/>
+					<ContentControl Grid.Column="1" Grid.Row="2" Content="{Binding RangeX}" Margin="8,0,8,0"/>
+					<ContentControl Grid.Column="2" Grid.Row="2" Content="{Binding RangeY}"/>
+				</Grid>
+				<Grid Classes="FormRow">
+					<TextBlock Grid.Column="0" Classes="Label" Text="LP Norm"/>
+					<ContentControl Grid.Column="1" Content="{Binding LPNorm}"/>
+				</Grid>
+			</StackPanel>
+		</controls:EditableExpanderView.ExpanderContent>
+	</controls:EditableExpanderView>
 </UserControl>
