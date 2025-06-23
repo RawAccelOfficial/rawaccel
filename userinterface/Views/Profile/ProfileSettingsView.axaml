@@ -9,7 +9,6 @@
              x:DataType="vm:ProfileSettingsViewModel">
 	<UserControl.Styles>
 		<Style Selector="Grid.FormRow">
-			<Setter Property="ColumnDefinitions" Value="200,*"/>
 			<Setter Property="Margin" Value="0,0,0,12"/>
 		</Style>
 		<Style Selector="TextBlock">
@@ -24,11 +23,11 @@
 					HorizontalAlignment="Stretch"
 					Margin="16"
 					Spacing="12">
-			<Grid Classes="FormRow">
+			<Grid Classes="FormRow" ColumnDefinitions="200,*">
 				<TextBlock Grid.Column="0" Text="Output DPI"/>
 				<ContentControl Grid.Column="1" Content="{Binding OutputDPIField}"/>
 			</Grid>
-			<Grid Classes="FormRow">
+			<Grid Classes="FormRow" ColumnDefinitions="200,*">
 				<TextBlock Grid.Column="0" Text="Y/X Ratio"/>
 				<ContentControl Grid.Column="1" Content="{Binding YXRatioField}"/>
 			</Grid>

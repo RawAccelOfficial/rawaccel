@@ -8,14 +8,13 @@ namespace userinterface.ViewModels.Profile
         public CoalescionProfileSettingsViewModel(BE.CoalescionModel coalescionBE)
         {
             CoalescionBE = coalescionBE;
-            InputSmoothingHalfLife = new NamedEditableFieldViewModel(coalescionBE.InputSmoothingHalfLife);
-            ScaleSmoothingHalfLife = new NamedEditableFieldViewModel(coalescionBE.ScaleSmoothingHalfLife);
+            InputSmoothingHalfLife = new EditableFieldViewModel(coalescionBE.InputSmoothingHalfLife);
+            ScaleSmoothingHalfLife = new EditableFieldViewModel(coalescionBE.ScaleSmoothingHalfLife);
         }
 
         protected BE.CoalescionModel CoalescionBE { get; set; }
 
-        public NamedEditableFieldViewModel InputSmoothingHalfLife { get; set; }
-
-        public NamedEditableFieldViewModel ScaleSmoothingHalfLife { get; set; }
+        public EditableFieldViewModel InputSmoothingHalfLife { get; set; }
+        public EditableFieldViewModel ScaleSmoothingHalfLife { get; set; }
     }
 }

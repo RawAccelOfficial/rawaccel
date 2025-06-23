@@ -15,26 +15,21 @@ namespace userinterface.ViewModels.Profile
         public HiddenProfileSettingsViewModel(BE.ProfileComponents.HiddenModel hiddenBE)
         {
             HiddenBE = hiddenBE;
-            RotationField = new NamedEditableFieldViewModel(hiddenBE.RotationDegrees);
-            SpeedCapField = new NamedEditableFieldViewModel(hiddenBE.SpeedCap);
-            LRRatioField = new NamedEditableFieldViewModel(hiddenBE.LeftRightRatio);
-            UDRatioField = new NamedEditableFieldViewModel(hiddenBE.UpDownRatio);
-            AngleSnappingField = new NamedEditableFieldViewModel(hiddenBE.AngleSnappingDegrees);
-            OutputSmoothingHalfLifeField = new NamedEditableFieldViewModel(hiddenBE.OutputSmoothingHalfLife);
+            RotationField = new EditableFieldViewModel(hiddenBE.RotationDegrees);
+            SpeedCapField = new EditableFieldViewModel(hiddenBE.SpeedCap);
+            LRRatioField = new EditableFieldViewModel(hiddenBE.LeftRightRatio);
+            UDRatioField = new EditableFieldViewModel(hiddenBE.UpDownRatio);
+            AngleSnappingField = new EditableFieldViewModel(hiddenBE.AngleSnappingDegrees);
+            OutputSmoothingHalfLifeField = new EditableFieldViewModel(hiddenBE.OutputSmoothingHalfLife);
         }
 
         protected BE.ProfileComponents.HiddenModel HiddenBE { get; }
 
-        public NamedEditableFieldViewModel RotationField { get; set; }
-
-        public NamedEditableFieldViewModel SpeedCapField { get; set; }
-
-        public NamedEditableFieldViewModel LRRatioField { get; set; }
-        
-        public NamedEditableFieldViewModel UDRatioField { get; set; }
-
-        public NamedEditableFieldViewModel AngleSnappingField { get; set; }
-
-        public NamedEditableFieldViewModel OutputSmoothingHalfLifeField { get; set; }
+        public EditableFieldViewModel RotationField { get; set; }
+        public EditableFieldViewModel SpeedCapField { get; set; }
+        public EditableFieldViewModel LRRatioField { get; set; }
+        public EditableFieldViewModel UDRatioField { get; set; }
+        public EditableFieldViewModel AngleSnappingField { get; set; }
+        public EditableFieldViewModel OutputSmoothingHalfLifeField { get; set; }
     }
 }

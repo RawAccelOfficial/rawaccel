@@ -15,17 +15,17 @@ namespace userinterface.ViewModels.Profile
         public ProfileSettingsViewModel(BE.ProfileModel profileBE)
         {
             ProfileModelBE = profileBE;
-            OutputDPIField = new NamedEditableFieldViewModel(profileBE.OutputDPI);
-            YXRatioField = new NamedEditableFieldViewModel(profileBE.YXRatio);
+            OutputDPIField = new EditableFieldViewModel(profileBE.OutputDPI);
+            YXRatioField = new EditableFieldViewModel(profileBE.YXRatio);
             AccelerationSettings = new AccelerationProfileSettingsViewModel(profileBE.Acceleration);
             HiddenSettings = new HiddenProfileSettingsViewModel(profileBE.Hidden);
         }
 
         protected BE.ProfileModel ProfileModelBE { get; }
 
-        public NamedEditableFieldViewModel OutputDPIField { get; set; }
+        public EditableFieldViewModel OutputDPIField { get; set; }
 
-        public NamedEditableFieldViewModel YXRatioField { get; set; }
+        public EditableFieldViewModel YXRatioField { get; set; }
 
         public AccelerationProfileSettingsViewModel AccelerationSettings { get; set; }
 

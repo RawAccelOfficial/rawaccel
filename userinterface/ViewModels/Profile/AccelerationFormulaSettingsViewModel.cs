@@ -13,6 +13,7 @@ namespace userinterface.ViewModels.Profile
             new ObservableCollection<string>(
                 Enum.GetValues(typeof(BEData.AccelerationFormulaType)).Cast<BEData.AccelerationFormulaType>()
                 .Select(d => d.ToString()));
+
         public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel)
         {
             FormulaAccelBE = formulaAccel;
@@ -25,19 +26,13 @@ namespace userinterface.ViewModels.Profile
         }
 
         public BE.FormulaAccelModel FormulaAccelBE { get; }
-
         public ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
 
         public SynchronousSettings SynchronousSettings { get; }
-
         public LinearSettings LinearSettings { get; }
-
         public ClassicSettings ClassicSettings { get; }
-
         public PowerSettings PowerSettings { get; }
-
         public NaturalSettings NaturalSettings { get; }
-
         public JumpSettings JumpSettings { get; }
     }
 
@@ -45,104 +40,89 @@ namespace userinterface.ViewModels.Profile
     {
         public SynchronousSettings(BE.Formula.SynchronousAccelerationDefinitionModel synchronousAccelModelBE)
         {
-            SyncSpeed = new NamedEditableFieldViewModel(synchronousAccelModelBE.SyncSpeed);
-            Motivity = new NamedEditableFieldViewModel(synchronousAccelModelBE.Motivity);
-            Gamma = new NamedEditableFieldViewModel(synchronousAccelModelBE.Gamma);
-            Smoothness = new NamedEditableFieldViewModel(synchronousAccelModelBE.Smoothness);
+            SyncSpeed = new EditableFieldViewModel(synchronousAccelModelBE.SyncSpeed);
+            Motivity = new EditableFieldViewModel(synchronousAccelModelBE.Motivity);
+            Gamma = new EditableFieldViewModel(synchronousAccelModelBE.Gamma);
+            Smoothness = new EditableFieldViewModel(synchronousAccelModelBE.Smoothness);
         }
 
-        public NamedEditableFieldViewModel SyncSpeed { get; set; }
-
-        public NamedEditableFieldViewModel Motivity { get; set; }
-
-        public NamedEditableFieldViewModel Gamma { get; set; }
-
-        public NamedEditableFieldViewModel Smoothness { get; set; }
+        public EditableFieldViewModel SyncSpeed { get; set; }
+        public EditableFieldViewModel Motivity { get; set; }
+        public EditableFieldViewModel Gamma { get; set; }
+        public EditableFieldViewModel Smoothness { get; set; }
     }
 
     public class LinearSettings
     {
         public LinearSettings(BE.Formula.LinearAccelerationDefinitionModel linearAccelModelBE)
         {
-            Acceleration = new NamedEditableFieldViewModel(linearAccelModelBE.Acceleration);
-            Offset = new NamedEditableFieldViewModel(linearAccelModelBE.Offset);
-            Cap = new NamedEditableFieldViewModel(linearAccelModelBE.Cap);
+            Acceleration = new EditableFieldViewModel(linearAccelModelBE.Acceleration);
+            Offset = new EditableFieldViewModel(linearAccelModelBE.Offset);
+            Cap = new EditableFieldViewModel(linearAccelModelBE.Cap);
         }
 
-        public NamedEditableFieldViewModel Acceleration { get; set; }
-
-        public NamedEditableFieldViewModel Offset { get; set; }
-
-        public NamedEditableFieldViewModel Cap { get; set; }
+        public EditableFieldViewModel Acceleration { get; set; }
+        public EditableFieldViewModel Offset { get; set; }
+        public EditableFieldViewModel Cap { get; set; }
     }
 
     public class ClassicSettings
     {
         public ClassicSettings(BE.Formula.ClassicAccelerationDefinitionModel classicAccelModelBE)
         {
-            Acceleration = new NamedEditableFieldViewModel(classicAccelModelBE.Acceleration);
-            Exponent = new NamedEditableFieldViewModel(classicAccelModelBE.Exponent);
-            Offset = new NamedEditableFieldViewModel(classicAccelModelBE.Offset);
-            Cap = new NamedEditableFieldViewModel(classicAccelModelBE.Cap);
+            Acceleration = new EditableFieldViewModel(classicAccelModelBE.Acceleration);
+            Exponent = new EditableFieldViewModel(classicAccelModelBE.Exponent);
+            Offset = new EditableFieldViewModel(classicAccelModelBE.Offset);
+            Cap = new EditableFieldViewModel(classicAccelModelBE.Cap);
         }
 
-        public NamedEditableFieldViewModel Acceleration { get; set; }
-
-        public NamedEditableFieldViewModel Exponent { get; set; }
-
-        public NamedEditableFieldViewModel Offset { get; set; }
-
-        public NamedEditableFieldViewModel Cap { get; set; }
+        public EditableFieldViewModel Acceleration { get; set; }
+        public EditableFieldViewModel Exponent { get; set; }
+        public EditableFieldViewModel Offset { get; set; }
+        public EditableFieldViewModel Cap { get; set; }
     }
 
     public class PowerSettings
     {
         public PowerSettings(BE.Formula.PowerAccelerationDefinitionModel powerAccelModelBE)
         {
-            Scale = new NamedEditableFieldViewModel(powerAccelModelBE.Scale);
-            Exponent = new NamedEditableFieldViewModel(powerAccelModelBE.Exponent);
-            OutputOffset = new NamedEditableFieldViewModel(powerAccelModelBE.OutputOffset);
-            Cap = new NamedEditableFieldViewModel(powerAccelModelBE.Cap);
+            Scale = new EditableFieldViewModel(powerAccelModelBE.Scale);
+            Exponent = new EditableFieldViewModel(powerAccelModelBE.Exponent);
+            OutputOffset = new EditableFieldViewModel(powerAccelModelBE.OutputOffset);
+            Cap = new EditableFieldViewModel(powerAccelModelBE.Cap);
         }
 
-        public NamedEditableFieldViewModel Scale { get; set; }
-
-        public NamedEditableFieldViewModel Exponent { get; set; }
-
-        public NamedEditableFieldViewModel OutputOffset { get; set; }
-
-        public NamedEditableFieldViewModel Cap { get; set; }
+        public EditableFieldViewModel Scale { get; set; }
+        public EditableFieldViewModel Exponent { get; set; }
+        public EditableFieldViewModel OutputOffset { get; set; }
+        public EditableFieldViewModel Cap { get; set; }
     }
 
     public class NaturalSettings
     {
         public NaturalSettings(BE.Formula.NaturalAccelerationDefinitionModel naturalAccelModelBE)
         {
-            DecayRate = new NamedEditableFieldViewModel(naturalAccelModelBE.DecayRate);
-            InputOffset = new NamedEditableFieldViewModel(naturalAccelModelBE.InputOffset);
-            Limit = new NamedEditableFieldViewModel(naturalAccelModelBE.Limit);
+            DecayRate = new EditableFieldViewModel(naturalAccelModelBE.DecayRate);
+            InputOffset = new EditableFieldViewModel(naturalAccelModelBE.InputOffset);
+            Limit = new EditableFieldViewModel(naturalAccelModelBE.Limit);
         }
 
-        public NamedEditableFieldViewModel DecayRate { get; set; }
-
-        public NamedEditableFieldViewModel InputOffset { get; set; }
-
-        public NamedEditableFieldViewModel Limit { get; set; }
+        public EditableFieldViewModel DecayRate { get; set; }
+        public EditableFieldViewModel InputOffset { get; set; }
+        public EditableFieldViewModel Limit { get; set; }
     }
 
     public class JumpSettings
     {
         public JumpSettings(BE.Formula.JumpAccelerationDefinitionModel jumpAccelModelBE)
         {
-            Smooth = new NamedEditableFieldViewModel(jumpAccelModelBE.Smooth);
-            Input = new NamedEditableFieldViewModel(jumpAccelModelBE.Input);
-            Output = new NamedEditableFieldViewModel(jumpAccelModelBE.Output);
+            Smooth = new EditableFieldViewModel(jumpAccelModelBE.Smooth);
+            Input = new EditableFieldViewModel(jumpAccelModelBE.Input);
+            Output = new EditableFieldViewModel(jumpAccelModelBE.Output);
         }
 
-        public NamedEditableFieldViewModel Smooth { get; set; }
-
-        public NamedEditableFieldViewModel Input { get; set; }
-
-        public NamedEditableFieldViewModel Output { get; set; }
+        public EditableFieldViewModel Smooth { get; set; }
+        public EditableFieldViewModel Input { get; set; }
+        public EditableFieldViewModel Output { get; set; }
     }
 }

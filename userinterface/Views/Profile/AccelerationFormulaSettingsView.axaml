@@ -3,16 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Views.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationFormulaSettingsView"
              x:DataType="vm:AccelerationFormulaSettingsViewModel">
+
 	<UserControl.Styles>
-		<Style Selector="TextBlock">
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-		</Style>
 		<Style Selector="ComboBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -21,7 +17,6 @@
 			<Setter Property="CornerRadius" Value="4"/>
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="MinWidth" Value="120"/>
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 		</Style>
 		<Style Selector="ComboBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
@@ -42,56 +37,100 @@
 			<Setter Property="Spacing" Value="12"/>
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
-		<Style Selector="Grid.FormRow">
-			<Setter Property="ColumnDefinitions" Value="200,*"/>
-			<Setter Property="Margin" Value="0,0,0,12"/>
-		</Style>
-		<Style Selector="Grid.FormRow TextBlock">
-			<Setter Property="Margin" Value="0,0,12,0"/>
-		</Style>
 	</UserControl.Styles>
+
 	<StackPanel Orientation="Vertical" Spacing="12">
-		<Grid Classes="FormRow">
-			<TextBlock Grid.Column="0" Text="Formula Type"/>
-			<ComboBox Grid.Column="1"
-					  ItemsSource="{Binding FormulaTypesLocal}"
-					  SelectedItem="{Binding FormulaAccelBE.FormulaType.InterfaceValue}"/>
-		</Grid>
+		<controls:DualColumnLabelField Label="Formula Type">
+			<controls:DualColumnLabelField.InputContent>
+				<ComboBox HorizontalAlignment="Stretch"
+                          VerticalAlignment="Center"
+                          ItemsSource="{Binding FormulaTypesLocal}"
+                          SelectedItem="{Binding FormulaAccelBE.FormulaType.InterfaceValue}"/>
+			</controls:DualColumnLabelField.InputContent>
+		</controls:DualColumnLabelField>
+
 		<Carousel Name="FormulaCarousel"
-				  SelectedIndex="{Binding FormulaAccelBE.FormulaType.CurrentValidatedValue}">
+                  SelectedIndex="{Binding FormulaAccelBE.FormulaType.CurrentValidatedValue}">
 			<Carousel.Items>
 				<StackPanel Name="SynchronousFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
-					<ContentControl Content="{Binding SynchronousSettings.SyncSpeed}"/>
-					<ContentControl Content="{Binding SynchronousSettings.Motivity}"/>
-					<ContentControl Content="{Binding SynchronousSettings.Gamma}"/>
-					<ContentControl Content="{Binding SynchronousSettings.Smoothness}"/>
+					<controls:DualColumnLabelField
+                        Label="Sync Speed"
+                        InputContent="{Binding SynchronousSettings.SyncSpeed}"/>
+					<controls:DualColumnLabelField
+                        Label="Motivity"
+                        InputContent="{Binding SynchronousSettings.Motivity}"/>
+					<controls:DualColumnLabelField
+                        Label="Gamma"
+                        InputContent="{Binding SynchronousSettings.Gamma}"/>
+					<controls:DualColumnLabelField
+                        Label="Smoothness"
+                        InputContent="{Binding SynchronousSettings.Smoothness}"/>
 				</StackPanel>
+
 				<StackPanel Name="LinearFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
-					<ContentControl Content="{Binding LinearSettings.Acceleration}"/>
-					<ContentControl Content="{Binding LinearSettings.Offset}"/>
-					<ContentControl Content="{Binding LinearSettings.Cap}"/>
+					<controls:DualColumnLabelField
+                        Label="Acceleration"
+                        InputContent="{Binding LinearSettings.Acceleration}"/>
+					<controls:DualColumnLabelField
+                        Label="Offset"
+                        InputContent="{Binding LinearSettings.Offset}"/>
+					<controls:DualColumnLabelField
+                        Label="Cap"
+                        InputContent="{Binding LinearSettings.Cap}"/>
 				</StackPanel>
+
 				<StackPanel Name="ClassicFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
-					<ContentControl Content="{Binding ClassicSettings.Acceleration}"/>
-					<ContentControl Content="{Binding ClassicSettings.Exponent}"/>
-					<ContentControl Content="{Binding ClassicSettings.Offset}"/>
-					<ContentControl Content="{Binding ClassicSettings.Cap}"/>
+					<controls:DualColumnLabelField
+                        Label="Acceleration"
+                        InputContent="{Binding ClassicSettings.Acceleration}"/>
+					<controls:DualColumnLabelField
+                        Label="Exponent"
+                        InputContent="{Binding ClassicSettings.Exponent}"/>
+					<controls:DualColumnLabelField
+                        Label="Offset"
+                        InputContent="{Binding ClassicSettings.Offset}"/>
+					<controls:DualColumnLabelField
+                        Label="Cap"
+                        InputContent="{Binding ClassicSettings.Cap}"/>
 				</StackPanel>
+
 				<StackPanel Name="PowerFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
-					<ContentControl Content="{Binding PowerSettings.Scale}"/>
-					<ContentControl Content="{Binding PowerSettings.Exponent}"/>
-					<ContentControl Content="{Binding PowerSettings.OutputOffset}"/>
-					<ContentControl Content="{Binding PowerSettings.Cap}"/>
+					<controls:DualColumnLabelField
+                        Label="Scale"
+                        InputContent="{Binding PowerSettings.Scale}"/>
+					<controls:DualColumnLabelField
+                        Label="Exponent"
+                        InputContent="{Binding PowerSettings.Exponent}"/>
+					<controls:DualColumnLabelField
+                        Label="Output Offset"
+                        InputContent="{Binding PowerSettings.OutputOffset}"/>
+					<controls:DualColumnLabelField
+                        Label="Cap"
+                        InputContent="{Binding PowerSettings.Cap}"/>
 				</StackPanel>
+
 				<StackPanel Name="NaturalFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
-					<ContentControl Content="{Binding NaturalSettings.DecayRate}"/>
-					<ContentControl Content="{Binding NaturalSettings.InputOffset}"/>
-					<ContentControl Content="{Binding NaturalSettings.Limit}"/>
+					<controls:DualColumnLabelField
+                        Label="Decay Rate"
+                        InputContent="{Binding NaturalSettings.DecayRate}"/>
+					<controls:DualColumnLabelField
+                        Label="Input Offset"
+                        InputContent="{Binding NaturalSettings.InputOffset}"/>
+					<controls:DualColumnLabelField
+                        Label="Limit"
+                        InputContent="{Binding NaturalSettings.Limit}"/>
 				</StackPanel>
+
 				<StackPanel Name="JumpFormulaSettings" Classes="FormulaSettings" Orientation="Vertical">
-					<ContentControl Content="{Binding JumpSettings.Smooth}"/>
-					<ContentControl Content="{Binding JumpSettings.Input}"/>
-					<ContentControl Content="{Binding JumpSettings.Output}"/>
+					<controls:DualColumnLabelField
+                        Label="Smooth"
+                        InputContent="{Binding JumpSettings.Smooth}"/>
+					<controls:DualColumnLabelField
+                        Label="Input"
+                        InputContent="{Binding JumpSettings.Input}"/>
+					<controls:DualColumnLabelField
+                        Label="Output"
+                        InputContent="{Binding JumpSettings.Output}"/>
 				</StackPanel>
 			</Carousel.Items>
 		</Carousel>

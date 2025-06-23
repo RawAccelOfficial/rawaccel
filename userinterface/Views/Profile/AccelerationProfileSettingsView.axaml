@@ -4,16 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:controls="using:userinterface.Controls"
+             xmlns:localControls="using:userinterface.Views.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationProfileSettingsView"
              x:DataType="vm:AccelerationProfileSettingsViewModel">
+
 	<UserControl.Styles>
-		<Style Selector="TextBlock">
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-		</Style>
 		<Style Selector="ComboBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -22,7 +18,6 @@
 			<Setter Property="CornerRadius" Value="4"/>
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="MinWidth" Value="120"/>
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 		</Style>
 		<Style Selector="ComboBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
@@ -35,25 +30,23 @@
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Margin" Value="0,12,0,0"/>
 		</Style>
-		<Style Selector="Grid.FormRow">
-			<Setter Property="ColumnDefinitions" Value="200,*"/>
-			<Setter Property="Margin" Value="0,0,0,12"/>
-		</Style>
-		<Style Selector="Grid.FormRow TextBlock">
-			<Setter Property="Margin" Value="0,0,12,0"/>
-		</Style>
 	</UserControl.Styles>
+
 	<controls:EditableExpanderView Header="Acceleration"
                                    HorizontalAlignment="Stretch"
                                    Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
 			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<Grid Classes="FormRow">
-					<TextBlock Grid.Column="0" Text="Acceleration"/>
-					<ComboBox Grid.Column="1"
-							  ItemsSource="{Binding DefinitionTypesLocal}"
-							  SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
-				</Grid>
+
+				<localControls:DualColumnLabelField Label="Acceleration">
+					<localControls:DualColumnLabelField.InputContent>
+						<ComboBox HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{Binding DefinitionTypesLocal}"
+                                  SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"/>
+					</localControls:DualColumnLabelField.InputContent>
+				</localControls:DualColumnLabelField>
+
 				<Carousel SelectedIndex="{Binding AccelerationBE.DefinitionType.CurrentValidatedValue}">
 					<Carousel.Items>
 						<Panel IsVisible="False"/>
@@ -61,10 +54,11 @@
 						<ContentControl Content="{Binding AccelerationLUTSettings}"/>
 					</Carousel.Items>
 				</Carousel>
+
 				<ContentControl Content="{Binding AnisotropySettings}"
-								IsVisible="{Binding AreAccelSettingsVisible}"/>
+                                IsVisible="{Binding AreAccelSettingsVisible}"/>
 				<ContentControl Content="{Binding CoalescionSettings}"
-								IsVisible="{Binding AreAccelSettingsVisible}"/>
+                                IsVisible="{Binding AreAccelSettingsVisible}"/>
 			</StackPanel>
 		</controls:EditableExpanderView.ExpanderContent>
 	</controls:EditableExpanderView>

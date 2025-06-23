@@ -8,42 +8,44 @@
              x:Class="userinterface.Views.Profile.AnisotropyProfileSettingsView"
              x:DataType="vm:AnisotropyProfileSettingsViewModel">
 	<UserControl.Styles>
-		<Style Selector="TextBlock">
+		<Style Selector="TextBlock.HeaderText">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-		</Style>
-		<Style Selector="TextBlock.Header">
 			<Setter Property="HorizontalAlignment" Value="Center"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="FontSize" Value="14"/>
 		</Style>
-		<Style Selector="TextBlock.Label">
-			<Setter Property="HorizontalAlignment" Value="Left"/>
-			<Setter Property="Margin" Value="0,0,12,0"/>
-		</Style>
-		<Style Selector="Grid.FormRow">
-			<Setter Property="ColumnDefinitions" Value="200,*"/>
-			<Setter Property="Margin" Value="0,0,0,12"/>
+		<Style Selector="TextBlock.FieldLabel">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="MaxWidth" Value="200"/>
+			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
 		</Style>
 	</UserControl.Styles>
 	<controls:EditableExpanderView Header="Anisotropy" HorizontalAlignment="Stretch" Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
 			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<Grid ColumnDefinitions="200,*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+				<Grid ColumnDefinitions="*,100,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
 					<!-- Header Row -->
-					<TextBlock Grid.Column="1" Grid.Row="0" Classes="Header" Text="X"/>
-					<TextBlock Grid.Column="2" Grid.Row="0" Classes="Header" Text="Y"/>
+					<Border Grid.Column="1" Grid.Row="0"/>
+					<TextBlock Grid.Column="1" Grid.Row="0" Classes="HeaderText" Text="X"/>
+					<TextBlock Grid.Column="2" Grid.Row="0" Classes="HeaderText" Text="Y"/>
 					<!-- Domain Row -->
-					<TextBlock Grid.Column="0" Grid.Row="1" Classes="Label" Text="Domain"/>
-					<ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding DomainX}" Margin="8,0,8,0"/>
-					<ContentControl Grid.Column="2" Grid.Row="1" Content="{Binding DomainY}"/>
+					<TextBlock Grid.Column="0" Grid.Row="1" Classes="FieldLabel" Text="Domain"/>
+					<ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding DomainX}" Margin="8,0,0,0"/>
+					<ContentControl Grid.Column="2" Grid.Row="1" Content="{Binding DomainY}" Margin="8,0,0,0"/>
 					<!-- Range Row -->
-					<TextBlock Grid.Column="0" Grid.Row="2" Classes="Label" Text="Range"/>
-					<ContentControl Grid.Column="1" Grid.Row="2" Content="{Binding RangeX}" Margin="8,0,8,0"/>
-					<ContentControl Grid.Column="2" Grid.Row="2" Content="{Binding RangeY}"/>
+					<TextBlock Grid.Column="0" Grid.Row="2" Classes="FieldLabel" Text="Range"/>
+					<ContentControl Grid.Column="1" Grid.Row="2" Content="{Binding RangeX}" Margin="8,0,0,0"/>
+					<ContentControl Grid.Column="2" Grid.Row="2" Content="{Binding RangeY}" Margin="8,0,0,0"/>
 				</Grid>
-				<Grid Classes="FormRow">
-					<TextBlock Grid.Column="0" Classes="Label" Text="LP Norm"/>
+				<Grid ColumnDefinitions="*,200">
+					<TextBlock Grid.Column="0"
+							   Classes="FieldLabel"
+							   Text="LP Norm"
+							   Margin="0,0,12,0"/>
 					<ContentControl Grid.Column="1" Content="{Binding LPNorm}"/>
 				</Grid>
 			</StackPanel>
