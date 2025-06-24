@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using userinterface.ViewModels.Profile;
+using userinterface.Views.Profile;
 
 namespace userinterface.Views.Profile;
 
@@ -20,8 +21,9 @@ public partial class AccelerationProfileSettingsView : UserControl
         var comboBox = sender as ComboBox;
         var selectedIndex = comboBox?.SelectedIndex ?? -1;
 
-        // Clear existing additional fields
+        // Clear existing additional fields and hide alternative view
         AccelerationField.ClearAdditionalFields();
+        AccelerationField.ShowAdditionalFieldsContent();
 
         // Add fields based on selected acceleration type
         switch (selectedIndex)
@@ -32,7 +34,7 @@ public partial class AccelerationProfileSettingsView : UserControl
                 AddFormulaFields(viewModel);
                 break;
             case 2: // LUT
-                AddLUTFields(viewModel);
+                ShowLUTView(viewModel);
                 break;
         }
     }
@@ -47,7 +49,6 @@ public partial class AccelerationProfileSettingsView : UserControl
             ItemsSource = viewModel.AccelerationFormulaSettings.FormulaTypesLocal,
             SelectedItem = viewModel.AccelerationFormulaSettings.FormulaAccelBE.FormulaType.InterfaceValue
         };
-
         formulaTypeCombo.SelectionChanged += (s, e) => OnFormulaTypeSelectionChanged(s, e, viewModel);
 
         AccelerationField.AddField("Formula Type", formulaTypeCombo);
@@ -120,17 +121,18 @@ public partial class AccelerationProfileSettingsView : UserControl
         }
     }
 
-    private void AddLUTFields(AccelerationProfileSettingsViewModel viewModel)
+    private void ShowLUTView(AccelerationProfileSettingsViewModel viewModel)
     {
-        // Add LUT specific fields with proper alignment
-        var lutContentControl = new ContentControl
+        // Create the LUT settings view with proper data context
+        var lutView = new AccelerationLUTSettingsView
         {
-            Content = viewModel.AccelerationLUTSettings,
+            DataContext = viewModel.AccelerationLUTSettings,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Stretch
+            Margin = new Avalonia.Thickness(0, 8, 0, 0) // Add some top margin for spacing
         };
 
-        AccelerationField.AddField("LUT Settings", lutContentControl);
+        // Show the LUT view as alternative content
+        AccelerationField.ShowAlternativeViewContent(lutView);
     }
 
     private Control CreateInputControl(object bindingSource)
