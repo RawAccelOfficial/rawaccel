@@ -10,7 +10,6 @@
              x:Class="userinterface.Views.Profile.HiddenProfileSettingsView"
              x:DataType="vm:HiddenProfileSettingsViewModel">
 	<UserControl.Styles>
-		<!-- Base input control styling - applied to all input types -->
 		<Style Selector="ComboBox, TextBox, NumericUpDown">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -22,32 +21,6 @@
 			<Setter Property="VerticalAlignment" Value="Center"/>
 			<Setter Property="Height" Value="32"/>
 		</Style>
-
-		<Style Selector="ComboBox:focus, TextBox:focus, NumericUpDown:focus">
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
-		</Style>
-
-		<Style Selector="ComboBox:pointerover, TextBox:pointerover, NumericUpDown:pointerover">
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-		</Style>
-
-		<Style Selector="ComboBox">
-			<Setter Property="MaxDropDownHeight" Value="200"/>
-		</Style>
-
-		<Style Selector="ComboBox /template/ Popup#PART_Popup">
-			<Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
-			<Setter Property="HorizontalOffset" Value="0"/>
-			<Setter Property="VerticalOffset" Value="0"/>
-			<Setter Property="PlacementConstraintAdjustment" Value="SlideX,SlideY,ResizeX,ResizeY"/>
-		</Style>
-
-		<Style Selector="ComboBox /template/ Border#PART_PopupBorder">
-			<Setter Property="MinWidth" Value="150"/>
-			<Setter Property="MaxWidth" Value="300"/>
-		</Style>
-
 		<Style Selector="localControls|DualColumnLabelField ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -59,24 +32,14 @@
                                    Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
 			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<localControls:DualColumnLabelField
-                    Label="Rotation"
-                    InputContent="{Binding RotationField}"/>
-				<localControls:DualColumnLabelField
-                    Label="LR Ratio"
-                    InputContent="{Binding LRRatioField}"/>
-				<localControls:DualColumnLabelField
-                    Label="UD Ratio"
-                    InputContent="{Binding UDRatioField}"/>
-				<localControls:DualColumnLabelField
-                    Label="Speed Cap"
-                    InputContent="{Binding SpeedCapField}"/>
-				<localControls:DualColumnLabelField
-                    Label="Angle Snapping"
-                    InputContent="{Binding AngleSnappingField}"/>
-				<localControls:DualColumnLabelField
-                    Label="Output Smoothing Half Life"
-                    InputContent="{Binding OutputSmoothingHalfLifeField}"/>
+				<localControls:DualColumnLabelField x:Name="HiddenSettingsField"
+                                                   Label="Rotation">
+					<localControls:DualColumnLabelField.InputContent>
+						<ContentControl Content="{Binding RotationField}"
+                                       HorizontalAlignment="Stretch"
+                                       HorizontalContentAlignment="Stretch"/>
+					</localControls:DualColumnLabelField.InputContent>
+				</localControls:DualColumnLabelField>
 			</StackPanel>
 		</controls:EditableExpanderView.ExpanderContent>
 	</controls:EditableExpanderView>

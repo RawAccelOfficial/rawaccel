@@ -13,6 +13,10 @@
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 		</Style>
+		<Style Selector="TextBox.EditableTextBox">
+			<Setter Property="Margin" Value="8"/>
+		</Style>
+
 		<Style Selector="ContentControl">
 			<Setter Property="MinWidth" Value="80"/>
 		</Style>

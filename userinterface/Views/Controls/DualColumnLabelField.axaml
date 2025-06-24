@@ -15,10 +15,17 @@
 			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
 			<Setter Property="TextWrapping" Value="NoWrap"/>
 		</Style>
+
+		<Style Selector="TextBox.EditableTextBox">
+			<Setter Property="Margin" Value="0,4"/>
+		</Style>
+
+		<Style Selector="Grid:nth-child(1) TextBox.EditableTextBox">
+			<Setter Property="Margin" Value="0,4,0,0"/>
+		</Style>
 	</UserControl.Styles>
 
 	<StackPanel Orientation="Vertical" Spacing="8">
-		<!-- Primary field (always visible) -->
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="{Binding #Root.LabelWidth}"/>
@@ -37,7 +44,6 @@
                              HorizontalAlignment="Stretch"/>
 		</Grid>
 
-		<!-- Dynamic additional fields -->
 		<ItemsControl ItemsSource="{Binding #Root.AdditionalFields}"
                       IsVisible="{Binding #Root.HasAdditionalFields}">
 			<ItemsControl.ItemTemplate>

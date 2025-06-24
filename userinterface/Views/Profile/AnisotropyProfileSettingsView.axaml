@@ -7,48 +7,80 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AnisotropyProfileSettingsView"
              x:DataType="vm:AnisotropyProfileSettingsViewModel">
-	<UserControl.Styles>
-		<Style Selector="TextBlock.HeaderText">
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="HorizontalAlignment" Value="Center"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="FontSize" Value="14"/>
-		</Style>
-		<Style Selector="TextBlock.FieldLabel">
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="MaxWidth" Value="200"/>
-			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-		</Style>
-	</UserControl.Styles>
-	<controls:EditableExpanderView Header="Anisotropy" HorizontalAlignment="Stretch" Margin="0,0,0,12">
-		<controls:EditableExpanderView.ExpanderContent>
-			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<Grid ColumnDefinitions="*,100,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
-					<!-- Header Row -->
-					<Border Grid.Column="1" Grid.Row="0"/>
-					<TextBlock Grid.Column="1" Grid.Row="0" Classes="HeaderText" Text="X"/>
-					<TextBlock Grid.Column="2" Grid.Row="0" Classes="HeaderText" Text="Y"/>
-					<!-- Domain Row -->
-					<TextBlock Grid.Column="0" Grid.Row="1" Classes="FieldLabel" Text="Domain"/>
-					<ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding DomainX}" Margin="8,0,0,0"/>
-					<ContentControl Grid.Column="2" Grid.Row="1" Content="{Binding DomainY}" Margin="8,0,0,0"/>
-					<!-- Range Row -->
-					<TextBlock Grid.Column="0" Grid.Row="2" Classes="FieldLabel" Text="Range"/>
-					<ContentControl Grid.Column="1" Grid.Row="2" Content="{Binding RangeX}" Margin="8,0,0,0"/>
-					<ContentControl Grid.Column="2" Grid.Row="2" Content="{Binding RangeY}" Margin="8,0,0,0"/>
-				</Grid>
-				<Grid ColumnDefinitions="*,200">
-					<TextBlock Grid.Column="0"
-							   Classes="FieldLabel"
-							   Text="LP Norm"
-							   Margin="0,0,12,0"/>
-					<ContentControl Grid.Column="1" Content="{Binding LPNorm}"/>
-				</Grid>
-			</StackPanel>
-		</controls:EditableExpanderView.ExpanderContent>
-	</controls:EditableExpanderView>
+
+    <UserControl.Styles>
+        <!-- Override ContentControl sizing for compact numeric inputs -->
+        <Style Selector="ContentControl.CompactNumeric">
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="MaxWidth" Value="90"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- Override the nested ContentControl inside EditableFieldView -->
+        <Style Selector="ContentControl.CompactNumeric ContentControl">
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="MaxWidth" Value="90"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        
+        <!-- Override TextBox styling for compact numeric input -->
+        <Style Selector="ContentControl.CompactNumeric TextBox">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="MaxWidth" Value="90"/>
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        
+        <!-- Override any existing EditableTextBox styling -->
+        <Style Selector="ContentControl.CompactNumeric TextBox.EditableTextBox">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="MaxWidth" Value="90"/>
+            <Setter Property="Width" Value="70"/>
+        </Style>
+    </UserControl.Styles>
+
+    <controls:EditableExpanderView Header="Anisotropy">
+        <controls:EditableExpanderView.ExpanderContent>
+            <StackPanel Margin="16" Spacing="16">
+                
+                <!-- Domain and Range Grid -->
+                <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="8">
+                    
+                    <!-- Headers -->
+                    <TextBlock Grid.Column="1" Grid.Row="0" Text="X" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    <TextBlock Grid.Column="2" Grid.Row="0" Text="Y" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    
+                    <!-- Domain Row -->
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Domain" VerticalAlignment="Center"/>
+                    <ContentControl Grid.Column="1" Grid.Row="1" 
+                                  Classes="CompactNumeric"
+                                  Content="{Binding DomainX}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="1" 
+                                  Classes="CompactNumeric"
+                                  Content="{Binding DomainY}"/>
+                    
+                    <!-- Range Row -->
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Range" VerticalAlignment="Center"/>
+                    <ContentControl Grid.Column="1" Grid.Row="2" 
+                                  Classes="CompactNumeric"
+                                  Content="{Binding RangeX}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="2" 
+                                  Classes="CompactNumeric"
+                                  Content="{Binding RangeY}"/>
+                    
+                </Grid>
+                
+                <!-- LP Norm (unchanged as requested) -->
+                <ContentControl Content="{Binding LPNorm}" HorizontalAlignment="Center"/>
+                
+            </StackPanel>
+        </controls:EditableExpanderView.ExpanderContent>
+    </controls:EditableExpanderView>
+
 </UserControl>

@@ -36,9 +36,10 @@
 		</Style>
 	</UserControl.Styles>
 
-	<TextBox KeyDown="TextBox_KeyDown"
-			 LostFocus="LostFocusHandler"
-			 Margin="8,8,0,8"
-			 TextWrapping="Wrap"
-			 Text="{Binding ValueText, UpdateSourceTrigger=LostFocus}"/>
+	<TextBox Classes="EditableTextBox"
+         KeyDown="TextBox_KeyDown"
+         LostFocus="LostFocusHandler"
+         TextWrapping="Wrap"
+         Text="{Binding ValueText, UpdateSourceTrigger=LostFocus}"/>
+
 </UserControl>
