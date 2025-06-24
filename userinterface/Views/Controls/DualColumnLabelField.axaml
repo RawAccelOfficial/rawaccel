@@ -2,10 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
+             xmlns:localControls="using:userinterface.Views.Controls"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
              x:Class="userinterface.Views.Controls.DualColumnLabelField"
              x:Name="Root">
-
 	<UserControl.Styles>
 		<Style Selector="TextBlock.FieldLabel">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -17,20 +17,51 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="{Binding #Root.LabelWidth}"/>
-			<ColumnDefinition Width="12"/>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
+	<StackPanel Orientation="Vertical" Spacing="8">
+		<!-- Primary field (always visible) -->
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="{Binding #Root.LabelWidth}"/>
+				<ColumnDefinition Width="12"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
 
-		<TextBlock Grid.Column="0"
-                   Classes="FieldLabel"
-                   Text="{Binding #Root.Label}"
-                   ToolTip.Tip="{Binding #Root.Label}"/>
+			<TextBlock Grid.Column="0"
+                       Classes="FieldLabel"
+                       Text="{Binding #Root.Label}"
+                       ToolTip.Tip="{Binding #Root.Label}"/>
 
-		<ContentPresenter Grid.Column="2"
-                         Content="{Binding #Root.InputContent}"
-                         VerticalAlignment="Center"/>
-	</Grid>
+			<ContentPresenter Grid.Column="2"
+                             Content="{Binding #Root.InputContent}"
+                             VerticalAlignment="Center"
+                             HorizontalAlignment="Stretch"/>
+		</Grid>
+
+		<!-- Dynamic additional fields -->
+		<ItemsControl ItemsSource="{Binding #Root.AdditionalFields}"
+                      IsVisible="{Binding #Root.HasAdditionalFields}">
+			<ItemsControl.ItemTemplate>
+				<DataTemplate x:DataType="localControls:FieldItem">
+					<Grid Margin="0,4">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="{Binding #Root.LabelWidth}"/>
+							<ColumnDefinition Width="12"/>
+							<ColumnDefinition Width="*"/>
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Column="0"
+                                   Classes="FieldLabel"
+                                   Text="{Binding Label}"
+                                   ToolTip.Tip="{Binding Label}"/>
+
+						<ContentPresenter Grid.Column="2"
+                                         Content="{Binding InputContent}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch"
+                                         HorizontalContentAlignment="Stretch"/>
+					</Grid>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</StackPanel>
 </UserControl>
