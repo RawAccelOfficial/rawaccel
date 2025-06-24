@@ -9,7 +9,6 @@
              x:Class="userinterface.Views.Profile.AccelerationProfileSettingsView"
              x:DataType="vm:AccelerationProfileSettingsViewModel">
 	<UserControl.Styles>
-		<!-- Base input control styling - applied to all input types -->
 		<Style Selector="ComboBox, TextBox, NumericUpDown">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -22,23 +21,19 @@
 			<Setter Property="Height" Value="32"/>
 		</Style>
 
-		<!-- Focus states for all input controls -->
 		<Style Selector="ComboBox:focus, TextBox:focus, NumericUpDown:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
-		<!-- Hover states for all input controls -->
 		<Style Selector="ComboBox:pointerover, TextBox:pointerover, NumericUpDown:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
 
-		<!-- ComboBox specific settings (only what's unique to ComboBox) -->
 		<Style Selector="ComboBox">
 			<Setter Property="MaxDropDownHeight" Value="200"/>
 		</Style>
 
-		<!-- ComboBox popup styling -->
 		<Style Selector="ComboBox /template/ Popup#PART_Popup">
 			<Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
 			<Setter Property="HorizontalOffset" Value="0"/>
@@ -51,7 +46,6 @@
 			<Setter Property="MaxWidth" Value="300"/>
 		</Style>
 
-		<!-- Ensure ContentPresenters in DualColumnLabelField stretch properly -->
 		<Style Selector="localControls|DualColumnLabelField ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -71,7 +65,6 @@
 					</localControls:DualColumnLabelField.InputContent>
 				</localControls:DualColumnLabelField>
 
-				<!-- Keep Anisotropy and Coalescence as they were -->
 				<ContentControl Content="{Binding AnisotropySettings}"
                                 IsVisible="{Binding AreAccelSettingsVisible}"/>
 				<ContentControl Content="{Binding CoalescionSettings}"
