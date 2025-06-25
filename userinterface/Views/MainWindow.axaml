@@ -16,21 +16,42 @@
 	</Design.DataContext>
 
 	<Window.Styles>
-		<Style Selector="TabControl">
-			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
-			<Setter Property="BorderThickness" Value="0"/>
+		<!-- Sidebar Border -->
+		<Style Selector="Border.SidebarBorder">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Margin" Value="16"/>
+			<Setter Property="Padding" Value="24"/>
+			<Setter Property="Width" Value="368"/>
 		</Style>
 
-		<Style Selector="TabItem">
-			<Setter Property="Background" Value="Transparent"/>
+		<!-- Sidebar title style -->
+		<Style Selector="TextBlock.SidebarTitle">
+			<Setter Property="FontSize" Value="28"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="Margin" Value="15,24,0,16"/>
+			<Setter Property="HorizontalAlignment" Value="Left"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+		</Style>
+
+		<!-- Navigation Button Styles -->
+		<Style Selector="Button.NavButton">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="Padding" Value="20,15"/>
-			<Setter Property="Margin" Value="0"/>
+			<Setter Property="Margin" Value="0,4"/>
 			<Setter Property="FontSize" Value="16"/>
 			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="HorizontalContentAlignment" Value="Left"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="MinHeight" Value="48"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Padding" Value="15"/>
 			<Setter Property="Template">
 				<ControlTemplate>
 					<Border Name="PART_LayoutRoot"
@@ -39,52 +60,43 @@
 							BorderThickness="{TemplateBinding BorderThickness}"
 							CornerRadius="{TemplateBinding CornerRadius}"
 							Padding="{TemplateBinding Padding}">
-						<Panel>
-							<Border Name="IndicatorBar"
-									Width="3"
-									CornerRadius="4"
-									HorizontalAlignment="Left"
-									Background="Transparent"
-									IsVisible="False"/>
-							<!-- The border is to move the text away from the indicator bar -->
-							<Border Margin="15,0,0,0" Background="Transparent">
-								<ContentPresenter Name="PART_ContentPresenter"
-												  ContentTemplate="{TemplateBinding HeaderTemplate}"
-												  Content="{TemplateBinding Header}"
-												  HorizontalAlignment="Left"
-												  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-												  TextBlock.FontFamily="{TemplateBinding FontFamily}"
-												  TextBlock.FontSize="{TemplateBinding FontSize}"
-												  TextBlock.FontWeight="{TemplateBinding FontWeight}"
-												  TextBlock.Foreground="{TemplateBinding Foreground}"/>
-							</Border>
-						</Panel>
+						<TextBlock Text="{TemplateBinding Content}"
+								   FontFamily="{TemplateBinding FontFamily}"
+								   FontSize="{TemplateBinding FontSize}"
+								   FontWeight="{TemplateBinding FontWeight}"
+								   Foreground="{TemplateBinding Foreground}"
+								   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								   VerticalAlignment="Center"
+								   Background="Transparent"/>
 					</Border>
 				</ControlTemplate>
 			</Setter>
 		</Style>
 
-		<Style Selector="TabItem:pointerover /template/ Border#IndicatorBar">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="IsVisible" Value="True"/>
-		</Style>
-
-		<Style Selector="TabItem:pointerover">
+		<!-- Navigation Button hover state -->
+		<Style Selector="Button.NavButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
 
-		<Style Selector="TabItem:selected">
+		<!-- Navigation Button selected state -->
+		<Style Selector="Button.NavButton.Selected">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
-		<Style Selector="TabItem:selected:pointerover /template/ Border#PART_LayoutRoot">
+		<!-- Navigation Button selected hover state -->
+		<Style Selector="Button.NavButton.Selected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
-		<!-- The ContentPresenter inside the item -->
-		<Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="RenderTransform" Value="scale(1.05)"/>
+		<!-- Navigation Button pressed state -->
+		<Style Selector="Button.NavButton:pressed">
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
 
 		<Style Selector="Border.ContentArea">
@@ -105,6 +117,8 @@
 			<Setter Property="FontSize" Value="16"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
 			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="Margin" Value="0,24,0,0"/>
 		</Style>
 
 		<Style Selector="Button.ApplyButton:pointerover">
@@ -122,8 +136,8 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="25"/>
-			<Setter Property="Width" Value="50"/>
-			<Setter Property="Height" Value="50"/>
+			<Setter Property="Width" Value="40"/>
+			<Setter Property="Height" Value="40"/>
 			<Setter Property="Cursor" Value="Hand"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -152,18 +166,12 @@
 		</Style>
 
 		<!-- Transitions -->
-		<Style Selector="TabItem /template/ ContentPresenter#PART_ContentPresenter">
+		<Style Selector="Button.NavButton">
 			<Setter Property="Transitions">
 				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
-				</Transitions>
-			</Setter>
-		</Style>
-
-		<Style Selector="TabItem /template/ Border#IndicatorBar">
-			<Setter Property="Transitions">
-				<Transitions>
-					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
 				</Transitions>
 			</Setter>
 		</Style>
@@ -175,10 +183,6 @@
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
 				</Transitions>
 			</Setter>
-		</Style>
-
-		<Style Selector="Button.ApplyButton:pressed">
-			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
 
 		<Style Selector="ToggleButton.ThemeToggle">
@@ -193,52 +197,64 @@
 	</Window.Styles>
 
 	<Panel>
-		<TabControl VerticalAlignment="Stretch"
-					HorizontalAlignment="Stretch"
-					TabStripPlacement="Left">
-			<TabControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<StackPanel Width="300" Background="{DynamicResource CardBackgroundBrush}"/>
-				</ItemsPanelTemplate>
-			</TabControl.ItemsPanel>
-			<TabItem Header="Devices">
-				<Border Classes="ContentArea">
-					<ContentControl Content="{Binding DevicesPage}"/>
-				</Border>
-			</TabItem>
-			<TabItem Header="Mappings">
-				<Border Classes="ContentArea">
-					<ContentControl Content="{Binding MappingsPage}"/>
-				</Border>
-			</TabItem>
-			<TabItem Header="Profiles">
-				<Border Classes="ContentArea">
-					<ContentControl Content="{Binding ProfilesPage}"/>
-				</Border>
-			</TabItem>
-		</TabControl>
+		<!-- Sidebar with header and navigation -->
+		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+			<DockPanel>
+				<!-- Apply Settings Button at bottom -->
+				<Button Classes="ApplyButton"
+						DockPanel.Dock="Bottom"
+						Click="ApplyButtonHandler">
+					Apply Settings
+				</Button>
 
-		<StackPanel VerticalAlignment="Bottom"
-					HorizontalAlignment="Left"
-					Margin="16"
-					Spacing="12">
+				<!-- Navigation content -->
+				<StackPanel>
+					<!-- Sidebar Header with Title and Theme Toggle -->
+					<DockPanel Margin="0,0,0,16">
+						<ToggleButton Classes="ThemeToggle"
+									  Click="ToggleTheme"
+									  Name="ThemeToggleButton"
+									  DockPanel.Dock="Right"
+									  VerticalAlignment="Center">
+							<PathIcon Data="{StaticResource weather_moon_regular}"
+									  Width="16"
+									  Height="16"
+									  Name="ThemeIcon"/>
+						</ToggleButton>
 
-			<ToggleButton Classes="ThemeToggle"
-						  Click="ToggleTheme"
-						  Name="ThemeToggleButton"
-						  HorizontalAlignment="Center">
-				<PathIcon Data="{StaticResource weather_moon_regular}"
-						  Width="20"
-						  Height="20"
-						  Name="ThemeIcon"/>
-			</ToggleButton>
+						<TextBlock Classes="SidebarTitle"
+								   Text="Navigation"
+								   VerticalAlignment="Center"/>
+					</DockPanel>
 
-			<Button Classes="ApplyButton"
-					Width="268"
-					Click="ApplyButtonHandler">
-				Apply Settings
-			</Button>
+					<!-- Navigation Items -->
+					<StackPanel Spacing="4">
+						<Button Classes="NavButton"
+								Name="DevicesButton"
+								Click="OnNavigationClick"
+								Tag="Devices">
+							Devices
+						</Button>
+						<Button Classes="NavButton"
+								Name="MappingsButton"
+								Click="OnNavigationClick"
+								Tag="Mappings">
+							Mappings
+						</Button>
+						<Button Classes="NavButton"
+								Name="ProfilesButton"
+								Click="OnNavigationClick"
+								Tag="Profiles">
+							Profiles
+						</Button>
+					</StackPanel>
+				</StackPanel>
+			</DockPanel>
+		</Border>
 
-		</StackPanel>
+		<!-- Content Area -->
+		<Border Classes="ContentArea" Margin="400,16,16,16">
+			<ContentControl Content="{Binding CurrentPageContent}"/>
+		</Border>
 	</Panel>
 </Window>
