@@ -20,32 +20,26 @@
 			<Setter Property="VerticalAlignment" Value="Center"/>
 			<Setter Property="Height" Value="32"/>
 		</Style>
-
 		<Style Selector="ComboBox:focus, TextBox:focus, NumericUpDown:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
-
 		<Style Selector="ComboBox:pointerover, TextBox:pointerover, NumericUpDown:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
-
 		<Style Selector="ComboBox">
 			<Setter Property="MaxDropDownHeight" Value="200"/>
 		</Style>
-
 		<Style Selector="ComboBox /template/ Popup#PART_Popup">
 			<Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
 			<Setter Property="HorizontalOffset" Value="0"/>
 			<Setter Property="VerticalOffset" Value="0"/>
 			<Setter Property="PlacementConstraintAdjustment" Value="SlideX,SlideY,ResizeX,ResizeY"/>
 		</Style>
-
 		<Style Selector="ComboBox /template/ Border#PART_PopupBorder">
 			<Setter Property="MinWidth" Value="150"/>
 			<Setter Property="MaxWidth" Value="300"/>
 		</Style>
-
 		<Style Selector="localControls|DualColumnLabelField ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -56,15 +50,8 @@
                                    HorizontalAlignment="Stretch"
                                    Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
-			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<localControls:DualColumnLabelField x:Name="AccelerationField" Label="Acceleration">
-					<localControls:DualColumnLabelField.InputContent>
-						<ComboBox ItemsSource="{Binding DefinitionTypesLocal}"
-                                  SelectedItem="{Binding AccelerationBE.DefinitionType.InterfaceValue}"
-                                  SelectionChanged="OnAccelerationTypeSelectionChanged"/>
-					</localControls:DualColumnLabelField.InputContent>
-				</localControls:DualColumnLabelField>
-
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12" x:Name="MainStackPanel">
+				<!-- The DualColumnLabelField will be added in code-behind -->
 				<ContentControl Content="{Binding AnisotropySettings}"
                                 IsVisible="{Binding AreAccelSettingsVisible}"/>
 				<ContentControl Content="{Binding CoalescionSettings}"

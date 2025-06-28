@@ -7,7 +7,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationLUTSettingsView"
              x:DataType="vm:AccelerationLUTSettingsViewModel">
-
 	<UserControl.Styles>
 		<Style Selector="TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -41,7 +40,7 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel Spacing="12">
+	<StackPanel Spacing="12" x:Name="MainStackPanel">
 		<TextBlock Classes="Warning">
 			This mode is for experts only.
 		</TextBlock>
@@ -49,19 +48,5 @@
 			Format: x1,y1,x2,y2,...xn,yn;
 		</TextBlock>
 		<ContentControl Content="{Binding LUTPoints}" Height="100"/>
-
-		<controls:DualColumnLabelField Label="Apply as:">
-			<controls:DualColumnLabelField.InputContent>
-				<ComboBox>
-					<ComboBoxItem>
-						<TextBlock Text="Velocity"/>
-					</ComboBoxItem>
-					<ComboBoxItem>
-						<TextBlock Text="Sensitivity"/>
-					</ComboBoxItem>
-				</ComboBox>
-			</controls:DualColumnLabelField.InputContent>
-		</controls:DualColumnLabelField>
-
 	</StackPanel>
 </UserControl>

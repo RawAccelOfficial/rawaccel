@@ -15,6 +15,10 @@
 			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
 			<Setter Property="TextWrapping" Value="NoWrap"/>
 		</Style>
+		<Style Selector="ContentPresenter.InputPresenter">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		</Style>
 		<Style Selector="TextBox.EditableTextBox">
 			<Setter Property="Margin" Value="0,4"/>
 		</Style>
@@ -22,38 +26,15 @@
 			<Setter Property="Margin" Value="0,4,0,0"/>
 		</Style>
 	</UserControl.Styles>
+
 	<StackPanel Orientation="Vertical" Spacing="8">
-		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="{Binding #Root.LabelWidth}"/>
-				<ColumnDefinition Width="12"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
-			<TextBlock Grid.Column="0"
-                       Classes="FieldLabel"
-                       Text="{Binding #Root.Label}"
-                       ToolTip.Tip="{Binding #Root.Label}"/>
-			<ContentPresenter Grid.Column="2"
-                             Content="{Binding #Root.InputContent}"
-                             VerticalAlignment="Center"
-                             HorizontalAlignment="Stretch"/>
-		</Grid>
-
-		<!-- Alternative View Content -->
-		<ContentPresenter Content="{Binding #Root.AlternativeViewContent}"
-		                  IsVisible="{Binding #Root.ShowAlternativeView}"
-		                  HorizontalAlignment="Stretch"
-		                  VerticalAlignment="Top"/>
-
-		<!-- Additional Fields -->
-		<ItemsControl ItemsSource="{Binding #Root.AdditionalFields}"
-                      IsVisible="{Binding #Root.ShowAdditionalFields}">
+		<ItemsControl ItemsSource="{Binding #Root.Fields}">
 			<ItemsControl.ItemTemplate>
 				<DataTemplate x:DataType="localControls:FieldItem">
 					<Grid Margin="0,4">
 						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="{Binding #Root.LabelWidth}"/>
-							<ColumnDefinition Width="12"/>
+							<ColumnDefinition Width="100"/>
+							<ColumnDefinition Width="8"/>
 							<ColumnDefinition Width="*"/>
 						</Grid.ColumnDefinitions>
 						<TextBlock Grid.Column="0"
@@ -61,10 +42,9 @@
                                    Text="{Binding Label}"
                                    ToolTip.Tip="{Binding Label}"/>
 						<ContentPresenter Grid.Column="2"
-                                         Content="{Binding InputContent}"
-                                         VerticalAlignment="Center"
-                                         HorizontalAlignment="Stretch"
-                                         HorizontalContentAlignment="Stretch"/>
+                                         Classes="InputPresenter"
+                                         Content="{Binding Input}"
+                                         VerticalAlignment="Center"/>
 					</Grid>
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>

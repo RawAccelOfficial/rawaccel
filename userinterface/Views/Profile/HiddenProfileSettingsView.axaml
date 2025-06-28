@@ -31,15 +31,8 @@
                                    HorizontalAlignment="Stretch"
                                    Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
-			<StackPanel Orientation="Vertical" Margin="16" Spacing="12">
-				<localControls:DualColumnLabelField x:Name="HiddenSettingsField"
-                                                   Label="Rotation">
-					<localControls:DualColumnLabelField.InputContent>
-						<ContentControl Content="{Binding RotationField}"
-                                       HorizontalAlignment="Stretch"
-                                       HorizontalContentAlignment="Stretch"/>
-					</localControls:DualColumnLabelField.InputContent>
-				</localControls:DualColumnLabelField>
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12" x:Name="MainStackPanel">
+				<!-- The DualColumnLabelField will be added in code-behind -->
 			</StackPanel>
 		</controls:EditableExpanderView.ExpanderContent>
 	</controls:EditableExpanderView>

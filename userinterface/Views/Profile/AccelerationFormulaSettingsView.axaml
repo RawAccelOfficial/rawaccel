@@ -3,13 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
-             xmlns:controls="using:userinterface.Controls"
-             xmlns:localControls="using:userinterface.Views.Controls"
+             xmlns:controls="using:userinterface.Views.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="userinterface.Views.Profile.CoalescionProfileSettingsView"
-             x:DataType="vm:CoalescionProfileSettingsViewModel">
+             x:Class="userinterface.Views.Profile.AccelerationFormulaSettingsView"
+             x:DataType="vm:AccelerationFormulaSettingsViewModel">
 	<UserControl.Styles>
-		<!-- Base input control styling - applied to all input types -->
 		<Style Selector="ComboBox, TextBox, NumericUpDown">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -31,27 +29,13 @@
 		<Style Selector="ComboBox">
 			<Setter Property="MaxDropDownHeight" Value="200"/>
 		</Style>
-		<Style Selector="ComboBox /template/ Popup#PART_Popup">
-			<Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
-			<Setter Property="HorizontalOffset" Value="0"/>
-			<Setter Property="VerticalOffset" Value="0"/>
-			<Setter Property="PlacementConstraintAdjustment" Value="SlideX,SlideY,ResizeX,ResizeY"/>
-		</Style>
-		<Style Selector="ComboBox /template/ Border#PART_PopupBorder">
-			<Setter Property="MinWidth" Value="150"/>
-			<Setter Property="MaxWidth" Value="300"/>
-		</Style>
-		<Style Selector="localControls|DualColumnLabelField ContentPresenter">
+		<Style Selector="controls|DualColumnLabelField ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 		</Style>
 	</UserControl.Styles>
-
-	<controls:EditableExpanderView Header="Coalescion" HorizontalAlignment="Stretch" Margin="0,0,0,12">
-		<controls:EditableExpanderView.ExpanderContent>
-			<StackPanel Orientation="Vertical" Margin="16" Spacing="12" x:Name="MainStackPanel">
-				<!-- The DualColumnLabelField will be added in code-behind -->
-			</StackPanel>
-		</controls:EditableExpanderView.ExpanderContent>
-	</controls:EditableExpanderView>
+	
+	<StackPanel Spacing="12" x:Name="MainStackPanel">
+		<!-- The DualColumnLabelField will be added in code-behind -->
+	</StackPanel>
 </UserControl>
