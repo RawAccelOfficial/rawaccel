@@ -17,6 +17,7 @@ namespace userinterface.ViewModels.Profile
         public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel)
         {
             FormulaAccelBE = formulaAccel;
+
             SynchronousSettings = new SynchronousSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Synchronous) as BE.Formula.SynchronousAccelerationDefinitionModel);
             LinearSettings = new LinearSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Linear) as BE.Formula.LinearAccelerationDefinitionModel);
             ClassicSettings = new ClassicSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Classic) as BE.Formula.ClassicAccelerationDefinitionModel);
@@ -26,6 +27,7 @@ namespace userinterface.ViewModels.Profile
         }
 
         public BE.FormulaAccelModel FormulaAccelBE { get; }
+
         public ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
 
         public SynchronousSettings SynchronousSettings { get; }
@@ -36,6 +38,7 @@ namespace userinterface.ViewModels.Profile
         public JumpSettings JumpSettings { get; }
     }
 
+    // ... rest of your settings classes remain the same
     public class SynchronousSettings
     {
         public SynchronousSettings(BE.Formula.SynchronousAccelerationDefinitionModel synchronousAccelModelBE)

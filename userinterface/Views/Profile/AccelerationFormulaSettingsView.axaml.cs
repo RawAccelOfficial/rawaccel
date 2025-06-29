@@ -2,14 +2,18 @@
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using System;
+using System.ComponentModel;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
+using BEData = userspace_backend.Data.Profiles.Accel.FormulaAccel;
 
 namespace userinterface.Views.Profile;
 
 public partial class AccelerationFormulaSettingsView : UserControl
 {
     private DualColumnLabelField? _formulaField;
+    private ComboBox? _formulaTypeCombo;
 
     public AccelerationFormulaSettingsView()
     {
@@ -28,45 +32,91 @@ public partial class AccelerationFormulaSettingsView : UserControl
     private void SetupControls()
     {
         if (DataContext is not AccelerationFormulaSettingsViewModel viewModel)
+        {
+            System.Diagnostics.Debug.WriteLine("❌ DataContext is null or wrong type");
             return;
+        }
 
-        // Create the formula type ComboBox
-        var formulaTypeCombo = new ComboBox
+        // Debug: Check if items exist
+        System.Diagnostics.Debug.WriteLine($"✅ DataContext found: {viewModel.GetType().Name}");
+        System.Diagnostics.Debug.WriteLine($"📊 FormulaTypesLocal count: {viewModel.FormulaTypesLocal?.Count ?? -1}");
+
+        if (viewModel.FormulaTypesLocal != null)
+        {
+            foreach (var item in viewModel.FormulaTypesLocal)
+            {
+                System.Diagnostics.Debug.WriteLine($"  - Item: '{item}'");
+            }
+        }
+
+        System.Diagnostics.Debug.WriteLine($"🔧 FormulaAccelBE is null: {viewModel.FormulaAccelBE == null}");
+        System.Diagnostics.Debug.WriteLine($"🔧 FormulaType is null: {viewModel.FormulaAccelBE?.FormulaType == null}");
+        System.Diagnostics.Debug.WriteLine($"🔧 Current InterfaceValue: '{viewModel.FormulaAccelBE?.FormulaType?.InterfaceValue}'");
+        System.Diagnostics.Debug.WriteLine($"🔧 Current ModelValue: '{viewModel.FormulaAccelBE?.FormulaType?.ModelValue}'");
+
+        // Create the ComboBox
+        _formulaTypeCombo = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
-            ItemsSource = viewModel.FormulaTypesLocal,
-            SelectedItem = viewModel.FormulaAccelBE.FormulaType.InterfaceValue
+            DataContext = this.DataContext // Ensure DataContext is set
         };
-        formulaTypeCombo.SelectionChanged += OnFormulaTypeSelectionChanged;
 
-        // Create the DualColumnLabelField with the formula type field
+        // Set up the bindings
+        _formulaTypeCombo.Bind(ComboBox.ItemsSourceProperty, new Binding("FormulaTypesLocal"));
+        _formulaTypeCombo.Bind(ComboBox.SelectedItemProperty, new Binding("FormulaAccelBE.FormulaType.InterfaceValue"));
+
+        // Debug: Check after binding
+        System.Diagnostics.Debug.WriteLine($"📦 ComboBox ItemsSource after binding: {_formulaTypeCombo.ItemsSource?.GetType()?.Name}");
+        if (_formulaTypeCombo.ItemsSource is System.Collections.IEnumerable items)
+        {
+            var count = 0;
+            foreach (var item in items)
+            {
+                count++;
+                System.Diagnostics.Debug.WriteLine($"  - ComboBox Item {count}: '{item}'");
+            }
+            System.Diagnostics.Debug.WriteLine($"📦 Total ComboBox items: {count}");
+        }
+
+        // Rest of your code...
+        _formulaTypeCombo.SelectionChanged += OnFormulaTypeSelectionChanged;
+
         _formulaField = new DualColumnLabelField(
-            ("Formula Type", formulaTypeCombo)
+            ("Formula Type", _formulaTypeCombo)
         );
 
-        // Add initial formula fields based on current selection
-        var currentFormulaIndex = formulaTypeCombo.SelectedIndex;
+        var currentFormulaIndex = GetCurrentFormulaTypeIndex(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
         AddFormulaSpecificFields(currentFormulaIndex, viewModel);
 
-        // Add it to the main StackPanel
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
         mainStackPanel?.Children.Add(_formulaField);
     }
 
+
     private void OnFormulaTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (DataContext is not AccelerationFormulaSettingsViewModel viewModel || _formulaField == null)
-            return;
+        if (DataContext is AccelerationFormulaSettingsViewModel viewModel && _formulaField != null)
+        {
+            // Update the backend (old way that worked)
+            viewModel.FormulaAccelBE.FormulaType.TryUpdateFromInterface();
 
-        var comboBox = sender as ComboBox;
-        var selectedIndex = comboBox?.SelectedIndex ?? -1;
+            // Remove existing formula-specific fields (keep Formula Type field)
+            RemoveFormulaSpecificFields();
 
-        // Remove existing formula-specific fields (keep Formula Type field)
-        RemoveFormulaSpecificFields();
+            // Add new formula-specific fields
+            var currentFormulaIndex = GetCurrentFormulaTypeIndex(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
+            AddFormulaSpecificFields(currentFormulaIndex, viewModel);
+        }
+    }
 
-        // Add new formula-specific fields
-        AddFormulaSpecificFields(selectedIndex, viewModel);
+    private int GetCurrentFormulaTypeIndex(string formulaTypeName)
+    {
+        if (Enum.TryParse<BEData.AccelerationFormulaType>(formulaTypeName, out var formulaType))
+        {
+            return (int)formulaType;
+        }
+        return 0; // Default to first item if parsing fails
     }
 
     private void RemoveFormulaSpecificFields()
