@@ -12,7 +12,6 @@ namespace userinterface.ViewModels.Device
         }
 
         public BE.DeviceGroupModel DeviceGroupBE { get; }
-
         protected BE.DeviceGroups DeviceGroupsBE { get; }
 
         public void DeleteSelf()

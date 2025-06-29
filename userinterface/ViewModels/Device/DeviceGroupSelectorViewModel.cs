@@ -5,7 +5,7 @@ namespace userinterface.ViewModels.Device
 {
     public partial class DeviceGroupSelectorViewModel : ViewModelBase
     {
-        protected DeviceGroupModel selectedEntry;
+        protected DeviceGroupModel selectedEntry = null!;
 
         public DeviceGroupSelectorViewModel(DeviceModel device, DeviceGroups deviceGroupsBE)
         {
@@ -14,11 +14,11 @@ namespace userinterface.ViewModels.Device
             RefreshSelectedDeviceGroup();
         }
 
-        protected DeviceModel Device { get; set; }
+        protected readonly DeviceModel Device;
+        protected readonly DeviceGroups DeviceGroupsBE;
 
-        protected DeviceGroups DeviceGroupsBE { get; }
-
-        public ObservableCollection<DeviceGroupModel> DeviceGroupEntries { get => DeviceGroupsBE.DeviceGroupModels; }
+        public ObservableCollection<DeviceGroupModel> DeviceGroupEntries =>
+            DeviceGroupsBE.DeviceGroupModels;
 
         public DeviceGroupModel SelectedEntry
         {
@@ -46,7 +46,6 @@ namespace userinterface.ViewModels.Device
 
             IsValid = true;
             selectedEntry = Device.DeviceGroup;
-            return;
         }
     }
 }

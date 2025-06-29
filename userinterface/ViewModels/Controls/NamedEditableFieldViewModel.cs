@@ -10,10 +10,8 @@ namespace userinterface.ViewModels.Controls
             Field = new EditableFieldViewModel(settingBE);
         }
 
-        public EditableFieldViewModel Field { get; set; }
-
+        public EditableFieldViewModel Field { get; }
         public string Name => SettingBE.DisplayName;
-
-        protected BE.IEditableSetting SettingBE { get; set; }
+        protected readonly BE.IEditableSetting SettingBE;
     }
 }

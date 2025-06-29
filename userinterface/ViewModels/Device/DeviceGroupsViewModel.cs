@@ -14,16 +14,12 @@ namespace userinterface.ViewModels.Device
             DeviceGroupsBE.DeviceGroupModels.CollectionChanged += DeviceGroupsCollectionChanged;
         }
 
-        protected BE.DeviceGroups DeviceGroupsBE { get; }
-
+        protected readonly BE.DeviceGroups DeviceGroupsBE;
         public ObservableCollection<BE.DeviceGroupModel> DeviceGroups => DeviceGroupsBE.DeviceGroupModels;
-
         public ObservableCollection<DeviceGroupViewModel> DeviceGroupViews { get; }
 
-        private void DeviceGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
+        private void DeviceGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => 
             UpdateDeviceGroupViews();
-        }
 
         public void UpdateDeviceGroupViews()
         {
@@ -34,9 +30,6 @@ namespace userinterface.ViewModels.Device
             }
         }
 
-        public bool TryAddNewDeviceGroup()
-        {
-            return DeviceGroupsBE.TryAddDeviceGroup();
-        }
+        public bool TryAddNewDeviceGroup() => DeviceGroupsBE.TryAddDeviceGroup();
     }
 }

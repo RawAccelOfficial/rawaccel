@@ -10,37 +10,34 @@ namespace userinterface.ViewModels.Profile
     public partial class ProfilesPageViewModel : ViewModelBase
     {
         [ObservableProperty]
-        public ProfileViewModel selectedProfileView;
+        public ProfileViewModel? selectedProfileView;
 
         public ProfilesPageViewModel(BE.ProfilesModel profileModels)
         {
             ProfileModels = profileModels.Profiles;
             ProfileViewModels = new ObservableCollection<ProfileViewModel>();
-            UpdatedProfileViewModels();
+            UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
             ProfileListView = new ProfileListViewModel(profileModels, UpdateSelectedProfileView);
             ActiveProfilesListView = new ActiveProfilesListViewModel();
         }
 
-        protected IEnumerable<BE.ProfileModel> ProfileModels { get; }
-
-        protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
-
+        protected readonly IEnumerable<BE.ProfileModel> ProfileModels;
+        protected readonly ObservableCollection<ProfileViewModel> ProfileViewModels;
         public ProfileListViewModel ProfileListView { get; }
-
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 
         protected void UpdateSelectedProfileView()
         {
             SelectedProfileView = ProfileViewModels.FirstOrDefault(
-                p => string.Equals(p.CurrentName, ProfileListView.CurrentSelectedProfile?.CurrentNameForDisplay, StringComparison.InvariantCultureIgnoreCase));
+                p => string.Equals(p.CurrentName, ProfileListView.CurrentSelectedProfile?.CurrentNameForDisplay, StringComparison.InvariantCultureIgnoreCase))
+                ?? ProfileViewModels.FirstOrDefault();
         }
 
-        protected void UpdatedProfileViewModels()
+        protected void UpdateProfileViewModels()
         {
             ProfileViewModels.Clear();
-
-            foreach (BE.ProfileModel profileModelBE in ProfileModels)
+            foreach (var profileModelBE in ProfileModels)
             {
                 ProfileViewModels.Add(new ProfileViewModel(profileModelBE));
             }

@@ -14,15 +14,13 @@ namespace userinterface.ViewModels.Mapping
         }
 
         public BE.MappingModel MappingBE { get; }
-
         protected BE.MappingsModel MappingsBE { get; }
 
         public ObservableCollection<BE.MappingGroup> IndividualMappings => MappingBE.IndividualMappings;
 
         public void HandleAddMappingSelection(SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0
-                && e.AddedItems[0] is BE.DeviceGroupModel deviceGroup)
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is BE.DeviceGroupModel deviceGroup)
             {
                 MappingBE.TryAddMapping(deviceGroup.CurrentValidatedValue, BE.ProfilesModel.DefaultProfile.CurrentNameForDisplay);
             }

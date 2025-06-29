@@ -11,12 +11,9 @@ namespace userinterface.ViewModels.Profile
             Chart = new ProfileChartViewModel(profileBE.CurvePreview);
         }
 
-        protected BE.ProfileModel ProfileModelBE { get; }
-
+        protected readonly BE.ProfileModel ProfileModelBE;
         public string CurrentName => ProfileModelBE.Name.CurrentValidatedValue;
-
-        public ProfileSettingsViewModel Settings { get; set; }
-
-        public ProfileChartViewModel Chart { get; set; }
+        public ProfileSettingsViewModel Settings { get; }
+        public ProfileChartViewModel Chart { get; }
     }
 }

@@ -14,14 +14,10 @@ namespace userinterface.ViewModels.Profile
             HiddenSettings = new HiddenProfileSettingsViewModel(profileBE.Hidden);
         }
 
-        protected BE.ProfileModel ProfileModelBE { get; }
-
+        protected readonly BE.ProfileModel ProfileModelBE;
         public EditableFieldViewModel OutputDPIField { get; set; }
-
         public EditableFieldViewModel YXRatioField { get; set; }
-
-        public AccelerationProfileSettingsViewModel AccelerationSettings { get; set; }
-
-        public HiddenProfileSettingsViewModel HiddenSettings { get; set; }
+        public AccelerationProfileSettingsViewModel AccelerationSettings { get; }
+        public HiddenProfileSettingsViewModel HiddenSettings { get; }
     }
 }

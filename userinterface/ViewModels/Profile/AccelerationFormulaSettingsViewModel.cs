@@ -9,27 +9,37 @@ namespace userinterface.ViewModels.Profile
 {
     public class AccelerationFormulaSettingsViewModel : ViewModelBase
     {
-        public static ObservableCollection<string> FormulaTypes =
-            new ObservableCollection<string>(
-                Enum.GetValues(typeof(BEData.AccelerationFormulaType)).Cast<BEData.AccelerationFormulaType>()
-                .Select(d => d.ToString()));
+        public static ObservableCollection<string> FormulaTypes { get; } =
+            new(Enum.GetValues(typeof(BEData.AccelerationFormulaType))
+                .Cast<BEData.AccelerationFormulaType>()
+                .Select(formulaType => formulaType.ToString()));
 
         public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel)
         {
             FormulaAccelBE = formulaAccel;
 
-            SynchronousSettings = new SynchronousSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Synchronous) as BE.Formula.SynchronousAccelerationDefinitionModel);
-            LinearSettings = new LinearSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Linear) as BE.Formula.LinearAccelerationDefinitionModel);
-            ClassicSettings = new ClassicSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Classic) as BE.Formula.ClassicAccelerationDefinitionModel);
-            PowerSettings = new PowerSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Power) as BE.Formula.PowerAccelerationDefinitionModel);
-            NaturalSettings = new NaturalSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Natural) as BE.Formula.NaturalAccelerationDefinitionModel);
-            JumpSettings = new JumpSettings(formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Jump) as BE.Formula.JumpAccelerationDefinitionModel);
+            SynchronousSettings = new SynchronousSettings((formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Synchronous)
+                as BE.Formula.SynchronousAccelerationDefinitionModel)!);
+
+            LinearSettings = new LinearSettings((formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Linear)
+                as BE.Formula.LinearAccelerationDefinitionModel)!);
+
+            ClassicSettings = new ClassicSettings((formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Classic)
+                as BE.Formula.ClassicAccelerationDefinitionModel)!);
+
+            PowerSettings = new PowerSettings((formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Power)
+                as BE.Formula.PowerAccelerationDefinitionModel)!);
+
+            NaturalSettings = new NaturalSettings((formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Natural)
+                as BE.Formula.NaturalAccelerationDefinitionModel)!);
+
+            JumpSettings = new JumpSettings((formulaAccel.GetAccelerationModelOfType(BEData.AccelerationFormulaType.Jump)
+                as BE.Formula.JumpAccelerationDefinitionModel)!);
         }
 
         public BE.FormulaAccelModel FormulaAccelBE { get; }
 
         public ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
-
         public SynchronousSettings SynchronousSettings { get; }
         public LinearSettings LinearSettings { get; }
         public ClassicSettings ClassicSettings { get; }

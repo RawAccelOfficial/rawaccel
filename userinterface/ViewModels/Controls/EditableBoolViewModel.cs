@@ -16,7 +16,7 @@ namespace userinterface.ViewModels.Controls
 
         public string Name => SettingBE.DisplayName;
 
-        protected BE.IEditableSetting SettingBE { get; set; }
+        protected readonly BE.IEditableSetting SettingBE;
 
         public bool TrySetFromInterface()
         {
@@ -26,9 +26,7 @@ namespace userinterface.ViewModels.Controls
             return wasSet;
         }
 
-        private void ResetValueFromBackEnd()
-        {
+        private void ResetValueFromBackEnd() => 
             ValueInDisplay = bool.TryParse(SettingBE.InterfaceValue, out bool result) && result;
-        }
     }
 }

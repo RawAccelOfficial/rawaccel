@@ -9,19 +9,16 @@ namespace userinterface.ViewModels.Mapping
         public MappingsPageViewModel(BE.MappingsModel mappingsBE)
         {
             MappingsBE = mappingsBE;
-            MappingViews = new ObservableCollection<MappingViewModel>();
+            MappingViews = [];
             UpdateMappingViews();
             MappingsBE.Mappings.CollectionChanged += MappingsCollectionChanged;
         }
 
-        public BE.MappingsModel MappingsBE { get; }
-
+        public readonly BE.MappingsModel MappingsBE;
         public ObservableCollection<MappingViewModel> MappingViews { get; }
 
-        private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
+        private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
             UpdateMappingViews();
-        }
 
         public void UpdateMappingViews()
         {
@@ -32,9 +29,6 @@ namespace userinterface.ViewModels.Mapping
             }
         }
 
-        public bool TryAddNewMapping()
-        {
-            return MappingsBE.TryAddMapping();
-        }
+        public bool TryAddNewMapping() => MappingsBE.TryAddMapping();
     }
 }

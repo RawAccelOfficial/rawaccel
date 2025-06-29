@@ -10,9 +10,9 @@ namespace userinterface.ViewModels.Profile
 {
     public partial class AccelerationProfileSettingsViewModel : ViewModelBase
     {
-        public static ObservableCollection<string> DefinitionTypes =
-            new ObservableCollection<string>(
-                Enum.GetValues(typeof(BEData.AccelerationDefinitionType)).Cast<BEData.AccelerationDefinitionType>()
+        public static readonly ObservableCollection<string> DefinitionTypes =
+            new(Enum.GetValues(typeof(BEData.AccelerationDefinitionType))
+                .Cast<BEData.AccelerationDefinitionType>()
                 .Select(d => d.ToString()));
 
         [ObservableProperty]
@@ -29,16 +29,11 @@ namespace userinterface.ViewModels.Profile
             AccelerationBE.DefinitionType.PropertyChanged += OnDefinitionTypeChanged;
         }
 
-        public BE.AccelerationModel AccelerationBE { get; }
-
+        public readonly BE.AccelerationModel AccelerationBE;
         public ObservableCollection<string> DefinitionTypesLocal => DefinitionTypes;
-
         public AccelerationFormulaSettingsViewModel AccelerationFormulaSettings { get; }
-
         public AccelerationLUTSettingsViewModel AccelerationLUTSettings { get; }
-
         public AnisotropyProfileSettingsViewModel AnisotropySettings { get; }
-
         public CoalescionProfileSettingsViewModel CoalescionSettings { get; }
 
         private void OnDefinitionTypeChanged(object? sender, PropertyChangedEventArgs e)
@@ -48,6 +43,5 @@ namespace userinterface.ViewModels.Profile
                 AreAccelSettingsVisible = AccelerationBE.DefinitionType.ModelValue != BEData.AccelerationDefinitionType.None;
             }
         }
-
     }
 }

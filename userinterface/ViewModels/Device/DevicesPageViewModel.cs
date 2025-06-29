@@ -12,9 +12,7 @@ namespace userinterface.ViewModels.Device
         }
 
         public DevicesListViewModel DevicesList { get; }
-
         public DeviceGroupsViewModel DeviceGroups { get; }
-
-        protected BE.DevicesModel DevicesBE { get; set; }
+        protected readonly BE.DevicesModel DevicesBE;
     }
 }

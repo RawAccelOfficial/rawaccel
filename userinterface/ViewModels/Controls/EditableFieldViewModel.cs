@@ -6,7 +6,7 @@ namespace userinterface.ViewModels.Controls
     public partial class EditableFieldViewModel : ViewModelBase
     {
         [ObservableProperty]
-        private string valueText;
+        private string valueText = string.Empty;
 
         public EditableFieldViewModel(BE.IEditableSetting settingBE)
         {
@@ -14,7 +14,7 @@ namespace userinterface.ViewModels.Controls
             ResetValueTextFromBackEnd();
         }
 
-        protected BE.IEditableSetting SettingBE { get; set; }
+        protected readonly BE.IEditableSetting SettingBE;
 
         public bool TrySetFromInterface()
         {
@@ -24,9 +24,7 @@ namespace userinterface.ViewModels.Controls
             return wasSet;
         }
 
-        private void ResetValueTextFromBackEnd()
-        {
-            ValueText = SettingBE.InterfaceValue;
-        }
+        private void ResetValueTextFromBackEnd() =>
+            ValueText = SettingBE.InterfaceValue ?? string.Empty;
     }
 }

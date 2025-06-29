@@ -10,7 +10,6 @@ namespace userinterface.ViewModels.Device
         {
             DeviceBE = deviceBE;
             DevicesBE = devicesBE;
-
             NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
             HWIDField = new NamedEditableFieldViewModel(DeviceBE.HardwareID);
             DPIField = new NamedEditableFieldViewModel(DeviceBE.DPI);
@@ -19,20 +18,13 @@ namespace userinterface.ViewModels.Device
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
         }
 
-        protected BE.DeviceModel DeviceBE { get; }
-
-        protected BE.DevicesModel DevicesBE { get; }
-
+        protected readonly BE.DeviceModel DeviceBE;
+        protected readonly BE.DevicesModel DevicesBE;
         public NamedEditableFieldViewModel NameField { get; set; }
-
         public NamedEditableFieldViewModel HWIDField { get; set; }
-
         public NamedEditableFieldViewModel DPIField { get; set; }
-
         public NamedEditableFieldViewModel PollRateField { get; set; }
-
         public EditableBoolViewModel IgnoreBool { get; set; }
-
         public DeviceGroupSelectorViewModel DeviceGroup { get; set; }
 
         public void DeleteSelf()

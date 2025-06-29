@@ -9,21 +9,17 @@ namespace userinterface.ViewModels.Device
         public DevicesListViewModel(BE.DevicesModel devicesBE)
         {
             DevicesBE = devicesBE;
-            DeviceViews = new ObservableCollection<DeviceViewModel>();
+            DeviceViews = [];
             UpdateDeviceViews();
             DevicesBE.Devices.CollectionChanged += DevicesCollectionChanged;
         }
 
-        protected BE.DevicesModel DevicesBE { get; set; }
-
+        protected readonly BE.DevicesModel DevicesBE;
         public ObservableCollection<BE.DeviceModel> Devices => DevicesBE.Devices;
-
         public ObservableCollection<DeviceViewModel> DeviceViews { get; }
 
-        private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
+        private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
             UpdateDeviceViews();
-        }
 
         public void UpdateDeviceViews()
         {
@@ -34,9 +30,6 @@ namespace userinterface.ViewModels.Device
             }
         }
 
-        public bool TryAddDevice()
-        {
-            return DevicesBE.TryAddDevice();
-        }
+        public bool TryAddDevice() => DevicesBE.TryAddDevice();
     }
 }

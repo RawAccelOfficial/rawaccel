@@ -9,7 +9,12 @@ namespace userinterface.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private string _selectedPage = "Devices";
+    private const string DefaultPage = "Devices";
+    private const string DevicesPageName = "Devices";
+    private const string MappingsPageName = "Mappings";
+    private const string ProfilesPageName = "Profiles";
+
+    private string _selectedPage = DefaultPage;
 
     public MainWindowViewModel(BE.BackEnd backEnd)
     {
@@ -19,10 +24,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         MappingsPage = new MappingsPageViewModel(backEnd.Mappings);
     }
 
-    public DevicesPageViewModel DevicesPage { get; }
-    public ProfilesPageViewModel ProfilesPage { get; }
-    public MappingsPageViewModel MappingsPage { get; }
-    protected BE.BackEnd BackEnd { get; set; }
+    public readonly DevicesPageViewModel DevicesPage;
+    public readonly ProfilesPageViewModel ProfilesPage;
+    public readonly MappingsPageViewModel MappingsPage;
+    protected readonly BE.BackEnd BackEnd;
 
     public string SelectedPage
     {
@@ -38,33 +43,22 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    public object? CurrentPageContent
-    {
-        get
+    public object? CurrentPageContent =>
+        SelectedPage switch
         {
-            return SelectedPage switch
-            {
-                "Devices" => DevicesPage,
-                "Mappings" => MappingsPage,
-                "Profiles" => ProfilesPage,
-                _ => DevicesPage
-            };
-        }
-    }
+            DevicesPageName => DevicesPage,
+            MappingsPageName => MappingsPage,
+            ProfilesPageName => ProfilesPage,
+            _ => DevicesPage
+        };
 
-    public void SelectPage(string pageName)
-    {
-        SelectedPage = pageName;
-    }
+    public void SelectPage(string pageName) => SelectedPage = pageName;
 
-    public void ApplyButtonClicked()
-    {
-        BackEnd.Apply();
-    }
+    public void ApplyButtonClicked() => BackEnd.Apply();
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public new event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    protected new virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
