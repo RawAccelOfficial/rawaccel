@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 
 namespace userinterface.Controls
@@ -10,7 +9,6 @@ namespace userinterface.Controls
     {
         static NoInteractionButtonView()
         {
-            // Override the default button template
             TemplateProperty.OverrideDefaultValue<NoInteractionButtonView>(CreateTemplate());
         }
 

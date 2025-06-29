@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BE = userspace_backend.Model;
+﻿using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Device
 {

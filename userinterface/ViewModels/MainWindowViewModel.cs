@@ -1,8 +1,8 @@
-﻿using userinterface.ViewModels.Device;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using BE = userspace_backend;
 
 namespace userinterface.ViewModels;

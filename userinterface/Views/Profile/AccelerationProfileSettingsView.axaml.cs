@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using userinterface.ViewModels.Profile;
@@ -33,7 +32,6 @@ public partial class AccelerationProfileSettingsView : UserControl
         if (DataContext is not AccelerationProfileSettingsViewModel viewModel)
             return;
 
-        // Create the main ComboBox for acceleration type
         _accelerationComboBox = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -47,7 +45,6 @@ public partial class AccelerationProfileSettingsView : UserControl
 
         _accelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
 
-        // Create the DualColumnLabelField with the main acceleration field
         _accelerationField = new DualColumnLabelField(
             ("Acceleration", _accelerationComboBox)
         );
@@ -76,7 +73,6 @@ public partial class AccelerationProfileSettingsView : UserControl
             mainStackPanel.Children.Insert(2, _lutViewContainer);
         }
 
-        // Set initial view based on current selection
         UpdateViewBasedOnSelection();
     }
 
@@ -92,13 +88,11 @@ public partial class AccelerationProfileSettingsView : UserControl
 
         var selectedIndex = _accelerationComboBox.SelectedIndex;
 
-        // Hide all views first
         HideAllViews();
 
-        // Show the appropriate view based on selected acceleration type
         switch (selectedIndex)
         {
-            case 0: // None - no additional fields
+            case 0: // None
                 break;
             case 1: // Formula
                 ShowFormulaView(viewModel);
@@ -121,7 +115,6 @@ public partial class AccelerationProfileSettingsView : UserControl
     {
         if (_formulaViewContainer == null) return;
 
-        // Create the formula settings view with proper data context
         var formulaView = new AccelerationFormulaSettingsView
         {
             DataContext = viewModel.AccelerationFormulaSettings,
@@ -136,7 +129,6 @@ public partial class AccelerationProfileSettingsView : UserControl
     {
         if (_lutViewContainer == null) return;
 
-        // Create the LUT settings view with proper data context
         var lutView = new AccelerationLUTSettingsView
         {
             DataContext = viewModel.AccelerationLUTSettings,

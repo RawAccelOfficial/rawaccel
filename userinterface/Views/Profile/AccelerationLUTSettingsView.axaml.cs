@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;

@@ -32,15 +32,14 @@ public partial class App : Application
                 DataContext = new MainWindowViewModel(backEnd),
             };
 
-            #if DEBUG
-                desktop.MainWindow.AttachDevTools();
-            #endif
+#if DEBUG
+            desktop.MainWindow.AttachDevTools();
+#endif
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    // ... rest of your code remains the same
     protected Bootstrapper BootstrapBackEnd()
     {
         return new Bootstrapper()

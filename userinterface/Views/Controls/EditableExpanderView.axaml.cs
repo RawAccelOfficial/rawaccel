@@ -9,7 +9,6 @@ using Avalonia.Styling;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +28,7 @@ namespace userinterface.Controls
 
         private int _angle;
         private CancellationTokenSource? _hoverDelayCancellationTokenSource;
+
         // Remove flicker caused by two buttons
         private const int HoverDelayMs = 50;
 

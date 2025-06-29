@@ -13,7 +13,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         UpdateThemeToggleButton();
-        UpdateSelectedButton("Devices"); // Set initial navigation selection
+        UpdateSelectedButton("Devices"); // Initial navigation selection
     }
 
     public void ApplyButtonHandler(object sender, RoutedEventArgs args)
@@ -38,12 +38,10 @@ public partial class MainWindow : Window
 
     private void UpdateSelectedButton(string selectedPage)
     {
-        // Remove Selected class from all navigation buttons
         DevicesButton.Classes.Remove("Selected");
         MappingsButton.Classes.Remove("Selected");
         ProfilesButton.Classes.Remove("Selected");
 
-        // Add Selected class to the current button
         switch (selectedPage)
         {
             case "Devices":

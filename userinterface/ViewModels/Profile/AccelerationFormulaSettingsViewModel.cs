@@ -38,7 +38,6 @@ namespace userinterface.ViewModels.Profile
         public JumpSettings JumpSettings { get; }
     }
 
-    // ... rest of your settings classes remain the same
     public class SynchronousSettings
     {
         public SynchronousSettings(BE.Formula.SynchronousAccelerationDefinitionModel synchronousAccelModelBE)

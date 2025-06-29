@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using userinterface.ViewModels.Profile;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -41,7 +40,7 @@ namespace userinterface.ViewModels.Profile
         {
             ProfileViewModels.Clear();
 
-            foreach(BE.ProfileModel profileModelBE in ProfileModels)
+            foreach (BE.ProfileModel profileModelBE in ProfileModels)
             {
                 ProfileViewModels.Add(new ProfileViewModel(profileModelBE));
             }

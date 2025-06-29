@@ -34,7 +34,6 @@ public partial class DualColumnLabelField : UserControl
 
     public void AddField(string label, Control input)
     {
-        // Just ensure the input control stretches properly
         if (input is Control control)
         {
             control.HorizontalAlignment = HorizontalAlignment.Stretch;

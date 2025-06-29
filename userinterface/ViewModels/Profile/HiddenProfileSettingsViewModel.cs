@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using userinterface.ViewModels.Controls;
+﻿using userinterface.ViewModels.Controls;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile

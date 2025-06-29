@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -12,7 +11,7 @@ public partial class EditableFieldView : UserControl
     {
         InitializeComponent();
     }
-    
+
     public void TextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Return)

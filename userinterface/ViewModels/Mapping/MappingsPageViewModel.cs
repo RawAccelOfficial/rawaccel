@@ -26,7 +26,7 @@ namespace userinterface.ViewModels.Mapping
         public void UpdateMappingViews()
         {
             MappingViews.Clear();
-            foreach(BE.MappingModel mappingBE in MappingsBE.Mappings)
+            foreach (BE.MappingModel mappingBE in MappingsBE.Mappings)
             {
                 MappingViews.Add(new MappingViewModel(mappingBE, MappingsBE));
             }
