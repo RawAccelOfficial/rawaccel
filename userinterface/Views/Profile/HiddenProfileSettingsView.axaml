@@ -21,7 +21,7 @@
 			<Setter Property="VerticalAlignment" Value="Center"/>
 			<Setter Property="Height" Value="32"/>
 		</Style>
-		<Style Selector="localControls|DualColumnLabelField ContentPresenter">
+		<Style Selector="localControls|DualColumnLabelFieldView ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 		</Style>
@@ -32,7 +32,7 @@
                                    Margin="0,0,0,12">
 		<controls:EditableExpanderView.ExpanderContent>
 			<StackPanel Orientation="Vertical" Margin="16" Spacing="12" x:Name="MainStackPanel">
-				<!-- The DualColumnLabelField will be added in code-behind -->
+				<!-- The DualColumnLabelFieldView will be added in code-behind -->
 			</StackPanel>
 		</controls:EditableExpanderView.ExpanderContent>
 	</controls:EditableExpanderView>

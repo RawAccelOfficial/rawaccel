@@ -29,13 +29,13 @@
 		<Style Selector="ComboBox">
 			<Setter Property="MaxDropDownHeight" Value="200"/>
 		</Style>
-		<Style Selector="controls|DualColumnLabelField ContentPresenter">
+		<Style Selector="controls|DualColumnLabelFieldView ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 		</Style>
 	</UserControl.Styles>
 	
 	<StackPanel Spacing="12" x:Name="MainStackPanel">
-		<!-- The DualColumnLabelField will be added in code-behind -->
+		<!-- The DualColumnLabelFieldView will be added in code-behind -->
 	</StackPanel>
 </UserControl>

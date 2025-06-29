@@ -1,13 +1,15 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
 using userinterface.ViewModels.Profile;
+using userinterface.ViewModels.Controls;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
 
 public partial class HiddenProfileSettingsView : UserControl
 {
-    private DualColumnLabelField? _hiddenSettingsField;
+    private DualColumnLabelFieldView? _hiddenSettingsField;
+    private DualColumnLabelFieldViewModel? _hiddenSettingsFieldViewModel;
 
     public HiddenProfileSettingsView()
     {
@@ -28,14 +30,16 @@ public partial class HiddenProfileSettingsView : UserControl
         if (DataContext is not HiddenProfileSettingsViewModel viewModel)
             return;
 
-        _hiddenSettingsField = new DualColumnLabelField(
-            ("Rotation", CreateInputControl(viewModel.RotationField)),
-            ("LR Ratio", CreateInputControl(viewModel.LRRatioField)),
-            ("UD Ratio", CreateInputControl(viewModel.UDRatioField)),
-            ("Speed Cap", CreateInputControl(viewModel.SpeedCapField)),
-            ("Angle Snapping", CreateInputControl(viewModel.AngleSnappingField)),
-            ("Output Smoothing Half Life", CreateInputControl(viewModel.OutputSmoothingHalfLifeField))
-        );
+
+        _hiddenSettingsFieldViewModel = new DualColumnLabelFieldViewModel();
+        _hiddenSettingsFieldViewModel.AddField("Rotation", CreateInputControl(viewModel.RotationField));
+        _hiddenSettingsFieldViewModel.AddField("LR Ratio", CreateInputControl(viewModel.LRRatioField));
+        _hiddenSettingsFieldViewModel.AddField("UD Ratio", CreateInputControl(viewModel.UDRatioField));
+        _hiddenSettingsFieldViewModel.AddField("Speed Cap", CreateInputControl(viewModel.SpeedCapField));
+        _hiddenSettingsFieldViewModel.AddField("Angle Snapping", CreateInputControl(viewModel.AngleSnappingField));
+        _hiddenSettingsFieldViewModel.AddField("Output Smoothing Half Life", CreateInputControl(viewModel.OutputSmoothingHalfLifeField));
+
+        _hiddenSettingsField = new DualColumnLabelFieldView(_hiddenSettingsFieldViewModel);
 
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
         mainStackPanel?.Children.Add(_hiddenSettingsField);

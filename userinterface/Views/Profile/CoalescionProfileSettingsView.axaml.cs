@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
+using userinterface.ViewModels.Controls;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
@@ -31,10 +32,12 @@ public partial class CoalescionProfileSettingsView : UserControl
         };
         scaleSmoothingControl.Bind(ContentControl.ContentProperty, new Binding("ScaleSmoothingHalfLife"));
 
-        var labelField = new DualColumnLabelField(
-            ("Input Smoothing Half Life", inputSmoothingControl),
-            ("Scale Smoothing Half Life", scaleSmoothingControl)
-        );
+        // Create ViewModel and add fields
+        var fieldViewModel = new DualColumnLabelFieldViewModel();
+        fieldViewModel.AddField("Input Smoothing Half Life", inputSmoothingControl);
+        fieldViewModel.AddField("Scale Smoothing Half Life", scaleSmoothingControl);
+
+        var labelField = new DualColumnLabelFieldView(fieldViewModel);
 
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
         mainStackPanel?.Children.Add(labelField);

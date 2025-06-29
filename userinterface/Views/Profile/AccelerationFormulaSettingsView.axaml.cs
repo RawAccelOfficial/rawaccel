@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using System;
 using userinterface.ViewModels.Profile;
+using userinterface.ViewModels.Controls;
 using userinterface.Views.Controls;
 using BEData = userspace_backend.Data.Profiles.Accel.FormulaAccel;
 
@@ -11,7 +12,8 @@ namespace userinterface.Views.Profile;
 
 public partial class AccelerationFormulaSettingsView : UserControl
 {
-    private DualColumnLabelField? _formulaField;
+    private DualColumnLabelFieldView? _formulaField;
+    private DualColumnLabelFieldViewModel? _formulaFieldViewModel;
     private ComboBox? _formulaTypeCombo;
 
     public AccelerationFormulaSettingsView()
@@ -52,12 +54,13 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
         _formulaTypeCombo.Bind(ComboBox.ItemsSourceProperty, new Binding("FormulaTypesLocal"));
         _formulaTypeCombo.Bind(ComboBox.SelectedItemProperty, new Binding("FormulaAccelBE.FormulaType.InterfaceValue"));
-
         _formulaTypeCombo.SelectionChanged += OnFormulaTypeSelectionChanged;
 
-        _formulaField = new DualColumnLabelField(
-            ("Formula Type", _formulaTypeCombo)
-        );
+        // Create ViewModel and add the field
+        _formulaFieldViewModel = new DualColumnLabelFieldViewModel();
+        _formulaFieldViewModel.AddField("Formula Type", _formulaTypeCombo);
+
+        _formulaField = new DualColumnLabelFieldView(_formulaFieldViewModel);
 
         var currentFormulaIndex = GetCurrentFormulaTypeIndex(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
         AddFormulaSpecificFields(currentFormulaIndex, viewModel);
@@ -66,15 +69,12 @@ public partial class AccelerationFormulaSettingsView : UserControl
         mainStackPanel?.Children.Add(_formulaField);
     }
 
-
     private void OnFormulaTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (DataContext is AccelerationFormulaSettingsViewModel viewModel && _formulaField != null)
+        if (DataContext is AccelerationFormulaSettingsViewModel viewModel && _formulaFieldViewModel != null)
         {
             viewModel.FormulaAccelBE.FormulaType.TryUpdateFromInterface();
-
             RemoveFormulaSpecificFields();
-
             var currentFormulaIndex = GetCurrentFormulaTypeIndex(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
             AddFormulaSpecificFields(currentFormulaIndex, viewModel);
         }
@@ -91,53 +91,53 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
     private void RemoveFormulaSpecificFields()
     {
-        if (_formulaField == null) return;
+        if (_formulaFieldViewModel == null) return;
 
         // Remove all fields except the first one (Formula Type)
-        while (_formulaField.Fields.Count > 1)
+        while (_formulaFieldViewModel.Fields.Count > 1)
         {
-            _formulaField.RemoveField(_formulaField.Fields.Count - 1);
+            _formulaFieldViewModel.RemoveField(_formulaFieldViewModel.Fields.Count - 1);
         }
     }
 
     private void AddFormulaSpecificFields(int formulaTypeIndex, AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        if (_formulaField == null) return;
+        if (_formulaFieldViewModel == null) return;
 
         switch (formulaTypeIndex)
         {
             case 0: // Synchronous
-                _formulaField.AddField("Sync Speed", CreateInputControl(formulaSettings.SynchronousSettings.SyncSpeed));
-                _formulaField.AddField("Motivity", CreateInputControl(formulaSettings.SynchronousSettings.Motivity));
-                _formulaField.AddField("Gamma", CreateInputControl(formulaSettings.SynchronousSettings.Gamma));
-                _formulaField.AddField("Smoothness", CreateInputControl(formulaSettings.SynchronousSettings.Smoothness));
+                _formulaFieldViewModel.AddField("Sync Speed", CreateInputControl(formulaSettings.SynchronousSettings.SyncSpeed));
+                _formulaFieldViewModel.AddField("Motivity", CreateInputControl(formulaSettings.SynchronousSettings.Motivity));
+                _formulaFieldViewModel.AddField("Gamma", CreateInputControl(formulaSettings.SynchronousSettings.Gamma));
+                _formulaFieldViewModel.AddField("Smoothness", CreateInputControl(formulaSettings.SynchronousSettings.Smoothness));
                 break;
             case 1: // Linear
-                _formulaField.AddField("Acceleration", CreateInputControl(formulaSettings.LinearSettings.Acceleration));
-                _formulaField.AddField("Offset", CreateInputControl(formulaSettings.LinearSettings.Offset));
-                _formulaField.AddField("Cap", CreateInputControl(formulaSettings.LinearSettings.Cap));
+                _formulaFieldViewModel.AddField("Acceleration", CreateInputControl(formulaSettings.LinearSettings.Acceleration));
+                _formulaFieldViewModel.AddField("Offset", CreateInputControl(formulaSettings.LinearSettings.Offset));
+                _formulaFieldViewModel.AddField("Cap", CreateInputControl(formulaSettings.LinearSettings.Cap));
                 break;
             case 2: // Classic
-                _formulaField.AddField("Acceleration", CreateInputControl(formulaSettings.ClassicSettings.Acceleration));
-                _formulaField.AddField("Exponent", CreateInputControl(formulaSettings.ClassicSettings.Exponent));
-                _formulaField.AddField("Offset", CreateInputControl(formulaSettings.ClassicSettings.Offset));
-                _formulaField.AddField("Cap", CreateInputControl(formulaSettings.ClassicSettings.Cap));
+                _formulaFieldViewModel.AddField("Acceleration", CreateInputControl(formulaSettings.ClassicSettings.Acceleration));
+                _formulaFieldViewModel.AddField("Exponent", CreateInputControl(formulaSettings.ClassicSettings.Exponent));
+                _formulaFieldViewModel.AddField("Offset", CreateInputControl(formulaSettings.ClassicSettings.Offset));
+                _formulaFieldViewModel.AddField("Cap", CreateInputControl(formulaSettings.ClassicSettings.Cap));
                 break;
             case 3: // Power
-                _formulaField.AddField("Scale", CreateInputControl(formulaSettings.PowerSettings.Scale));
-                _formulaField.AddField("Exponent", CreateInputControl(formulaSettings.PowerSettings.Exponent));
-                _formulaField.AddField("Output Offset", CreateInputControl(formulaSettings.PowerSettings.OutputOffset));
-                _formulaField.AddField("Cap", CreateInputControl(formulaSettings.PowerSettings.Cap));
+                _formulaFieldViewModel.AddField("Scale", CreateInputControl(formulaSettings.PowerSettings.Scale));
+                _formulaFieldViewModel.AddField("Exponent", CreateInputControl(formulaSettings.PowerSettings.Exponent));
+                _formulaFieldViewModel.AddField("Output Offset", CreateInputControl(formulaSettings.PowerSettings.OutputOffset));
+                _formulaFieldViewModel.AddField("Cap", CreateInputControl(formulaSettings.PowerSettings.Cap));
                 break;
             case 4: // Natural
-                _formulaField.AddField("Decay Rate", CreateInputControl(formulaSettings.NaturalSettings.DecayRate));
-                _formulaField.AddField("Input Offset", CreateInputControl(formulaSettings.NaturalSettings.InputOffset));
-                _formulaField.AddField("Limit", CreateInputControl(formulaSettings.NaturalSettings.Limit));
+                _formulaFieldViewModel.AddField("Decay Rate", CreateInputControl(formulaSettings.NaturalSettings.DecayRate));
+                _formulaFieldViewModel.AddField("Input Offset", CreateInputControl(formulaSettings.NaturalSettings.InputOffset));
+                _formulaFieldViewModel.AddField("Limit", CreateInputControl(formulaSettings.NaturalSettings.Limit));
                 break;
             case 5: // Jump
-                _formulaField.AddField("Smooth", CreateInputControl(formulaSettings.JumpSettings.Smooth));
-                _formulaField.AddField("Input", CreateInputControl(formulaSettings.JumpSettings.Input));
-                _formulaField.AddField("Output", CreateInputControl(formulaSettings.JumpSettings.Output));
+                _formulaFieldViewModel.AddField("Smooth", CreateInputControl(formulaSettings.JumpSettings.Smooth));
+                _formulaFieldViewModel.AddField("Input", CreateInputControl(formulaSettings.JumpSettings.Input));
+                _formulaFieldViewModel.AddField("Output", CreateInputControl(formulaSettings.JumpSettings.Output));
                 break;
         }
     }

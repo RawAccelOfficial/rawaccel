@@ -2,13 +2,14 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using userinterface.ViewModels.Profile;
+using userinterface.ViewModels.Controls;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
 
 public partial class AccelerationProfileSettingsView : UserControl
 {
-    private DualColumnLabelField? _accelerationField;
+    private DualColumnLabelFieldView? _accelerationField;
     private ContentControl? _formulaViewContainer;
     private ContentControl? _lutViewContainer;
     private ComboBox? _accelerationComboBox;
@@ -35,19 +36,19 @@ public partial class AccelerationProfileSettingsView : UserControl
         _accelerationComboBox = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            DataContext = viewModel,
+            ItemsSource = viewModel.DefinitionTypesLocal,
+            SelectedItem = viewModel.AccelerationBE.DefinitionType.InterfaceValue
         };
-
-        // Set the DataContext and bindings explicitly to avoid binding context issues
-        _accelerationComboBox.DataContext = viewModel;
-        _accelerationComboBox.ItemsSource = viewModel.DefinitionTypesLocal;
-        _accelerationComboBox.SelectedItem = viewModel.AccelerationBE.DefinitionType.InterfaceValue;
 
         _accelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
 
-        _accelerationField = new DualColumnLabelField(
-            ("Acceleration", _accelerationComboBox)
-        );
+        // Create ViewModel and add the field
+        var fieldViewModel = new DualColumnLabelFieldViewModel();
+        fieldViewModel.AddField("Acceleration", _accelerationComboBox);
+
+        _accelerationField = new DualColumnLabelFieldView(fieldViewModel);
 
         // Create containers for the different views
         _formulaViewContainer = new ContentControl
@@ -87,7 +88,6 @@ public partial class AccelerationProfileSettingsView : UserControl
             return;
 
         var selectedIndex = _accelerationComboBox.SelectedIndex;
-
         HideAllViews();
 
         switch (selectedIndex)
@@ -137,16 +137,5 @@ public partial class AccelerationProfileSettingsView : UserControl
 
         _lutViewContainer.Content = lutView;
         _lutViewContainer.IsVisible = true;
-    }
-
-    private Control CreateInputControl(object bindingSource)
-    {
-        return new ContentControl
-        {
-            Content = bindingSource,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Center
-        };
     }
 }
