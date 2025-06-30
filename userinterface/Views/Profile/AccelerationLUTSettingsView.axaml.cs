@@ -7,7 +7,6 @@ namespace userinterface.Views.Profile;
 
 public partial class AccelerationLUTSettingsView : UserControl
 {
-    private const string MainStackPanelName = "MainStackPanel";
     private const string VelocityOptionText = "Velocity";
     private const string SensitivityOptionText = "Sensitivity";
     private const string ApplyAsLabelText = "Apply as:";
@@ -49,7 +48,7 @@ public partial class AccelerationLUTSettingsView : UserControl
 
     private void AddControlToMainPanel(DualColumnLabelFieldView labelFieldView)
     {
-        var mainStackPanel = this.FindControl<StackPanel>(MainStackPanelName);
+        var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
         mainStackPanel?.Children.Add(labelFieldView);
     }
 }
