@@ -113,7 +113,7 @@ namespace userinterface.Controls
                 var currentAngle = rotateTransform.Angle;
                 var animation = new Animation
                 {
-                    Duration = TimeSpan.FromMilliseconds(200),
+                    Duration = TimeSpan.FromMilliseconds(100),
                     Easing = new CubicEaseInOut(),
                     FillMode = FillMode.Forward,
                     Children =
