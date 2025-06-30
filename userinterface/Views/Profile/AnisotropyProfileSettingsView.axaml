@@ -72,7 +72,7 @@
                     
                 </Grid>
                 
-                <!-- LP Norm (unchanged as requested) -->
+                <!-- LP Norm -->
                 <ContentControl Content="{Binding LPNorm}" HorizontalAlignment="Center"/>
                 
             </StackPanel>

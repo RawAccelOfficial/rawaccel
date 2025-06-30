@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace userinterface.Controls;
 
-// TODO: Disable when ignore set to true
+// TODO: Disable when ignore set to true (DeviceView)
 public partial class EditableExpanderView : UserControl, INotifyPropertyChanged, IDisposable
 {
     private const int HoverDelayMilliseconds = 50;
