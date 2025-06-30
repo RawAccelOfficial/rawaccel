@@ -82,6 +82,6 @@
 	<Application.Styles>
 		<FluentTheme />
 		<StyleInclude Source="/Styles/Icons.axaml"/>
-		<StyleInclude Source="/Views/Controls/NoInteractionButtonView.axaml"/>
+		<StyleInclude Source="/Styles/NoInteractionButtonView.axaml"/>
 	</Application.Styles>
 </Application>

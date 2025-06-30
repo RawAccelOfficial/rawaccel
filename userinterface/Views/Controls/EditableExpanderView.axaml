@@ -2,11 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="using:userinterface.Controls"
+			 xmlns:controls="using:userinterface.Controls"
+             xmlns:styles="using:Styles"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Controls.EditableExpanderView">
 	<UserControl.Styles>
-		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader">
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -21,22 +22,22 @@
 				</Transitions>
 			</Setter>
 		</Style>
-		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.SyncHover">
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 		</Style>
-		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.Expanded">
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader.Expanded">
 			<Setter Property="CornerRadius" Value="6,6,0,0"/>
 			<Setter Property="BorderThickness" Value="1,1,1,0"/>
 		</Style>
-		<Style Selector="controls|NoInteractionButtonView.ExpanderHeader.Expanded.SyncHover">
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader.Expanded.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="CornerRadius" Value="6,6,0,0"/>
 			<Setter Property="BorderThickness" Value="1,1,1,0"/>
 		</Style>
-		<Style Selector="controls|NoInteractionButtonView.ExpanderContent">
+		<Style Selector="styles|NoInteractionButtonView.ExpanderContent">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -51,7 +52,7 @@
 				</Transitions>
 			</Setter>
 		</Style>
-		<Style Selector="controls|NoInteractionButtonView.ExpanderContent.SyncHover">
+		<Style Selector="styles|NoInteractionButtonView.ExpanderContent.SyncHover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1,0,1,1"/>
@@ -70,7 +71,7 @@
 		</Style>
 	</UserControl.Styles>
 	<StackPanel Orientation="Vertical">
-		<controls:NoInteractionButtonView Classes="ExpanderHeader"
+		<styles:NoInteractionButtonView Classes="ExpanderHeader"
                                           Name="HeaderButton"
                                           Click="ToggleButton_Click"
                                           PointerEntered="HeaderButton_PointerEntered"
@@ -92,13 +93,13 @@
                                 Content="{Binding Header, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}"
                                 VerticalAlignment="Center"/>
 			</Grid>
-		</controls:NoInteractionButtonView>
-		<controls:NoInteractionButtonView Classes="ExpanderContent"
+		</styles:NoInteractionButtonView>
+			<styles:NoInteractionButtonView Classes="ExpanderContent"
                                           Name="ContentButton"
                                           IsVisible="False"
                                           PointerEntered="ContentButton_PointerEntered"
                                           PointerExited="ContentButton_PointerExited">
 			<ContentPresenter Content="{Binding ExpanderContent, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}"/>
-		</controls:NoInteractionButtonView>
+		</styles:NoInteractionButtonView>
 	</StackPanel>
 </UserControl>

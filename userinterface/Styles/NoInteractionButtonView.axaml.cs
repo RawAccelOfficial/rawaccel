@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 
-namespace userinterface.Controls
+namespace Styles
 {
     public class NoInteractionButtonView : Button
     {
@@ -28,7 +28,7 @@ namespace userinterface.Controls
                     [!Border.BorderBrushProperty] = button[!BorderBrushProperty],
                     [!Border.BorderThicknessProperty] = button[!BorderThicknessProperty],
                     [!Border.CornerRadiusProperty] = button[!CornerRadiusProperty],
-                    [!Border.PaddingProperty] = button[!PaddingProperty]
+                    [!Decorator.PaddingProperty] = button[!PaddingProperty]
                 };
 
                 var contentPresenter = new ContentPresenter
