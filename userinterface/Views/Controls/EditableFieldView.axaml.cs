@@ -12,17 +12,20 @@ public partial class EditableFieldView : UserControl
         InitializeComponent();
     }
 
-    public void TextBox_KeyDown(object sender, KeyEventArgs e)
+    public void TextBox_KeyDown(object sender, KeyEventArgs keyEventArgs)
     {
-        if (e.Key == Key.Return)
+        if (keyEventArgs.Key == Key.Return)
         {
-            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+            var topLevel = TopLevel.GetTopLevel(this);
+            topLevel?.FocusManager?.ClearFocus();
         }
     }
 
-    public void LostFocusHandler(object sender, RoutedEventArgs args)
+    public void LostFocusHandler(object sender, RoutedEventArgs routedEventArgs)
     {
-        var viewModel = this.DataContext as EditableFieldViewModel;
-        viewModel?.TrySetFromInterface();
+        if (DataContext is EditableFieldViewModel editableFieldViewModel)
+        {
+            editableFieldViewModel.TrySetFromInterface();
+        }
     }
 }

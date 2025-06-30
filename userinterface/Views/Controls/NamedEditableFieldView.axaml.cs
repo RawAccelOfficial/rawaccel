@@ -5,13 +5,8 @@ namespace userinterface.Views.Controls;
 
 public partial class NamedEditableFieldView : UserControl
 {
-    public NamedEditableFieldView()
-    {
-        InitializeComponent();
-    }
-
     public static readonly StyledProperty<string> FieldNameProperty =
-        Avalonia.AvaloniaProperty.Register<NamedEditableFieldView, string>(nameof(FieldName));
+        AvaloniaProperty.Register<NamedEditableFieldView, string>(nameof(FieldName));
 
     public string FieldName
     {
@@ -19,7 +14,21 @@ public partial class NamedEditableFieldView : UserControl
         set
         {
             SetValue(FieldNameProperty, value);
-            textBlock.Text = value;
+            UpdateFieldNameDisplay(value);
+        }
+    }
+
+    public NamedEditableFieldView()
+    {
+        InitializeComponent();
+    }
+
+    private void UpdateFieldNameDisplay(string fieldName)
+    {
+        var fieldNameTextBlock = this.FindControl<TextBlock>("FieldNameTextBlock");
+        if (fieldNameTextBlock != null)
+        {
+            fieldNameTextBlock.Text = fieldName ?? string.Empty;
         }
     }
 }

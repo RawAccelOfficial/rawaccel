@@ -1,11 +1,12 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using Avalonia.Controls;
 using userinterface.ViewModels.Controls;
 
 namespace userinterface.Views.Controls;
 
 public partial class DualColumnLabelFieldView : UserControl
 {
-    public DualColumnLabelFieldViewModel ViewModel => (DualColumnLabelFieldViewModel)DataContext!;
+    public DualColumnLabelFieldViewModel? ViewModel => DataContext as DualColumnLabelFieldViewModel;
 
     public DualColumnLabelFieldView()
     {

@@ -32,7 +32,6 @@ public partial class CoalescionProfileSettingsView : UserControl
         };
         scaleSmoothingControl.Bind(ContentControl.ContentProperty, new Binding("ScaleSmoothingHalfLife"));
 
-        // Create ViewModel and add fields
         var fieldViewModel = new DualColumnLabelFieldViewModel();
         fieldViewModel.AddField("Input Smoothing Half Life", inputSmoothingControl);
         fieldViewModel.AddField("Scale Smoothing Half Life", scaleSmoothingControl);
