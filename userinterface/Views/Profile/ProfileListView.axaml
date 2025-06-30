@@ -14,7 +14,6 @@
 			<Setter Property="FontWeight" Value="SemiBold"/>
 			<Setter Property="Margin" Value="0,0,0,16"/>
 		</Style>
-
 		<Style Selector="ListBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -23,33 +22,26 @@
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="MinHeight" Value="200"/>
 		</Style>
-
 		<Style Selector="ListBoxItem">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="Margin" Value="0,2"/>
 		</Style>
-
 		<Style Selector="ListBoxItem:selected">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
-
 		<Style Selector="ListBoxItem:pointerover">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 		</Style>
-
 		<Style Selector="ListBoxItem:selected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
-
 		<Style Selector="ListBoxItem TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 		</Style>
-
 		<Style Selector="ListBoxItem:selected TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
-
 		<Style Selector="Button.ActionButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -61,15 +53,12 @@
 			<Setter Property="Cursor" Value="Hand"/>
 			<Setter Property="Margin" Value="0,0,8,0"/>
 		</Style>
-
 		<Style Selector="Button.ActionButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
-
 		<Style Selector="Button.ActionButton:pressed">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 		</Style>
-
 		<Style Selector="Button.DeleteButton">
 			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -80,11 +69,9 @@
 			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
-
 		<Style Selector="Button.DeleteButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
 		</Style>
-
 		<Style Selector="Button.DeleteButton:pressed">
 			<Setter Property="Background" Value="#B91C1C"/>
 		</Style>
@@ -94,11 +81,10 @@
 		<TextBlock DockPanel.Dock="Top" Classes="SectionHeader">
 			Saved Profiles
 		</TextBlock>
-
 		<StackPanel DockPanel.Dock="Bottom"
-					Orientation="Horizontal"
-					HorizontalAlignment="Center"
-					Margin="0,16,0,0">
+		           Orientation="Horizontal"
+		           HorizontalAlignment="Center"
+		           Margin="0,16,0,0">
 			<Button Classes="ActionButton" Click="AddProfile">
 				Add Profile
 			</Button>
@@ -106,9 +92,8 @@
 				Delete Selected Profile
 			</Button>
 		</StackPanel>
-
 		<ListBox ItemsSource="{Binding Profiles}"
-				 SelectionChanged="OnSelectionChanged">
+		         SelectionChanged="OnSelectionChanged">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<TextBlock Text="{Binding CurrentNameForDisplay}"/>

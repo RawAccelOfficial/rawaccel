@@ -8,8 +8,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.CoalescionProfileSettingsView"
              x:DataType="vm:CoalescionProfileSettingsViewModel">
+
 	<UserControl.Styles>
-		<!-- Base input control styling - applied to all input types -->
 		<Style Selector="ComboBox, TextBox, NumericUpDown">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Controls;
@@ -9,7 +10,6 @@ namespace userinterface.Views.Profile;
 public partial class HiddenProfileSettingsView : UserControl
 {
     private DualColumnLabelFieldView? _hiddenSettingsField;
-    private DualColumnLabelFieldViewModel? _hiddenSettingsFieldViewModel;
 
     public HiddenProfileSettingsView()
     {
@@ -17,7 +17,7 @@ public partial class HiddenProfileSettingsView : UserControl
         Loaded += OnLoaded;
     }
 
-    private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_hiddenSettingsField == null)
         {
@@ -30,16 +30,15 @@ public partial class HiddenProfileSettingsView : UserControl
         if (DataContext is not HiddenProfileSettingsViewModel viewModel)
             return;
 
+        var hiddenSettingsFieldViewModel = new DualColumnLabelFieldViewModel();
+        hiddenSettingsFieldViewModel.AddField("Rotation", CreateInputControl(viewModel.RotationField));
+        hiddenSettingsFieldViewModel.AddField("LR Ratio", CreateInputControl(viewModel.LRRatioField));
+        hiddenSettingsFieldViewModel.AddField("UD Ratio", CreateInputControl(viewModel.UDRatioField));
+        hiddenSettingsFieldViewModel.AddField("Speed Cap", CreateInputControl(viewModel.SpeedCapField));
+        hiddenSettingsFieldViewModel.AddField("Angle Snapping", CreateInputControl(viewModel.AngleSnappingField));
+        hiddenSettingsFieldViewModel.AddField("Output Smoothing Half Life", CreateInputControl(viewModel.OutputSmoothingHalfLifeField));
 
-        _hiddenSettingsFieldViewModel = new DualColumnLabelFieldViewModel();
-        _hiddenSettingsFieldViewModel.AddField("Rotation", CreateInputControl(viewModel.RotationField));
-        _hiddenSettingsFieldViewModel.AddField("LR Ratio", CreateInputControl(viewModel.LRRatioField));
-        _hiddenSettingsFieldViewModel.AddField("UD Ratio", CreateInputControl(viewModel.UDRatioField));
-        _hiddenSettingsFieldViewModel.AddField("Speed Cap", CreateInputControl(viewModel.SpeedCapField));
-        _hiddenSettingsFieldViewModel.AddField("Angle Snapping", CreateInputControl(viewModel.AngleSnappingField));
-        _hiddenSettingsFieldViewModel.AddField("Output Smoothing Half Life", CreateInputControl(viewModel.OutputSmoothingHalfLifeField));
-
-        _hiddenSettingsField = new DualColumnLabelFieldView(_hiddenSettingsFieldViewModel);
+        _hiddenSettingsField = new DualColumnLabelFieldView(hiddenSettingsFieldViewModel);
 
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
         mainStackPanel?.Children.Add(_hiddenSettingsField);

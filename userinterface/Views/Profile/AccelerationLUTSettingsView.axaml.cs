@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Layout;
 using userinterface.Views.Controls;
 using userinterface.ViewModels.Controls;
 
@@ -6,6 +7,11 @@ namespace userinterface.Views.Profile;
 
 public partial class AccelerationLUTSettingsView : UserControl
 {
+    private const string MainStackPanelName = "MainStackPanel";
+    private const string VelocityOptionText = "Velocity";
+    private const string SensitivityOptionText = "Sensitivity";
+    private const string ApplyAsLabelText = "Apply as:";
+
     public AccelerationLUTSettingsView()
     {
         InitializeComponent();
@@ -14,22 +20,36 @@ public partial class AccelerationLUTSettingsView : UserControl
 
     private void SetupControls()
     {
-        var applyAsComboBox = new ComboBox
+        var applyAsComboBox = CreateApplyAsComboBox();
+        var dualColumnViewModel = CreateDualColumnViewModel(applyAsComboBox);
+        var labelFieldView = new DualColumnLabelFieldView(dualColumnViewModel);
+
+        AddControlToMainPanel(labelFieldView);
+    }
+
+    private ComboBox CreateApplyAsComboBox()
+    {
+        return new ComboBox
         {
             Items =
             {
-                new ComboBoxItem { Content = "Velocity" },
-                new ComboBoxItem { Content = "Sensitivity" }
+                new ComboBoxItem { Content = VelocityOptionText },
+                new ComboBoxItem { Content = SensitivityOptionText }
             },
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
+            HorizontalAlignment = HorizontalAlignment.Stretch
         };
+    }
 
+    private DualColumnLabelFieldViewModel CreateDualColumnViewModel(ComboBox applyAsComboBox)
+    {
         var viewModel = new DualColumnLabelFieldViewModel();
-        viewModel.AddField("Apply as:", applyAsComboBox);
+        viewModel.AddField(ApplyAsLabelText, applyAsComboBox);
+        return viewModel;
+    }
 
-        var labelField = new DualColumnLabelFieldView(viewModel);
-
-        var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        mainStackPanel?.Children.Add(labelField);
+    private void AddControlToMainPanel(DualColumnLabelFieldView labelFieldView)
+    {
+        var mainStackPanel = this.FindControl<StackPanel>(MainStackPanelName);
+        mainStackPanel?.Children.Add(labelFieldView);
     }
 }

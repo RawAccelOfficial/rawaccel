@@ -6,6 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ActiveProfilesListView"
              x:DataType="vm:ActiveProfilesListViewModel">
+
 	<UserControl.Styles>
 		<Style Selector="TextBlock.SectionHeader">
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>

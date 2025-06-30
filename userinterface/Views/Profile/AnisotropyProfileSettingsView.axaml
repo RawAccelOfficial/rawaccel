@@ -9,7 +9,6 @@
              x:DataType="vm:AnisotropyProfileSettingsViewModel">
 
     <UserControl.Styles>
-        <!-- Override ContentControl sizing for compact numeric inputs -->
         <Style Selector="ContentControl.CompactNumeric">
             <Setter Property="Width" Value="70"/>
             <Setter Property="MinWidth" Value="60"/>
@@ -17,14 +16,12 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         
-        <!-- Override the nested ContentControl inside EditableFieldView -->
         <Style Selector="ContentControl.CompactNumeric ContentControl">
             <Setter Property="MinWidth" Value="60"/>
             <Setter Property="MaxWidth" Value="90"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
         
-        <!-- Override TextBox styling for compact numeric input -->
         <Style Selector="ContentControl.CompactNumeric TextBox">
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="Padding" Value="4,6"/>
@@ -36,7 +33,6 @@
             <Setter Property="Margin" Value="2"/>
         </Style>
         
-        <!-- Override any existing EditableTextBox styling -->
         <Style Selector="ContentControl.CompactNumeric TextBox.EditableTextBox">
             <Setter Property="Margin" Value="2"/>
             <Setter Property="MinWidth" Value="60"/>

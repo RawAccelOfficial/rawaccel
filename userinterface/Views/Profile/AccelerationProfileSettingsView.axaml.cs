@@ -1,14 +1,23 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Controls;
+using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
 
 public partial class AccelerationProfileSettingsView : UserControl
 {
+    private const int NoneAccelerationIndex = 0;
+    private const int FormulaAccelerationIndex = 1;
+    private const int LUTAccelerationIndex = 2;
+    private const int AccelerationFieldInsertIndex = 0;
+    private const int FormulaViewInsertIndex = 1;
+    private const int LUTViewInsertIndex = 2;
+    private const double ViewContainerTopMargin = 8.0;
+
     private DualColumnLabelFieldView? _accelerationField;
     private ContentControl? _formulaViewContainer;
     private ContentControl? _lutViewContainer;
@@ -33,6 +42,15 @@ public partial class AccelerationProfileSettingsView : UserControl
         if (DataContext is not AccelerationProfileSettingsViewModel viewModel)
             return;
 
+        CreateAccelerationComboBox(viewModel);
+        CreateAccelerationField();
+        CreateViewContainers();
+        AddControlsToMainPanel();
+        UpdateViewBasedOnSelection();
+    }
+
+    private void CreateAccelerationComboBox(AccelerationProfileSettingsViewModel viewModel)
+    {
         _accelerationComboBox = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -43,38 +61,47 @@ public partial class AccelerationProfileSettingsView : UserControl
         };
 
         _accelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
+    }
 
-        // Create ViewModel and add the field
+    private void CreateAccelerationField()
+    {
+        if (_accelerationComboBox == null)
+            return;
+
         var fieldViewModel = new DualColumnLabelFieldViewModel();
         fieldViewModel.AddField("Acceleration", _accelerationComboBox);
-
         _accelerationField = new DualColumnLabelFieldView(fieldViewModel);
+    }
 
-        // Create containers for the different views
+    private void CreateViewContainers()
+    {
+        var containerMargin = new Thickness(0, ViewContainerTopMargin, 0, 0);
+
         _formulaViewContainer = new ContentControl
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            Margin = new Avalonia.Thickness(0, 8, 0, 0),
+            Margin = containerMargin,
             IsVisible = false
         };
 
         _lutViewContainer = new ContentControl
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            Margin = new Avalonia.Thickness(0, 8, 0, 0),
+            Margin = containerMargin,
             IsVisible = false
         };
+    }
 
-        // Add all controls to the main StackPanel
+    private void AddControlsToMainPanel()
+    {
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        if (mainStackPanel != null)
-        {
-            mainStackPanel.Children.Insert(0, _accelerationField);
-            mainStackPanel.Children.Insert(1, _formulaViewContainer);
-            mainStackPanel.Children.Insert(2, _lutViewContainer);
-        }
+        if (mainStackPanel == null || _accelerationField == null ||
+            _formulaViewContainer == null || _lutViewContainer == null)
+            return;
 
-        UpdateViewBasedOnSelection();
+        mainStackPanel.Children.Insert(AccelerationFieldInsertIndex, _accelerationField);
+        mainStackPanel.Children.Insert(FormulaViewInsertIndex, _formulaViewContainer);
+        mainStackPanel.Children.Insert(LUTViewInsertIndex, _lutViewContainer);
     }
 
     private void OnAccelerationTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -92,12 +119,12 @@ public partial class AccelerationProfileSettingsView : UserControl
 
         switch (selectedIndex)
         {
-            case 0: // None
+            case NoneAccelerationIndex:
                 break;
-            case 1: // Formula
+            case FormulaAccelerationIndex:
                 ShowFormulaView(viewModel);
                 break;
-            case 2: // LUT
+            case LUTAccelerationIndex:
                 ShowLUTView(viewModel);
                 break;
         }
@@ -113,7 +140,8 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void ShowFormulaView(AccelerationProfileSettingsViewModel viewModel)
     {
-        if (_formulaViewContainer == null) return;
+        if (_formulaViewContainer == null)
+            return;
 
         var formulaView = new AccelerationFormulaSettingsView
         {
@@ -127,7 +155,8 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void ShowLUTView(AccelerationProfileSettingsViewModel viewModel)
     {
-        if (_lutViewContainer == null) return;
+        if (_lutViewContainer == null)
+            return;
 
         var lutView = new AccelerationLUTSettingsView
         {
