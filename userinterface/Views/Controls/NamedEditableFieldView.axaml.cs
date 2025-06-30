@@ -26,9 +26,6 @@ public partial class NamedEditableFieldView : UserControl
     private void UpdateFieldNameDisplay(string fieldName)
     {
         var fieldNameTextBlock = this.FindControl<TextBlock>("FieldNameTextBlock");
-        if (fieldNameTextBlock != null)
-        {
-            fieldNameTextBlock.Text = fieldName ?? string.Empty;
-        }
+        fieldNameTextBlock?.SetValue(TextBlock.TextProperty, fieldName ?? string.Empty);
     }
 }

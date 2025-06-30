@@ -12,12 +12,11 @@ public partial class EditableFieldView : UserControl
         InitializeComponent();
     }
 
-    public void TextBox_KeyDown(object sender, KeyEventArgs keyEventArgs)
+    public void TextBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (keyEventArgs.Key == Key.Return)
+        if (e.Key == Key.Return)
         {
-            var topLevel = TopLevel.GetTopLevel(this);
-            topLevel?.FocusManager?.ClearFocus();
+            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
         }
     }
 

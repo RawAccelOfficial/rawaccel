@@ -4,115 +4,66 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Device"
              xmlns:v="using:userinterface.Views"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
              x:Class="userinterface.Views.Device.DevicesListView"
              x:DataType="vm:DevicesListViewModel">
 
 	<UserControl.Styles>
 		<Style Selector="TextBlock.SectionHeader">
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="FontSize" Value="18"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Margin" Value="0,0,0,16"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="FontSize" Value="18" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Margin" Value="0,0,0,16" />
 		</Style>
 
 		<Style Selector="ListBox">
-			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="8" />
 		</Style>
 
 		<Style Selector="ListBoxItem">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Padding" Value="0"/>
-			<Setter Property="Margin" Value="0,2"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="Margin" Value="0,2" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
 		</Style>
 
-		<Style Selector="ListBoxItem:selected">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
+		<Style Selector="ListBoxItem:selected, ListBoxItem:pointerover, ListBoxItem:selected:pointerover, ListBoxItem:focus, ListBoxItem:selected:focus">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
 		</Style>
 
-		<Style Selector="ListBoxItem:pointerover">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:pointerover">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:focus">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:focus">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-
-		<!-- Override internal template elements -->
-		<Style Selector="ListBoxItem /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
+		<Style Selector="ListBoxItem /template/ ContentPresenter, ListBoxItem:selected /template/ ContentPresenter, ListBoxItem:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent" />
 		</Style>
 
 		<Style Selector="Button.AddButton">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="Padding" Value="16,8"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Margin" Value="0,16,0,0"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="16,8" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Medium" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Margin" Value="0,16,0,0" />
+			<Setter Property="BorderBrush" Value="Transparent" />
 		</Style>
 
-		<!-- Override button states -->
-		<Style Selector="Button.AddButton:pointerover">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
+		<Style Selector="Button.AddButton:pointerover, Button.AddButton:pressed, Button.AddButton:focus">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
 		</Style>
-
-		<Style Selector="Button.AddButton:pressed">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="Button.AddButton:focus">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-		</Style>
-
 	</UserControl.Styles>
 
 	<StackPanel Orientation="Vertical">
@@ -120,13 +71,13 @@
 			Devices
 		</TextBlock>
 
-		<ListBox Name="DevicesListInView"
-				 ItemsSource="{Binding DeviceViews}"
-				 MinHeight="200"/>
+		<ListBox x:Name="DevicesListInView"
+                 ItemsSource="{Binding DeviceViews}"
+                 MinHeight="200" />
 
 		<Button Classes="AddButton"
-				HorizontalAlignment="Center"
-				Click="AddDevice">
+                HorizontalAlignment="Center"
+                Click="AddDevice">
 			Add Device
 		</Button>
 	</StackPanel>
