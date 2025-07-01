@@ -25,8 +25,11 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     public DevicesPageViewModel DevicesPage { get; }
+
     public ProfilesPageViewModel ProfilesPage { get; }
+
     public MappingsPageViewModel MappingsPage { get; }
+
     protected BE.BackEnd BackEnd { get; }
 
     public string SelectedPage

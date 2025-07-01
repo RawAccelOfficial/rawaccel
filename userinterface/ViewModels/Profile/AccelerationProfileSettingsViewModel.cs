@@ -30,10 +30,15 @@ namespace userinterface.ViewModels.Profile
         }
 
         public BE.AccelerationModel AccelerationBE { get; }
+
         public ObservableCollection<string> DefinitionTypesLocal => DefinitionTypes;
+
         public AccelerationFormulaSettingsViewModel AccelerationFormulaSettings { get; }
+
         public AccelerationLUTSettingsViewModel AccelerationLUTSettings { get; }
+
         public AnisotropyProfileSettingsViewModel AnisotropySettings { get; }
+
         public CoalescionProfileSettingsViewModel CoalescionSettings { get; }
 
         private void OnDefinitionTypeChanged(object? sender, PropertyChangedEventArgs e)

@@ -17,11 +17,17 @@ namespace userinterface.ViewModels.Profile
         }
 
         protected BE.ProfileComponents.HiddenModel HiddenBE { get; }
+
         public EditableFieldViewModel RotationField { get; set; }
+
         public EditableFieldViewModel SpeedCapField { get; set; }
+
         public EditableFieldViewModel LRRatioField { get; set; }
+
         public EditableFieldViewModel UDRatioField { get; set; }
+
         public EditableFieldViewModel AngleSnappingField { get; set; }
+
         public EditableFieldViewModel OutputSmoothingHalfLifeField { get; set; }
     }
 }

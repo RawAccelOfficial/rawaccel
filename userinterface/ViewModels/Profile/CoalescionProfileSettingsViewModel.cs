@@ -13,7 +13,9 @@ namespace userinterface.ViewModels.Profile
         }
 
         protected BE.CoalescionModel CoalescionBE { get; }
+
         public EditableFieldViewModel InputSmoothingHalfLife { get; set; }
+
         public EditableFieldViewModel ScaleSmoothingHalfLife { get; set; }
     }
 }

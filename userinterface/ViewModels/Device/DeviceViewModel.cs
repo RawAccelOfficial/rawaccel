@@ -19,12 +19,19 @@ namespace userinterface.ViewModels.Device
         }
 
         protected BE.DeviceModel DeviceBE { get; }
+
         protected BE.DevicesModel DevicesBE { get; }
+
         public NamedEditableFieldViewModel NameField { get; set; }
+
         public NamedEditableFieldViewModel HWIDField { get; set; }
+
         public NamedEditableFieldViewModel DPIField { get; set; }
+
         public NamedEditableFieldViewModel PollRateField { get; set; }
+
         public EditableBoolViewModel IgnoreBool { get; set; }
+
         public DeviceGroupSelectorViewModel DeviceGroup { get; set; }
 
         public void DeleteSelf()

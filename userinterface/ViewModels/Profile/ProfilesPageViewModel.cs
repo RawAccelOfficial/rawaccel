@@ -23,8 +23,11 @@ namespace userinterface.ViewModels.Profile
         }
 
         protected IEnumerable<BE.ProfileModel> ProfileModels { get; }
+
         protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
+
         public ProfileListViewModel ProfileListView { get; }
+
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 
         protected void UpdateSelectedProfileView()

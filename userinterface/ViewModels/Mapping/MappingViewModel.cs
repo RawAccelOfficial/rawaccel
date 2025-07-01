@@ -14,6 +14,7 @@ namespace userinterface.ViewModels.Mapping
         }
 
         public BE.MappingModel MappingBE { get; }
+
         protected BE.MappingsModel MappingsBE { get; }
 
         public ObservableCollection<BE.MappingGroup> IndividualMappings => MappingBE.IndividualMappings;

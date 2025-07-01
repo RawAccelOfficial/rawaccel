@@ -12,6 +12,7 @@ namespace userinterface.ViewModels.Profile
         }
 
         public BE.LookupTableDefinitionModel LUTAccelBE { get; }
+
         public EditableFieldViewModel LUTPoints { get; set; }
     }
 }

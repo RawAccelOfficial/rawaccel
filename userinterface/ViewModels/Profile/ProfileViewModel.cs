@@ -12,8 +12,11 @@ namespace userinterface.ViewModels.Profile
         }
 
         protected BE.ProfileModel ProfileModelBE { get; }
+
         public string CurrentName => ProfileModelBE.Name.CurrentValidatedValue;
+
         public ProfileSettingsViewModel Settings { get; }
+
         public ProfileChartViewModel Chart { get; }
     }
 }

@@ -15,7 +15,9 @@ namespace userinterface.ViewModels.Device
         }
 
         protected BE.DevicesModel DevicesBE { get; }
+
         public ObservableCollection<BE.DeviceModel> Devices => DevicesBE.Devices;
+
         public ObservableCollection<DeviceViewModel> DeviceViews { get; }
 
         private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>

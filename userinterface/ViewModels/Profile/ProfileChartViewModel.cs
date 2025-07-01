@@ -57,9 +57,13 @@ namespace userinterface.ViewModels.Profile
         }
 
         public ISeries[] Series { get; set; }
+
         public Axis[] XAxes { get; set; }
+
         public Axis[] YAxes { get; set; }
+
         public SolidColorPaint TooltipTextPaint { get; set; }
+
         public SolidColorPaint TooltipBackgroundPaint { get; set; }
 
         private Axis[] CreateXAxes() =>

@@ -11,7 +11,9 @@ namespace userinterface.ViewModels.Controls
         }
 
         public EditableFieldViewModel Field { get; }
+
         public string Name => SettingBE.DisplayName;
+
         protected BE.IEditableSetting SettingBE { get; }
     }
 }

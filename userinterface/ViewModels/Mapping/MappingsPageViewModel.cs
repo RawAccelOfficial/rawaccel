@@ -15,6 +15,7 @@ namespace userinterface.ViewModels.Mapping
         }
 
         public BE.MappingsModel MappingsBE { get; }
+
         public ObservableCollection<MappingViewModel> MappingViews { get; }
 
         private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>

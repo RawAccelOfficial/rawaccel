@@ -40,11 +40,17 @@ namespace userinterface.ViewModels.Profile
         public BE.FormulaAccelModel FormulaAccelBE { get; }
 
         public ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
+
         public SynchronousSettings SynchronousSettings { get; }
+
         public LinearSettings LinearSettings { get; }
+
         public ClassicSettings ClassicSettings { get; }
+
         public PowerSettings PowerSettings { get; }
+
         public NaturalSettings NaturalSettings { get; }
+
         public JumpSettings JumpSettings { get; }
     }
 
@@ -59,8 +65,11 @@ namespace userinterface.ViewModels.Profile
         }
 
         public EditableFieldViewModel SyncSpeed { get; set; }
+
         public EditableFieldViewModel Motivity { get; set; }
+
         public EditableFieldViewModel Gamma { get; set; }
+
         public EditableFieldViewModel Smoothness { get; set; }
     }
 
@@ -74,7 +83,9 @@ namespace userinterface.ViewModels.Profile
         }
 
         public EditableFieldViewModel Acceleration { get; set; }
+
         public EditableFieldViewModel Offset { get; set; }
+
         public EditableFieldViewModel Cap { get; set; }
     }
 
@@ -89,8 +100,11 @@ namespace userinterface.ViewModels.Profile
         }
 
         public EditableFieldViewModel Acceleration { get; set; }
+
         public EditableFieldViewModel Exponent { get; set; }
+
         public EditableFieldViewModel Offset { get; set; }
+
         public EditableFieldViewModel Cap { get; set; }
     }
 
@@ -105,8 +119,11 @@ namespace userinterface.ViewModels.Profile
         }
 
         public EditableFieldViewModel Scale { get; set; }
+
         public EditableFieldViewModel Exponent { get; set; }
+
         public EditableFieldViewModel OutputOffset { get; set; }
+
         public EditableFieldViewModel Cap { get; set; }
     }
 
@@ -120,7 +137,9 @@ namespace userinterface.ViewModels.Profile
         }
 
         public EditableFieldViewModel DecayRate { get; set; }
+
         public EditableFieldViewModel InputOffset { get; set; }
+
         public EditableFieldViewModel Limit { get; set; }
     }
 
@@ -134,7 +153,9 @@ namespace userinterface.ViewModels.Profile
         }
 
         public EditableFieldViewModel Smooth { get; set; }
+
         public EditableFieldViewModel Input { get; set; }
+
         public EditableFieldViewModel Output { get; set; }
     }
 }
