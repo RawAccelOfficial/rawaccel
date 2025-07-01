@@ -14,7 +14,7 @@ namespace userinterface.ViewModels.Mapping
             MappingsBE.Mappings.CollectionChanged += MappingsCollectionChanged;
         }
 
-        public readonly BE.MappingsModel MappingsBE;
+        public BE.MappingsModel MappingsBE { get; }
         public ObservableCollection<MappingViewModel> MappingViews { get; }
 
         private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>

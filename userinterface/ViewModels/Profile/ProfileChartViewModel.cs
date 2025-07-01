@@ -25,7 +25,7 @@ namespace userinterface.ViewModels.Profile
 
         public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
-        private readonly ICurvePreview _curvePreview;
+        private ICurvePreview _curvePreview { get; }
 
         public ProfileChartViewModel(ICurvePreview curvePreview)
         {

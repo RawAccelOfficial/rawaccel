@@ -14,8 +14,8 @@ namespace userinterface.ViewModels.Device
             RefreshSelectedDeviceGroup();
         }
 
-        protected readonly DeviceModel Device;
-        protected readonly DeviceGroups DeviceGroupsBE;
+        protected DeviceModel Device { get; }
+        protected DeviceGroups DeviceGroupsBE { get; }
 
         public ObservableCollection<DeviceGroupModel> DeviceGroupEntries =>
             DeviceGroupsBE.DeviceGroupModels;

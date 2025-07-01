@@ -16,7 +16,7 @@ namespace userinterface.ViewModels.Controls
 
         public string Name => SettingBE.DisplayName;
 
-        protected readonly BE.IEditableSetting SettingBE;
+        protected BE.IEditableSetting SettingBE { get; }
 
         public bool TrySetFromInterface()
         {

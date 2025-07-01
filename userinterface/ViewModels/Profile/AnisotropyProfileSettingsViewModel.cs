@@ -15,7 +15,7 @@ namespace userinterface.ViewModels.Profile
             LPNorm = new NamedEditableFieldViewModel(AnisotropyBE.LPNorm);
         }
 
-        protected readonly BE.AnisotropyModel AnisotropyBE;
+        protected BE.AnisotropyModel AnisotropyBE { get; }
         public EditableFieldViewModel DomainX { get; set; }
         public EditableFieldViewModel DomainY { get; set; }
         public EditableFieldViewModel RangeX { get; set; }

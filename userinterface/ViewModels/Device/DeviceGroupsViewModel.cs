@@ -14,7 +14,7 @@ namespace userinterface.ViewModels.Device
             DeviceGroupsBE.DeviceGroupModels.CollectionChanged += DeviceGroupsCollectionChanged;
         }
 
-        protected readonly BE.DeviceGroups DeviceGroupsBE;
+        protected BE.DeviceGroups DeviceGroupsBE { get; }
         public ObservableCollection<BE.DeviceGroupModel> DeviceGroups => DeviceGroupsBE.DeviceGroupModels;
         public ObservableCollection<DeviceGroupViewModel> DeviceGroupViews { get; }
 

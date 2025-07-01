@@ -12,7 +12,7 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public BE.ProfileModel? currentSelectedProfile;
 
-        private readonly BE.ProfilesModel profilesModel;
+        private BE.ProfilesModel profilesModel { get; }
 
         public ProfileListViewModel(BE.ProfilesModel profiles, Action selectionChangeAction)
         {

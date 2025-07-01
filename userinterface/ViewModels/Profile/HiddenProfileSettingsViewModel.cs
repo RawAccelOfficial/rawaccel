@@ -16,7 +16,7 @@ namespace userinterface.ViewModels.Profile
             OutputSmoothingHalfLifeField = new EditableFieldViewModel(hiddenBE.OutputSmoothingHalfLife);
         }
 
-        protected readonly BE.ProfileComponents.HiddenModel HiddenBE;
+        protected BE.ProfileComponents.HiddenModel HiddenBE { get; }
         public EditableFieldViewModel RotationField { get; set; }
         public EditableFieldViewModel SpeedCapField { get; set; }
         public EditableFieldViewModel LRRatioField { get; set; }

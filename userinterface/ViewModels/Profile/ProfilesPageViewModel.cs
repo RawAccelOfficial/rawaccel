@@ -22,8 +22,8 @@ namespace userinterface.ViewModels.Profile
             ActiveProfilesListView = new ActiveProfilesListViewModel();
         }
 
-        protected readonly IEnumerable<BE.ProfileModel> ProfileModels;
-        protected readonly ObservableCollection<ProfileViewModel> ProfileViewModels;
+        protected IEnumerable<BE.ProfileModel> ProfileModels { get; }
+        protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
         public ProfileListViewModel ProfileListView { get; }
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 

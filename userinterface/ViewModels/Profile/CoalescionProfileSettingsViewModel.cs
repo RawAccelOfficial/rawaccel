@@ -12,7 +12,7 @@ namespace userinterface.ViewModels.Profile
             ScaleSmoothingHalfLife = new EditableFieldViewModel(coalescionBE.ScaleSmoothingHalfLife);
         }
 
-        protected readonly BE.CoalescionModel CoalescionBE;
+        protected BE.CoalescionModel CoalescionBE { get; }
         public EditableFieldViewModel InputSmoothingHalfLife { get; set; }
         public EditableFieldViewModel ScaleSmoothingHalfLife { get; set; }
     }

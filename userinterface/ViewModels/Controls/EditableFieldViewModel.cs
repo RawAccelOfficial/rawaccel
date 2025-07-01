@@ -14,7 +14,7 @@ namespace userinterface.ViewModels.Controls
             ResetValueTextFromBackEnd();
         }
 
-        protected readonly BE.IEditableSetting SettingBE;
+        protected BE.IEditableSetting SettingBE { get; }
 
         public bool TrySetFromInterface()
         {

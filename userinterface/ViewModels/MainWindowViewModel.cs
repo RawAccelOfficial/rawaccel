@@ -24,10 +24,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         MappingsPage = new MappingsPageViewModel(backEnd.Mappings);
     }
 
-    public readonly DevicesPageViewModel DevicesPage;
-    public readonly ProfilesPageViewModel ProfilesPage;
-    public readonly MappingsPageViewModel MappingsPage;
-    protected readonly BE.BackEnd BackEnd;
+    public DevicesPageViewModel DevicesPage { get; }
+    public ProfilesPageViewModel ProfilesPage { get; }
+    public MappingsPageViewModel MappingsPage { get; }
+    protected BE.BackEnd BackEnd { get; }
 
     public string SelectedPage
     {

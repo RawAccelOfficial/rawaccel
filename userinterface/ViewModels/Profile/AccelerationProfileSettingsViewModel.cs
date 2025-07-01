@@ -29,7 +29,7 @@ namespace userinterface.ViewModels.Profile
             AccelerationBE.DefinitionType.PropertyChanged += OnDefinitionTypeChanged;
         }
 
-        public readonly BE.AccelerationModel AccelerationBE;
+        public BE.AccelerationModel AccelerationBE { get; }
         public ObservableCollection<string> DefinitionTypesLocal => DefinitionTypes;
         public AccelerationFormulaSettingsViewModel AccelerationFormulaSettings { get; }
         public AccelerationLUTSettingsViewModel AccelerationLUTSettings { get; }

@@ -11,7 +11,7 @@ namespace userinterface.ViewModels.Profile
             LUTPoints = new EditableFieldViewModel(lutAccelBE.Data);
         }
 
-        public readonly BE.LookupTableDefinitionModel LUTAccelBE;
+        public BE.LookupTableDefinitionModel LUTAccelBE { get; }
         public EditableFieldViewModel LUTPoints { get; set; }
     }
 }
