@@ -12,13 +12,7 @@ namespace userinterface.Views.Profile;
 
 public partial class AccelerationFormulaSettingsView : UserControl
 {
-    private const int SynchronousFormulaIndex = 0;
-    private const int LinearFormulaIndex = 1;
-    private const int ClassicFormulaIndex = 2;
-    private const int PowerFormulaIndex = 3;
-    private const int NaturalFormulaIndex = 4;
-    private const int JumpFormulaIndex = 5;
-    private const int DefaultFormulaIndex = 0;
+    private const BEData.AccelerationFormulaType DefaultFormulaType = BEData.AccelerationFormulaType.Synchronous;
     private const int FirstFieldIndex = 1; // Skip Formula Type field when removing
 
     private DualColumnLabelFieldView? _formulaField;
@@ -48,17 +42,14 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
         LogFormulaTypes(viewModel);
         CreateFormulaTypeComboBox();
-
         if (_formulaTypeCombo == null)
         {
             return;
         }
 
         CreateFormulaFieldViewModel();
-
-        var currentFormulaIndex = GetCurrentFormulaTypeIndex(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
-        AddFormulaSpecificFields(currentFormulaIndex, viewModel);
-
+        var currentFormulaType = GetCurrentFormulaType(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
+        AddFormulaSpecificFields(currentFormulaType, viewModel);
         AddControlToMainPanel();
     }
 
@@ -81,7 +72,6 @@ public partial class AccelerationFormulaSettingsView : UserControl
             VerticalAlignment = VerticalAlignment.Center,
             DataContext = DataContext
         };
-
         _formulaTypeCombo.Bind(ComboBox.ItemsSourceProperty, new Binding("FormulaTypesLocal"));
         _formulaTypeCombo.Bind(ComboBox.SelectedItemProperty, new Binding("FormulaAccelBE.FormulaType.InterfaceValue"));
         _formulaTypeCombo.SelectionChanged += OnFormulaTypeSelectionChanged;
@@ -119,18 +109,17 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
         viewModel.FormulaAccelBE.FormulaType.TryUpdateFromInterface();
         RemoveFormulaSpecificFields();
-
-        var currentFormulaIndex = GetCurrentFormulaTypeIndex(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
-        AddFormulaSpecificFields(currentFormulaIndex, viewModel);
+        var currentFormulaType = GetCurrentFormulaType(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
+        AddFormulaSpecificFields(currentFormulaType, viewModel);
     }
 
-    private int GetCurrentFormulaTypeIndex(string formulaTypeName)
+    private BEData.AccelerationFormulaType GetCurrentFormulaType(string formulaTypeName)
     {
         if (Enum.TryParse<BEData.AccelerationFormulaType>(formulaTypeName, out var formulaType))
         {
-            return (int)formulaType;
+            return formulaType;
         }
-        return DefaultFormulaIndex;
+        return DefaultFormulaType;
     }
 
     private void RemoveFormulaSpecificFields()
@@ -145,29 +134,29 @@ public partial class AccelerationFormulaSettingsView : UserControl
         }
     }
 
-    private void AddFormulaSpecificFields(int formulaTypeIndex, AccelerationFormulaSettingsViewModel formulaSettings)
+    private void AddFormulaSpecificFields(BEData.AccelerationFormulaType formulaType, AccelerationFormulaSettingsViewModel formulaSettings)
     {
         if (_formulaFieldViewModel == null)
             return;
 
-        switch (formulaTypeIndex)
+        switch (formulaType)
         {
-            case SynchronousFormulaIndex:
+            case BEData.AccelerationFormulaType.Synchronous:
                 AddSynchronousFields(formulaSettings);
                 break;
-            case LinearFormulaIndex:
+            case BEData.AccelerationFormulaType.Linear:
                 AddLinearFields(formulaSettings);
                 break;
-            case ClassicFormulaIndex:
+            case BEData.AccelerationFormulaType.Classic:
                 AddClassicFields(formulaSettings);
                 break;
-            case PowerFormulaIndex:
+            case BEData.AccelerationFormulaType.Power:
                 AddPowerFields(formulaSettings);
                 break;
-            case NaturalFormulaIndex:
+            case BEData.AccelerationFormulaType.Natural:
                 AddNaturalFields(formulaSettings);
                 break;
-            case JumpFormulaIndex:
+            case BEData.AccelerationFormulaType.Jump:
                 AddJumpFields(formulaSettings);
                 break;
         }
