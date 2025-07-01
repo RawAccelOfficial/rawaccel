@@ -1,31 +1,54 @@
-﻿using LiveChartsCore;
+﻿using System;
+using System.Linq;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
+using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
-using System;
-using System.Linq;
+using userinterface.Services;
 using userspace_backend.Display;
 
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileChartViewModel : ViewModelBase
     {
+        // Animation settings
         private const int AnimationMilliseconds = 200;
+
+        // Data fitting and bounds
         private const double DataPaddingRatio = 0.1;
         private const double ToleranceThreshold = 0.001;
+
+        // Default chart limits when no data or centering
         private const int DefaultAxisRange = 50;
         private const int DefaultYRange = 1;
         private const int DefaultMaxX = 100;
         private const int DefaultMaxY = 2;
+
+        // Line and stroke thickness
         private const int MainStrokeThickness = 2;
         private const int StandardStrokeThickness = 1;
         private const float SubStrokeThickness = 0.5f;
+
+        // Color transparency values
         private const byte SubSeparatorAlpha = 100;
         private const byte TooltipBackgroundAlpha = 180;
 
-        public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
+        // Theme color resource keys
+        private static readonly string AxisTitleBrush = "PrimaryTextBrush";
+        private static readonly string AxisLabelsBrush = "SecondaryTextBrush";
+        private static readonly string AxisSeparatorsBrush = "BorderBrush";
+        private static readonly string TooltipBackgroundBrush = "CardBackgroundBrush";
 
-        private ICurvePreview _curvePreview { get; }
+        // Axis labeling and text
+        private const string XAxisName = "Mouse Speed";
+        private const string YAxisName = "Output";
+        private const int AxisNameTextSize = 14;
+        private const int AxisTextSize = 12;
+
+        public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
         public ProfileChartViewModel(ICurvePreview curvePreview)
         {
@@ -52,9 +75,14 @@ namespace userinterface.ViewModels.Profile
 
             XAxes = CreateXAxes();
             YAxes = CreateYAxes();
-            TooltipTextPaint = new SolidColorPaint(SKColors.White);
-            TooltipBackgroundPaint = new SolidColorPaint(SKColors.Black.WithAlpha(TooltipBackgroundAlpha));
+            TooltipTextPaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush));
+            TooltipBackgroundPaint = new SolidColorPaint(GetThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+
+            // Subscribe to theme changes
+            ThemeService.ThemeChanged += OnThemeChanged;
         }
+
+        private ICurvePreview _curvePreview { get; }
 
         public ISeries[] Series { get; set; }
 
@@ -66,40 +94,6 @@ namespace userinterface.ViewModels.Profile
 
         public SolidColorPaint TooltipBackgroundPaint { get; set; }
 
-        private Axis[] CreateXAxes() =>
-        [
-            new Axis()
-            {
-                Name = "Mouse Speed",
-                NameTextSize = 14,
-                NamePaint = new SolidColorPaint(SKColors.White),
-                LabelsPaint = new SolidColorPaint(SKColors.White),
-                TextSize = 12,
-                SeparatorsPaint = new SolidColorPaint(SKColors.Gray) { StrokeThickness = StandardStrokeThickness },
-                TicksPaint = new SolidColorPaint(SKColors.White) { StrokeThickness = StandardStrokeThickness },
-                SubseparatorsPaint = new SolidColorPaint(SKColors.Gray.WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
-                AnimationsSpeed = AnimationsTime,
-                MinLimit = 0,
-            }
-        ];
-
-        private Axis[] CreateYAxes() =>
-        [
-            new Axis()
-            {
-                Name = "Output",
-                NameTextSize = 14,
-                NamePaint = new SolidColorPaint(SKColors.White),
-                LabelsPaint = new SolidColorPaint(SKColors.White),
-                TextSize = 12,
-                SeparatorsPaint = new SolidColorPaint(SKColors.Gray) { StrokeThickness = StandardStrokeThickness },
-                TicksPaint = new SolidColorPaint(SKColors.White) { StrokeThickness = StandardStrokeThickness },
-                SubseparatorsPaint = new SolidColorPaint(SKColors.Gray.WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
-                AnimationsSpeed = AnimationsTime,
-                MinLimit = 0,
-            }
-        ];
-
         public void FitToData()
         {
             var points = _curvePreview.Points.ToList();
@@ -110,7 +104,6 @@ namespace userinterface.ViewModels.Profile
             }
 
             var (minX, maxX, minY, maxY) = GetDataBounds(points);
-
             if (Math.Abs(maxY - minY) < ToleranceThreshold)
             {
                 SetCenteredLimits(minX, maxX, minY, maxY);
@@ -120,6 +113,84 @@ namespace userinterface.ViewModels.Profile
                 SetPaddedLimits(minX, maxX, minY, maxY);
             }
         }
+
+        public void RecreateAxes(double? xMinLimit = null, double? xMaxLimit = null, double? yMinLimit = null, double? yMaxLimit = null)
+        {
+            XAxes = CreateXAxes(xMinLimit, xMaxLimit);
+            YAxes = CreateYAxes(yMinLimit, yMaxLimit);
+
+            // Notify property changes
+            OnPropertyChanged(nameof(XAxes));
+            OnPropertyChanged(nameof(YAxes));
+        }
+
+        public void Dispose()
+        {
+            ThemeService.ThemeChanged -= OnThemeChanged;
+        }
+
+        private static SKColor GetThemeColor(string resourceKey)
+        {
+            var app = Application.Current;
+            if (app?.Resources == null || !app.Resources.TryGetResource(resourceKey, app.ActualThemeVariant, out var resource))
+                return GetFallbackColor(resourceKey);
+
+            return resource switch
+            {
+                SolidColorBrush brush => new SKColor(brush.Color.R, brush.Color.G, brush.Color.B, brush.Color.A),
+                ImmutableSolidColorBrush brush => new SKColor(brush.Color.R, brush.Color.G, brush.Color.B, brush.Color.A),
+                _ => GetFallbackColor(resourceKey)
+            };
+        }
+
+        private static SKColor GetFallbackColor(string resourceKey)
+        {
+            return resourceKey switch
+            {
+                var key when key == AxisTitleBrush => SKColors.White,
+                var key when key == AxisLabelsBrush => SKColors.LightGray,
+                var key when key == AxisSeparatorsBrush => SKColors.Gray,
+                var key when key == TooltipBackgroundBrush => SKColors.Black,
+                _ => SKColors.White
+            };
+        }
+
+
+        private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
+        [
+            new Axis()
+            {
+                Name = XAxisName,
+                NameTextSize = AxisNameTextSize,
+                NamePaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)),
+                LabelsPaint = new SolidColorPaint(GetThemeColor(AxisLabelsBrush)),
+                TextSize = AxisTextSize,
+                SeparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
+                TicksPaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
+                SubseparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
+                AnimationsSpeed = AnimationsTime,
+                MinLimit = minLimit ?? 0,
+                MaxLimit = maxLimit
+            }
+        ];
+
+        private Axis[] CreateYAxes(double? minLimit = null, double? maxLimit = null) =>
+        [
+            new Axis()
+            {
+                Name = YAxisName,
+                NameTextSize = AxisNameTextSize,
+                NamePaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)),
+                LabelsPaint = new SolidColorPaint(GetThemeColor(AxisLabelsBrush)),
+                TextSize = AxisTextSize,
+                SeparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
+                TicksPaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
+                SubseparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
+                AnimationsSpeed = AnimationsTime,
+                MinLimit = minLimit ?? 0,
+                MaxLimit = maxLimit
+            }
+        ];
 
         private void SetDefaultLimits()
         {
@@ -158,6 +229,23 @@ namespace userinterface.ViewModels.Profile
             XAxes[0].MaxLimit = maxX + xPadding;
             YAxes[0].MinLimit = Math.Max(0, minY - yPadding);
             YAxes[0].MaxLimit = maxY + yPadding;
+        }
+
+        private void OnThemeChanged(object? sender, EventArgs e)
+        {
+            TooltipTextPaint.Color = GetThemeColor(AxisTitleBrush );
+            TooltipBackgroundPaint.Color = GetThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
+
+            var currentXMin = XAxes?[0]?.MinLimit;
+            var currentXMax = XAxes?[0]?.MaxLimit;
+            var currentYMin = YAxes?[0]?.MinLimit;
+            var currentYMax = YAxes?[0]?.MaxLimit;
+
+            RecreateAxes(currentXMin, currentXMax, currentYMin, currentYMax);
+
+            // Notify tooltip property changes
+            OnPropertyChanged(nameof(TooltipTextPaint));
+            OnPropertyChanged(nameof(TooltipBackgroundPaint));
         }
     }
 }

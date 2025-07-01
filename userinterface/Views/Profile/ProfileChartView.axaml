@@ -7,7 +7,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileChartView"
              x:DataType="vm:ProfileChartViewModel">
-
 	<UserControl.Styles>
 		<Style Selector="lvc|CartesianChart">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
@@ -29,7 +28,6 @@
 			<Setter Property="Opacity" Value="1"/>
 		</Style>
 	</UserControl.Styles>
-
 	<Border Background="{DynamicResource HoverBackgroundBrush}"
 	        BorderBrush="{DynamicResource BorderBrush}"
 	        BorderThickness="1"
@@ -48,6 +46,11 @@
 			            HorizontalAlignment="Right"
 			            VerticalAlignment="Bottom"
 			            Margin="16,16,16,2">
+				<Button Classes="chart-control"
+				        Click="RecreateAxes_Click"
+				        ToolTip.Tip="Reset Zoom">
+					<PathIcon Data="{StaticResource screenshot_regular}"/>
+				</Button>
 				<Button Classes="chart-control"
 				        Click="FitToData_Click"
 				        ToolTip.Tip="Fit to Data">

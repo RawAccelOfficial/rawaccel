@@ -4,6 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
 using userinterface.ViewModels;
+using userinterface.Services;
 
 namespace userinterface.Views;
 
@@ -65,7 +66,9 @@ public partial class MainWindow : Window
             Application.Current.RequestedThemeVariant = newTheme;
         }
         UpdateThemeToggleButton();
+        ThemeService.NotifyThemeChanged();
     }
+
 
     private void UpdateThemeToggleButton()
     {
