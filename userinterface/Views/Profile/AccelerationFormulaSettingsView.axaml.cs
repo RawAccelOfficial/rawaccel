@@ -14,7 +14,6 @@ public partial class AccelerationFormulaSettingsView : UserControl
 {
     private const BEData.AccelerationFormulaType DefaultFormulaType = BEData.AccelerationFormulaType.Synchronous;
     private const int FirstFieldIndex = 1; // Skip Formula Type field when removing
-
     private DualColumnLabelFieldView? _formulaField;
     private DualColumnLabelFieldViewModel? _formulaFieldViewModel;
     private ComboBox? _formulaTypeCombo;
@@ -212,30 +211,16 @@ public partial class AccelerationFormulaSettingsView : UserControl
         if (bindingSource is not EditableFieldViewModel editableField)
             return new TextBox();
 
-        var textBox = new TextBox
+        // Set the EditableFieldViewModel to use OnChange mode for real-time updates
+        editableField.UpdateMode = UpdateMode.OnChange;
+
+        var editableFieldView = new EditableFieldView
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
             DataContext = editableField
         };
 
-        textBox.Bind(TextBox.TextProperty, new Binding("ValueText")
-        {
-            Mode = BindingMode.TwoWay
-        });
-
-        //textBox.LostFocus += (sender, e) =>
-        //{
-        //    editableField.TrySetFromInterface();
-        //};
-
-        // Real-time updates
-        textBox.TextChanged += (sender, e) =>
-        {
-            editableField.TrySetFromInterface();
-        };
-
-        return textBox;
+        return editableFieldView;
     }
-
 }

@@ -116,9 +116,10 @@ namespace userspace_backend.Model
 
             // Name and Output DPI do not need to generate a new curve preview
             Name.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
-            OutputDPI.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
+
 
             // The rest of settings should generate a new curve preview
+            OutputDPI.PropertyChanged += AnyCurvePreviewPropertyChangedEventHandler;
             YXRatio.PropertyChanged += AnyCurvePreviewPropertyChangedEventHandler;
             Acceleration.AnySettingChanged += AnyCurveSettingCollectionChangedEventHandler;
             Hidden.AnySettingChanged += AnyCurveSettingCollectionChangedEventHandler;
