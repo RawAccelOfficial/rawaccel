@@ -57,8 +57,13 @@ public partial class AccelerationProfileSettingsView : UserControl
             VerticalAlignment = VerticalAlignment.Center,
             DataContext = viewModel,
             ItemsSource = viewModel.DefinitionTypesLocal,
-            SelectedItem = viewModel.AccelerationBE.DefinitionType.InterfaceValue
         };
+
+        _accelerationComboBox.Bind(ComboBox.SelectedItemProperty,
+            new Avalonia.Data.Binding("AccelerationBE.DefinitionType.InterfaceValue")
+            {
+                Mode = Avalonia.Data.BindingMode.TwoWay
+            });
 
         _accelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
     }
