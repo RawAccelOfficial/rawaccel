@@ -14,6 +14,8 @@ namespace userspace_backend.Display
         ObservableCollection<CurvePoint> Points { get; }
 
         void GeneratePoints(Profile profile);
+
+        void SetPoints(IEnumerable<CurvePoint> points);
     }
 
     public class CurvePreview : ICurvePreview
@@ -35,6 +37,15 @@ namespace userspace_backend.Display
                 var output = accel.Accelerate(point.MouseSpeed, 0, 1, 1);
                 var outputSpeed = Math.Sqrt(Math.Pow(output.Item1, 2) + Math.Pow(output.Item2, 2));
                 point.Output = outputSpeed / point.MouseSpeed;
+            }
+        }
+
+        public void SetPoints(IEnumerable<CurvePoint> points)
+        {
+            Points.Clear();
+            foreach (var point in points)
+            {
+                Points.Add(point);
             }
         }
 

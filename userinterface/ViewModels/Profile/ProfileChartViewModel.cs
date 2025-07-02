@@ -1,14 +1,17 @@
-﻿using System;
-using System.Linq;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using userinterface.Services;
 using userspace_backend.Display;
+using userspace_backend.Model.EditableSettings;
 
 namespace userinterface.ViewModels.Profile
 {
@@ -50,28 +53,15 @@ namespace userinterface.ViewModels.Profile
 
         public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
-        public ProfileChartViewModel(ICurvePreview curvePreview)
+        public ProfileChartViewModel(ICurvePreview xCurvePreview, ICurvePreview yCurvePreview, EditableSetting<double> yxRatio)
         {
-            _curvePreview = curvePreview;
-            Series =
-            [
-                new LineSeries<CurvePoint>
-                {
-                    Values = curvePreview.Points,
-                    Fill = null,
-                    Stroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness },
-                    Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
-                    GeometrySize = 0,
-                    GeometryStroke = null,
-                    GeometryFill = null,
-                    AnimationsSpeed = AnimationsTime,
-                    Name = "Curve Profile",
-                    LineSmoothness = 0.2,
-                    // Secondary value is x
-                    XToolTipLabelFormatter = (chartPoint) => $"Speed: {chartPoint.Coordinate.SecondaryValue:F2}",
-                    YToolTipLabelFormatter = (chartPoint) => $"Output: {chartPoint.Coordinate.PrimaryValue:F2}"
-                }
-            ];
+            _xCurvePreview = xCurvePreview;
+            _yCurvePreview = yCurvePreview;
+            _yxRatio = yxRatio;
+
+            _yxRatio.PropertyChanged += OnYXRatioChanged;
+
+            CreateSeries();
 
             XAxes = CreateXAxes();
             YAxes = CreateYAxes();
@@ -82,7 +72,11 @@ namespace userinterface.ViewModels.Profile
             ThemeService.ThemeChanged += OnThemeChanged;
         }
 
-        private ICurvePreview _curvePreview { get; }
+        private ICurvePreview _xCurvePreview { get; }
+
+        private ICurvePreview _yCurvePreview { get; }
+
+        private EditableSetting<double> _yxRatio { get; }
 
         public ISeries[] Series { get; set; }
 
@@ -96,14 +90,20 @@ namespace userinterface.ViewModels.Profile
 
         public void FitToData()
         {
-            var points = _curvePreview.Points.ToList();
-            if (!points.Any())
+            var allPoints = _xCurvePreview.Points.ToList();
+
+            if (Math.Abs(_yxRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
+            {
+                allPoints.AddRange(_yCurvePreview.Points);
+            }
+
+            if (!allPoints.Any())
             {
                 SetDefaultLimits();
                 return;
             }
 
-            var (minX, maxX, minY, maxY) = GetDataBounds(points);
+            var (minX, maxX, minY, maxY) = GetDataBounds(allPoints);
             if (Math.Abs(maxY - minY) < ToleranceThreshold)
             {
                 SetCenteredLimits(minX, maxX, minY, maxY);
@@ -127,6 +127,7 @@ namespace userinterface.ViewModels.Profile
         public void Dispose()
         {
             ThemeService.ThemeChanged -= OnThemeChanged;
+            _yxRatio.PropertyChanged -= OnYXRatioChanged;
         }
 
         private static SKColor GetThemeColor(string resourceKey)
@@ -154,6 +155,60 @@ namespace userinterface.ViewModels.Profile
                 _ => SKColors.White
             };
         }
+
+        private void CreateSeries()
+        {
+            var seriesList = new List<ISeries>
+            {
+                new LineSeries<CurvePoint>
+                {
+                    Values = _xCurvePreview.Points,
+                    Fill = null,
+                    Stroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness },
+                    Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
+                    GeometrySize = 0,
+                    GeometryStroke = null,
+                    GeometryFill = null,
+                    AnimationsSpeed = AnimationsTime,
+                    Name = "X Curve Profile",
+                    LineSmoothness = 0.2,
+                    XToolTipLabelFormatter = (chartPoint) => $"Speed: {chartPoint.Coordinate.SecondaryValue:F2}",
+                    YToolTipLabelFormatter = (chartPoint) => $"X Output: {chartPoint.Coordinate.PrimaryValue:F2}"
+                }
+            };
+
+            // Add Y curve only if YX ratio is not 1
+            if (Math.Abs(_yxRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
+            {
+                seriesList.Add(new LineSeries<CurvePoint>
+                {
+                    Values = _yCurvePreview.Points,
+                    Fill = null,
+                    Stroke = new SolidColorPaint(SKColors.OrangeRed) { StrokeThickness = MainStrokeThickness },
+                    Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
+                    GeometrySize = 0,
+                    GeometryStroke = null,
+                    GeometryFill = null,
+                    AnimationsSpeed = AnimationsTime,
+                    Name = "Y Curve Profile",
+                    LineSmoothness = 0.2,
+                    XToolTipLabelFormatter = (chartPoint) => $"Speed: {chartPoint.Coordinate.SecondaryValue:F2}",
+                    YToolTipLabelFormatter = (chartPoint) => $"Y Output: {chartPoint.Coordinate.PrimaryValue:F2}"
+                });
+            }
+
+            Series = seriesList.ToArray();
+        }
+
+        private void OnYXRatioChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(EditableSetting<double>.CurrentValidatedValue))
+            {
+                CreateSeries();
+                OnPropertyChanged(nameof(Series));
+            }
+        }
+
 
 
         private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
@@ -233,7 +288,7 @@ namespace userinterface.ViewModels.Profile
 
         private void OnThemeChanged(object? sender, EventArgs e)
         {
-            TooltipTextPaint.Color = GetThemeColor(AxisTitleBrush );
+            TooltipTextPaint.Color = GetThemeColor(AxisTitleBrush);
             TooltipBackgroundPaint.Color = GetThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
 
             var currentXMin = XAxes?[0]?.MinLimit;

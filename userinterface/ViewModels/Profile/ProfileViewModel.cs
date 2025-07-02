@@ -8,7 +8,7 @@ namespace userinterface.ViewModels.Profile
         {
             ProfileModelBE = profileBE;
             Settings = new ProfileSettingsViewModel(profileBE);
-            Chart = new ProfileChartViewModel(profileBE.CurvePreview);
+            Chart = new ProfileChartViewModel(profileBE.XCurvePreview, profileBE.YCurvePreview, ProfileModelBE.YXRatio);
         }
 
         protected BE.ProfileModel ProfileModelBE { get; }

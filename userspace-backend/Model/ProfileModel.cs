@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using DATA = userspace_backend.Data;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using userspace_backend.Common;
+using userspace_backend.Display;
 using userspace_backend.Model.AccelDefinitions;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
-using System;
-using System.ComponentModel;
-using userspace_backend.Common;
-using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using userspace_backend.Display;
+using DATA = userspace_backend.Data;
 
 namespace userspace_backend.Model
 {
@@ -17,7 +18,8 @@ namespace userspace_backend.Model
         public ProfileModel(DATA.Profile dataObject, IModelValueValidator<string> nameValidator) : base(dataObject)
         {
             NameValidator = nameValidator;
-            CurvePreview = new CurvePreview();
+            XCurvePreview = new CurvePreview();
+            YCurvePreview = new CurvePreview();
             RecalculateDriverDataAndCurvePreview();
         }
 
@@ -35,7 +37,12 @@ namespace userspace_backend.Model
 
         public Profile CurrentValidatedDriverProfile { get; protected set; }
 
-        public ICurvePreview CurvePreview { get; protected set; }
+        public ICurvePreview XCurvePreview { get; protected set; }
+
+        public ICurvePreview YCurvePreview { get; protected set; }
+
+        [Obsolete("Use XCurvePreview instead")]
+        public ICurvePreview CurvePreview => XCurvePreview;
 
         protected IModelValueValidator<string> NameValidator { get; }
 
@@ -81,7 +88,27 @@ namespace userspace_backend.Model
         protected void RecalculateDriverDataAndCurvePreview()
         {
             RecalculateDriverData();
-            CurvePreview.GeneratePoints(CurrentValidatedDriverProfile);
+
+            // Generate X curve points (original behavior)
+            XCurvePreview.GeneratePoints(CurrentValidatedDriverProfile);
+
+            // Generate Y curve points by multiplying X curve outputs by YX ratio
+            GenerateYCurvePoints();
+        }
+
+        private void GenerateYCurvePoints()
+        {
+            var yPoints = CreateYCurvePointsFromX(XCurvePreview.Points, YXRatio.CurrentValidatedValue);
+            YCurvePreview.SetPoints(yPoints);
+        }
+
+        private List<CurvePoint> CreateYCurvePointsFromX(ObservableCollection<CurvePoint> xPoints, double yxRatio)
+        {
+            return xPoints.Select(xPoint => new CurvePoint
+            {
+                MouseSpeed = xPoint.MouseSpeed,
+                Output = xPoint.Output * yxRatio
+            }).ToList();
         }
 
         protected override IEnumerable<IEditableSetting> EnumerateEditableSettings()
@@ -96,27 +123,29 @@ namespace userspace_backend.Model
 
         protected override void InitEditableSettingsAndCollections(DATA.Profile dataObject)
         {
-            Name = new EditableSetting<string>(
+           Name = new EditableSetting<string>(
                 displayName: "Name",
                 initialValue: dataObject.Name,
                 parser: UserInputParsers.StringParser,
                 validator: NameValidator);
+
             OutputDPI = new EditableSetting<int>(
                 displayName: "Output DPI",
                 initialValue: dataObject.OutputDPI,
                 parser: UserInputParsers.IntParser,
                 validator: ModelValueValidators.DefaultIntValidator);
+
             YXRatio = new EditableSetting<double>(
                 displayName: "Y/X Ratio",
                 initialValue: dataObject.YXRatio,
                 parser: UserInputParsers.DoubleParser,
                 validator: ModelValueValidators.DefaultDoubleValidator);
+
             Acceleration = new AccelerationModel(dataObject.Acceleration);
             Hidden = new HiddenModel(dataObject.Hidden);
 
             // Name and Output DPI do not need to generate a new curve preview
             Name.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
-
 
             // The rest of settings should generate a new curve preview
             OutputDPI.PropertyChanged += AnyCurvePreviewPropertyChangedEventHandler;
