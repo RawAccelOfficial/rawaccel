@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Device"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Device.DeviceGroupView"
+             x:DataType="vm:DeviceGroupViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="Border.GroupBorder">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="12" />
+			<Setter Property="Margin" Value="0,0,8,0" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Padding" Value="6" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Margin" Value="0,0,8,0" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonPressedBrush}" />
+		</Style>
+
+		<Style Selector="TextBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Padding" Value="8" />
+			<Setter Property="MinWidth" Value="120" />
+		</Style>
+
+		<Style Selector="TextBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+	</UserControl.Styles>
+
+	<Border Classes="GroupBorder">
+		<StackPanel Orientation="Horizontal">
+			<Button Classes="DeleteButton" Click="DeleteSelf">
+				<PathIcon Data="{StaticResource delete_regular}" Width="12" Height="12" />
+			</Button>
+
+			<TextBox KeyDown="TextBox_KeyDown"
+                     LostFocus="LostFocusHandler"
+                     Text="{Binding DeviceGroupBE.InterfaceValue, Mode=TwoWay}" />
+		</StackPanel>
+	</Border>
+</UserControl>

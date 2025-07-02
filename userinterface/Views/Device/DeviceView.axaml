@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Device"
+             xmlns:controls="using:userinterface.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Device.DeviceView"
+             x:DataType="vm:DeviceViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="8" />
+			<Setter Property="Cursor" Value="Hand" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pointerover, Button.DeleteButton:pressed, Button.DeleteButton:focus">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="controls|EditableExpanderView">
+			<Setter Property="Margin" Value="0,0,0,8" />
+		</Style>
+	</UserControl.Styles>
+
+	<controls:EditableExpanderView HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Stretch"
+                                   IsExpanded="False">
+		<controls:EditableExpanderView.Header>
+			<Grid ColumnDefinitions="2*,*,*,2*"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  Margin="8,4">
+				<ContentControl Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                Content="{Binding NameField}" />
+
+				<ContentControl Grid.Column="1"
+                                HorizontalAlignment="Left"
+                                Content="{Binding DPIField}" />
+
+				<ContentControl Grid.Column="2"
+                                HorizontalAlignment="Left"
+                                Content="{Binding IgnoreBool}" />
+
+				<ContentControl Grid.Column="3"
+                                HorizontalAlignment="Left"
+                                Content="{Binding DeviceGroup}" />
+			</Grid>
+		</controls:EditableExpanderView.Header>
+
+		<controls:EditableExpanderView.ExpanderContent>
+			<Grid ColumnDefinitions="Auto,*,*"
+                  HorizontalAlignment="Stretch"
+                  Margin="8">
+				<Button Grid.Column="0"
+                        Classes="DeleteButton"
+                        Click="DeleteSelf"
+                        Margin="0,0,16,0">
+					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16" />
+				</Button>
+
+				<ContentControl Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Content="{Binding HWIDField}"
+                                Margin="0,0,16,0" />
+
+				<ContentControl Grid.Column="2"
+                                HorizontalAlignment="Left"
+                                Content="{Binding PollRateField}" />
+			</Grid>
+		</controls:EditableExpanderView.ExpanderContent>
+	</controls:EditableExpanderView>
+</UserControl>

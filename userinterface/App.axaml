@@ -3,14 +3,32 @@
              x:Class="userinterface.App"
              xmlns:local="using:userinterface"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+	<!-- "Default" ThemeVariant follows system theme variant. -->
+	<Application.DataTemplates>
+		<local:ViewLocator/>
+	</Application.DataTemplates>
 
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<ResourceDictionary.MergedDictionaries>
+						<ResourceInclude Source="/Styles/Themes/LightTheme.axaml"/>
+					</ResourceDictionary.MergedDictionaries>
+				</ResourceDictionary>
 
-    <Application.Styles>
-        <FluentTheme />
-        <StyleInclude Source="/Styles/Icons.axaml"/>
-    </Application.Styles>
+				<ResourceDictionary x:Key="Dark">
+					<ResourceDictionary.MergedDictionaries>
+						<ResourceInclude Source="/Styles/Themes/DarkTheme.axaml"/>
+					</ResourceDictionary.MergedDictionaries>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="/Styles/Icons.axaml"/>
+		<StyleInclude Source="/Styles/NoInteractionButtonView.axaml"/>
+	</Application.Styles>
 </Application>

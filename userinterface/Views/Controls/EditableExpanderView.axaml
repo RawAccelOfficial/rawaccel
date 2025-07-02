@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="using:userinterface.Controls"
+             xmlns:styles="using:Styles"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Controls.EditableExpanderView">
+
+	<UserControl.Styles>
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="12,8" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15" />
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader.SyncHover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+		</Style>
+
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader.Expanded">
+			<Setter Property="CornerRadius" Value="6,6,0,0" />
+			<Setter Property="BorderThickness" Value="1,1,1,0" />
+		</Style>
+
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader.Expanded.SyncHover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="CornerRadius" Value="6,6,0,0" />
+			<Setter Property="BorderThickness" Value="1,1,1,0" />
+		</Style>
+
+		<Style Selector="styles|NoInteractionButtonView.ExpanderContent">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1,0,1,1" />
+			<Setter Property="CornerRadius" Value="0,0,6,6" />
+			<Setter Property="Padding" Value="12,8,12,12" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15" />
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="styles|NoInteractionButtonView.ExpanderContent.SyncHover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="BorderThickness" Value="1,0,1,1" />
+			<Setter Property="CornerRadius" Value="0,0,6,6" />
+		</Style>
+
+		<Style Selector="PathIcon.ExpandIcon">
+			<Setter Property="Width" Value="12" />
+			<Setter Property="Height" Value="12" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="Margin" Value="0,4,8,0" />
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="RotateTransform.Angle" Duration="0:0:0.2" />
+				</Transitions>
+			</Setter>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Orientation="Vertical">
+		<styles:NoInteractionButtonView Classes="ExpanderHeader"
+                                        x:Name="HeaderButton"
+                                        Click="ToggleButton_Click"
+                                        PointerEntered="HeaderButton_PointerEntered"
+                                        PointerExited="HeaderButton_PointerExited">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<PathIcon Grid.Column="0"
+                          Classes="ExpandIcon"
+                          x:Name="ExpandIcon"
+                          Data="{StaticResource chevron_right_regular}">
+					<PathIcon.RenderTransform>
+						<RotateTransform Angle="{Binding Angle, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}" />
+					</PathIcon.RenderTransform>
+				</PathIcon>
+
+				<ContentPresenter Grid.Column="1"
+                                  Content="{Binding Header, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}"
+                                  VerticalAlignment="Center" />
+			</Grid>
+		</styles:NoInteractionButtonView>
+
+		<styles:NoInteractionButtonView Classes="ExpanderContent"
+                                        x:Name="ContentButton"
+                                        IsVisible="False"
+                                        PointerEntered="ContentButton_PointerEntered"
+                                        PointerExited="ContentButton_PointerExited">
+			<ContentPresenter Content="{Binding ExpanderContent, RelativeSource={RelativeSource FindAncestor, AncestorType=controls:EditableExpanderView}}" />
+		</styles:NoInteractionButtonView>
+	</StackPanel>
+</UserControl>

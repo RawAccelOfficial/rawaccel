@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Controls"
+             x:Class="userinterface.Views.Controls.DualColumnLabelFieldView"
+             x:Name="Root"
+             x:DataType="vm:DualColumnLabelFieldViewModel"
+             mc:Ignorable="d"
+             d:DesignWidth="400"
+             d:DesignHeight="200">
+
+	<Design.DataContext>
+		<vm:DualColumnLabelFieldViewModel />
+	</Design.DataContext>
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.FieldLabel">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="TextTrimming" Value="CharacterEllipsis" />
+			<Setter Property="TextWrapping" Value="NoWrap" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Medium" />
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Orientation="Vertical" Spacing="8">
+		<ItemsControl ItemsSource="{Binding Fields}">
+			<ItemsControl.ItemTemplate>
+				<DataTemplate x:DataType="vm:FieldItemViewModel">
+					<Grid Margin="0,4">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="{Binding $parent[UserControl].((vm:DualColumnLabelFieldViewModel)DataContext).LabelWidth}" />
+							<ColumnDefinition Width="8" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Column="0"
+                                   Classes="FieldLabel"
+                                   Text="{Binding Label}"
+                                   ToolTip.Tip="{Binding Label}" />
+
+						<ContentPresenter Grid.Column="2"
+                                          Content="{Binding InputControl}"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Center" />
+					</Grid>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</StackPanel>
+</UserControl>

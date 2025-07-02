@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Controls.EditableBoolView"
+             x:DataType="vm:EditableBoolViewModel"
+             x:CompileBindings="True">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Medium" />
+		</Style>
+
+		<Style Selector="CheckBox">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+		</Style>
+
+		<Style Selector="CheckBox /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
+
+		<Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+		</Style>
+	</UserControl.Styles>
+
+	<Grid ColumnDefinitions="*,*" Margin="8">
+		<TextBlock Grid.Column="0"
+                   x:Name="NameTextBlock"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   Text="{Binding Name}"
+                   Margin="0,0,12,0" />
+
+		<CheckBox Grid.Column="1"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"
+                  IsChecked="{Binding ValueInDisplay}" />
+	</Grid>
+</UserControl>

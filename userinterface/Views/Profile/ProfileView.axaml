@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:v="using:userinterface.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Profile.ProfileView"
+             x:DataType="vm:ProfileViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="Border.SectionBorder">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="16"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid ColumnDefinitions="*,2*">
+		<Border Grid.Column="0"
+				Classes="SectionBorder"
+				Margin="0,0,8,0">
+			<ContentControl Content="{Binding Settings}"/>
+		</Border>
+
+		<Border Grid.Column="1"
+				Classes="SectionBorder"
+				Margin="8,0,0,0">
+			<ContentControl Content="{Binding Chart}"/>
+		</Border>
+	</Grid>
+</UserControl>

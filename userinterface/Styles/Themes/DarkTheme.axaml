@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Backgrounds -->
+    <SolidColorBrush x:Key="AppBackgroundBrush">#1E1E1E</SolidColorBrush>
+    <SolidColorBrush x:Key="CardBackgroundBrush">#2D2D30</SolidColorBrush>
+    <SolidColorBrush x:Key="ControlBackgroundBrush">#1E1E1E</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverBackgroundBrush">#252526</SolidColorBrush>
+    <SolidColorBrush x:Key="SelectedBackgroundBrush">#0E639C</SolidColorBrush>
+    
+    <!-- Borders -->
+    <SolidColorBrush x:Key="BorderBrush">#3F3F46</SolidColorBrush>
+    <SolidColorBrush x:Key="FocusBorderBrush">#0E639C</SolidColorBrush>
+    
+    <!-- Text -->
+    <SolidColorBrush x:Key="PrimaryTextBrush">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="SecondaryTextBrush">#CCCCCC</SolidColorBrush>
+    <SolidColorBrush x:Key="DisabledTextBrush">#666666</SolidColorBrush>
+    
+    <!-- Buttons -->
+    <SolidColorBrush x:Key="PrimaryButtonBrush">#0E639C</SolidColorBrush>
+    <SolidColorBrush x:Key="PrimaryButtonHoverBrush">#1177BB</SolidColorBrush>
+    <SolidColorBrush x:Key="PrimaryButtonPressedBrush">#0D5A94</SolidColorBrush>
+    <SolidColorBrush x:Key="DangerButtonBrush">#DC2626</SolidColorBrush>
+    <SolidColorBrush x:Key="DangerButtonHoverBrush">#EF4444</SolidColorBrush>
+    <SolidColorBrush x:Key="DangerButtonPressedBrush">#B91C1C</SolidColorBrush>
+    <SolidColorBrush x:Key="SuccessButtonBrush">#059669</SolidColorBrush>
+    <SolidColorBrush x:Key="SuccessButtonHoverBrush">#10B981</SolidColorBrush>
+    <SolidColorBrush x:Key="SuccessButtonPressedBrush">#047857</SolidColorBrush>
+</ResourceDictionary>

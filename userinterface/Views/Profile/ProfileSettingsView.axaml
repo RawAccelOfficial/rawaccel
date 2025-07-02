@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="using:userinterface.Views"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Profile.ProfileSettingsView"
+             x:DataType="vm:ProfileSettingsViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="Grid.FormRow">
+			<Setter Property="Margin" Value="0,0,0,12"/>
+		</Style>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Margin" Value="0,0,12,0"/>
+		</Style>
+	</UserControl.Styles>
+	<ScrollViewer>
+		<StackPanel Orientation="Vertical"
+					HorizontalAlignment="Stretch"
+					Margin="16"
+					Spacing="12">
+			<Grid Classes="FormRow" ColumnDefinitions="200,*">
+				<TextBlock Grid.Column="0" Text="Output DPI"/>
+				<ContentControl Grid.Column="1" Content="{Binding OutputDPIField}"/>
+			</Grid>
+			<Grid Classes="FormRow" ColumnDefinitions="200,*">
+				<TextBlock Grid.Column="0" Text="Y/X Ratio"/>
+				<ContentControl Grid.Column="1" Content="{Binding YXRatioField}"/>
+			</Grid>
+			<ContentControl Content="{Binding AccelerationSettings}"/>
+			<ContentControl Content="{Binding HiddenSettings}"/>
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>

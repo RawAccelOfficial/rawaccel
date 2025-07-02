@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Views.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Profile.AccelerationLUTSettingsView"
+             x:DataType="vm:AccelerationLUTSettingsViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
+		<Style Selector="TextBlock.Warning">
+			<Setter Property="Foreground" Value="#F59E0B"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+		</Style>
+		<Style Selector="TextBlock.Instructions">
+			<Setter Property="Foreground" Value="#9CA3AF"/>
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="FontStyle" Value="Italic"/>
+		</Style>
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="MinWidth" Value="120"/>
+		</Style>
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Spacing="12" x:Name="MainStackPanel">
+		<TextBlock Classes="Warning">
+			This mode is for experts only.
+		</TextBlock>
+		<TextBlock Classes="Instructions">
+			Format: x1,y1,x2,y2,...xn,yn;
+		</TextBlock>
+		<ContentControl Content="{Binding LUTPoints}" Height="100"/>
+	</StackPanel>
+</UserControl>

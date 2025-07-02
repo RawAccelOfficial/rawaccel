@@ -1,0 +1,199 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Mapping"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Mapping.MappingView"
+             x:DataType="vm:MappingViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.MappingTitle">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="FontSize" Value="25"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="8,0,0,0"/>
+		</Style>
+
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pressed">
+			<Setter Property="Background" Value="#B91C1C"/>
+		</Style>
+
+		<Style Selector="Button.AddEntryButton">
+			<Setter Property="Background" Value="#059669"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,12,0,0"/>
+		</Style>
+
+		<Style Selector="Button.AddEntryButton:pointerover">
+			<Setter Property="Background" Value="#10B981"/>
+		</Style>
+
+		<Style Selector="Button.AddEntryButton:pressed">
+			<Setter Property="Background" Value="#047857"/>
+		</Style>
+
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Margin" Value="0,8,0,0"/>
+		</Style>
+
+		<Style Selector="ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Margin" Value="0,2"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+		</Style>
+
+		<Style Selector="Grid.MappingEntry">
+			<Setter Property="Margin" Value="0,4"/>
+		</Style>
+
+		<Style Selector="TextBlock.Arrow">
+			<Setter Property="Foreground" Value="#6B7280"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+	</UserControl.Styles>
+
+	<DockPanel>
+		<Grid DockPanel.Dock="Top"
+			  ColumnDefinitions="Auto,*"
+			  Margin="0,0,0,12">
+			<Button Grid.Column="0"
+					Classes="DeleteButton"
+					Click="DeleteSelf"
+					VerticalAlignment="Center">
+				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
+			</Button>
+			<TextBlock Grid.Column="1"
+					   Classes="MappingTitle"
+					   Text="{Binding MappingBE.Name.CurrentValidatedValue}"
+					   VerticalAlignment="Center"/>
+		</Grid>
+
+		<Button DockPanel.Dock="Bottom"
+				Classes="AddEntryButton"
+				HorizontalAlignment="Center"
+				Content="Add Entry">
+			<Button.Flyout>
+				<Flyout>
+					<Border Background="{DynamicResource CardBackgroundBrush}"
+							BorderBrush="{DynamicResource BorderBrush}"
+							BorderThickness="1"
+							CornerRadius="6"
+							Padding="8">
+						<ListBox Name="DeviceGroupSelectorToAddMapping"
+								 SelectionChanged="AddMappingSelectionChanged"
+								 ItemsSource="{Binding MappingBE.DeviceGroupsStillUnmapped}"
+								 MinWidth="200"
+								 Background="Transparent"
+								 BorderThickness="0">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding CurrentValidatedValue}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Border>
+				</Flyout>
+			</Button.Flyout>
+		</Button>
+
+		<ListBox ItemsSource="{Binding IndividualMappings}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Grid Classes="MappingEntry"
+						  ColumnDefinitions="*,Auto,*"
+						  HorizontalAlignment="Stretch">
+						<TextBlock Grid.Column="0"
+								   HorizontalAlignment="Left"
+								   VerticalAlignment="Center"
+								   Text="{Binding DeviceGroup.CurrentValidatedValue}"/>
+						<TextBlock Grid.Column="1"
+								   Classes="Arrow"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"
+								   Text=" → "
+								   Margin="8,0"/>
+						<ComboBox Grid.Column="2"
+								  HorizontalAlignment="Stretch"
+								  VerticalAlignment="Center"
+								  ItemsSource="{Binding Profiles.Profiles}"
+								  SelectedItem="{Binding Profile}">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Name.CurrentValidatedValue}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</DockPanel>
+</UserControl>

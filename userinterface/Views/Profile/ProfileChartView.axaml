@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Profile.ProfileChartView"
+             x:DataType="vm:ProfileChartViewModel">
+	<UserControl.Styles>
+		<Style Selector="lvc|CartesianChart">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Margin" Value="8"/>
+		</Style>
+		<Style Selector="Button.chart-control">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Width" Value="32"/>
+			<Setter Property="Height" Value="32"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Margin" Value="4"/>
+			<Setter Property="Opacity" Value="0.8"/>
+		</Style>
+		<Style Selector="Button.chart-control:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="Opacity" Value="1"/>
+		</Style>
+	</UserControl.Styles>
+	<Border Background="{DynamicResource HoverBackgroundBrush}"
+	        BorderBrush="{DynamicResource BorderBrush}"
+	        BorderThickness="1"
+	        CornerRadius="8">
+		<Grid>
+			<lvc:CartesianChart x:Name="Chart"
+			                    Series="{Binding Series}"
+			                    XAxes="{Binding XAxes}"
+			                    YAxes="{Binding YAxes}"
+			                    TooltipPosition="Top"
+			                    TooltipTextPaint="{Binding TooltipTextPaint}"
+			                    TooltipBackgroundPaint="{Binding TooltipBackgroundPaint}"
+			                    TooltipTextSize="12"
+			                    AutoUpdateEnabled="True"/>
+			<StackPanel Orientation="Horizontal"
+			            HorizontalAlignment="Right"
+			            VerticalAlignment="Bottom"
+			            Margin="16,16,16,2">
+				<Button Classes="chart-control"
+				        Click="RecreateAxes_Click"
+				        ToolTip.Tip="Reset Zoom">
+					<PathIcon Data="{StaticResource screenshot_regular}"/>
+				</Button>
+				<Button Classes="chart-control"
+				        Click="FitToData_Click"
+				        ToolTip.Tip="Fit to Data">
+					<PathIcon Data="{StaticResource full_screen_zoom_regular}"/>
+				</Button>
+			</StackPanel>
+		</Grid>
+	</Border>
+</UserControl>

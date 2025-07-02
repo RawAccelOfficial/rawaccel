@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="using:userinterface.Views"
+             xmlns:vm="using:userinterface.ViewModels.Device"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Device.DevicesPageView"
+             x:DataType="vm:DevicesPageViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="Border.SectionBorder">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="8" />
+			<Setter Property="Padding" Value="16" />
+		</Style>
+	</UserControl.Styles>
+
+	<Grid RowDefinitions="2*,*">
+		<Border Grid.Row="0"
+                Classes="SectionBorder"
+                Margin="0,0,0,8">
+			<ContentControl Content="{Binding DevicesList}" />
+		</Border>
+
+		<Border Grid.Row="1"
+                Classes="SectionBorder"
+                Margin="0,8,0,0">
+			<ContentControl Content="{Binding DeviceGroups}" />
+		</Border>
+	</Grid>
+</UserControl>

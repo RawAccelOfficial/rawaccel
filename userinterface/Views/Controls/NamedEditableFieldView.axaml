@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Controls.NamedEditableFieldView"
+             x:DataType="vm:NamedEditableFieldViewModel"
+             x:CompileBindings="True">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Medium" />
+		</Style>
+
+		<Style Selector="TextBox.EditableTextBox">
+			<Setter Property="Margin" Value="8" />
+		</Style>
+
+		<Style Selector="ContentControl">
+			<Setter Property="MinWidth" Value="80" />
+		</Style>
+	</UserControl.Styles>
+
+	<Grid ColumnDefinitions="Auto,*" Margin="0,2,0,2">
+		<TextBlock Grid.Column="0"
+                   x:Name="FieldNameTextBlock"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   Text="{Binding Name}"
+                   Margin="0,0,0,0" />
+
+		<ContentControl Grid.Column="1"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Content="{Binding Field}" />
+	</Grid>
+</UserControl>

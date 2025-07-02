@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Controls.EditableFieldView"
+             x:DataType="vm:EditableFieldViewModel"
+             x:CompileBindings="True">
+
+	<UserControl.Styles>
+		<Style Selector="TextBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Padding" Value="8" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="SelectionBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+		</Style>
+
+		<Style Selector="TextBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="TextBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+		</Style>
+
+		<Style Selector="TextBox:disabled">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource DisabledTextBrush}" />
+		</Style>
+	</UserControl.Styles>
+
+	<TextBox Classes="EditableTextBox"
+             KeyDown="TextBox_KeyDown"
+             LostFocus="LostFocusHandler"
+             TextWrapping="Wrap"
+             Text="{Binding ValueText, UpdateSourceTrigger=LostFocus}" />
+</UserControl>

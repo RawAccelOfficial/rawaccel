@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Device"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Device.DeviceGroupsView"
+             x:DataType="vm:DeviceGroupsViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="FontSize" Value="18" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Margin" Value="0,0,0,16" />
+		</Style>
+
+		<Style Selector="Button.AddButton">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="16,8" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Medium" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Margin" Value="0,16,0,0" />
+		</Style>
+
+		<Style Selector="Button.AddButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+		</Style>
+
+		<Style Selector="Button.AddButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}" />
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+		<TextBlock Classes="SectionHeader">
+			Device Groups
+		</TextBlock>
+
+		<ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled">
+			<ItemsControl ItemsSource="{Binding DeviceGroupViews}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Orientation="Horizontal" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<Button Classes="AddButton"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Click="AddDeviceGroup">
+			Add Device Group
+		</Button>
+	</StackPanel>
+</UserControl>

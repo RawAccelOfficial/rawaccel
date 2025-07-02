@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="using:userinterface.Views"
+             xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:controls="using:userinterface.Controls"
+             xmlns:localControls="using:userinterface.Views.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Profile.HiddenProfileSettingsView"
+             x:DataType="vm:HiddenProfileSettingsViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="ComboBox, TextBox, NumericUpDown">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="8"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="Height" Value="32"/>
+		</Style>
+		<Style Selector="localControls|DualColumnLabelFieldView ContentPresenter">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		</Style>
+	</UserControl.Styles>
+
+	<controls:EditableExpanderView Header="Hidden"
+	                               HorizontalAlignment="Stretch"
+	                               Margin="0,0,0,12">
+		<controls:EditableExpanderView.ExpanderContent>
+			<StackPanel Orientation="Vertical" Margin="16" Spacing="12" x:Name="MainStackPanel">
+				<!-- The DualColumnLabelFieldView will be added in code-behind -->
+			</StackPanel>
+		</controls:EditableExpanderView.ExpanderContent>
+	</controls:EditableExpanderView>
+</UserControl>

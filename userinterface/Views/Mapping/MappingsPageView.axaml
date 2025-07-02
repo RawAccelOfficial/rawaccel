@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Mapping"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Mapping.MappingsPageView"
+             x:DataType="vm:MappingsPageViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="Border.MappingCard">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="16"/>
+			<Setter Property="Margin" Value="8"/>
+			<Setter Property="BoxShadow" Value="0 2 8 0 #00000040"/>
+		</Style>
+
+		<Style Selector="Border.MappingCard:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Background" Value="#353537"/>
+		</Style>
+
+		<Style Selector="Button.AddButton">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="24,12"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,24,0,16"/>
+		</Style>
+
+		<Style Selector="Button.AddButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.AddButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+		</Style>
+
+		<Style Selector="Panel.MappingContainer">
+			<Setter Property="Width" Value="320"/>
+			<Setter Property="Height" Value="280"/>
+		</Style>
+	</UserControl.Styles>
+
+	<ScrollViewer>
+		<StackPanel Orientation="Vertical"
+					VerticalAlignment="Stretch"
+					Margin="16">
+			<ItemsRepeater ItemsSource="{Binding MappingViews}">
+				<ItemsRepeater.Layout>
+					<WrapLayout Orientation="Horizontal"/>
+				</ItemsRepeater.Layout>
+				<ItemsRepeater.ItemTemplate>
+					<DataTemplate>
+						<Border Classes="MappingCard">
+							<Panel Classes="MappingContainer">
+								<ContentControl Content="{Binding}"/>
+							</Panel>
+						</Border>
+					</DataTemplate>
+				</ItemsRepeater.ItemTemplate>
+			</ItemsRepeater>
+
+			<Button Classes="AddButton"
+					HorizontalAlignment="Center"
+					Click="AddMapping">
+				Add Mapping
+			</Button>
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>

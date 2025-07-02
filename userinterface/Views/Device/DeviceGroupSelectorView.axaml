@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Device"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="userinterface.Views.Device.DeviceGroupSelectorView"
+             x:DataType="vm:DeviceGroupSelectorViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Medium" />
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Padding" Value="8,6" />
+			<Setter Property="MinWidth" Value="120" />
+			<Setter Property="FontSize" Value="14" />
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ Button#PART_Button">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:pointerover /template/ Button#PART_Button">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:focus /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ Popup">
+			<Setter Property="MaxHeight" Value="200" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ Border#PopupBorder">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="4" />
+		</Style>
+
+		<Style Selector="ComboBox ListBox">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="Padding" Value="8,6" />
+			<Setter Property="Margin" Value="2" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+		</Style>
+	</UserControl.Styles>
+
+	<Grid ColumnDefinitions="Auto,*">
+		<TextBlock Grid.Column="0"
+                   VerticalAlignment="Center"
+                   Text="Device Group"
+                   Margin="0,0,12,0" />
+
+		<ComboBox Grid.Column="1"
+                  x:Name="DeviceGroupSelector"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center"
+                  ItemsSource="{Binding DeviceGroupEntries}"
+                  SelectedItem="{Binding SelectedEntry}"
+                  Margin="12,0,0,0">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding CurrentValidatedValue}" />
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
+	</Grid>
+</UserControl>
