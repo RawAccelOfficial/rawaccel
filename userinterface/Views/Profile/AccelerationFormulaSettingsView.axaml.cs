@@ -209,12 +209,34 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
     private Control CreateInputControl(object bindingSource)
     {
-        return new ContentControl
+        if (bindingSource is not EditableFieldViewModel editableField)
+            return new TextBox();
+
+        var textBox = new TextBox
         {
-            Content = bindingSource,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            DataContext = editableField
         };
+
+        textBox.Bind(TextBox.TextProperty, new Binding("ValueText")
+        {
+            Mode = BindingMode.TwoWay
+        });
+
+        // Update after click off of box
+        //textBox.LostFocus += (sender, e) =>
+        //{
+        //    editableField.TrySetFromInterface();
+        //};
+
+        // Real-time updates
+        textBox.TextChanged += (sender, e) =>
+        {
+            editableField.TrySetFromInterface();
+        };
+
+        return textBox;
     }
+
 }
