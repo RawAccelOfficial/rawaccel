@@ -134,7 +134,7 @@ namespace userspace_backend
                 {
                     disable = deviceModel.Ignore.ModelValue,
                     dpi = deviceModel.DPI.ModelValue,
-                    pollingRate = deviceModel.DPI.ModelValue,
+                    pollingRate = deviceModel.PollRate.ModelValue,
                     pollTimeLock = false,
                     setExtraInfo = false,
                     maximumTime = 200,

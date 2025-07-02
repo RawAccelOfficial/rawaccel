@@ -224,7 +224,6 @@ public partial class AccelerationFormulaSettingsView : UserControl
             Mode = BindingMode.TwoWay
         });
 
-        // Update after click off of box
         //textBox.LostFocus += (sender, e) =>
         //{
         //    editableField.TrySetFromInterface();
