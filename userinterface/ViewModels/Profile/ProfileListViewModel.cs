@@ -3,10 +3,9 @@ using System;
 using System.Collections.ObjectModel;
 using BE = userspace_backend.Model;
 
-/**
- * This component is only used in the MainWindow under the Navigation however it is constructed under the profile page
+/** 
+ * This component is only used in the MainWindow under the Navigation however it is constructed under the profile page 
  */
-
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileListViewModel : ViewModelBase
@@ -22,9 +21,15 @@ namespace userinterface.ViewModels.Profile
         {
             profilesModel = profiles;
             SelectionChangeAction = selectionChangeAction;
+
+            if (Profiles?.Count > 0)
+            {
+                CurrentSelectedProfile = Profiles[0];
+            }
         }
 
         public ObservableCollection<BE.ProfileModel> Profiles => profilesModel.Profiles;
+
         public Action SelectionChangeAction { get; }
 
         partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)

@@ -32,9 +32,16 @@ namespace userinterface.ViewModels.Profile
 
         protected void UpdateSelectedProfileView()
         {
-            SelectedProfileView = ProfileViewModels.FirstOrDefault(
-                p => string.Equals(p.CurrentName, ProfileListView.CurrentSelectedProfile?.CurrentNameForDisplay, StringComparison.InvariantCultureIgnoreCase))
-                ?? ProfileViewModels.FirstOrDefault();
+            if (ProfileListView?.CurrentSelectedProfile?.CurrentNameForDisplay != null)
+            {
+                SelectedProfileView = ProfileViewModels.FirstOrDefault(
+                    p => string.Equals(p.CurrentName, ProfileListView.CurrentSelectedProfile.CurrentNameForDisplay, StringComparison.InvariantCultureIgnoreCase))
+                    ?? ProfileViewModels.FirstOrDefault();
+            }
+            else
+            {
+                SelectedProfileView = ProfileViewModels.FirstOrDefault();
+            }
         }
 
         protected void UpdateProfileViewModels()
