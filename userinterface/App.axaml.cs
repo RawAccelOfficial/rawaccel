@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.Views;
 using userspace_backend;
@@ -21,22 +22,21 @@ public partial class App : Application
         BackEnd backEnd = new BackEnd(BootstrapBackEnd());
         backEnd.Load();
 
+        CurrentProfileService currentProfileService = new CurrentProfileService();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Line below is needed to remove Avalonia data validation.
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
-
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(backEnd),
+                DataContext = new MainWindowViewModel(backEnd, currentProfileService),
             };
-
 #if DEBUG
             desktop.MainWindow.AttachDevTools();
 #endif
         }
-
         base.OnFrameworkInitializationCompleted();
     }
 

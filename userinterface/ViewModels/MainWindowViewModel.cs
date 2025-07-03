@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using userinterface.Services;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
@@ -15,12 +16,19 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private const string ProfilesPageName = "Profiles";
     private string _selectedPage = DefaultPage;
     private bool _isProfilesExpanded = false;
+    private readonly CurrentProfileService _currentProfileService;
 
-    public MainWindowViewModel(BE.BackEnd backEnd)
+    public MainWindowViewModel(BE.BackEnd backEnd, CurrentProfileService currentProfileService)
     {
         BackEnd = backEnd;
+        _currentProfileService = currentProfileService;
+
         DevicesPage = new DevicesPageViewModel(backEnd.Devices);
-        ProfilesPage = new ProfilesPageViewModel(backEnd.Profiles);
+
+        // Create ProfileListViewModel without callback since ProfilesPageViewModel will subscribe to service
+        ProfileListView = new ProfileListViewModel(backEnd.Profiles, () => { }, _currentProfileService);
+        ProfilesPage = new ProfilesPageViewModel(backEnd.Profiles, ProfileListView, _currentProfileService);
+
         MappingsPage = new MappingsPageViewModel(backEnd.Mappings);
     }
 
@@ -29,6 +37,8 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ProfilesPageViewModel ProfilesPage { get; }
 
     public MappingsPageViewModel MappingsPage { get; }
+
+    public ProfileListViewModel ProfileListView { get; }
 
     protected BE.BackEnd BackEnd { get; }
 
@@ -71,15 +81,16 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public void SelectPage(string pageName)
     {
         SelectedPage = pageName;
-
         IsProfilesExpanded = pageName == ProfilesPageName;
     }
 
-
-    public void ApplyButtonClicked() => BackEnd.Apply();
+    public void ApplyButtonClicked()
+    {
+        var currentProfile = _currentProfileService.CurrentProfile;
+        BackEnd.Apply(currentProfile);
+    }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
-
     protected new virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

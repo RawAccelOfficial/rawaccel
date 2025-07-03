@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using DATA = userspace_backend.Data;
+using userspace_backend.Data.Profiles;
 using userspace_backend.IO;
 using userspace_backend.Model;
-using userspace_backend.Data.Profiles;
+using DATA = userspace_backend.Data;
 
 namespace userspace_backend
 {
     public class BackEnd
     {
-
         public BackEnd(IBackEndLoader backEndLoader)
         {
             BackEndLoader = backEndLoader;
@@ -57,11 +57,11 @@ namespace userspace_backend
             }
         }
 
-        public void Apply()
+        public void Apply(ProfileModel profileModel)
         {
             try
             {
-                //WriteToDriver();
+                WriteToDriver(profileModel);
             }
             catch (Exception ex)
             {
@@ -79,29 +79,68 @@ namespace userspace_backend
                 Profiles.Profiles);
         }
 
-        protected void WriteToDriver()
+        protected void WriteToDriver(ProfileModel profileModel)
         {
-            MappingModel mappingToApply = Mappings.GetMappingToSetActive();
-            DriverConfig config = MapToDriverConfig(mappingToApply);
             try
             {
-                config.Activate();
+                DriverConfig config = MapToDriverConfig(profileModel);
+               
+                string errors = config.Errors();
+                if (errors != null)
+                {
+                    throw new Exception($"Config validation failed: {errors}");
+                }
+
+                try
+                {
+                    new Thread(() => {
+                        try
+                        {
+                            config.Activate();
+                        }
+                        catch (Exception threadEx)
+                        {
+                            Console.WriteLine($"DEBUG: Exception in activation thread: {threadEx.Message}");
+                            Console.WriteLine($"DEBUG: Stack trace: {threadEx.StackTrace}");
+                        }
+                    }).Start();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"DEBUG: Exception starting activation thread: {ex.Message}");
+                    throw new Exception($"Driver activation failed: {ex.Message}", ex);
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                // Log this once logging is added
+                Console.WriteLine($"DEBUG: Exception in WriteToDriver: {ex.Message}");
+                Console.WriteLine($"DEBUG: Stack trace: {ex.StackTrace}");
+                throw;
             }
         }
 
-        protected DriverConfig MapToDriverConfig(MappingModel mappingModel)
+        // <=========================================================>
+        // TODO: use the CurrentValidatedDriverProfile instead of this
+        // <=========================================================>
+        protected DriverConfig MapToDriverConfig(ProfileModel profileModel)
         {
-            IEnumerable<DeviceSettings> configDevices = MapToDriverDevices(mappingModel);
-            IEnumerable<Profile> configProfiles = MapToDriverProfiles(mappingModel);
+            Profile customProfile = new Profile();
 
-            DriverConfig config = DriverConfig.GetDefault();
-            config.profiles = configProfiles.ToList();
-            config.devices = configDevices.ToList();
-            config.accels = configProfiles.Select(p => new ManagedAccel(p)).ToList();
+            customProfile.name = profileModel.Name.CurrentValidatedValue;
+            customProfile.outputDPI = profileModel.OutputDPI.CurrentValidatedValue;
+            customProfile.yxOutputDPIRatio = profileModel.YXRatio.CurrentValidatedValue;
+
+            customProfile.lrOutputDPIRatio = 1.0;
+            customProfile.udOutputDPIRatio = 1.0;
+            customProfile.rotation = 0.0;
+            customProfile.snap = 0.0;
+            customProfile.maximumSpeed = 0.0; // 0 means no cap
+
+            customProfile.domainXY = new Vec2<double> { x = 1.0, y = 1.0 };
+            customProfile.rangeXY = new Vec2<double> { x = 1.0, y = 1.0 };
+
+            DriverConfig config = DriverConfig.FromProfile(customProfile);
+
             return config;
         }
 

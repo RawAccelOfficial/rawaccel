@@ -1,26 +1,26 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
-/** 
- * This component is only used in the MainWindow under the Navigation however it is constructed under the profile page 
- */
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileListViewModel : ViewModelBase
     {
         private const int MaxProfileAttempts = 10;
+        private readonly CurrentProfileService _currentProfileService;
 
         [ObservableProperty]
         public BE.ProfileModel? currentSelectedProfile;
 
         private BE.ProfilesModel profilesModel { get; }
 
-        public ProfileListViewModel(BE.ProfilesModel profiles, Action selectionChangeAction)
+        public ProfileListViewModel(BE.ProfilesModel profiles, Action selectionChangeAction, CurrentProfileService currentProfileService)
         {
             profilesModel = profiles;
             SelectionChangeAction = selectionChangeAction;
+            _currentProfileService = currentProfileService;
 
             if (Profiles?.Count > 0)
             {
@@ -34,6 +34,8 @@ namespace userinterface.ViewModels.Profile
 
         partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
         {
+            // Update the service with the new selected profile
+            _currentProfileService.SetCurrentProfile(value);
             SelectionChangeAction.Invoke();
         }
 
