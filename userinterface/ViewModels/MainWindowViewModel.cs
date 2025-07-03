@@ -14,22 +14,20 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private const string DevicesPageName = "Devices";
     private const string MappingsPageName = "Mappings";
     private const string ProfilesPageName = "Profiles";
-    private string _selectedPage = DefaultPage;
-    private bool _isProfilesExpanded = false;
-    private readonly CurrentProfileService _currentProfileService;
 
-    public MainWindowViewModel(BE.BackEnd backEnd, CurrentProfileService currentProfileService)
+    private string SelectedPageValue = DefaultPage;
+    private bool IsProfilesExpandedValue = false;
+
+    public MainWindowViewModel(BE.BackEnd BackEnd)
     {
-        BackEnd = backEnd;
-        _currentProfileService = currentProfileService;
+        this.BackEnd = BackEnd;
+        DevicesPage = new DevicesPageViewModel(BackEnd.Devices);
 
-        DevicesPage = new DevicesPageViewModel(backEnd.Devices);
+        ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
+        ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView);
+        MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
 
-        // Create ProfileListViewModel without callback since ProfilesPageViewModel will subscribe to service
-        ProfileListView = new ProfileListViewModel(backEnd.Profiles, () => { }, _currentProfileService);
-        ProfilesPage = new ProfilesPageViewModel(backEnd.Profiles, ProfileListView, _currentProfileService);
-
-        MappingsPage = new MappingsPageViewModel(backEnd.Mappings);
+        ProfileListView.SelectionChangeAction = OnProfileSelectionChanged;
     }
 
     public DevicesPageViewModel DevicesPage { get; }
@@ -44,12 +42,12 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public string SelectedPage
     {
-        get => _selectedPage;
+        get => SelectedPageValue;
         set
         {
-            if (_selectedPage != value)
+            if (SelectedPageValue != value)
             {
-                _selectedPage = value;
+                SelectedPageValue = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentPageContent));
             }
@@ -58,12 +56,12 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public bool IsProfilesExpanded
     {
-        get => _isProfilesExpanded;
+        get => IsProfilesExpandedValue;
         set
         {
-            if (_isProfilesExpanded != value)
+            if (IsProfilesExpandedValue != value)
             {
-                _isProfilesExpanded = value;
+                IsProfilesExpandedValue = value;
                 OnPropertyChanged();
             }
         }
@@ -78,21 +76,26 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _ => DevicesPage
         };
 
-    public void SelectPage(string pageName)
+    public void SelectPage(string PageName)
     {
-        SelectedPage = pageName;
-        IsProfilesExpanded = pageName == ProfilesPageName;
+        SelectedPage = PageName;
+        IsProfilesExpanded = PageName == ProfilesPageName;
     }
 
-    public void ApplyButtonClicked()
+    public void Apply()
     {
-        var currentProfile = _currentProfileService.CurrentProfile;
-        BackEnd.Apply(currentProfile);
+        BackEnd.Apply();
+    }
+
+    private void OnProfileSelectionChanged()
+    {
+        ProfilesPage?.UpdateCurrentProfile();
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
-    protected new virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+
+    protected new virtual void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
     }
 }

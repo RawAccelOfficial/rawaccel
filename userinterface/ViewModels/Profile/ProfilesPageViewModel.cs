@@ -10,28 +10,17 @@ namespace userinterface.ViewModels.Profile
 {
     public partial class ProfilesPageViewModel : ViewModelBase
     {
-        private readonly CurrentProfileService _currentProfileService;
-
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
 
-        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView, CurrentProfileService currentProfileService)
+        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView)
         {
             ProfileModels = profileModels.Profiles;
             ProfileViewModels = new ObservableCollection<ProfileViewModel>();
-            _currentProfileService = currentProfileService;
-
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
-
             ProfileListView = profileListView;
             ActiveProfilesListView = new ActiveProfilesListViewModel();
-
-            // Subscribe to current profile changes
-            _currentProfileService.CurrentProfileChanged += OnCurrentProfileChanged;
-
-            // Initialize with current profile if available
-            UpdateSelectedProfileView(_currentProfileService.CurrentProfile);
         }
 
         protected IEnumerable<BE.ProfileModel> ProfileModels { get; }
@@ -41,6 +30,15 @@ namespace userinterface.ViewModels.Profile
         public ProfileListViewModel ProfileListView { get; }
 
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
+
+        public void UpdateCurrentProfile()
+        {
+            UpdateProfileViewModels();
+
+            var selectedProfile = ProfileListView.CurrentSelectedProfile;
+
+            UpdateSelectedProfileView(selectedProfile);
+        }
 
         private void OnCurrentProfileChanged(object? sender, BE.ProfileModel? profile)
         {
@@ -68,12 +66,6 @@ namespace userinterface.ViewModels.Profile
             {
                 ProfileViewModels.Add(new ProfileViewModel(profileModelBE));
             }
-        }
-
-        protected void OnDispose()
-        {
-            // Unsubscribe to prevent memory leaks
-            _currentProfileService.CurrentProfileChanged -= OnCurrentProfileChanged;
         }
     }
 }

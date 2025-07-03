@@ -7,12 +7,12 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
 {
     private const double DefaultLabelWidth = 100.0;
 
-    private double _labelWidth = DefaultLabelWidth;
+    private double LabelWidthValue = DefaultLabelWidth;
 
     public double LabelWidth
     {
-        get => _labelWidth;
-        set => SetProperty(ref _labelWidth, value);
+        get => LabelWidthValue;
+        set => SetProperty(ref LabelWidthValue, value);
     }
 
     public ObservableCollection<FieldItemViewModel> Fields { get; }

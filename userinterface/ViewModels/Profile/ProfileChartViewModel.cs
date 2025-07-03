@@ -55,28 +55,28 @@ namespace userinterface.ViewModels.Profile
 
         public ProfileChartViewModel(ICurvePreview xCurvePreview, ICurvePreview yCurvePreview, EditableSetting<double> yxRatio)
         {
-            _xCurvePreview = xCurvePreview;
-            _yCurvePreview = yCurvePreview;
-            _yxRatio = yxRatio;
+            XCurvePreview = xCurvePreview;
+            YCurvePreview = yCurvePreview;
+            YXRatio = yxRatio;
 
-            _yxRatio.PropertyChanged += OnYXRatioChanged;
+            YXRatio.PropertyChanged += OnYXRatioChanged;
 
             CreateSeries();
 
             XAxes = CreateXAxes();
             YAxes = CreateYAxes();
-            TooltipTextPaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush));
-            TooltipBackgroundPaint = new SolidColorPaint(GetThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+            TooltipTextPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush));
+            TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
 
             // Subscribe to theme changes
             ThemeService.ThemeChanged += OnThemeChanged;
         }
 
-        private ICurvePreview _xCurvePreview { get; }
+        private ICurvePreview XCurvePreview { get; }
 
-        private ICurvePreview _yCurvePreview { get; }
+        private ICurvePreview YCurvePreview { get; }
 
-        private EditableSetting<double> _yxRatio { get; }
+        private EditableSetting<double> YXRatio { get; }
 
         public ISeries[] Series { get; set; }
 
@@ -90,11 +90,11 @@ namespace userinterface.ViewModels.Profile
 
         public void FitToData()
         {
-            var allPoints = _xCurvePreview.Points.ToList();
+            var allPoints = XCurvePreview.Points.ToList();
 
-            if (Math.Abs(_yxRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
+            if (Math.Abs(YXRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
             {
-                allPoints.AddRange(_yCurvePreview.Points);
+                allPoints.AddRange(YCurvePreview.Points);
             }
 
             if (!allPoints.Any())
@@ -103,7 +103,7 @@ namespace userinterface.ViewModels.Profile
                 return;
             }
 
-            var (minX, maxX, minY, maxY) = GetDataBounds(allPoints);
+            var (minX, maxX, minY, maxY) = CalculateDataBounds(allPoints);
             if (Math.Abs(maxY - minY) < ToleranceThreshold)
             {
                 SetCenteredLimits(minX, maxX, minY, maxY);
@@ -127,24 +127,24 @@ namespace userinterface.ViewModels.Profile
         public void Dispose()
         {
             ThemeService.ThemeChanged -= OnThemeChanged;
-            _yxRatio.PropertyChanged -= OnYXRatioChanged;
+            YXRatio.PropertyChanged -= OnYXRatioChanged;
         }
 
-        private static SKColor GetThemeColor(string resourceKey)
+        private static SKColor RetrieveThemeColor(string resourceKey)
         {
             var app = Application.Current;
             if (app?.Resources == null || !app.Resources.TryGetResource(resourceKey, app.ActualThemeVariant, out var resource))
-                return GetFallbackColor(resourceKey);
+                return RetrieveFallbackColor(resourceKey);
 
             return resource switch
             {
                 SolidColorBrush brush => new SKColor(brush.Color.R, brush.Color.G, brush.Color.B, brush.Color.A),
                 ImmutableSolidColorBrush brush => new SKColor(brush.Color.R, brush.Color.G, brush.Color.B, brush.Color.A),
-                _ => GetFallbackColor(resourceKey)
+                _ => RetrieveFallbackColor(resourceKey)
             };
         }
 
-        private static SKColor GetFallbackColor(string resourceKey)
+        private static SKColor RetrieveFallbackColor(string resourceKey)
         {
             return resourceKey switch
             {
@@ -162,7 +162,7 @@ namespace userinterface.ViewModels.Profile
             {
                 new LineSeries<CurvePoint>
                 {
-                    Values = _xCurvePreview.Points,
+                    Values = XCurvePreview.Points,
                     Fill = null,
                     Stroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness },
                     Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
@@ -178,11 +178,11 @@ namespace userinterface.ViewModels.Profile
             };
 
             // Add Y curve only if YX ratio is not 1
-            if (Math.Abs(_yxRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
+            if (Math.Abs(YXRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
             {
                 seriesList.Add(new LineSeries<CurvePoint>
                 {
-                    Values = _yCurvePreview.Points,
+                    Values = YCurvePreview.Points,
                     Fill = null,
                     Stroke = new SolidColorPaint(SKColors.OrangeRed) { StrokeThickness = MainStrokeThickness },
                     Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
@@ -209,20 +209,18 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-
-
         private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
         [
             new Axis()
             {
                 Name = XAxisName,
                 NameTextSize = AxisNameTextSize,
-                NamePaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)),
-                LabelsPaint = new SolidColorPaint(GetThemeColor(AxisLabelsBrush)),
+                NamePaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)),
+                LabelsPaint = new SolidColorPaint(RetrieveThemeColor(AxisLabelsBrush)),
                 TextSize = AxisTextSize,
-                SeparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
-                TicksPaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
-                SubseparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
+                SeparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
+                TicksPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
+                SubseparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
                 AnimationsSpeed = AnimationsTime,
                 MinLimit = minLimit ?? 0,
                 MaxLimit = maxLimit
@@ -235,12 +233,12 @@ namespace userinterface.ViewModels.Profile
             {
                 Name = YAxisName,
                 NameTextSize = AxisNameTextSize,
-                NamePaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)),
-                LabelsPaint = new SolidColorPaint(GetThemeColor(AxisLabelsBrush)),
+                NamePaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)),
+                LabelsPaint = new SolidColorPaint(RetrieveThemeColor(AxisLabelsBrush)),
                 TextSize = AxisTextSize,
-                SeparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
-                TicksPaint = new SolidColorPaint(GetThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
-                SubseparatorsPaint = new SolidColorPaint(GetThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
+                SeparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
+                TicksPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
+                SubseparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
                 AnimationsSpeed = AnimationsTime,
                 MinLimit = minLimit ?? 0,
                 MaxLimit = maxLimit
@@ -255,7 +253,7 @@ namespace userinterface.ViewModels.Profile
             YAxes[0].MaxLimit = DefaultMaxY;
         }
 
-        private static (double minX, double maxX, double minY, double maxY) GetDataBounds(System.Collections.Generic.List<CurvePoint> points)
+        private static (double minX, double maxX, double minY, double maxY) CalculateDataBounds(System.Collections.Generic.List<CurvePoint> points)
         {
             var minX = points.Min(p => p.MouseSpeed);
             var maxX = points.Max(p => p.MouseSpeed);
@@ -288,8 +286,8 @@ namespace userinterface.ViewModels.Profile
 
         private void OnThemeChanged(object? sender, EventArgs e)
         {
-            TooltipTextPaint.Color = GetThemeColor(AxisTitleBrush);
-            TooltipBackgroundPaint.Color = GetThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
+            TooltipTextPaint.Color = RetrieveThemeColor(AxisTitleBrush);
+            TooltipBackgroundPaint.Color = RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
 
             var currentXMin = XAxes?[0]?.MinLimit;
             var currentXMax = XAxes?[0]?.MaxLimit;

@@ -22,8 +22,6 @@ public partial class App : Application
         BackEnd backEnd = new BackEnd(BootstrapBackEnd());
         backEnd.Load();
 
-        CurrentProfileService currentProfileService = new CurrentProfileService();
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Line below is needed to remove Avalonia data validation.
@@ -31,11 +29,12 @@ public partial class App : Application
             BindingPlugins.DataValidators.RemoveAt(0);
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(backEnd, currentProfileService),
+                DataContext = new MainWindowViewModel(backEnd),
             };
-#if DEBUG
+
+            #if DEBUG
             desktop.MainWindow.AttachDevTools();
-#endif
+            #endif
         }
         base.OnFrameworkInitializationCompleted();
     }

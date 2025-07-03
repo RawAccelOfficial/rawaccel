@@ -9,34 +9,29 @@ namespace userinterface.ViewModels.Profile
     public partial class ProfileListViewModel : ViewModelBase
     {
         private const int MaxProfileAttempts = 10;
-        private readonly CurrentProfileService _currentProfileService;
 
         [ObservableProperty]
         public BE.ProfileModel? currentSelectedProfile;
 
-        private BE.ProfilesModel profilesModel { get; }
+        private BE.ProfilesModel ProfilesModel { get; }
 
-        public ProfileListViewModel(BE.ProfilesModel profiles, Action selectionChangeAction, CurrentProfileService currentProfileService)
+        public ProfileListViewModel(BE.ProfilesModel profiles)
         {
-            profilesModel = profiles;
-            SelectionChangeAction = selectionChangeAction;
-            _currentProfileService = currentProfileService;
-
+            ProfilesModel = profiles;
+            SelectionChangeAction = () => { };
             if (Profiles?.Count > 0)
             {
                 CurrentSelectedProfile = Profiles[0];
             }
         }
 
-        public ObservableCollection<BE.ProfileModel> Profiles => profilesModel.Profiles;
+        public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
 
-        public Action SelectionChangeAction { get; }
+        public Action SelectionChangeAction { get; set; }
 
         partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
         {
-            // Update the service with the new selected profile
-            _currentProfileService.SetCurrentProfile(value);
-            SelectionChangeAction.Invoke();
+            SelectionChangeAction?.Invoke();
         }
 
         public bool TryAddProfile()
@@ -44,7 +39,7 @@ namespace userinterface.ViewModels.Profile
             for (int i = 0; i < MaxProfileAttempts; i++)
             {
                 string newProfileName = $"Profile{i}";
-                if (profilesModel.TryAddNewDefaultProfile(newProfileName))
+                if (ProfilesModel.TryAddNewDefaultProfile(newProfileName))
                 {
                     return true;
                 }
@@ -56,7 +51,7 @@ namespace userinterface.ViewModels.Profile
         {
             if (CurrentSelectedProfile != null)
             {
-                _ = profilesModel.RemoveProfile(CurrentSelectedProfile);
+                _ = ProfilesModel.RemoveProfile(CurrentSelectedProfile);
             }
         }
     }

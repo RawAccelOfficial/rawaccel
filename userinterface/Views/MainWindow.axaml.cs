@@ -12,75 +12,70 @@ namespace userinterface.Views;
 
 public partial class MainWindow : Window
 {
-    private Button? _applyButton;
-    private ProgressBar? _loadingProgress;
-    private TextBlock? _successMessage;
+    private Button? ApplyButtonControl;
+    private ProgressBar? LoadingProgressBar;
+    private TextBlock? SuccessMessageText;
 
     public MainWindow()
     {
         InitializeComponent();
         UpdateThemeToggleButton();
         UpdateSelectedButton("Devices"); // Initial navigation selection
-
-        _applyButton = this.FindControl<Button>("ApplyButton");
-        _loadingProgress = this.FindControl<ProgressBar>("LoadingProgress");
-        _successMessage = this.FindControl<TextBlock>("SuccessMessage");
+        ApplyButtonControl = this.FindControl<Button>("ApplyButton");
+        LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
+        SuccessMessageText = this.FindControl<TextBlock>("SuccessMessage");
     }
 
     public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
     {
         // Disable the button and show loading
-        if (_applyButton != null)
+        if (ApplyButtonControl != null)
         {
-            _applyButton.IsEnabled = false;
+            ApplyButtonControl.IsEnabled = false;
         }
-
-        if (_loadingProgress != null)
+        if (LoadingProgressBar != null)
         {
-            _loadingProgress.IsVisible = true;
+            LoadingProgressBar.IsVisible = true;
         }
-
         // Hide success message if it was previously shown
-        if (_successMessage != null)
+        if (SuccessMessageText != null)
         {
-            _successMessage.IsVisible = false;
-            _successMessage.Opacity = 0;
+            SuccessMessageText.IsVisible = false;
+            SuccessMessageText.Opacity = 0;
         }
 
         if (this.DataContext is MainWindowViewModel viewModel)
         {
-            viewModel.ApplyButtonClicked();
+            viewModel.Apply();
         }
 
         // Wait for 1 second to mask write delay
         await Task.Delay(1000);
 
         // Hide loading bar
-        if (_loadingProgress != null)
+        if (LoadingProgressBar != null)
         {
-            _loadingProgress.IsVisible = false;
+            LoadingProgressBar.IsVisible = false;
         }
 
-        if (_successMessage != null)
+        if (SuccessMessageText != null)
         {
-            _successMessage.IsVisible = true;
+            SuccessMessageText.IsVisible = true;
 
-            // Animate the opacity from 0 to 1
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                _successMessage.Opacity = 1;
-
+                SuccessMessageText.Opacity = 1;
                 // Hide the success message after 1.5 seconds
                 await Task.Delay(1500);
-                _successMessage.Opacity = 0;
+                SuccessMessageText.Opacity = 0;
                 await Task.Delay(300);
-                _successMessage.IsVisible = false;
+                SuccessMessageText.IsVisible = false;
             });
         }
 
-        if (_applyButton != null)
+        if (ApplyButtonControl != null)
         {
-            _applyButton.IsEnabled = true;
+            ApplyButtonControl.IsEnabled = true;
         }
     }
 
@@ -138,7 +133,6 @@ public partial class MainWindow : Window
         if (themeIcon != null && toggleButton != null)
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
-
             if (isDark)
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_moon_regular");
@@ -147,7 +141,6 @@ public partial class MainWindow : Window
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_sunny_regular");
             }
-
             toggleButton.IsChecked = !isDark;
         }
     }

@@ -57,11 +57,11 @@ namespace userspace_backend
             }
         }
 
-        public void Apply(ProfileModel profileModel)
+        public void Apply()
         {
             try
             {
-                WriteToDriver(profileModel);
+                WriteToDriver();
             }
             catch (Exception ex)
             {
@@ -79,68 +79,29 @@ namespace userspace_backend
                 Profiles.Profiles);
         }
 
-        protected void WriteToDriver(ProfileModel profileModel)
+        protected void WriteToDriver()
         {
+            MappingModel mappingToApply = Mappings.GetMappingToSetActive();
+            DriverConfig config = MapToDriverConfig(mappingToApply);
             try
             {
-                DriverConfig config = MapToDriverConfig(profileModel);
-               
-                string errors = config.Errors();
-                if (errors != null)
-                {
-                    throw new Exception($"Config validation failed: {errors}");
-                }
-
-                try
-                {
-                    new Thread(() => {
-                        try
-                        {
-                            config.Activate();
-                        }
-                        catch (Exception threadEx)
-                        {
-                            Console.WriteLine($"DEBUG: Exception in activation thread: {threadEx.Message}");
-                            Console.WriteLine($"DEBUG: Stack trace: {threadEx.StackTrace}");
-                        }
-                    }).Start();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"DEBUG: Exception starting activation thread: {ex.Message}");
-                    throw new Exception($"Driver activation failed: {ex.Message}", ex);
-                }
+                config.Activate();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"DEBUG: Exception in WriteToDriver: {ex.Message}");
-                Console.WriteLine($"DEBUG: Stack trace: {ex.StackTrace}");
-                throw;
+                // Log this once logging is added
             }
         }
 
-        // <=========================================================>
-        // TODO: use the CurrentValidatedDriverProfile instead of this
-        // <=========================================================>
-        protected DriverConfig MapToDriverConfig(ProfileModel profileModel)
+        protected DriverConfig MapToDriverConfig(MappingModel mappingModel)
         {
-            Profile customProfile = new Profile();
+            IEnumerable<DeviceSettings> configDevices = MapToDriverDevices(mappingModel);
+            IEnumerable<Profile> configProfiles = MapToDriverProfiles(mappingModel);
 
-            customProfile.name = profileModel.Name.CurrentValidatedValue;
-            customProfile.outputDPI = profileModel.OutputDPI.CurrentValidatedValue;
-            customProfile.yxOutputDPIRatio = profileModel.YXRatio.CurrentValidatedValue;
-
-            customProfile.lrOutputDPIRatio = 1.0;
-            customProfile.udOutputDPIRatio = 1.0;
-            customProfile.rotation = 0.0;
-            customProfile.snap = 0.0;
-            customProfile.maximumSpeed = 0.0; // 0 means no cap
-
-            customProfile.domainXY = new Vec2<double> { x = 1.0, y = 1.0 };
-            customProfile.rangeXY = new Vec2<double> { x = 1.0, y = 1.0 };
-
-            DriverConfig config = DriverConfig.FromProfile(customProfile);
-
+            DriverConfig config = DriverConfig.GetDefault();
+            config.profiles = configProfiles.ToList();
+            config.devices = configDevices.ToList();
+            config.accels = configProfiles.Select(p => new ManagedAccel(p)).ToList();
             return config;
         }
 

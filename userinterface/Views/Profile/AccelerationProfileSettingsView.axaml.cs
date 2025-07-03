@@ -18,10 +18,10 @@ public partial class AccelerationProfileSettingsView : UserControl
     private const int LUTViewInsertIndex = 2;
     private const double ViewContainerTopMargin = 8.0;
 
-    private DualColumnLabelFieldView? _accelerationField;
-    private ContentControl? _formulaViewContainer;
-    private ContentControl? _lutViewContainer;
-    private ComboBox? _accelerationComboBox;
+    private DualColumnLabelFieldView? AccelerationField;
+    private ContentControl? FormulaViewContainer;
+    private ContentControl? LUTViewContainer;
+    private ComboBox? AccelerationComboBox;
 
     public AccelerationProfileSettingsView()
     {
@@ -31,7 +31,7 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_accelerationField == null)
+        if (AccelerationField == null)
         {
             SetupControls();
         }
@@ -51,7 +51,7 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void CreateAccelerationComboBox(AccelerationProfileSettingsViewModel viewModel)
     {
-        _accelerationComboBox = new ComboBox
+        AccelerationComboBox = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
@@ -59,37 +59,37 @@ public partial class AccelerationProfileSettingsView : UserControl
             ItemsSource = viewModel.DefinitionTypesLocal,
         };
 
-        _accelerationComboBox.Bind(ComboBox.SelectedItemProperty,
+        AccelerationComboBox.Bind(ComboBox.SelectedItemProperty,
             new Avalonia.Data.Binding("AccelerationBE.DefinitionType.InterfaceValue")
             {
                 Mode = Avalonia.Data.BindingMode.TwoWay
             });
 
-        _accelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
+        AccelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
     }
 
     private void CreateAccelerationField()
     {
-        if (_accelerationComboBox == null)
+        if (AccelerationComboBox == null)
             return;
 
         var fieldViewModel = new DualColumnLabelFieldViewModel();
-        fieldViewModel.AddField("Acceleration", _accelerationComboBox);
-        _accelerationField = new DualColumnLabelFieldView(fieldViewModel);
+        fieldViewModel.AddField("Acceleration", AccelerationComboBox);
+        AccelerationField = new DualColumnLabelFieldView(fieldViewModel);
     }
 
     private void CreateViewContainers()
     {
         var containerMargin = new Thickness(0, ViewContainerTopMargin, 0, 0);
 
-        _formulaViewContainer = new ContentControl
+        FormulaViewContainer = new ContentControl
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin = containerMargin,
             IsVisible = false
         };
 
-        _lutViewContainer = new ContentControl
+        LUTViewContainer = new ContentControl
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin = containerMargin,
@@ -100,13 +100,13 @@ public partial class AccelerationProfileSettingsView : UserControl
     private void AddControlsToMainPanel()
     {
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        if (mainStackPanel == null || _accelerationField == null ||
-            _formulaViewContainer == null || _lutViewContainer == null)
+        if (mainStackPanel == null || AccelerationField == null ||
+            FormulaViewContainer == null || LUTViewContainer == null)
             return;
 
-        mainStackPanel.Children.Insert(AccelerationFieldInsertIndex, _accelerationField);
-        mainStackPanel.Children.Insert(FormulaViewInsertIndex, _formulaViewContainer);
-        mainStackPanel.Children.Insert(LUTViewInsertIndex, _lutViewContainer);
+        mainStackPanel.Children.Insert(AccelerationFieldInsertIndex, AccelerationField);
+        mainStackPanel.Children.Insert(FormulaViewInsertIndex, FormulaViewContainer);
+        mainStackPanel.Children.Insert(LUTViewInsertIndex, LUTViewContainer);
     }
 
     private void OnAccelerationTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -116,10 +116,10 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void UpdateViewBasedOnSelection()
     {
-        if (DataContext is not AccelerationProfileSettingsViewModel viewModel || _accelerationComboBox == null)
+        if (DataContext is not AccelerationProfileSettingsViewModel viewModel || AccelerationComboBox == null)
             return;
 
-        var selectedIndex = _accelerationComboBox.SelectedIndex;
+        var selectedIndex = AccelerationComboBox.SelectedIndex;
         HideAllViews();
 
         switch (selectedIndex)
@@ -137,15 +137,15 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void HideAllViews()
     {
-        if (_formulaViewContainer != null)
-            _formulaViewContainer.IsVisible = false;
-        if (_lutViewContainer != null)
-            _lutViewContainer.IsVisible = false;
+        if (FormulaViewContainer != null)
+            FormulaViewContainer.IsVisible = false;
+        if (LUTViewContainer != null)
+            LUTViewContainer.IsVisible = false;
     }
 
     private void ShowFormulaView(AccelerationProfileSettingsViewModel viewModel)
     {
-        if (_formulaViewContainer == null)
+        if (FormulaViewContainer == null)
             return;
 
         var formulaView = new AccelerationFormulaSettingsView
@@ -154,13 +154,13 @@ public partial class AccelerationProfileSettingsView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        _formulaViewContainer.Content = formulaView;
-        _formulaViewContainer.IsVisible = true;
+        FormulaViewContainer.Content = formulaView;
+        FormulaViewContainer.IsVisible = true;
     }
 
     private void ShowLUTView(AccelerationProfileSettingsViewModel viewModel)
     {
-        if (_lutViewContainer == null)
+        if (LUTViewContainer == null)
             return;
 
         var lutView = new AccelerationLUTSettingsView
@@ -169,7 +169,8 @@ public partial class AccelerationProfileSettingsView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        _lutViewContainer.Content = lutView;
-        _lutViewContainer.IsVisible = true;
+        LUTViewContainer.Content = lutView;
+        LUTViewContainer.IsVisible = true;
     }
 }
+
