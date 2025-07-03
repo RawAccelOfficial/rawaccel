@@ -130,6 +130,24 @@
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 		</Style>
 
+		<!-- Loading Progress Bar Style -->
+		<Style Selector="ProgressBar.LoadingBar">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#4CAF50"/>
+			<Setter Property="Height" Value="4"/>
+			<Setter Property="CornerRadius" Value="2"/>
+			<Setter Property="Margin" Value="0,8,0,0"/>
+		</Style>
+
+		<!-- Success Message Style -->
+		<Style Selector="TextBlock.SuccessMessage">
+			<Setter Property="Foreground" Value="#4CAF50"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
+		</Style>
+
 		<!-- Theme Toggle Button Styles -->
 		<Style Selector="ToggleButton.ThemeToggle">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
@@ -195,17 +213,40 @@
 				</Transitions>
 			</Setter>
 		</Style>
+
+		<Style Selector="TextBlock.SuccessMessage">
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+				</Transitions>
+			</Setter>
+		</Style>
 	</Window.Styles>
 
 	<Panel>
 		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
 			<DockPanel>
 				<!-- Apply Settings Button at bottom -->
-				<Button Classes="ApplyButton"
-						DockPanel.Dock="Bottom"
-						Click="ApplyButtonHandler">
-					Apply Settings
-				</Button>
+				<StackPanel DockPanel.Dock="Bottom">
+					<TextBlock Classes="SuccessMessage"
+							   Name="SuccessMessage"
+							   Text="Settings Applied"
+							   IsVisible="False"
+							   Opacity="0"/>
+					<Grid>
+						<Button Classes="ApplyButton"
+								Name="ApplyButton"
+								Click="ApplyButtonHandler"
+								IsEnabled="True">
+							Apply Settings
+						</Button>
+						<ProgressBar Classes="LoadingBar"
+									 Name="LoadingProgress"
+									 IsVisible="False"
+									 IsIndeterminate="True"
+									 VerticalAlignment="Bottom"/>
+					</Grid>
+				</StackPanel>
 
 				<!-- Navigation content -->
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -225,7 +266,6 @@
 									   Text="Navigation"
 									   VerticalAlignment="Center"/>
 						</DockPanel>
-
 						<StackPanel Spacing="4">
 							<Button Classes="NavButton"
 									Name="DevicesButton"
@@ -253,7 +293,6 @@
 				</ScrollViewer>
 			</DockPanel>
 		</Border>
-
 		<Border Classes="ContentArea" Margin="432,16,16,16">
 			<ContentControl Content="{Binding CurrentPageContent}"/>
 		</Border>

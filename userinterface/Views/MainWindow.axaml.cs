@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using Avalonia.Threading;
+using System.Threading.Tasks;
 using userinterface.ViewModels;
 using userinterface.Services;
 
@@ -10,18 +12,75 @@ namespace userinterface.Views;
 
 public partial class MainWindow : Window
 {
+    private Button? _applyButton;
+    private ProgressBar? _loadingProgress;
+    private TextBlock? _successMessage;
+
     public MainWindow()
     {
         InitializeComponent();
         UpdateThemeToggleButton();
         UpdateSelectedButton("Devices"); // Initial navigation selection
+
+        _applyButton = this.FindControl<Button>("ApplyButton");
+        _loadingProgress = this.FindControl<ProgressBar>("LoadingProgress");
+        _successMessage = this.FindControl<TextBlock>("SuccessMessage");
     }
 
-    public void ApplyButtonHandler(object sender, RoutedEventArgs args)
+    public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
     {
+        // Disable the button and show loading
+        if (_applyButton != null)
+        {
+            _applyButton.IsEnabled = false;
+        }
+
+        if (_loadingProgress != null)
+        {
+            _loadingProgress.IsVisible = true;
+        }
+
+        // Hide success message if it was previously shown
+        if (_successMessage != null)
+        {
+            _successMessage.IsVisible = false;
+            _successMessage.Opacity = 0;
+        }
+
         if (this.DataContext is MainWindowViewModel viewModel)
         {
             viewModel.ApplyButtonClicked();
+        }
+
+        // Wait for 1 second to mask write delay
+        await Task.Delay(1000);
+
+        // Hide loading bar
+        if (_loadingProgress != null)
+        {
+            _loadingProgress.IsVisible = false;
+        }
+
+        if (_successMessage != null)
+        {
+            _successMessage.IsVisible = true;
+
+            // Animate the opacity from 0 to 1
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                _successMessage.Opacity = 1;
+
+                // Hide the success message after 1.5 seconds
+                await Task.Delay(1500);
+                _successMessage.Opacity = 0;
+                await Task.Delay(300);
+                _successMessage.IsVisible = false;
+            });
+        }
+
+        if (_applyButton != null)
+        {
+            _applyButton.IsEnabled = true;
         }
     }
 
@@ -79,6 +138,7 @@ public partial class MainWindow : Window
         if (themeIcon != null && toggleButton != null)
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
+
             if (isDark)
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_moon_regular");
@@ -87,6 +147,7 @@ public partial class MainWindow : Window
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_sunny_regular");
             }
+
             toggleButton.IsChecked = !isDark;
         }
     }
