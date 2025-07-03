@@ -13,8 +13,8 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private const string DevicesPageName = "Devices";
     private const string MappingsPageName = "Mappings";
     private const string ProfilesPageName = "Profiles";
-
     private string _selectedPage = DefaultPage;
+    private bool _isProfilesExpanded = false;
 
     public MainWindowViewModel(BE.BackEnd backEnd)
     {
@@ -46,6 +46,19 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    public bool IsProfilesExpanded
+    {
+        get => _isProfilesExpanded;
+        set
+        {
+            if (_isProfilesExpanded != value)
+            {
+                _isProfilesExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public object? CurrentPageContent =>
         SelectedPage switch
         {
@@ -55,7 +68,13 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _ => DevicesPage
         };
 
-    public void SelectPage(string pageName) => SelectedPage = pageName;
+    public void SelectPage(string pageName)
+    {
+        SelectedPage = pageName;
+
+        IsProfilesExpanded = pageName == ProfilesPageName;
+    }
+
 
     public void ApplyButtonClicked() => BackEnd.Apply();
 

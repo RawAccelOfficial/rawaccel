@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:userinterface.ViewModels"
         xmlns:v="using:userinterface.Views"
+        xmlns:vp="using:userinterface.Views.Profile"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -24,7 +25,7 @@
 			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="Margin" Value="16"/>
 			<Setter Property="Padding" Value="24"/>
-			<Setter Property="Width" Value="368"/>
+			<Setter Property="Width" Value="400"/>
 		</Style>
 
 		<!-- Sidebar title style -->
@@ -41,7 +42,7 @@
 		<Style Selector="Button.NavButton">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="8,4"/>
 			<Setter Property="FontSize" Value="16"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="BorderThickness" Value="1"/>
@@ -197,7 +198,6 @@
 	</Window.Styles>
 
 	<Panel>
-		<!-- Sidebar with header and navigation -->
 		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
 			<DockPanel>
 				<!-- Apply Settings Button at bottom -->
@@ -208,52 +208,53 @@
 				</Button>
 
 				<!-- Navigation content -->
-				<StackPanel>
-					<!-- Sidebar Header with Title and Theme Toggle -->
-					<DockPanel Margin="0,0,0,16">
-						<ToggleButton Classes="ThemeToggle"
-									  Click="ToggleTheme"
-									  Name="ThemeToggleButton"
-									  DockPanel.Dock="Right"
-									  VerticalAlignment="Center">
-							<PathIcon Data="{StaticResource weather_moon_regular}"
-									  Width="16"
-									  Height="16"
-									  Name="ThemeIcon"/>
-						</ToggleButton>
+				<ScrollViewer VerticalScrollBarVisibility="Auto">
+					<StackPanel>
+						<DockPanel Margin="0,0,0,16">
+							<ToggleButton Classes="ThemeToggle"
+										  Click="ToggleTheme"
+										  Name="ThemeToggleButton"
+										  DockPanel.Dock="Right"
+										  VerticalAlignment="Center">
+								<PathIcon Data="{StaticResource weather_moon_regular}"
+										  Width="16"
+										  Height="16"
+										  Name="ThemeIcon"/>
+							</ToggleButton>
+							<TextBlock Classes="SidebarTitle"
+									   Text="Navigation"
+									   VerticalAlignment="Center"/>
+						</DockPanel>
 
-						<TextBlock Classes="SidebarTitle"
-								   Text="Navigation"
-								   VerticalAlignment="Center"/>
-					</DockPanel>
-
-					<!-- Navigation Items -->
-					<StackPanel Spacing="4">
-						<Button Classes="NavButton"
-								Name="DevicesButton"
-								Click="OnNavigationClick"
-								Tag="Devices">
-							Devices
-						</Button>
-						<Button Classes="NavButton"
-								Name="MappingsButton"
-								Click="OnNavigationClick"
-								Tag="Mappings">
-							Mappings
-						</Button>
-						<Button Classes="NavButton"
-								Name="ProfilesButton"
-								Click="OnNavigationClick"
-								Tag="Profiles">
-							Profiles
-						</Button>
+						<StackPanel Spacing="4">
+							<Button Classes="NavButton"
+									Name="DevicesButton"
+									Click="OnNavigationClick"
+									Tag="Devices">
+								Devices
+							</Button>
+							<Button Classes="NavButton"
+									Name="MappingsButton"
+									Click="OnNavigationClick"
+									Tag="Mappings">
+								Mappings
+							</Button>
+							<Button Classes="NavButton"
+									Name="ProfilesButton"
+									Click="OnNavigationClick"
+									Tag="Profiles">
+								Profiles
+							</Button>
+							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
+								<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
+							</ContentControl>
+						</StackPanel>
 					</StackPanel>
-				</StackPanel>
+				</ScrollViewer>
 			</DockPanel>
 		</Border>
 
-		<!-- Content Area -->
-		<Border Classes="ContentArea" Margin="400,16,16,16">
+		<Border Classes="ContentArea" Margin="432,16,16,16">
 			<ContentControl Content="{Binding CurrentPageContent}"/>
 		</Border>
 	</Panel>

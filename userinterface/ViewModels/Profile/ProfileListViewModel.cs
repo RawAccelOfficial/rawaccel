@@ -3,6 +3,10 @@ using System;
 using System.Collections.ObjectModel;
 using BE = userspace_backend.Model;
 
+/**
+ * This component is only used in the MainWindow under the Navigation however it is constructed under the profile page
+ */
+
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileListViewModel : ViewModelBase

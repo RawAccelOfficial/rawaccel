@@ -61,19 +61,21 @@ public partial class MainWindow : Window
     {
         var currentTheme = Application.Current?.ActualThemeVariant;
         var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
+
         if (Application.Current != null)
         {
             Application.Current.RequestedThemeVariant = newTheme;
         }
+
         UpdateThemeToggleButton();
         ThemeService.NotifyThemeChanged();
     }
-
 
     private void UpdateThemeToggleButton()
     {
         var themeIcon = this.FindControl<PathIcon>("ThemeIcon");
         var toggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
+
         if (themeIcon != null && toggleButton != null)
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
