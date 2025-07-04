@@ -28,11 +28,17 @@
 		<Style Selector="controls|EditableExpanderView">
 			<Setter Property="Margin" Value="0,0,0,8" />
 		</Style>
+
+		<Style Selector="controls|EditableExpanderView.DisabledExpander">
+			<Setter Property="Opacity" Value="0.8" />
+		</Style>
 	</UserControl.Styles>
 
 	<controls:EditableExpanderView HorizontalAlignment="Stretch"
                                    VerticalAlignment="Stretch"
-                                   IsExpanded="False">
+                                   IsExpanded="False"
+                                   IsExpanderEnabled="{Binding IsExpanderEnabled}"
+                                   Classes.DisabledExpander="{Binding !IsExpanderEnabled}">
 		<controls:EditableExpanderView.Header>
 			<Grid ColumnDefinitions="2*,*,*,2*"
                   HorizontalAlignment="Stretch"
@@ -40,11 +46,13 @@
                   Margin="8,4">
 				<ContentControl Grid.Column="0"
                                 HorizontalAlignment="Left"
-                                Content="{Binding NameField}" />
+                                Content="{Binding NameField}"
+                                IsEnabled="{Binding IsExpanderEnabled}" />
 
 				<ContentControl Grid.Column="1"
                                 HorizontalAlignment="Left"
-                                Content="{Binding DPIField}" />
+                                Content="{Binding DPIField}"
+                                IsEnabled="{Binding IsExpanderEnabled}" />
 
 				<ContentControl Grid.Column="2"
                                 HorizontalAlignment="Left"
@@ -52,7 +60,8 @@
 
 				<ContentControl Grid.Column="3"
                                 HorizontalAlignment="Left"
-                                Content="{Binding DeviceGroup}" />
+                                Content="{Binding DeviceGroup}"
+                                IsEnabled="{Binding IsExpanderEnabled}" />
 			</Grid>
 		</controls:EditableExpanderView.Header>
 
