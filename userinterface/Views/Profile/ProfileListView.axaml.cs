@@ -22,9 +22,11 @@ public partial class ProfileListView : UserControl
 
     public void RemoveProfile(object sender, RoutedEventArgs args)
     {
-        if (DataContext is ProfileListViewModel viewModel)
+        if (DataContext is ProfileListViewModel viewModel
+            && sender is Button button
+            && button.CommandParameter is BE.ProfileModel profileToRemove)
         {
-            viewModel.RemoveSelectedProfile();
+            viewModel.RemoveProfile(profileToRemove);
         }
     }
 

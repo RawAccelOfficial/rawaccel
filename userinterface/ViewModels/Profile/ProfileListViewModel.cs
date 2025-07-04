@@ -54,5 +54,13 @@ namespace userinterface.ViewModels.Profile
                 _ = ProfilesModel.RemoveProfile(CurrentSelectedProfile);
             }
         }
+
+        public void RemoveProfile(BE.ProfileModel profile)
+        {
+            if (profile != null)
+            {
+                _ = ProfilesModel.RemoveProfile(profile);
+            }
+        }
     }
 }
