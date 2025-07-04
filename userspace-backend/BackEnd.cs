@@ -61,7 +61,7 @@ namespace userspace_backend
         {
             try
             {
-                WriteToDriver();
+                // WriteToDriver();
             }
             catch (Exception ex)
             {

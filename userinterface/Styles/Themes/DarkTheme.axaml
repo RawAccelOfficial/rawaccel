@@ -20,6 +20,7 @@
 	<SolidColorBrush x:Key="PrimaryButtonBrush">#0E639C</SolidColorBrush>
 	<SolidColorBrush x:Key="PrimaryButtonHoverBrush">#1177BB</SolidColorBrush>
 	<SolidColorBrush x:Key="PrimaryButtonPressedBrush">#0D5A94</SolidColorBrush>
+	<SolidColorBrush x:Key="DisabledButtonBrush">#4A4A4A</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonBrush">#DC2626</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonHoverBrush">#EF4444</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonPressedBrush">#B91C1C</SolidColorBrush>

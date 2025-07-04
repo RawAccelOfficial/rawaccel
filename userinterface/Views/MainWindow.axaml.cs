@@ -65,17 +65,14 @@ public partial class MainWindow : Window
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 SuccessMessageText.Opacity = 1;
+                ApplyButtonControl.IsEnabled = true;
                 // Hide the success message after 1.5 seconds
                 await Task.Delay(1500);
                 SuccessMessageText.Opacity = 0;
                 await Task.Delay(300);
                 SuccessMessageText.IsVisible = false;
-            });
-        }
 
-        if (ApplyButtonControl != null)
-        {
-            ApplyButtonControl.IsEnabled = true;
+            });
         }
     }
 

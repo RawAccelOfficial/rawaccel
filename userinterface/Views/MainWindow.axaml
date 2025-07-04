@@ -120,7 +120,27 @@
 			<Setter Property="Cursor" Value="Hand"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="Margin" Value="0,24,0,0"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="PART_LayoutRoot"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							Padding="{TemplateBinding Padding}">
+						<TextBlock Text="{TemplateBinding Content}"
+								   FontFamily="{TemplateBinding FontFamily}"
+								   FontSize="{TemplateBinding FontSize}"
+								   FontWeight="{TemplateBinding FontWeight}"
+								   Foreground="{TemplateBinding Foreground}"
+								   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								   VerticalAlignment="Center"
+								   Background="Transparent"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
 		</Style>
+
 
 		<Style Selector="Button.ApplyButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
@@ -128,6 +148,12 @@
 
 		<Style Selector="Button.ApplyButton:pressed">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+		</Style>
+
+		<Style Selector="Button.ApplyButton:disabled">
+			<Setter Property="Background" Value="{DynamicResource DisabledButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="Opacity" Value="0.6"/>
 		</Style>
 
 		<!-- Loading Progress Bar Style -->
@@ -199,6 +225,7 @@
 			<Setter Property="Transitions">
 				<Transitions>
 					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.25"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
 				</Transitions>
 			</Setter>
