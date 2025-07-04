@@ -9,7 +9,16 @@
              x:Class="userinterface.Views.Controls.EditableFieldView"
              x:DataType="vm:EditableFieldViewModel"
              x:CompileBindings="True">
+
 	<UserControl.Styles>
+		<!-- 
+		SCROLL BAR FIX: To prevent scroll bars on TextBox:
+		1. DON'T set explicit Height with Padding that creates too small content area
+		   Example: Height="32" + Padding="8" = only 16px for content (causes scroll bars)
+		2. If you need explicit height, ensure: Height >= Content Height + Padding + Border
+		   Example: Height="48" + Padding="8" = 32px for content (works fine)
+		3. For single-line inputs: Remove TextWrapping="Wrap" and add AcceptsReturn="False"
+		-->
 		<Style Selector="TextBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
@@ -20,13 +29,16 @@
 			<Setter Property="FontSize" Value="14" />
 			<Setter Property="SelectionBrush" Value="{DynamicResource PrimaryButtonBrush}" />
 		</Style>
+
 		<Style Selector="TextBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
 		</Style>
+
 		<Style Selector="TextBox:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
 		</Style>
+
 		<Style Selector="TextBox:disabled">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
 			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}" />
