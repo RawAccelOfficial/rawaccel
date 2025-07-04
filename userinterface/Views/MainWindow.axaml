@@ -210,6 +210,48 @@
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
+		<!-- Custom Scrollbar Styles -->
+		<Style Selector="ScrollBar">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="ScrollBar:vertical">
+			<Setter Property="Width" Value="8"/>
+			<Setter Property="Opacity" Value="0.3"/>
+		</Style>
+
+		<Style Selector="ScrollBar:vertical:pointerover">
+			<Setter Property="Width" Value="12"/>
+			<Setter Property="Opacity" Value="0.8"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb">
+			<Setter Property="Background" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb:pointerover">
+			<Setter Property="Background" Value="{DynamicResource SecondaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ RepeatButton">
+			<Setter Property="IsVisible" Value="False"/>
+		</Style>
+
 		<!-- Transitions -->
 		<Style Selector="Button.NavButton">
 			<Setter Property="Transitions">
