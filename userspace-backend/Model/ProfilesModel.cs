@@ -94,8 +94,18 @@ namespace userspace_backend.Model
     {
         ProfilesModel ProfilesModel { get; } = profilesModel;
 
+        // Should match ra::MAX_NAME_LEN from the kernel driver
+        private const int MaxNameLength = 256;
+
         public bool Validate(string value)
         {
+            if (string.IsNullOrEmpty(value))
+                return false;
+
+            if (value.Length >= MaxNameLength)
+                return false;
+
+            // Check if profile name already exists
             return !ProfilesModel.TryGetProfile(value, out _);
         }
     }
