@@ -24,6 +24,12 @@
 	<SolidColorBrush x:Key="DangerButtonBrush">#DC2626</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonHoverBrush">#EF4444</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonPressedBrush">#B91C1C</SolidColorBrush>
+	<SolidColorBrush x:Key="RenameButtonBrush">#FFA500</SolidColorBrush>
+	<SolidColorBrush x:Key="RenameButtonHoverBrush">#FFA500</SolidColorBrush>
+	<SolidColorBrush x:Key="ButtonIconOnHoverBrush">#FFFFFF</SolidColorBrush>
+	<SolidColorBrush x:Key="AccentBrush">#0E639C</SolidColorBrush>
+	<SolidColorBrush x:Key="AccentHoverBrush">#1177BB</SolidColorBrush>
+	<SolidColorBrush x:Key="AccentForegroundBrush">#FFFFFF</SolidColorBrush>
 	<SolidColorBrush x:Key="SuccessButtonBrush">#059669</SolidColorBrush>
 	<SolidColorBrush x:Key="SuccessButtonHoverBrush">#10B981</SolidColorBrush>
 	<SolidColorBrush x:Key="SuccessButtonPressedBrush">#047857</SolidColorBrush>

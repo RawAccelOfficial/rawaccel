@@ -5,6 +5,23 @@ using System.Linq;
 using userspace_backend.Model.EditableSettings;
 using DATA = userspace_backend.Data;
 
+/**
+ * TODO: Fix circular dependency and initialization order issues with ProfileNameValidator
+ * 
+ * - ProfilesModel needs ProfileNameValidator to create ProfileModel instances
+ * - ProfileNameValidator needs ProfilesModel to check for duplicate names
+ * 
+ *  - Base constructor calls InitEditableSettingsAndCollections() BEFORE derived constructor can set NameValidator property, causing validator to be null
+ *  
+ *  - SOLUTION (Implement after DI PR from _m00se):
+ *  
+ *  Create IProfileNameChecker interface for duplicate name validation
+ *  Have ProfilesModel implement IProfileNameChecker
+ *  Inject IProfileNameChecker into ProfileNameValidator constructor
+ *  Register ProfileNameValidator in DI container
+ *  Inject ProfileNameValidator into ProfilesModel constructor
+ */
+
 namespace userspace_backend.Model
 {
     public class ProfilesModel : EditableSettingsCollection<IEnumerable<DATA.Profile>>

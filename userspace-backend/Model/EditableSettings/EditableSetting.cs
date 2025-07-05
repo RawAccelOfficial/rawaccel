@@ -82,6 +82,16 @@ namespace userspace_backend.Model.EditableSettings
                 return true;
             }
 
+            if (Validator == null)
+            {
+                throw new InvalidOperationException(
+                    $"Validator is null for EditableSetting '{DisplayName}'. " +
+                    $"InterfaceValue: '{InterfaceValue}', " +
+                    $"ParsedValue: '{parsedValue}', " +
+                    $"ModelValue: '{ModelValue}', " +
+                    $"Parser: {Parser?.GetType().Name ?? "null"}");
+            }
+
             if (!Validator.Validate(parsedValue))
             {
                 UpdateInterfaceValue();

@@ -34,9 +34,19 @@ public partial class ProfileListView : UserControl
     {
         if (DataContext is ProfileListViewModel viewModel
             && e.AddedItems.Count > 0
-            && e.AddedItems[0] is BE.ProfileModel selectedProfile)
+            && e.AddedItems[0] is ProfileItemViewModel selectedItem)
         {
-            viewModel.CurrentSelectedProfile = selectedProfile;
+            viewModel.CurrentSelectedProfile = selectedItem.Profile;
+        }
+    }
+
+    public void RenameProfile(object sender, RoutedEventArgs args)
+    {
+        if (DataContext is ProfileListViewModel viewModel
+            && sender is Button button
+            && button.CommandParameter is BE.ProfileModel profile)
+        {
+            viewModel.StartEditing(profile);
         }
     }
 }

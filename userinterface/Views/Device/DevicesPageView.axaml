@@ -83,6 +83,10 @@
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
+		<Style Selector="ListBoxItem:focus-within /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
