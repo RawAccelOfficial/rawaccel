@@ -29,6 +29,11 @@ public partial class MappingView : UserControl
             DeviceGroupSelectorToAddMapping.ItemsSource = Enumerable.Empty<DeviceGroupModel>();
             viewModel.HandleAddMappingSelection(e);
             DeviceGroupSelectorToAddMapping.ItemsSource = viewModel.MappingBE.DeviceGroupsStillUnmapped;
+
+            if (!viewModel.MappingBE.DeviceGroupsStillUnmapped.Any())
+            {
+                AddEntryButton.Flyout?.Hide();
+            }
         }
     }
 }

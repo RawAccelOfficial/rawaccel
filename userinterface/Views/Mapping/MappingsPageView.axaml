@@ -44,15 +44,15 @@
 		</Style>
 
 		<Style Selector="Panel.MappingContainer">
-			<Setter Property="Width" Value="320"/>
-			<Setter Property="Height" Value="280"/>
+			<Setter Property="Width" Value="400"/>
+			<Setter Property="Height" Value="350"/>
 		</Style>
 	</UserControl.Styles>
 
 	<ScrollViewer>
 		<StackPanel Orientation="Vertical"
-					VerticalAlignment="Stretch"
-					Margin="16">
+                    VerticalAlignment="Stretch"
+                    Margin="28,16,12,16">
 			<ItemsRepeater ItemsSource="{Binding MappingViews}">
 				<ItemsRepeater.Layout>
 					<WrapLayout Orientation="Horizontal"/>
@@ -69,8 +69,8 @@
 			</ItemsRepeater>
 
 			<Button Classes="AddButton"
-					HorizontalAlignment="Center"
-					Click="AddMapping">
+                    HorizontalAlignment="Center"
+                    Click="AddMapping">
 				Add Mapping
 			</Button>
 		</StackPanel>
