@@ -7,7 +7,7 @@ namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileListElementViewModel : ViewModelBase
     {
-        private EditableFieldViewModel? _fieldViewModel;
+        private EditableFieldViewModel? FieldViewModel;
 
         [ObservableProperty]
         private bool isEditing;
@@ -17,10 +17,12 @@ namespace userinterface.ViewModels.Profile
 
         public BE.ProfileModel Profile { get; }
 
-        // Events for parent components to handle
         public event Action<ProfileListElementViewModel>? ProfileDeleted;
+
         public event Action<ProfileListElementViewModel>? ProfileRenamed;
+
         public event Action<ProfileListElementViewModel>? EditingStarted;
+
         public event Action<ProfileListElementViewModel>? EditingFinished;
 
         public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true)
@@ -36,11 +38,11 @@ namespace userinterface.ViewModels.Profile
             get
             {
                 // Only create the EditableFieldViewModel if the profile has an editable name setting
-                if (_fieldViewModel == null && Profile.Name is userspace_backend.Model.EditableSettings.IEditableSetting editableSetting)
+                if (FieldViewModel == null && Profile.Name is userspace_backend.Model.EditableSettings.IEditableSetting editableSetting)
                 {
-                    _fieldViewModel = new EditableFieldViewModel(editableSetting, UpdateMode.LostFocus);
+                    FieldViewModel = new EditableFieldViewModel(editableSetting, UpdateMode.LostFocus);
                 }
-                return _fieldViewModel;
+                return FieldViewModel;
             }
         }
 
@@ -72,10 +74,9 @@ namespace userinterface.ViewModels.Profile
         public void CancelEditing()
         {
             IsEditing = false;
-            // Reset any changes by recreating the EditableFieldViewModel
-            if (_fieldViewModel != null)
+            if (FieldViewModel != null)
             {
-                _fieldViewModel = null;
+                FieldViewModel = null;
             }
             EditingFinished?.Invoke(this);
         }
@@ -85,16 +86,14 @@ namespace userinterface.ViewModels.Profile
             ProfileDeleted?.Invoke(this);
         }
 
-        // Method to update editing state from parent
         public void UpdateIsEditing(bool editing)
         {
             IsEditing = editing;
         }
 
-        // Cleanup method
         public void Cleanup()
         {
-            _fieldViewModel = null;
+            FieldViewModel = null;
         }
     }
 }
