@@ -38,7 +38,7 @@ namespace userinterface.ViewModels.Profile
             get
             {
                 // Only create the EditableFieldViewModel if the profile has an editable name setting
-                if (FieldViewModel == null && Profile.Name is userspace_backend.Model.EditableSettings.IEditableSetting editableSetting)
+                if (FieldViewModel == null && Profile.Name is BE.EditableSettings.IEditableSetting editableSetting)
                 {
                     FieldViewModel = new EditableFieldViewModel(editableSetting, UpdateMode.LostFocus);
                 }

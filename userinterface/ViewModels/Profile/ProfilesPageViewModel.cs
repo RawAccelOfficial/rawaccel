@@ -16,7 +16,7 @@ namespace userinterface.ViewModels.Profile
         public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView)
         {
             ProfileModels = profileModels.Profiles;
-            ProfileViewModels = new ObservableCollection<ProfileViewModel>();
+            ProfileViewModels = [];
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
             ProfileListView = profileListView;
@@ -38,11 +38,6 @@ namespace userinterface.ViewModels.Profile
             var selectedProfile = ProfileListView.CurrentSelectedProfile;
 
             UpdateSelectedProfileView(selectedProfile);
-        }
-
-        private void OnCurrentProfileChanged(object? sender, BE.ProfileModel? profile)
-        {
-            UpdateSelectedProfileView(profile);
         }
 
         private void UpdateSelectedProfileView(BE.ProfileModel? currentProfile)

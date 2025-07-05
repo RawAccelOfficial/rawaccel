@@ -28,7 +28,7 @@ public partial class CoalescionProfileSettingsView : UserControl
         mainStackPanel?.Children.Add(labelField);
     }
 
-    private ContentControl CreateSmoothingControl(string bindingPath)
+    private static ContentControl CreateSmoothingControl(string bindingPath)
     {
         var control = new ContentControl
         {

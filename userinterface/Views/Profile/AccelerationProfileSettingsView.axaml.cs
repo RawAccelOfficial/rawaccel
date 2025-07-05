@@ -56,7 +56,7 @@ public partial class AccelerationProfileSettingsView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
             DataContext = viewModel,
-            ItemsSource = viewModel.DefinitionTypesLocal,
+            ItemsSource = AccelerationProfileSettingsViewModel.DefinitionTypesLocal,
         };
 
         AccelerationComboBox.Bind(ComboBox.SelectedItemProperty,

@@ -176,7 +176,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         }
     }
 
-    private async Task AnimateChevron(PathIcon expandIcon, double targetAngle)
+    private static async Task AnimateChevron(PathIcon expandIcon, double targetAngle)
     {
         if (expandIcon.RenderTransform is not RotateTransform rotateTransform)
             return;

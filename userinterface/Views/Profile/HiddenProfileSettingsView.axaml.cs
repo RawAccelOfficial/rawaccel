@@ -44,7 +44,7 @@ public partial class HiddenProfileSettingsView : UserControl
         mainStackPanel?.Children.Add(HiddenSettingsFieldView);
     }
 
-    private Control CreateInputControl(object bindingSource)
+    private static ContentControl CreateInputControl(object bindingSource)
     {
         return new ContentControl
         {

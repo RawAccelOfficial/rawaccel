@@ -39,7 +39,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    protected Bootstrapper BootstrapBackEnd()
+    protected static Bootstrapper BootstrapBackEnd()
     {
         return new Bootstrapper()
         {

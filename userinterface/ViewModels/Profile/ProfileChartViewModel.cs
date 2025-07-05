@@ -97,7 +97,7 @@ namespace userinterface.ViewModels.Profile
                 allPoints.AddRange(YCurvePreview.Points);
             }
 
-            if (!allPoints.Any())
+            if (allPoints.Count == 0)
             {
                 SetDefaultLimits();
                 return;
@@ -197,7 +197,7 @@ namespace userinterface.ViewModels.Profile
                 });
             }
 
-            Series = seriesList.ToArray();
+            Series = [.. seriesList];
         }
 
         private void OnYXRatioChanged(object? sender, PropertyChangedEventArgs e)
@@ -209,7 +209,7 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
+        private static Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
         [
             new Axis()
             {
@@ -227,7 +227,7 @@ namespace userinterface.ViewModels.Profile
             }
         ];
 
-        private Axis[] CreateYAxes(double? minLimit = null, double? maxLimit = null) =>
+        private static Axis[] CreateYAxes(double? minLimit = null, double? maxLimit = null) =>
         [
             new Axis()
             {

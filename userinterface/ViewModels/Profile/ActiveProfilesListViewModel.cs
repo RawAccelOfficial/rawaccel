@@ -7,7 +7,7 @@ namespace userinterface.ViewModels.Profile
     {
         public ActiveProfilesListViewModel()
         {
-            ActiveProfiles = new ObservableCollection<BE.ProfileModel>();
+            ActiveProfiles = [];
         }
 
         public ObservableCollection<BE.ProfileModel> ActiveProfiles { get; }

@@ -26,7 +26,7 @@ public partial class AccelerationLUTSettingsView : UserControl
         AddControlToMainPanel(labelFieldView);
     }
 
-    private ComboBox CreateApplyAsComboBox()
+    private static ComboBox CreateApplyAsComboBox()
     {
         return new ComboBox
         {
@@ -39,7 +39,7 @@ public partial class AccelerationLUTSettingsView : UserControl
         };
     }
 
-    private DualColumnLabelFieldViewModel CreateDualColumnViewModel(ComboBox applyAsComboBox)
+    private static DualColumnLabelFieldViewModel CreateDualColumnViewModel(ComboBox applyAsComboBox)
     {
         var viewModel = new DualColumnLabelFieldViewModel();
         viewModel.AddField(ApplyAsLabelText, applyAsComboBox);

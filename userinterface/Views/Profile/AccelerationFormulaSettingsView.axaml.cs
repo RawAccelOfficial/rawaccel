@@ -40,7 +40,6 @@ public partial class AccelerationFormulaSettingsView : UserControl
             return;
         }
 
-        LogFormulaTypes(viewModel);
         CreateFormulaTypeComboBox();
 
         if (FormulaTypeCombo == null)
@@ -52,17 +51,6 @@ public partial class AccelerationFormulaSettingsView : UserControl
         var currentFormulaType = GetCurrentFormulaType(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
         AddFormulaSpecificFields(currentFormulaType, viewModel);
         AddControlToMainPanel();
-    }
-
-    private void LogFormulaTypes(AccelerationFormulaSettingsViewModel viewModel)
-    {
-        if (viewModel.FormulaTypesLocal != null)
-        {
-            foreach (var formulaTypeName in viewModel.FormulaTypesLocal)
-            {
-                System.Diagnostics.Debug.WriteLine($"  - Item: '{formulaTypeName}'");
-            }
-        }
     }
 
     private void CreateFormulaTypeComboBox()
@@ -115,7 +103,7 @@ public partial class AccelerationFormulaSettingsView : UserControl
         AddFormulaSpecificFields(currentFormulaType, viewModel);
     }
 
-    private BEData.AccelerationFormulaType GetCurrentFormulaType(string formulaTypeName)
+    private static BEData.AccelerationFormulaType GetCurrentFormulaType(string formulaTypeName)
     {
         if (Enum.TryParse<BEData.AccelerationFormulaType>(formulaTypeName, out var formulaType))
         {
@@ -209,7 +197,7 @@ public partial class AccelerationFormulaSettingsView : UserControl
         FormulaFieldViewModel.AddField("Output", CreateInputControl(formulaSettings.JumpSettings.Output));
     }
 
-    private Control CreateInputControl(object bindingSource)
+    private static Control CreateInputControl(object bindingSource)
     {
         if (bindingSource is not EditableFieldViewModel editableField)
             return new TextBox();

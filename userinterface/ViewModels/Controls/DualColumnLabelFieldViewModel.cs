@@ -19,7 +19,7 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
 
     public DualColumnLabelFieldViewModel()
     {
-        Fields = new ObservableCollection<FieldItemViewModel>();
+        Fields = [];
     }
 
     public void AddField(string label, object inputControl)

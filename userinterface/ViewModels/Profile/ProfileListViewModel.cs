@@ -19,7 +19,7 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public BE.ProfileModel? currentEditingProfile;
 
-        private Dictionary<BE.ProfileModel, ProfileListElementViewModel> ProfileElementViewModels = new();
+        private Dictionary<BE.ProfileModel, ProfileListElementViewModel> ProfileElementViewModels = [];
 
         private BE.ProfilesModel ProfilesModel { get; }
 
@@ -44,7 +44,7 @@ namespace userinterface.ViewModels.Profile
                 var items = new ObservableCollection<ProfileListElementViewModel>();
                 foreach (var profile in Profiles)
                 {
-                    if (!ProfileElementViewModels.ContainsKey(profile))
+                    if (!ProfileElementViewModels.TryGetValue(profile, out ProfileListElementViewModel? value))
                     {
                         var elementViewModel = new ProfileListElementViewModel(profile, showButtons: true);
 
@@ -53,10 +53,10 @@ namespace userinterface.ViewModels.Profile
                         elementViewModel.ProfileRenamed += OnProfileRenamed;
                         elementViewModel.EditingStarted += OnEditingStarted;
                         elementViewModel.EditingFinished += OnEditingFinished;
-
-                        ProfileElementViewModels[profile] = elementViewModel;
+                        value = elementViewModel;
+                        ProfileElementViewModels[profile] = value;
                     }
-                    items.Add(ProfileElementViewModels[profile]);
+                    items.Add(value);
                 }
                 return items;
             }
@@ -143,9 +143,8 @@ namespace userinterface.ViewModels.Profile
             if (profile != null)
             {
                 // Clean up the ProfileElementViewModel
-                if (ProfileElementViewModels.ContainsKey(profile))
+                if (ProfileElementViewModels.TryGetValue(profile, out ProfileListElementViewModel? elementViewModel))
                 {
-                    var elementViewModel = ProfileElementViewModels[profile];
 
                     // Unsubscribe from events
                     elementViewModel.ProfileDeleted -= OnProfileDeleted;
