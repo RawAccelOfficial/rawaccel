@@ -3,10 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
-			 xmlns:controls="using:userinterface.Views.Controls"
+             xmlns:vp="using:userinterface.Views.Profile"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
+
 	<UserControl.Styles>
 		<Style Selector="ListBox">
 			<Setter Property="Background" Value="Transparent"/>
@@ -14,6 +15,7 @@
 			<Setter Property="Padding" Value="0"/>
 			<Setter Property="SelectionMode" Value="Single"/>
 		</Style>
+
 		<Style Selector="ListBoxItem">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -35,94 +37,60 @@
 			<Setter Property="Template">
 				<ControlTemplate>
 					<Border Name="PART_LayoutRoot"
-							Background="{TemplateBinding Background}"
-							BorderBrush="{TemplateBinding BorderBrush}"
-							BorderThickness="{TemplateBinding BorderThickness}"
-							CornerRadius="{TemplateBinding CornerRadius}"
-							Padding="{TemplateBinding Padding}">
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
 						<ContentPresenter Name="PART_ContentPresenter"
-										  Content="{TemplateBinding Content}"
-										  ContentTemplate="{TemplateBinding ContentTemplate}"
-										  Foreground="{TemplateBinding Foreground}"
-										  Background="Transparent"
-										  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-										  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          Background="Transparent"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 					</Border>
 				</ControlTemplate>
 			</Setter>
 		</Style>
+
 		<!-- Remove all default ContentPresenter selection styling -->
 		<Style Selector="ListBoxItem ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
+
 		<Style Selector="ListBoxItem:selected ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
+
 		<Style Selector="ListBoxItem:pointerover ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
+
 		<Style Selector="ListBoxItem:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
+
 		<Style Selector="ListBoxItem:selected">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
 		</Style>
+
 		<Style Selector="ListBoxItem:selected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
 		</Style>
+
 		<Style Selector="ListBoxItem:pressed">
 			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
 			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
-		<!-- Delete button style -->
-		<Style Selector="Button.DeleteButton">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="4"/>
-			<Setter Property="Margin" Value="4,0,0,0"/>
-			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Width" Value="24"/>
-			<Setter Property="Height" Value="24"/>
-			<Setter Property="Cursor" Value="Hand"/>
-		</Style>
-		<Style Selector="Button.DeleteButton:pointerover">
-			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
-		</Style>
-		<Style Selector="Button.DeleteButton PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-		</Style>
-		<Style Selector="Button.DeleteButton:pointerover PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
-		</Style>
 
-		<!-- Rename button style -->
-		<Style Selector="Button.RenameButton">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="4"/>
-			<Setter Property="Margin" Value="4,0,0,0"/>
-			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Width" Value="24"/>
-			<Setter Property="Height" Value="24"/>
-			<Setter Property="Cursor" Value="Hand"/>
-		</Style>
-		<Style Selector="Button.RenameButton:pointerover">
-			<Setter Property="Background" Value="{DynamicResource RenameButtonHoverBrush}"/>
-		</Style>
-		<Style Selector="Button.RenameButton PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource RenameButtonBrush}"/>
-		</Style>
-		<Style Selector="Button.RenameButton:pointerover PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
-		</Style>
-		<!-- Add button style -->
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
@@ -134,72 +102,32 @@
 			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
+
 		<Style Selector="Button.AddButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
 		</Style>
 	</UserControl.Styles>
 
 	<StackPanel>
-		<!-- Add Profile Button -->
 		<Button Classes="AddButton"
-				Click="AddProfile"
-				HorizontalAlignment="Stretch">
+                Click="AddProfile"
+                HorizontalAlignment="Stretch">
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-						  Width="16" Height="16"
-						  Margin="0,0,8,0"/>
+                          Width="16" Height="16"
+                          Margin="0,0,8,0"/>
 				<TextBlock Text="Add New Profile"/>
 			</StackPanel>
 		</Button>
 
 		<!-- Profile List -->
 		<ListBox ItemsSource="{Binding ProfileItems}"
-				 SelectedItem="{Binding CurrentSelectedProfile}"
-				 SelectionChanged="OnSelectionChanged">
+                 SelectionChanged="OnSelectionChanged">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<Grid Name="ProfileGrid">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="*"/>
-							<ColumnDefinition Width="Auto"/>
-							<ColumnDefinition Width="Auto"/>
-						</Grid.ColumnDefinitions>
-
-						<!-- Show TextBlock when not editing -->
-						<TextBlock Grid.Column="0"
-								   Name="DisplayTextBlock"
-								   Text="{Binding CurrentNameForDisplay}"
-								   VerticalAlignment="Center"
-								   IsVisible="{Binding !IsEditing}"/>
-
-						<!-- Show EditableFieldView when editing -->
-						<Border Grid.Column="0"
-								IsVisible="{Binding IsEditing}"
-								VerticalAlignment="Center">
-							<controls:EditableFieldView DataContext="{Binding EditableFieldViewModel}"/>
-						</Border>
-
-						<Button Grid.Column="1"
-								Classes="RenameButton"
-								Click="RenameProfile"
-								CommandParameter="{Binding Profile}"
-								VerticalAlignment="Center">
-							<PathIcon Data="{StaticResource rename_regular}"
-									  Width="12" Height="12"/>
-						</Button>
-						<Button Grid.Column="2"
-								Classes="DeleteButton"
-								Click="RemoveProfile"
-								CommandParameter="{Binding Profile}"
-								VerticalAlignment="Center">
-							<PathIcon Data="{StaticResource delete_regular}"
-									  Width="12" Height="12"/>
-						</Button>
-					</Grid>
+					<vp:ProfileListElementView/>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
-
 		</ListBox>
-
 	</StackPanel>
 </UserControl>

@@ -141,7 +141,6 @@
 			</Setter>
 		</Style>
 
-
 		<Style Selector="Button.ApplyButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
@@ -208,6 +207,14 @@
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
+		</Style>
+
+		<!-- Separator Style -->
+		<Style Selector="Border.ProfileSeparator">
+			<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="Height" Value="1"/>
+			<Setter Property="Margin" Value="8,12"/>
+			<Setter Property="Opacity" Value="0.5"/>
 		</Style>
 
 		<!-- Custom Scrollbar Styles -->
@@ -335,6 +342,7 @@
 									   Text="Navigation"
 									   VerticalAlignment="Center"/>
 						</DockPanel>
+
 						<StackPanel Spacing="4">
 							<Button Classes="NavButton"
 									Name="DevicesButton"
@@ -355,13 +363,23 @@
 								Profiles
 							</Button>
 							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
-								<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
+								<StackPanel>
+									<!-- Active Profiles List View -->
+									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
+
+									<!-- Separator -->
+									<Border Classes="ProfileSeparator"/>
+
+									<!-- Profile List View -->
+									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
+								</StackPanel>
 							</ContentControl>
 						</StackPanel>
 					</StackPanel>
 				</ScrollViewer>
 			</DockPanel>
 		</Border>
+
 		<Border Classes="ContentArea" Margin="432,16,16,16">
 			<ContentControl Content="{Binding CurrentPageContent}"/>
 		</Border>

@@ -19,7 +19,7 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public BE.ProfileModel? currentEditingProfile;
 
-        private Dictionary<BE.ProfileModel, ProfileItemViewModel> ProfileItemViewModels = new();
+        private Dictionary<BE.ProfileModel, ProfileListElementViewModel> ProfileElementViewModels = new();
 
         private BE.ProfilesModel ProfilesModel { get; }
 
@@ -34,23 +34,53 @@ namespace userinterface.ViewModels.Profile
         }
 
         public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
+
         public Action SelectionChangeAction { get; set; }
 
-        public ObservableCollection<ProfileItemViewModel> ProfileItems
+        public ObservableCollection<ProfileListElementViewModel> ProfileItems
         {
             get
             {
-                var items = new ObservableCollection<ProfileItemViewModel>();
+                var items = new ObservableCollection<ProfileListElementViewModel>();
                 foreach (var profile in Profiles)
                 {
-                    if (!ProfileItemViewModels.ContainsKey(profile))
+                    if (!ProfileElementViewModels.ContainsKey(profile))
                     {
-                        ProfileItemViewModels[profile] = new ProfileItemViewModel(profile, this);
+                        var elementViewModel = new ProfileListElementViewModel(profile, showButtons: true);
+
+                        // Subscribe to events
+                        elementViewModel.ProfileDeleted += OnProfileDeleted;
+                        elementViewModel.ProfileRenamed += OnProfileRenamed;
+                        elementViewModel.EditingStarted += OnEditingStarted;
+                        elementViewModel.EditingFinished += OnEditingFinished;
+
+                        ProfileElementViewModels[profile] = elementViewModel;
                     }
-                    items.Add(ProfileItemViewModels[profile]);
+                    items.Add(ProfileElementViewModels[profile]);
                 }
                 return items;
             }
+        }
+
+        private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
+        {
+            RemoveProfile(elementViewModel.Profile);
+        }
+
+        private void OnProfileRenamed(ProfileListElementViewModel elementViewModel)
+        {
+            // Handle profile renamed if needed
+            OnPropertyChanged(nameof(ProfileItems));
+        }
+
+        private void OnEditingStarted(ProfileListElementViewModel elementViewModel)
+        {
+            StartEditing(elementViewModel.Profile);
+        }
+
+        private void OnEditingFinished(ProfileListElementViewModel elementViewModel)
+        {
+            StopEditing();
         }
 
         partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
@@ -60,9 +90,9 @@ namespace userinterface.ViewModels.Profile
 
         partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
         {
-            foreach (var item in ProfileItemViewModels.Values)
+            foreach (var item in ProfileElementViewModels.Values)
             {
-                item.UpdateIsEditing();
+                item.UpdateIsEditing(IsEditing(item.Profile));
             }
         }
 
@@ -73,7 +103,6 @@ namespace userinterface.ViewModels.Profile
             {
                 StopEditing();
             }
-
             CurrentEditingProfile = profile;
         }
 
@@ -105,7 +134,7 @@ namespace userinterface.ViewModels.Profile
         {
             if (CurrentSelectedProfile != null)
             {
-                _ = ProfilesModel.RemoveProfile(CurrentSelectedProfile);
+                RemoveProfile(CurrentSelectedProfile);
             }
         }
 
@@ -113,10 +142,20 @@ namespace userinterface.ViewModels.Profile
         {
             if (profile != null)
             {
-                // Clean up the ProfileItemViewModel
-                if (ProfileItemViewModels.ContainsKey(profile))
+                // Clean up the ProfileElementViewModel
+                if (ProfileElementViewModels.ContainsKey(profile))
                 {
-                    ProfileItemViewModels.Remove(profile);
+                    var elementViewModel = ProfileElementViewModels[profile];
+
+                    // Unsubscribe from events
+                    elementViewModel.ProfileDeleted -= OnProfileDeleted;
+                    elementViewModel.ProfileRenamed -= OnProfileRenamed;
+                    elementViewModel.EditingStarted -= OnEditingStarted;
+                    elementViewModel.EditingFinished -= OnEditingFinished;
+
+                    // Cleanup
+                    elementViewModel.Cleanup();
+                    ProfileElementViewModels.Remove(profile);
                 }
 
                 // Stop editing if this profile is being edited
@@ -125,48 +164,15 @@ namespace userinterface.ViewModels.Profile
                     StopEditing();
                 }
 
+                // Clear selection if this profile is selected
+                if (CurrentSelectedProfile == profile)
+                {
+                    CurrentSelectedProfile = null;
+                }
+
                 _ = ProfilesModel.RemoveProfile(profile);
                 OnPropertyChanged(nameof(ProfileItems));
             }
-        }
-    }
-
-    // Wrapper ViewModel for individual profile items
-    public partial class ProfileItemViewModel : ViewModelBase
-    {
-        private readonly ProfileListViewModel ParentViewModel;
-        private EditableFieldViewModel? FieldViewModel;
-
-        public BE.ProfileModel Profile { get; }
-
-        [ObservableProperty]
-        public bool isEditing;
-
-        public ProfileItemViewModel(BE.ProfileModel profile, ProfileListViewModel parentViewModel)
-        {
-            Profile = profile;
-            ParentViewModel = parentViewModel;
-        }
-
-        public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
-
-        public EditableFieldViewModel EditableFieldViewModel
-        {
-            get
-            {
-                if (FieldViewModel == null)
-                {
-                    FieldViewModel = new EditableFieldViewModel(
-                        Profile.Name,
-                        UpdateMode.LostFocus);
-                }
-                return FieldViewModel;
-            }
-        }
-
-        public void UpdateIsEditing()
-        {
-            IsEditing = ParentViewModel.IsEditing(Profile);
         }
     }
 }

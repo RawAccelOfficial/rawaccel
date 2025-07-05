@@ -11,5 +11,7 @@ namespace userinterface.ViewModels.Profile
         }
 
         public ObservableCollection<BE.ProfileModel> ActiveProfiles { get; }
+
+        public ObservableCollection<ProfileListElementViewModel> ActiveProfileItems { get; set; }
     }
 }

@@ -20,33 +20,13 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    public void RemoveProfile(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is ProfileListViewModel viewModel
-            && sender is Button button
-            && button.CommandParameter is BE.ProfileModel profileToRemove)
-        {
-            viewModel.RemoveProfile(profileToRemove);
-        }
-    }
-
     public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (DataContext is ProfileListViewModel viewModel
             && e.AddedItems.Count > 0
-            && e.AddedItems[0] is ProfileItemViewModel selectedItem)
+            && e.AddedItems[0] is ProfileListElementViewModel selectedItem)
         {
             viewModel.CurrentSelectedProfile = selectedItem.Profile;
-        }
-    }
-
-    public void RenameProfile(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is ProfileListViewModel viewModel
-            && sender is Button button
-            && button.CommandParameter is BE.ProfileModel profile)
-        {
-            viewModel.StartEditing(profile);
         }
     }
 }
