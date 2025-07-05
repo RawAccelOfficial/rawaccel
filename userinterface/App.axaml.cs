@@ -89,7 +89,8 @@ public partial class App : Application
                         GroupsToProfiles = new DATA.Mapping.GroupsToProfilesMapping()
                         {
                             { "Logitech Mice", "Favorite" },
-                            { "Testing", "Testing" },
+                            { "Testing", "Default" },
+                            { "Default", "Default" },
                         },
                     },
                     new DATA.Mapping() {

@@ -1,6 +1,7 @@
 using Avalonia.Controls;
-using Avalonia.Data;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
+using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Controls;
 using userinterface.Views.Controls;
 
@@ -8,36 +9,75 @@ namespace userinterface.Views.Profile;
 
 public partial class CoalescionProfileSettingsView : UserControl
 {
+    private DualColumnLabelFieldView? CoalescionField;
+    private DualColumnLabelFieldViewModel? CoalescionFieldViewModel;
+
     public CoalescionProfileSettingsView()
     {
         InitializeComponent();
-        SetupControls();
+        Loaded += OnLoaded;
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (CoalescionField == null)
+        {
+            SetupControls();
+        }
     }
 
     private void SetupControls()
     {
-        var inputSmoothingControl = CreateSmoothingControl("InputSmoothingHalfLife");
-        var scaleSmoothingControl = CreateSmoothingControl("ScaleSmoothingHalfLife");
+        if (DataContext is not CoalescionProfileSettingsViewModel viewModel)
+        {
+            return;
+        }
 
-        var fieldViewModel = new DualColumnLabelFieldViewModel();
-        fieldViewModel.AddField("Input Smoothing Half Life", inputSmoothingControl);
-        fieldViewModel.AddField("Scale Smoothing Half Life", scaleSmoothingControl);
-
-        var labelField = new DualColumnLabelFieldView(fieldViewModel);
-        var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        mainStackPanel?.Children.Add(labelField);
+        CreateCoalescionFieldViewModel();
+        AddCoalescionFields(viewModel);
+        AddControlToMainPanel();
     }
 
-    private static ContentControl CreateSmoothingControl(string bindingPath)
+    private void CreateCoalescionFieldViewModel()
     {
-        var control = new ContentControl
+        CoalescionFieldViewModel = new DualColumnLabelFieldViewModel();
+        CoalescionField = new DualColumnLabelFieldView(CoalescionFieldViewModel);
+    }
+
+    private void AddCoalescionFields(CoalescionProfileSettingsViewModel viewModel)
+    {
+        if (CoalescionFieldViewModel == null)
+            return;
+
+        CoalescionFieldViewModel.AddField("Input Smoothing Half Life", CreateInputControl(viewModel.InputSmoothingHalfLife));
+        CoalescionFieldViewModel.AddField("Scale Smoothing Half Life", CreateInputControl(viewModel.ScaleSmoothingHalfLife));
+    }
+
+    private void AddControlToMainPanel()
+    {
+        if (CoalescionField == null)
+        {
+            return;
+        }
+
+        var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
+        mainStackPanel?.Children.Add(CoalescionField);
+    }
+
+    private static Control CreateInputControl(object bindingSource)
+    {
+        if (bindingSource is not EditableFieldViewModel editableField)
+            return new TextBox();
+
+        editableField.UpdateMode = UpdateMode.OnChange;
+
+        var editableFieldView = new EditableFieldView
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            DataContext = editableField
         };
 
-        control.Bind(ContentControl.ContentProperty, new Binding(bindingPath));
-        return control;
+        return editableFieldView;
     }
 }

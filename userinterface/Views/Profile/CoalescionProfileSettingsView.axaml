@@ -8,7 +8,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.CoalescionProfileSettingsView"
              x:DataType="vm:CoalescionProfileSettingsViewModel">
-
 	<UserControl.Styles>
 		<Style Selector="ComboBox, TextBox, NumericUpDown">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
@@ -19,7 +18,11 @@
 			<Setter Property="Padding" Value="8"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Height" Value="32"/>
+			<Setter Property="MinHeight" Value="32"/>
+		</Style>
+		<Style Selector="TextBox">
+			<Setter Property="AcceptsReturn" Value="False"/>
+			<Setter Property="TextWrapping" Value="NoWrap"/>
 		</Style>
 		<Style Selector="ComboBox:focus, TextBox:focus, NumericUpDown:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
