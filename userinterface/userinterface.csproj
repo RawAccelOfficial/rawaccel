@@ -33,10 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="mouse.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
     <UpToDateCheckInput Remove="Views\ProfileView.axaml" />
   </ItemGroup>
 
@@ -52,5 +48,9 @@
     <Compile Update="Views\Controls\EditableExpanderView.axaml.cs">
       <DependentUpon>EditableExpanderView.axaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Remove="mouse.ico" />
   </ItemGroup>
 </Project>
