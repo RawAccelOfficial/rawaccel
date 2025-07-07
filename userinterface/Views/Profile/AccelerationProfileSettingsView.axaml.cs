@@ -10,12 +10,9 @@ namespace userinterface.Views.Profile;
 
 public partial class AccelerationProfileSettingsView : UserControl
 {
-    // Map to AccelerationComboBox index's
     private const int NoneAccelerationIndex = 0;
     private const int FormulaAccelerationIndex = 1;
     private const int LUTAccelerationIndex = 2;
-
-    // Define index in mainStackPanel
     private const int AccelerationFieldInsertIndex = 0;
     private const int FormulaViewInsertIndex = 1;
     private const int LUTViewInsertIndex = 2;
@@ -25,6 +22,8 @@ public partial class AccelerationProfileSettingsView : UserControl
     private ContentControl? FormulaViewContainer;
     private ContentControl? LUTViewContainer;
     private ComboBox? AccelerationComboBox;
+    private AnisotropyProfileSettingsView? AnisotropyView;
+    private CoalescionProfileSettingsView? CoalescionView;
 
     public AccelerationProfileSettingsView()
     {
@@ -111,20 +110,22 @@ public partial class AccelerationProfileSettingsView : UserControl
         mainStackPanel.Children.Insert(FormulaViewInsertIndex, FormulaViewContainer);
         mainStackPanel.Children.Insert(LUTViewInsertIndex, LUTViewContainer);
 
-        var anisotropyView = new AnisotropyProfileSettingsView
+        AnisotropyView = new AnisotropyProfileSettingsView
         {
             DataContext = viewModel.AnisotropySettings,
-            HorizontalAlignment = HorizontalAlignment.Stretch
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            IsVisible = false
         };
 
-        var coalescionView = new CoalescionProfileSettingsView
+        CoalescionView = new CoalescionProfileSettingsView
         {
             DataContext = viewModel.CoalescionSettings,
-            HorizontalAlignment = HorizontalAlignment.Stretch
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            IsVisible = false
         };
 
-        mainStackPanel.Children.Add(anisotropyView);
-        mainStackPanel.Children.Add(coalescionView);
+        mainStackPanel.Children.Add(AnisotropyView);
+        mainStackPanel.Children.Add(CoalescionView);
     }
 
     private void OnAccelerationTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -138,7 +139,10 @@ public partial class AccelerationProfileSettingsView : UserControl
             return;
 
         var selectedIndex = AccelerationComboBox.SelectedIndex;
+        var isNotNone = selectedIndex != NoneAccelerationIndex;
+
         HideAllViews();
+        UpdateAdditionalFieldsVisibility(isNotNone);
 
         switch (selectedIndex)
         {
@@ -151,6 +155,14 @@ public partial class AccelerationProfileSettingsView : UserControl
                 ShowLUTView(viewModel);
                 break;
         }
+    }
+
+    private void UpdateAdditionalFieldsVisibility(bool isVisible)
+    {
+        if (AnisotropyView != null)
+            AnisotropyView.IsVisible = isVisible;
+        if (CoalescionView != null)
+            CoalescionView.IsVisible = isVisible;
     }
 
     private void HideAllViews()
