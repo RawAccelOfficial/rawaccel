@@ -10,9 +10,12 @@ namespace userinterface.Views.Profile;
 
 public partial class AccelerationProfileSettingsView : UserControl
 {
+    // Map to AccelerationComboBox index's
     private const int NoneAccelerationIndex = 0;
     private const int FormulaAccelerationIndex = 1;
     private const int LUTAccelerationIndex = 2;
+
+    // Define index in mainStackPanel
     private const int AccelerationFieldInsertIndex = 0;
     private const int FormulaViewInsertIndex = 1;
     private const int LUTViewInsertIndex = 2;

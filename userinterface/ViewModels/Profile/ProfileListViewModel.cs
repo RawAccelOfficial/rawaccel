@@ -35,6 +35,7 @@ namespace userinterface.ViewModels.Profile
 
         public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
 
+        // Set in main WindowViewModel
         public Action SelectionChangeAction { get; set; }
 
         public ObservableCollection<ProfileListElementViewModel> ProfileItems
