@@ -9,11 +9,9 @@
              mc:Ignorable="d"
              d:DesignWidth="400"
              d:DesignHeight="200">
-
 	<Design.DataContext>
 		<vm:DualColumnLabelFieldViewModel />
 	</Design.DataContext>
-
 	<UserControl.Styles>
 		<Style Selector="TextBlock.FieldLabel">
 			<Setter Property="VerticalAlignment" Value="Center" />
@@ -25,7 +23,7 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel Orientation="Vertical" Spacing="8">
+	<StackPanel x:Name="MainStackPanel" Orientation="Vertical" Spacing="8">
 		<ItemsControl ItemsSource="{Binding Fields}">
 			<ItemsControl.ItemTemplate>
 				<DataTemplate x:DataType="vm:FieldItemViewModel">
@@ -35,12 +33,10 @@
 							<ColumnDefinition Width="8" />
 							<ColumnDefinition Width="*" />
 						</Grid.ColumnDefinitions>
-
 						<TextBlock Grid.Column="0"
                                    Classes="FieldLabel"
                                    Text="{Binding Label}"
                                    ToolTip.Tip="{Binding Label}" />
-
 						<ContentPresenter Grid.Column="2"
                                           Content="{Binding InputControl}"
                                           HorizontalAlignment="Stretch"

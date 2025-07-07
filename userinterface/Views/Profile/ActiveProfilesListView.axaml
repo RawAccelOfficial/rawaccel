@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
+             xmlns:vp="using:userinterface.Views.Profile"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ActiveProfilesListView"
              x:DataType="vm:ActiveProfilesListViewModel">
@@ -14,42 +15,94 @@
 			<Setter Property="FontWeight" Value="SemiBold"/>
 			<Setter Property="Margin" Value="0,0,0,12"/>
 		</Style>
+
 		<Style Selector="ListBox">
-			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="Padding" Value="8"/>
-		</Style>
-		<Style Selector="ListBoxItem">
 			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Padding" Value="8"/>
-			<Setter Property="Margin" Value="0,2"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="SelectionMode" Value="Single"/>
 		</Style>
-		<Style Selector="ListBoxItem:selected">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
-		</Style>
-		<Style Selector="ListBoxItem:pointerover">
+
+		<Style Selector="ListBoxItem">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-		</Style>
-		<Style Selector="ListBoxItem:selected:pointerover">
-			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
-		</Style>
-		<Style Selector="ListBoxItem TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="Margin" Value="8,1"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="12,6"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="PART_LayoutRoot"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+						<ContentPresenter Name="PART_ContentPresenter"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          Background="Transparent"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
 		</Style>
-		<Style Selector="ListBoxItem:selected TextBlock">
+
+		<Style Selector="ListBoxItem ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pointerover ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pressed">
+			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
 	</UserControl.Styles>
+
 	<DockPanel>
-		<TextBlock DockPanel.Dock="Top" Classes="SectionHeader">
-			Active Profiles
-		</TextBlock>
-		<ListBox ItemsSource="{Binding ActiveProfiles}">
+		<ListBox ItemsSource="{Binding ActiveProfileItems}">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<TextBlock Text="{Binding CurrentNameForDisplay}"/>
+					<vp:ProfileListElementView/>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>

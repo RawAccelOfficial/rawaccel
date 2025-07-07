@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
-using userinterface.Views.Controls;
 using userinterface.ViewModels.Controls;
+using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
 
@@ -23,10 +23,10 @@ public partial class AccelerationLUTSettingsView : UserControl
         var dualColumnViewModel = CreateDualColumnViewModel(applyAsComboBox);
         var labelFieldView = new DualColumnLabelFieldView(dualColumnViewModel);
 
-        AddControlToMainPanel(labelFieldView);
+        AddControlToStackPanel(labelFieldView);
     }
 
-    private ComboBox CreateApplyAsComboBox()
+    private static ComboBox CreateApplyAsComboBox()
     {
         return new ComboBox
         {
@@ -39,16 +39,16 @@ public partial class AccelerationLUTSettingsView : UserControl
         };
     }
 
-    private DualColumnLabelFieldViewModel CreateDualColumnViewModel(ComboBox applyAsComboBox)
+    private static DualColumnLabelFieldViewModel CreateDualColumnViewModel(ComboBox applyAsComboBox)
     {
         var viewModel = new DualColumnLabelFieldViewModel();
         viewModel.AddField(ApplyAsLabelText, applyAsComboBox);
         return viewModel;
     }
 
-    private void AddControlToMainPanel(DualColumnLabelFieldView labelFieldView)
+    private void AddControlToStackPanel(DualColumnLabelFieldView labelFieldView)
     {
-        var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        mainStackPanel?.Children.Add(labelFieldView);
+        var LUTStackPanel = this.FindControl<StackPanel>("LUTStackPanel");
+        LUTStackPanel?.Children.Add(labelFieldView);
     }
 }

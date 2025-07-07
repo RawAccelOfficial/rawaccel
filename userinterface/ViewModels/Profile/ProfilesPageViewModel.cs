@@ -12,13 +12,13 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
 
-        public ProfilesPageViewModel(BE.ProfilesModel profileModels)
+        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView)
         {
             ProfileModels = profileModels.Profiles;
-            ProfileViewModels = new ObservableCollection<ProfileViewModel>();
+            ProfileViewModels = [];
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
-            ProfileListView = new ProfileListViewModel(profileModels, UpdateSelectedProfileView);
+            ProfileListView = profileListView;
             ActiveProfilesListView = new ActiveProfilesListViewModel();
         }
 
@@ -30,11 +30,27 @@ namespace userinterface.ViewModels.Profile
 
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 
-        protected void UpdateSelectedProfileView()
+        public void UpdateCurrentProfile()
         {
-            SelectedProfileView = ProfileViewModels.FirstOrDefault(
-                p => string.Equals(p.CurrentName, ProfileListView.CurrentSelectedProfile?.CurrentNameForDisplay, StringComparison.InvariantCultureIgnoreCase))
-                ?? ProfileViewModels.FirstOrDefault();
+            UpdateProfileViewModels();
+
+            var selectedProfile = ProfileListView.CurrentSelectedProfile;
+
+            UpdateSelectedProfileView(selectedProfile);
+        }
+
+        private void UpdateSelectedProfileView(BE.ProfileModel? currentProfile)
+        {
+            if (currentProfile?.CurrentNameForDisplay != null)
+            {
+                SelectedProfileView = ProfileViewModels.FirstOrDefault(
+                    p => string.Equals(p.CurrentName, currentProfile.CurrentNameForDisplay, StringComparison.InvariantCultureIgnoreCase))
+                    ?? ProfileViewModels.FirstOrDefault();
+            }
+            else
+            {
+                SelectedProfileView = ProfileViewModels.FirstOrDefault();
+            }
         }
 
         protected void UpdateProfileViewModels()

@@ -10,11 +10,18 @@ namespace userinterface.ViewModels.Device
         {
             DeviceBE = deviceBE;
             DevicesBE = devicesBE;
+
             NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
+
             HWIDField = new NamedEditableFieldViewModel(DeviceBE.HardwareID);
+
             DPIField = new NamedEditableFieldViewModel(DeviceBE.DPI);
+
             PollRateField = new NamedEditableFieldViewModel(DeviceBE.PollRate);
+
             IgnoreBool = new EditableBoolViewModel(DeviceBE.Ignore);
+            IgnoreBool.PropertyChanged += OnIgnoreBoolChanged;
+
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
         }
 
@@ -33,6 +40,16 @@ namespace userinterface.ViewModels.Device
         public EditableBoolViewModel IgnoreBool { get; set; }
 
         public DeviceGroupSelectorViewModel DeviceGroup { get; set; }
+
+        public bool IsExpanderEnabled => !IgnoreBool.Value;
+
+        private void OnIgnoreBoolChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(EditableBoolViewModel.Value))
+            {
+                OnPropertyChanged(nameof(IsExpanderEnabled));
+            }
+        }
 
         public void DeleteSelf()
         {

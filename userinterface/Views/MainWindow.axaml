@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:userinterface.ViewModels"
         xmlns:v="using:userinterface.Views"
+        xmlns:vp="using:userinterface.Views.Profile"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -24,7 +25,7 @@
 			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="Margin" Value="16"/>
 			<Setter Property="Padding" Value="24"/>
-			<Setter Property="Width" Value="368"/>
+			<Setter Property="Width" Value="400"/>
 		</Style>
 
 		<!-- Sidebar title style -->
@@ -41,7 +42,7 @@
 		<Style Selector="Button.NavButton">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="8,4"/>
 			<Setter Property="FontSize" Value="16"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="BorderThickness" Value="1"/>
@@ -119,6 +120,25 @@
 			<Setter Property="Cursor" Value="Hand"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="Margin" Value="0,24,0,0"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="PART_LayoutRoot"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							Padding="{TemplateBinding Padding}">
+						<TextBlock Text="{TemplateBinding Content}"
+								   FontFamily="{TemplateBinding FontFamily}"
+								   FontSize="{TemplateBinding FontSize}"
+								   FontWeight="{TemplateBinding FontWeight}"
+								   Foreground="{TemplateBinding Foreground}"
+								   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								   VerticalAlignment="Center"
+								   Background="Transparent"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.ApplyButton:pointerover">
@@ -127,6 +147,30 @@
 
 		<Style Selector="Button.ApplyButton:pressed">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+		</Style>
+
+		<Style Selector="Button.ApplyButton:disabled">
+			<Setter Property="Background" Value="{DynamicResource DisabledButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="Opacity" Value="0.6"/>
+		</Style>
+
+		<!-- Loading Progress Bar Style -->
+		<Style Selector="ProgressBar.LoadingBar">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#4CAF50"/>
+			<Setter Property="Height" Value="4"/>
+			<Setter Property="CornerRadius" Value="2"/>
+			<Setter Property="Margin" Value="0,8,0,0"/>
+		</Style>
+
+		<!-- Success Message Style -->
+		<Style Selector="TextBlock.SuccessMessage">
+			<Setter Property="Foreground" Value="#4CAF50"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,0,0,8"/>
 		</Style>
 
 		<!-- Theme Toggle Button Styles -->
@@ -165,6 +209,56 @@
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
+		<!-- Separator Style -->
+		<Style Selector="Border.ProfileSeparator">
+			<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="Height" Value="1"/>
+			<Setter Property="Margin" Value="8,12"/>
+			<Setter Property="Opacity" Value="0.5"/>
+		</Style>
+
+		<!-- Custom Scrollbar Styles -->
+		<Style Selector="ScrollBar">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="ScrollBar:vertical">
+			<Setter Property="Width" Value="8"/>
+			<Setter Property="Opacity" Value="0.3"/>
+		</Style>
+
+		<Style Selector="ScrollBar:vertical:pointerover">
+			<Setter Property="Width" Value="12"/>
+			<Setter Property="Opacity" Value="0.8"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb">
+			<Setter Property="Background" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb:pointerover">
+			<Setter Property="Background" Value="{DynamicResource SecondaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ RepeatButton">
+			<Setter Property="IsVisible" Value="False"/>
+		</Style>
+
 		<!-- Transitions -->
 		<Style Selector="Button.NavButton">
 			<Setter Property="Transitions">
@@ -180,6 +274,7 @@
 			<Setter Property="Transitions">
 				<Transitions>
 					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.25"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
 				</Transitions>
 			</Setter>
@@ -194,66 +289,98 @@
 				</Transitions>
 			</Setter>
 		</Style>
+
+		<Style Selector="TextBlock.SuccessMessage">
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+				</Transitions>
+			</Setter>
+		</Style>
 	</Window.Styles>
 
 	<Panel>
-		<!-- Sidebar with header and navigation -->
 		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
 			<DockPanel>
 				<!-- Apply Settings Button at bottom -->
-				<Button Classes="ApplyButton"
-						DockPanel.Dock="Bottom"
-						Click="ApplyButtonHandler">
-					Apply Settings
-				</Button>
+				<StackPanel DockPanel.Dock="Bottom">
+					<TextBlock Classes="SuccessMessage"
+							   Name="SuccessMessage"
+							   Text="Settings Applied"
+							   IsVisible="False"
+							   Opacity="0"/>
+					<Grid>
+						<Button Classes="ApplyButton"
+								Name="ApplyButton"
+								Click="ApplyButtonHandler"
+								IsEnabled="True">
+							Apply Settings
+						</Button>
+						<ProgressBar Classes="LoadingBar"
+									 Name="LoadingProgress"
+									 IsVisible="False"
+									 IsIndeterminate="True"
+									 VerticalAlignment="Bottom"/>
+					</Grid>
+				</StackPanel>
 
 				<!-- Navigation content -->
-				<StackPanel>
-					<!-- Sidebar Header with Title and Theme Toggle -->
-					<DockPanel Margin="0,0,0,16">
-						<ToggleButton Classes="ThemeToggle"
-									  Click="ToggleTheme"
-									  Name="ThemeToggleButton"
-									  DockPanel.Dock="Right"
-									  VerticalAlignment="Center">
-							<PathIcon Data="{StaticResource weather_moon_regular}"
-									  Width="16"
-									  Height="16"
-									  Name="ThemeIcon"/>
-						</ToggleButton>
+				<ScrollViewer VerticalScrollBarVisibility="Auto">
+					<StackPanel>
+						<DockPanel Margin="0,0,0,16">
+							<ToggleButton Classes="ThemeToggle"
+										  Click="ToggleTheme"
+										  Name="ThemeToggleButton"
+										  DockPanel.Dock="Right"
+										  VerticalAlignment="Center">
+								<PathIcon Data="{StaticResource weather_moon_regular}"
+										  Width="16"
+										  Height="16"
+										  Name="ThemeIcon"/>
+							</ToggleButton>
+							<TextBlock Classes="SidebarTitle"
+									   Text="Navigation"
+									   VerticalAlignment="Center"/>
+						</DockPanel>
 
-						<TextBlock Classes="SidebarTitle"
-								   Text="Navigation"
-								   VerticalAlignment="Center"/>
-					</DockPanel>
+						<StackPanel Spacing="4">
+							<Button Classes="NavButton"
+									Name="DevicesButton"
+									Click="OnNavigationClick"
+									Tag="Devices">
+								Devices
+							</Button>
+							<Button Classes="NavButton"
+									Name="MappingsButton"
+									Click="OnNavigationClick"
+									Tag="Mappings">
+								Mappings
+							</Button>
+							<Button Classes="NavButton"
+									Name="ProfilesButton"
+									Click="OnNavigationClick"
+									Tag="Profiles">
+								Profiles
+							</Button>
+							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
+								<StackPanel>
+									<!-- Active Profiles List View -->
+									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
 
-					<!-- Navigation Items -->
-					<StackPanel Spacing="4">
-						<Button Classes="NavButton"
-								Name="DevicesButton"
-								Click="OnNavigationClick"
-								Tag="Devices">
-							Devices
-						</Button>
-						<Button Classes="NavButton"
-								Name="MappingsButton"
-								Click="OnNavigationClick"
-								Tag="Mappings">
-							Mappings
-						</Button>
-						<Button Classes="NavButton"
-								Name="ProfilesButton"
-								Click="OnNavigationClick"
-								Tag="Profiles">
-							Profiles
-						</Button>
+									<!-- Separator -->
+									<Border Classes="ProfileSeparator"/>
+
+									<!-- Profile List View -->
+									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
+								</StackPanel>
+							</ContentControl>
+						</StackPanel>
 					</StackPanel>
-				</StackPanel>
+				</ScrollViewer>
 			</DockPanel>
 		</Border>
 
-		<!-- Content Area -->
-		<Border Classes="ContentArea" Margin="400,16,16,16">
+		<Border Classes="ContentArea" Margin="432,16,16,16">
 			<ContentControl Content="{Binding CurrentPageContent}"/>
 		</Border>
 	</Panel>

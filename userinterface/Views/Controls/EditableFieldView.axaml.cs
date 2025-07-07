@@ -24,7 +24,16 @@ public partial class EditableFieldView : UserControl
     {
         if (DataContext is EditableFieldViewModel editableFieldViewModel)
         {
-            editableFieldViewModel.TrySetFromInterface();
+            bool success = editableFieldViewModel.TrySetFromInterface();
+        }
+    }
+
+    public void TextChangedHandler(object sender, TextChangedEventArgs e)
+    {
+        if (DataContext is EditableFieldViewModel editableFieldViewModel &&
+            editableFieldViewModel.UpdateMode == UpdateMode.OnChange)
+        {
+            bool success = editableFieldViewModel.TrySetFromInterface();
         }
     }
 }

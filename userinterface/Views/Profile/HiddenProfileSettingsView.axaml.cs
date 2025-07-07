@@ -1,15 +1,15 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Controls;
+using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
 
 public partial class HiddenProfileSettingsView : UserControl
 {
-    private DualColumnLabelFieldView? _hiddenSettingsField;
+    private DualColumnLabelFieldView? HiddenSettingsFieldView;
 
     public HiddenProfileSettingsView()
     {
@@ -19,7 +19,7 @@ public partial class HiddenProfileSettingsView : UserControl
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_hiddenSettingsField == null)
+        if (HiddenSettingsFieldView == null)
         {
             SetupHiddenSettingsFields();
         }
@@ -38,13 +38,13 @@ public partial class HiddenProfileSettingsView : UserControl
         hiddenSettingsFieldViewModel.AddField("Angle Snapping", CreateInputControl(viewModel.AngleSnappingField));
         hiddenSettingsFieldViewModel.AddField("Output Smoothing Half Life", CreateInputControl(viewModel.OutputSmoothingHalfLifeField));
 
-        _hiddenSettingsField = new DualColumnLabelFieldView(hiddenSettingsFieldViewModel);
+        HiddenSettingsFieldView = new DualColumnLabelFieldView(hiddenSettingsFieldViewModel);
 
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        mainStackPanel?.Children.Add(_hiddenSettingsField);
+        mainStackPanel?.Children.Add(HiddenSettingsFieldView);
     }
 
-    private Control CreateInputControl(object bindingSource)
+    private static ContentControl CreateInputControl(object bindingSource)
     {
         return new ContentControl
         {

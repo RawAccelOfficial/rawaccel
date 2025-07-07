@@ -31,7 +31,7 @@ namespace userinterface.ViewModels.Profile
 
         public BE.AccelerationModel AccelerationBE { get; }
 
-        public ObservableCollection<string> DefinitionTypesLocal => DefinitionTypes;
+        public static ObservableCollection<string> DefinitionTypesLocal => DefinitionTypes;
 
         public AccelerationFormulaSettingsViewModel AccelerationFormulaSettings { get; }
 
@@ -45,7 +45,7 @@ namespace userinterface.ViewModels.Profile
         {
             if (e.PropertyName == nameof(AccelerationBE.DefinitionType.CurrentValidatedValue))
             {
-                AreAccelSettingsVisible = AccelerationBE.DefinitionType.ModelValue != BEData.AccelerationDefinitionType.None;
+                AreAccelSettingsVisible = true;
             }
         }
     }

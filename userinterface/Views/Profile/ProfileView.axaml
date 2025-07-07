@@ -18,7 +18,7 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid ColumnDefinitions="*,2*">
+	<Grid ColumnDefinitions="3*,7*">
 		<Border Grid.Column="0"
 				Classes="SectionBorder"
 				Margin="0,0,8,0">

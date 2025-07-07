@@ -39,7 +39,7 @@ namespace userinterface.ViewModels.Profile
 
         public BE.FormulaAccelModel FormulaAccelBE { get; }
 
-        public ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
+        public static ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
 
         public SynchronousSettings SynchronousSettings { get; }
 

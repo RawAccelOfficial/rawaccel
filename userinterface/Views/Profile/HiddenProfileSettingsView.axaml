@@ -17,11 +17,10 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Padding" Value="8"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Height" Value="32"/>
 		</Style>
+
 		<Style Selector="localControls|DualColumnLabelFieldView ContentPresenter">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>

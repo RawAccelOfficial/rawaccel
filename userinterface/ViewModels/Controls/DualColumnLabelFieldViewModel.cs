@@ -1,25 +1,38 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
+using System.Collections.ObjectModel;
 
 namespace userinterface.ViewModels.Controls;
 
 public class DualColumnLabelFieldViewModel : ViewModelBase
 {
     private const double DefaultLabelWidth = 100.0;
-
-    private double _labelWidth = DefaultLabelWidth;
+    private double LabelWidthValue = DefaultLabelWidth;
+    private StackPanel? TargetStackPanel;
 
     public double LabelWidth
     {
-        get => _labelWidth;
-        set => SetProperty(ref _labelWidth, value);
+        get => LabelWidthValue;
+        set => SetProperty(ref LabelWidthValue, value);
     }
 
     public ObservableCollection<FieldItemViewModel> Fields { get; }
 
     public DualColumnLabelFieldViewModel()
     {
-        Fields = new ObservableCollection<FieldItemViewModel>();
+        Fields = [];
+    }
+
+    public void SetStackPanel(StackPanel stackPanel)
+    {
+        TargetStackPanel = stackPanel;
+    }
+
+    public void RegisterElement(Control element)
+    {
+        if (element == null || TargetStackPanel == null)
+            return;
+
+        TargetStackPanel.Children.Add(element);
     }
 
     public void AddField(string label, object inputControl)

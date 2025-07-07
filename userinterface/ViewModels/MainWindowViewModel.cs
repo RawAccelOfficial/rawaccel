@@ -14,14 +14,19 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private const string MappingsPageName = "Mappings";
     private const string ProfilesPageName = "Profiles";
 
-    private string _selectedPage = DefaultPage;
+    private string SelectedPageValue = DefaultPage;
+    private bool IsProfilesExpandedValue = false;
 
-    public MainWindowViewModel(BE.BackEnd backEnd)
+    public MainWindowViewModel(BE.BackEnd BackEnd)
     {
-        BackEnd = backEnd;
-        DevicesPage = new DevicesPageViewModel(backEnd.Devices);
-        ProfilesPage = new ProfilesPageViewModel(backEnd.Profiles);
-        MappingsPage = new MappingsPageViewModel(backEnd.Mappings);
+        this.BackEnd = BackEnd;
+        DevicesPage = new DevicesPageViewModel(BackEnd.Devices);
+
+        ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
+        ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView);
+        MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
+
+        ProfileListView.SelectionChangeAction = OnProfileSelectionChanged;
     }
 
     public DevicesPageViewModel DevicesPage { get; }
@@ -30,18 +35,33 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public MappingsPageViewModel MappingsPage { get; }
 
+    public ProfileListViewModel ProfileListView { get; }
+
     protected BE.BackEnd BackEnd { get; }
 
     public string SelectedPage
     {
-        get => _selectedPage;
+        get => SelectedPageValue;
         set
         {
-            if (_selectedPage != value)
+            if (SelectedPageValue != value)
             {
-                _selectedPage = value;
+                SelectedPageValue = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentPageContent));
+            }
+        }
+    }
+
+    public bool IsProfilesExpanded
+    {
+        get => IsProfilesExpandedValue;
+        set
+        {
+            if (IsProfilesExpandedValue != value)
+            {
+                IsProfilesExpandedValue = value;
+                OnPropertyChanged();
             }
         }
     }
@@ -55,14 +75,26 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _ => DevicesPage
         };
 
-    public void SelectPage(string pageName) => SelectedPage = pageName;
+    public void SelectPage(string PageName)
+    {
+        SelectedPage = PageName;
+        IsProfilesExpanded = PageName == ProfilesPageName;
+    }
 
-    public void ApplyButtonClicked() => BackEnd.Apply();
+    public void Apply()
+    {
+        BackEnd.Apply();
+    }
+
+    private void OnProfileSelectionChanged()
+    {
+        ProfilesPage?.UpdateCurrentProfile();
+    }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    protected new virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    protected virtual new void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
     }
 }

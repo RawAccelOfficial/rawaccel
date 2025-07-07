@@ -78,6 +78,14 @@
 				</Transitions>
 			</Setter>
 		</Style>
+
+		<Style Selector="styles|NoInteractionButtonView.ExpanderHeader:disabled">
+			<Setter Property="Opacity" Value="0.6" />
+		</Style>
+
+		<Style Selector="PathIcon.ExpandIcon:disabled">
+			<Setter Property="Opacity" Value="0.6" />
+		</Style>
 	</UserControl.Styles>
 
 	<StackPanel Orientation="Vertical">

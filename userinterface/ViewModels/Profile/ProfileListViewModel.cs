@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using BE = userspace_backend.Model;
 
@@ -12,20 +13,105 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public BE.ProfileModel? currentSelectedProfile;
 
-        private BE.ProfilesModel profilesModel { get; }
+        [ObservableProperty]
+        public BE.ProfileModel? currentEditingProfile;
 
-        public ProfileListViewModel(BE.ProfilesModel profiles, Action selectionChangeAction)
+        private Dictionary<BE.ProfileModel, ProfileListElementViewModel> ProfileElementViewModels = [];
+
+        private BE.ProfilesModel ProfilesModel { get; }
+
+        public ProfileListViewModel(BE.ProfilesModel profiles)
         {
-            profilesModel = profiles;
-            SelectionChangeAction = selectionChangeAction;
+            ProfilesModel = profiles;
+            SelectionChangeAction = () => { };
+            if (Profiles?.Count > 0)
+            {
+                CurrentSelectedProfile = Profiles[0];
+            }
         }
 
-        public ObservableCollection<BE.ProfileModel> Profiles => profilesModel.Profiles;
-        public Action SelectionChangeAction { get; }
+        public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
 
-        partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
+        // Set in main WindowViewModel
+        public Action SelectionChangeAction { get; set; }
+
+        public ObservableCollection<ProfileListElementViewModel> ProfileItems
         {
-            SelectionChangeAction.Invoke();
+            get
+            {
+                var items = new ObservableCollection<ProfileListElementViewModel>();
+                foreach (var profile in Profiles)
+                {
+                    if (!ProfileElementViewModels.TryGetValue(profile, out ProfileListElementViewModel? value))
+                    {
+                        var elementViewModel = new ProfileListElementViewModel(profile, showButtons: true);
+
+                        // Subscribe to events
+                        elementViewModel.ProfileDeleted += OnProfileDeleted;
+                        elementViewModel.ProfileRenamed += OnProfileRenamed;
+                        elementViewModel.EditingStarted += OnEditingStarted;
+                        elementViewModel.EditingFinished += OnEditingFinished;
+                        value = elementViewModel;
+                        ProfileElementViewModels[profile] = value;
+                    }
+                    items.Add(value);
+                }
+                return items;
+            }
+        }
+
+        private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
+        {
+            RemoveProfile(elementViewModel.Profile);
+        }
+
+        private void OnProfileRenamed(ProfileListElementViewModel elementViewModel)
+        {
+            // Handle profile renamed if needed
+            OnPropertyChanged(nameof(ProfileItems));
+        }
+
+        private void OnEditingStarted(ProfileListElementViewModel elementViewModel)
+        {
+            StartEditing(elementViewModel.Profile);
+        }
+
+        private void OnEditingFinished(ProfileListElementViewModel elementViewModel)
+        {
+            StopEditing();
+        }
+
+        private partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
+        {
+            SelectionChangeAction?.Invoke();
+        }
+
+        private partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
+        {
+            foreach (var item in ProfileElementViewModels.Values)
+            {
+                item.UpdateIsEditing(IsEditing(item.Profile));
+            }
+        }
+
+        public void StartEditing(BE.ProfileModel profile)
+        {
+            // Stop editing any other profile first
+            if (CurrentEditingProfile != null)
+            {
+                StopEditing();
+            }
+            CurrentEditingProfile = profile;
+        }
+
+        public void StopEditing()
+        {
+            CurrentEditingProfile = null;
+        }
+
+        public bool IsEditing(BE.ProfileModel profile)
+        {
+            return CurrentEditingProfile == profile;
         }
 
         public bool TryAddProfile()
@@ -33,8 +119,9 @@ namespace userinterface.ViewModels.Profile
             for (int i = 0; i < MaxProfileAttempts; i++)
             {
                 string newProfileName = $"Profile{i}";
-                if (profilesModel.TryAddNewDefaultProfile(newProfileName))
+                if (ProfilesModel.TryAddNewDefaultProfile(newProfileName))
                 {
+                    OnPropertyChanged(nameof(ProfileItems));
                     return true;
                 }
             }
@@ -45,7 +132,42 @@ namespace userinterface.ViewModels.Profile
         {
             if (CurrentSelectedProfile != null)
             {
-                _ = profilesModel.RemoveProfile(CurrentSelectedProfile);
+                RemoveProfile(CurrentSelectedProfile);
+            }
+        }
+
+        public void RemoveProfile(BE.ProfileModel profile)
+        {
+            if (profile != null)
+            {
+                // Clean up the ProfileElementViewModel
+                if (ProfileElementViewModels.TryGetValue(profile, out ProfileListElementViewModel? elementViewModel))
+                {
+                    // Unsubscribe from events
+                    elementViewModel.ProfileDeleted -= OnProfileDeleted;
+                    elementViewModel.ProfileRenamed -= OnProfileRenamed;
+                    elementViewModel.EditingStarted -= OnEditingStarted;
+                    elementViewModel.EditingFinished -= OnEditingFinished;
+
+                    // Cleanup
+                    elementViewModel.Cleanup();
+                    ProfileElementViewModels.Remove(profile);
+                }
+
+                // Stop editing if this profile is being edited
+                if (CurrentEditingProfile == profile)
+                {
+                    StopEditing();
+                }
+
+                // Clear selection if this profile is selected
+                if (CurrentSelectedProfile == profile)
+                {
+                    CurrentSelectedProfile = null;
+                }
+
+                _ = ProfilesModel.RemoveProfile(profile);
+                OnPropertyChanged(nameof(ProfileItems));
             }
         }
     }

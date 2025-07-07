@@ -16,14 +16,12 @@ using System.Threading.Tasks;
 
 namespace userinterface.Controls;
 
-// TODO: Disable when ignore set to true (DeviceView)
 public partial class EditableExpanderView : UserControl, INotifyPropertyChanged, IDisposable
 {
     private const int HoverDelayMilliseconds = 50;
     private const int ChevronAnimationDurationMilliseconds = 100;
     private const double ExpandedChevronAngle = 90.0;
     private const double CollapsedChevronAngle = 0.0;
-
     private const string ExpandedClass = "Expanded";
     private const string SyncHoverClass = "SyncHover";
 
@@ -36,14 +34,18 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
     public static readonly StyledProperty<bool> IsExpandedProperty =
         AvaloniaProperty.Register<EditableExpanderView, bool>(nameof(IsExpanded));
 
-    private int _angle;
-    private CancellationTokenSource? _hoverDelayCancellationTokenSource;
-    private bool _isDisposed;
+    public static readonly StyledProperty<bool> IsExpanderEnabledProperty =
+        AvaloniaProperty.Register<EditableExpanderView, bool>(nameof(IsExpanderEnabled), true);
+
+    private int AngleValue;
+    private CancellationTokenSource? HoverDelayCancellationTokenSource;
+    private bool IsDisposedValue;
 
     // Cached controls for performance
-    private NoInteractionButtonView? _cachedHeaderButton;
-    private NoInteractionButtonView? _cachedContentButton;
-    private PathIcon? _cachedExpandIcon;
+    private NoInteractionButtonView? CachedHeaderButton;
+
+    private NoInteractionButtonView? CachedContentButton;
+    private PathIcon? CachedExpandIcon;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -65,15 +67,53 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         set => SetValue(IsExpandedProperty, value);
     }
 
+    public bool IsExpanderEnabled
+    {
+        get => GetValue(IsExpanderEnabledProperty);
+        set => SetValue(IsExpanderEnabledProperty, value);
+    }
+
     public int Angle
     {
-        get => _angle;
-        set => RaiseAndSetIfChanged(ref _angle, value);
+        get => AngleValue;
+        set => RaiseAndSetIfChanged(ref AngleValue, value);
     }
 
     public EditableExpanderView()
     {
         InitializeComponent();
+
+        this.PropertyChanged += OnSelfPropertyChanged;
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == IsExpanderEnabledProperty)
+        {
+            HandleIsExpanderEnabledChanged((bool)change.NewValue!);
+        }
+        else if (change.Property == IsExpandedProperty)
+        {
+            UpdateExpandedState();
+        }
+    }
+
+    private void HandleIsExpanderEnabledChanged(bool isEnabled)
+    {
+        if (!isEnabled && IsExpanded)
+        {
+            IsExpanded = false;
+        }
+    }
+
+    private void OnSelfPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IsExpanded))
+        {
+            UpdateExpandedState();
+        }
     }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -93,23 +133,25 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     private NoInteractionButtonView? GetHeaderButton()
     {
-        return _cachedHeaderButton ??= this.FindControl<NoInteractionButtonView>("HeaderButton");
+        return CachedHeaderButton ??= this.FindControl<NoInteractionButtonView>("HeaderButton");
     }
 
     private NoInteractionButtonView? GetContentButton()
     {
-        return _cachedContentButton ??= this.FindControl<NoInteractionButtonView>("ContentButton");
+        return CachedContentButton ??= this.FindControl<NoInteractionButtonView>("ContentButton");
     }
 
     private PathIcon? GetExpandIcon()
     {
-        return _cachedExpandIcon ??= this.FindControl<PathIcon>("ExpandIcon");
+        return CachedExpandIcon ??= this.FindControl<PathIcon>("ExpandIcon");
     }
 
     private void ToggleButton_Click(object sender, RoutedEventArgs eventArgs)
     {
+        if (!IsExpanderEnabled)
+            return;
+
         IsExpanded = !IsExpanded;
-        UpdateExpandedState();
     }
 
     private async void UpdateExpandedState()
@@ -135,7 +177,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         }
     }
 
-    private async Task AnimateChevron(PathIcon expandIcon, double targetAngle)
+    private static async Task AnimateChevron(PathIcon expandIcon, double targetAngle)
     {
         if (expandIcon.RenderTransform is not RotateTransform rotateTransform)
             return;
@@ -181,28 +223,28 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     private void ApplyHoverEffect()
     {
-        _hoverDelayCancellationTokenSource?.Cancel();
-        _hoverDelayCancellationTokenSource = null;
+        if (!IsExpanderEnabled)
+            return;
+
+        HoverDelayCancellationTokenSource?.Cancel();
+        HoverDelayCancellationTokenSource = null;
 
         var headerButton = GetHeaderButton();
         var contentButton = GetContentButton();
-
         headerButton?.Classes.Add(SyncHoverClass);
         contentButton?.Classes.Add(SyncHoverClass);
     }
 
     private async void RemoveHoverEffectWithDelay()
     {
-        _hoverDelayCancellationTokenSource?.Cancel();
-        _hoverDelayCancellationTokenSource = new CancellationTokenSource();
+        HoverDelayCancellationTokenSource?.Cancel();
+        HoverDelayCancellationTokenSource = new CancellationTokenSource();
 
         try
         {
-            await Task.Delay(HoverDelayMilliseconds, _hoverDelayCancellationTokenSource.Token);
-
+            await Task.Delay(HoverDelayMilliseconds, HoverDelayCancellationTokenSource.Token);
             var headerButton = GetHeaderButton();
             var contentButton = GetContentButton();
-
             headerButton?.Classes.Remove(SyncHoverClass);
             contentButton?.Classes.Remove(SyncHoverClass);
         }
@@ -212,8 +254,8 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         }
         finally
         {
-            _hoverDelayCancellationTokenSource?.Dispose();
-            _hoverDelayCancellationTokenSource = null;
+            HoverDelayCancellationTokenSource?.Dispose();
+            HoverDelayCancellationTokenSource = null;
         }
     }
 
@@ -245,17 +287,16 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     protected virtual void Dispose(bool disposing)
     {
-        if (_isDisposed)
+        if (IsDisposedValue)
             return;
 
         if (disposing)
         {
-            _hoverDelayCancellationTokenSource?.Cancel();
-            _hoverDelayCancellationTokenSource?.Dispose();
-            _hoverDelayCancellationTokenSource = null;
+            HoverDelayCancellationTokenSource?.Cancel();
+            HoverDelayCancellationTokenSource?.Dispose();
+            HoverDelayCancellationTokenSource = null;
         }
 
-        _isDisposed = true;
+        IsDisposedValue = true;
     }
 }
-

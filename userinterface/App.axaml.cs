@@ -26,7 +26,6 @@ public partial class App : Application
             // Line below is needed to remove Avalonia data validation.
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
-
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(backEnd),
@@ -36,11 +35,10 @@ public partial class App : Application
             desktop.MainWindow.AttachDevTools();
 #endif
         }
-
         base.OnFrameworkInitializationCompleted();
     }
 
-    protected Bootstrapper BootstrapBackEnd()
+    protected static Bootstrapper BootstrapBackEnd()
     {
         return new Bootstrapper()
         {
@@ -90,7 +88,8 @@ public partial class App : Application
                         GroupsToProfiles = new DATA.Mapping.GroupsToProfilesMapping()
                         {
                             { "Logitech Mice", "Favorite" },
-                            { "Testing", "Testing" },
+                            { "Testing", "Default" },
+                            { "Default", "Default" },
                         },
                     },
                     new DATA.Mapping() {

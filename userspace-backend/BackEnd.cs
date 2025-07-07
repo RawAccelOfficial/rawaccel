@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using DATA = userspace_backend.Data;
+using userspace_backend.Data.Profiles;
 using userspace_backend.IO;
 using userspace_backend.Model;
-using userspace_backend.Data.Profiles;
+using DATA = userspace_backend.Data;
 
 namespace userspace_backend
 {
     public class BackEnd
     {
-
         public BackEnd(IBackEndLoader backEndLoader)
         {
             BackEndLoader = backEndLoader;
@@ -61,7 +61,7 @@ namespace userspace_backend
         {
             try
             {
-                //WriteToDriver();
+                // WriteToDriver();
             }
             catch (Exception ex)
             {
@@ -87,7 +87,7 @@ namespace userspace_backend
             {
                 config.Activate();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // Log this once logging is added
             }
@@ -134,7 +134,7 @@ namespace userspace_backend
                 {
                     disable = deviceModel.Ignore.ModelValue,
                     dpi = deviceModel.DPI.ModelValue,
-                    pollingRate = deviceModel.DPI.ModelValue,
+                    pollingRate = deviceModel.PollRate.ModelValue,
                     pollTimeLock = false,
                     setExtraInfo = false,
                     maximumTime = 200,

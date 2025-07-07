@@ -11,6 +11,14 @@
              x:CompileBindings="True">
 
 	<UserControl.Styles>
+		<!-- 
+		SCROLL BAR FIX: To prevent scroll bars on TextBox:
+		1. DON'T set explicit Height with Padding that creates too small content area
+		   Example: Height="32" + Padding="8" = only 16px for content (causes scroll bars)
+		2. If you need explicit height, ensure: Height >= Content Height + Padding + Border
+		   Example: Height="48" + Padding="8" = 32px for content (works fine)
+		3. For single-line inputs: Remove TextWrapping="Wrap" and add AcceptsReturn="False"
+		-->
 		<Style Selector="TextBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
@@ -41,6 +49,7 @@
 	<TextBox Classes="EditableTextBox"
              KeyDown="TextBox_KeyDown"
              LostFocus="LostFocusHandler"
+             TextChanged="TextChangedHandler"
              TextWrapping="Wrap"
-             Text="{Binding ValueText, UpdateSourceTrigger=LostFocus}" />
+             Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}" />
 </UserControl>
