@@ -45,7 +45,7 @@ namespace userinterface.ViewModels.Profile
         {
             if (e.PropertyName == nameof(AccelerationBE.DefinitionType.CurrentValidatedValue))
             {
-                AreAccelSettingsVisible = AccelerationBE.DefinitionType.ModelValue != BEData.AccelerationDefinitionType.None;
+                AreAccelSettingsVisible = true;
             }
         }
     }

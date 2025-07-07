@@ -6,8 +6,8 @@ namespace userinterface.ViewModels.Controls;
 public class DualColumnLabelFieldViewModel : ViewModelBase
 {
     private const double DefaultLabelWidth = 100.0;
-
     private double LabelWidthValue = DefaultLabelWidth;
+    private StackPanel? TargetStackPanel;
 
     public double LabelWidth
     {
@@ -20,6 +20,19 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
     public DualColumnLabelFieldViewModel()
     {
         Fields = [];
+    }
+
+    public void SetStackPanel(StackPanel stackPanel)
+    {
+        TargetStackPanel = stackPanel;
+    }
+
+    public void RegisterElement(Control element)
+    {
+        if (element == null || TargetStackPanel == null)
+            return;
+
+        TargetStackPanel.Children.Add(element);
     }
 
     public void AddField(string label, object inputControl)

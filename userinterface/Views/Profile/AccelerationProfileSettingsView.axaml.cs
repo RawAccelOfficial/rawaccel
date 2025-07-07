@@ -48,7 +48,7 @@ public partial class AccelerationProfileSettingsView : UserControl
         CreateAccelerationComboBox(viewModel);
         CreateAccelerationField();
         CreateViewContainers();
-        AddControlsToMainPanel();
+        AddControlsToMainPanel(viewModel);
         UpdateViewBasedOnSelection();
     }
 
@@ -100,7 +100,7 @@ public partial class AccelerationProfileSettingsView : UserControl
         };
     }
 
-    private void AddControlsToMainPanel()
+    private void AddControlsToMainPanel(AccelerationProfileSettingsViewModel viewModel)
     {
         var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
         if (mainStackPanel == null || AccelerationField == null ||
@@ -110,6 +110,21 @@ public partial class AccelerationProfileSettingsView : UserControl
         mainStackPanel.Children.Insert(AccelerationFieldInsertIndex, AccelerationField);
         mainStackPanel.Children.Insert(FormulaViewInsertIndex, FormulaViewContainer);
         mainStackPanel.Children.Insert(LUTViewInsertIndex, LUTViewContainer);
+
+        var anisotropyView = new AnisotropyProfileSettingsView
+        {
+            DataContext = viewModel.AnisotropySettings,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        var coalescionView = new CoalescionProfileSettingsView
+        {
+            DataContext = viewModel.CoalescionSettings,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        mainStackPanel.Children.Add(anisotropyView);
+        mainStackPanel.Children.Add(coalescionView);
     }
 
     private void OnAccelerationTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -176,4 +191,3 @@ public partial class AccelerationProfileSettingsView : UserControl
         LUTViewContainer.IsVisible = true;
     }
 }
-

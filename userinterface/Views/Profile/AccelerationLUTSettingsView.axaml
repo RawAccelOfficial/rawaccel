@@ -41,7 +41,7 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel Spacing="12" x:Name="MainStackPanel">
+	<StackPanel Spacing="12" x:Name="LUTStackPanel">
 		<TextBlock Classes="Warning">
 			This mode is for experts only.
 		</TextBlock>

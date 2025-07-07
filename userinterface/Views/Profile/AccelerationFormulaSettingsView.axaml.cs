@@ -50,7 +50,7 @@ public partial class AccelerationFormulaSettingsView : UserControl
         CreateFormulaFieldViewModel();
         var currentFormulaType = GetCurrentFormulaType(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
         AddFormulaSpecificFields(currentFormulaType, viewModel);
-        AddControlToMainPanel();
+        AddControlToStackPanel();
     }
 
     private void CreateFormulaTypeComboBox()
@@ -79,15 +79,15 @@ public partial class AccelerationFormulaSettingsView : UserControl
         FormulaField = new DualColumnLabelFieldView(FormulaFieldViewModel);
     }
 
-    private void AddControlToMainPanel()
+    private void AddControlToStackPanel()
     {
         if (FormulaField == null)
         {
             return;
         }
 
-        var mainStackPanel = this.FindControl<StackPanel>("MainStackPanel");
-        mainStackPanel?.Children.Add(FormulaField);
+        var AcceStackPanel = this.FindControl<StackPanel>("AccelStackPanel");
+        AcceStackPanel?.Children.Add(FormulaField);
     }
 
     private void OnFormulaTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
