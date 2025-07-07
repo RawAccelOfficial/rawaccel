@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using userinterface.ViewModels.Profile;
@@ -26,6 +25,7 @@ namespace userinterface.Views.Profile
                         viewModel.StopEditing();
                         e.Handled = true;
                         break;
+
                     case Key.Escape:
                         viewModel.CancelEditing();
                         e.Handled = true;

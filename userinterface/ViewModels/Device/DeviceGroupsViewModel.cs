@@ -20,7 +20,7 @@ namespace userinterface.ViewModels.Device
 
         public ObservableCollection<DeviceGroupViewModel> DeviceGroupViews { get; }
 
-        private void DeviceGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => 
+        private void DeviceGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
             UpdateDeviceGroupViews();
 
         public void UpdateDeviceGroupViews()

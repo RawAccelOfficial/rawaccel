@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Controls;
+using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;

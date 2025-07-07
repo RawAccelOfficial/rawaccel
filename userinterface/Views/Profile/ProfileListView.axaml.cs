@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using userinterface.ViewModels.Profile;
-using BE = userspace_backend.Model;
 
 namespace userinterface.Views.Profile;
 

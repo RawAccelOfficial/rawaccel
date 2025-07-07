@@ -1,5 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
+using System.Collections.ObjectModel;
 
 namespace userinterface.ViewModels.Controls;
 

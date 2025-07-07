@@ -1,10 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using System.Linq;
-using userinterface.Services;
-using userinterface.ViewModels.Controls;
+using System.Collections.ObjectModel;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -84,12 +81,12 @@ namespace userinterface.ViewModels.Profile
             StopEditing();
         }
 
-        partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
+        private partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
         {
             SelectionChangeAction?.Invoke();
         }
 
-        partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
+        private partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
         {
             foreach (var item in ProfileElementViewModels.Values)
             {
@@ -146,7 +143,6 @@ namespace userinterface.ViewModels.Profile
                 // Clean up the ProfileElementViewModel
                 if (ProfileElementViewModels.TryGetValue(profile, out ProfileListElementViewModel? elementViewModel))
                 {
-
                     // Unsubscribe from events
                     elementViewModel.ProfileDeleted -= OnProfileDeleted;
                     elementViewModel.ProfileRenamed -= OnProfileRenamed;

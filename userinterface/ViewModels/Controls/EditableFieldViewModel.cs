@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using BE = userspace_backend.Model.EditableSettings;
-using System.Diagnostics;
 
 namespace userinterface.ViewModels.Controls
 {

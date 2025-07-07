@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using userinterface.Services;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
@@ -94,7 +93,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    protected new virtual void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
+    protected virtual new void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
     }

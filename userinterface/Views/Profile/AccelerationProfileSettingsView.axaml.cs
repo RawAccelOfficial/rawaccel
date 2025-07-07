@@ -148,9 +148,11 @@ public partial class AccelerationProfileSettingsView : UserControl
         {
             case NoneAccelerationIndex:
                 break;
+
             case FormulaAccelerationIndex:
                 ShowFormulaView(viewModel);
                 break;
+
             case LUTAccelerationIndex:
                 ShowLUTView(viewModel);
                 break;

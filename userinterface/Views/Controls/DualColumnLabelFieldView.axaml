@@ -22,7 +22,7 @@
 			<Setter Property="FontWeight" Value="Medium" />
 		</Style>
 	</UserControl.Styles>
-	
+
 	<StackPanel x:Name="MainStackPanel" Orientation="Vertical" Spacing="8">
 		<ItemsControl ItemsSource="{Binding Fields}">
 			<ItemsControl.ItemTemplate>

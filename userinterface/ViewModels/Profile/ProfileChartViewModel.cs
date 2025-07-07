@@ -22,31 +22,37 @@ namespace userinterface.ViewModels.Profile
 
         // Data fitting and bounds
         private const double DataPaddingRatio = 0.1;
+
         private const double ToleranceThreshold = 0.001;
 
         // Default chart limits when no data or centering
         private const int DefaultAxisRange = 50;
+
         private const int DefaultYRange = 1;
         private const int DefaultMaxX = 100;
         private const int DefaultMaxY = 2;
 
         // Line and stroke thickness
         private const int MainStrokeThickness = 2;
+
         private const int StandardStrokeThickness = 1;
         private const float SubStrokeThickness = 0.5f;
 
         // Color transparency values
         private const byte SubSeparatorAlpha = 100;
+
         private const byte TooltipBackgroundAlpha = 180;
 
         // Theme color resource keys
         private static readonly string AxisTitleBrush = "PrimaryTextBrush";
+
         private static readonly string AxisLabelsBrush = "SecondaryTextBrush";
         private static readonly string AxisSeparatorsBrush = "BorderBrush";
         private static readonly string TooltipBackgroundBrush = "CardBackgroundBrush";
 
         // Axis labeling and text
         private const string XAxisName = "Mouse Speed";
+
         private const string YAxisName = "Output";
         private const int AxisNameTextSize = 14;
         private const int AxisTextSize = 12;

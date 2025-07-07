@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
-using userinterface.Views.Controls;
 using userinterface.ViewModels.Controls;
+using userinterface.Views.Controls;
 
 namespace userinterface.Views.Profile;
 

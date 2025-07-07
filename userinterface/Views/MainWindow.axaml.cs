@@ -5,8 +5,8 @@ using Avalonia.Interactivity;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using System.Threading.Tasks;
-using userinterface.ViewModels;
 using userinterface.Services;
+using userinterface.ViewModels;
 
 namespace userinterface.Views;
 
@@ -71,7 +71,6 @@ public partial class MainWindow : Window
                 SuccessMessageText.Opacity = 0;
                 await Task.Delay(300);
                 SuccessMessageText.IsVisible = false;
-
             });
         }
     }
@@ -99,9 +98,11 @@ public partial class MainWindow : Window
             case "Devices":
                 DevicesButton.Classes.Add("Selected");
                 break;
+
             case "Mappings":
                 MappingsButton.Classes.Add("Selected");
                 break;
+
             case "Profiles":
                 ProfilesButton.Classes.Add("Selected");
                 break;

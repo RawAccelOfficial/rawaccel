@@ -43,6 +43,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     // Cached controls for performance
     private NoInteractionButtonView? CachedHeaderButton;
+
     private NoInteractionButtonView? CachedContentButton;
     private PathIcon? CachedExpandIcon;
 

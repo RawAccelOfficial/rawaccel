@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.Views;
 using userspace_backend;
@@ -32,9 +31,9 @@ public partial class App : Application
                 DataContext = new MainWindowViewModel(backEnd),
             };
 
-            #if DEBUG
+#if DEBUG
             desktop.MainWindow.AttachDevTools();
-            #endif
+#endif
         }
         base.OnFrameworkInitializationCompleted();
     }

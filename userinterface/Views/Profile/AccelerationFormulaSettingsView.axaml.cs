@@ -3,8 +3,8 @@ using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using System;
-using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Controls;
+using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
 using BEData = userspace_backend.Data.Profiles.Accel.FormulaAccel;
 
@@ -134,18 +134,23 @@ public partial class AccelerationFormulaSettingsView : UserControl
             case BEData.AccelerationFormulaType.Synchronous:
                 AddSynchronousFields(formulaSettings);
                 break;
+
             case BEData.AccelerationFormulaType.Linear:
                 AddLinearFields(formulaSettings);
                 break;
+
             case BEData.AccelerationFormulaType.Classic:
                 AddClassicFields(formulaSettings);
                 break;
+
             case BEData.AccelerationFormulaType.Power:
                 AddPowerFields(formulaSettings);
                 break;
+
             case BEData.AccelerationFormulaType.Natural:
                 AddNaturalFields(formulaSettings);
                 break;
+
             case BEData.AccelerationFormulaType.Jump:
                 AddJumpFields(formulaSettings);
                 break;
