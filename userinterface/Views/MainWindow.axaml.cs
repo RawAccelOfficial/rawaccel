@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
+using userinterface.Models;
 
 namespace userinterface.Views;
 
@@ -15,10 +16,12 @@ public partial class MainWindow : Window
     private Button? ApplyButtonControl;
     private ProgressBar? LoadingProgressBar;
     private TextBlock? SuccessMessageText;
+    private readonly INotificationService notificationService;
 
-    public MainWindow()
+    public MainWindow(INotificationService notificationService)
     {
         InitializeComponent();
+        this.notificationService = notificationService;
         UpdateThemeToggleButton();
         UpdateSelectedButton("Devices"); // Initial navigation selection
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
@@ -37,6 +40,7 @@ public partial class MainWindow : Window
         {
             LoadingProgressBar.IsVisible = true;
         }
+
         // Hide success message if it was previously shown
         if (SuccessMessageText != null)
         {
@@ -58,10 +62,12 @@ public partial class MainWindow : Window
             LoadingProgressBar.IsVisible = false;
         }
 
+        // Show success toast notification
+        notificationService.ShowSuccessToast("Settings applied successfully!");
+
         if (SuccessMessageText != null)
         {
             SuccessMessageText.IsVisible = true;
-
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 SuccessMessageText.Opacity = 1;
@@ -92,17 +98,14 @@ public partial class MainWindow : Window
         DevicesButton.Classes.Remove("Selected");
         MappingsButton.Classes.Remove("Selected");
         ProfilesButton.Classes.Remove("Selected");
-
         switch (selectedPage)
         {
             case "Devices":
                 DevicesButton.Classes.Add("Selected");
                 break;
-
             case "Mappings":
                 MappingsButton.Classes.Add("Selected");
                 break;
-
             case "Profiles":
                 ProfilesButton.Classes.Add("Selected");
                 break;
@@ -113,12 +116,10 @@ public partial class MainWindow : Window
     {
         var currentTheme = Application.Current?.ActualThemeVariant;
         var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-
         if (Application.Current != null)
         {
             Application.Current.RequestedThemeVariant = newTheme;
         }
-
         UpdateThemeToggleButton();
         ThemeService.NotifyThemeChanged();
     }
@@ -127,7 +128,6 @@ public partial class MainWindow : Window
     {
         var themeIcon = this.FindControl<PathIcon>("ThemeIcon");
         var toggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
-
         if (themeIcon != null && toggleButton != null)
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;

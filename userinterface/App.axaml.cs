@@ -1,8 +1,11 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using userinterface.Services;
 using userinterface.ViewModels;
+using userinterface.ViewModels.Controls;
 using userinterface.Views;
 using userspace_backend;
 using DATA = userspace_backend.Data;
@@ -26,15 +29,31 @@ public partial class App : Application
             // Line below is needed to remove Avalonia data validation.
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
-            desktop.MainWindow = new MainWindow
+
+            // Create the notification service
+            var notificationService = new NotificationService();
+
+            // Create the main window with the notification service
+            var mainWindow = new MainWindow(notificationService)
             {
                 DataContext = new MainWindowViewModel(backEnd),
             };
+
+            // Set up the toast control with the notification service
+            var toastViewModel = new ToastViewModel(notificationService);
+            var toastView = mainWindow.FindControl<userinterface.Views.Controls.ToastView>("ToastView");
+            if (toastView != null)
+            {
+                toastView.DataContext = toastViewModel;
+            }
+
+            desktop.MainWindow = mainWindow;
 
 #if DEBUG
             desktop.MainWindow.AttachDevTools();
 #endif
         }
+
         base.OnFrameworkInitializationCompleted();
     }
 

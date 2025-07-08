@@ -6,13 +6,12 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AssemblyName>rawaccel</AssemblyName>
-    <ApplicationIcon>mouse.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\mouse.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <BaseOutputPath>..\x64\</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
@@ -48,9 +47,8 @@
     <Compile Update="Views\Controls\EditableExpanderView.axaml.cs">
       <DependentUpon>EditableExpanderView.axaml</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvaloniaResource Remove="mouse.ico" />
+    <Compile Update="Views\Controls\ToastView.axaml.cs">
+      <DependentUpon>ToastView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

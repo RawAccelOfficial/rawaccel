@@ -3,6 +3,7 @@
         xmlns:vm="using:userinterface.ViewModels"
         xmlns:v="using:userinterface.Views"
         xmlns:vp="using:userinterface.Views.Profile"
+		xmlns:controls="using:userinterface.Views.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -17,6 +18,48 @@
 	</Design.DataContext>
 
 	<Window.Styles>
+		<!-- Custom Universal Scrollbar Styles -->
+		<Style Selector="ScrollBar">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="ScrollBar:vertical">
+			<Setter Property="Width" Value="8"/>
+			<Setter Property="Opacity" Value="0.3"/>
+		</Style>
+
+		<Style Selector="ScrollBar:vertical:pointerover">
+			<Setter Property="Width" Value="12"/>
+			<Setter Property="Opacity" Value="0.8"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb">
+			<Setter Property="Background" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb:pointerover">
+			<Setter Property="Background" Value="{DynamicResource SecondaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ Thumb:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="ScrollBar /template/ RepeatButton">
+			<Setter Property="IsVisible" Value="False"/>
+		</Style>
+		
 		<!-- Sidebar Border -->
 		<Style Selector="Border.SidebarBorder">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
@@ -217,48 +260,6 @@
 			<Setter Property="Opacity" Value="0.5"/>
 		</Style>
 
-		<!-- Custom Scrollbar Styles -->
-		<Style Selector="ScrollBar">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Transitions">
-				<Transitions>
-					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
-				</Transitions>
-			</Setter>
-		</Style>
-
-		<Style Selector="ScrollBar:vertical">
-			<Setter Property="Width" Value="8"/>
-			<Setter Property="Opacity" Value="0.3"/>
-		</Style>
-
-		<Style Selector="ScrollBar:vertical:pointerover">
-			<Setter Property="Width" Value="12"/>
-			<Setter Property="Opacity" Value="0.8"/>
-		</Style>
-
-		<Style Selector="ScrollBar /template/ Thumb">
-			<Setter Property="Background" Value="{DynamicResource DisabledTextBrush}"/>
-			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Transitions">
-				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.2"/>
-				</Transitions>
-			</Setter>
-		</Style>
-
-		<Style Selector="ScrollBar /template/ Thumb:pointerover">
-			<Setter Property="Background" Value="{DynamicResource SecondaryTextBrush}"/>
-		</Style>
-
-		<Style Selector="ScrollBar /template/ Thumb:pressed">
-			<Setter Property="Background" Value="{DynamicResource PrimaryTextBrush}"/>
-		</Style>
-
-		<Style Selector="ScrollBar /template/ RepeatButton">
-			<Setter Property="IsVisible" Value="False"/>
-		</Style>
-
 		<!-- Transitions -->
 		<Style Selector="Button.NavButton">
 			<Setter Property="Transitions">
@@ -383,5 +384,7 @@
 		<Border Classes="ContentArea" Margin="432,16,16,16">
 			<ContentControl Content="{Binding CurrentPageContent}"/>
 		</Border>
+
+		<controls:ToastView x:Name="ToastView" />
 	</Panel>
 </Window>

@@ -1,0 +1,200 @@
+<UserControl x:Class="userinterface.Views.Controls.ToastView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:userinterface.Converters"
+             xmlns:vm="using:userinterface.ViewModels.Controls"
+             x:DataType="vm:ToastViewModel">
+
+	<UserControl.Resources>
+		<converters:ToastTypeToColorConverter x:Key="ToastTypeToColorConverter" />
+		<converters:ToastTypeToIconConverter x:Key="ToastTypeToIconConverter" />
+	</UserControl.Resources>
+
+	<UserControl.Styles>
+		<!-- Toast Container Style -->
+		<Style Selector="Border.ToastContainer">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{Binding Type, Converter={StaticResource ToastTypeToColorConverter}}"/>
+			<Setter Property="BorderThickness" Value="2"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="MaxWidth" Value="400"/>
+			<Setter Property="MinWidth" Value="300"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="VerticalAlignment" Value="Bottom"/>
+			<Setter Property="Margin" Value="20"/>
+			<Setter Property="BoxShadow" Value="0 4 12 0 #33000000"/>
+			<!-- Initial state: hidden below -->
+			<Setter Property="RenderTransform" Value="translateY(100px)"/>
+			<Setter Property="Opacity" Value="0"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2">
+						<BrushTransition.Easing>
+							<SineEaseOut/>
+						</BrushTransition.Easing>
+					</BrushTransition>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.4">
+						<DoubleTransition.Easing>
+							<QuadraticEaseOut/>
+						</DoubleTransition.Easing>
+					</DoubleTransition>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.5">
+						<TransformOperationsTransition.Easing>
+							<QuadraticEaseOut/>
+						</TransformOperationsTransition.Easing>
+					</TransformOperationsTransition>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<!-- Toast Container visible -->
+		<Style Selector="Border.ToastContainer.Visible">
+			<Setter Property="RenderTransform" Value="translateY(0)"/>
+			<Setter Property="Opacity" Value="1"/>
+		</Style>
+
+		<!-- Toast Container hiding -->
+		<Style Selector="Border.ToastContainer.Hiding">
+			<Setter Property="RenderTransform" Value="translateY(100px)"/>
+			<Setter Property="Opacity" Value="0"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.3">
+						<DoubleTransition.Easing>
+							<QuadraticEaseIn/>
+						</DoubleTransition.Easing>
+					</DoubleTransition>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3">
+						<TransformOperationsTransition.Easing>
+							<QuadraticEaseIn/>
+						</TransformOperationsTransition.Easing>
+					</TransformOperationsTransition>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<!-- Toast Content Style -->
+		<Style Selector="Grid.ToastContent">
+			<Setter Property="Margin" Value="16,12"/>
+		</Style>
+
+		<!-- Toast Duration Progress Bar Style -->
+		<Style Selector="ProgressBar.ToastProgressBar">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="{Binding Type, Converter={StaticResource ToastTypeToColorConverter}}"/>
+			<Setter Property="Height" Value="4"/>
+			<Setter Property="CornerRadius" Value="0,0,6,6"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="VerticalAlignment" Value="Bottom"/>
+		</Style>
+
+		<!-- Toast Icon Style -->
+		<Style Selector="PathIcon.ToastIcon">
+			<Setter Property="Width" Value="16"/>
+			<Setter Property="Height" Value="16"/>
+			<Setter Property="Foreground" Value="{Binding Type, Converter={StaticResource ToastTypeToColorConverter}}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,0,12,0"/>
+		</Style>
+
+		<!-- Toast Message Style -->
+		<Style Selector="TextBlock.ToastMessage">
+			<Setter Property="TextWrapping" Value="Wrap"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+		</Style>
+
+		<!-- Toast Close Button Style -->
+		<Style Selector="Button.ToastCloseButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="24"/>
+			<Setter Property="Margin" Value="12,0,0,0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="VerticalAlignment" Value="Top"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15">
+						<BrushTransition.Easing>
+							<SineEaseOut/>
+						</BrushTransition.Easing>
+					</BrushTransition>
+					<BrushTransition Property="Foreground" Duration="0:0:0.15">
+						<BrushTransition.Easing>
+							<SineEaseOut/>
+						</BrushTransition.Easing>
+					</BrushTransition>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.ToastCloseButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style Selector="Button.ToastCloseButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
+		</Style>
+
+		<!-- Close Button Icon Style -->
+		<Style Selector="PathIcon.ToastCloseIcon">
+			<Setter Property="Width" Value="14"/>
+			<Setter Property="Height" Value="14"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid>
+		<Border x:Name="ToastBorder"
+                Classes="ToastContainer"
+                Classes.Visible="{Binding IsVisible}">
+
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<!-- Toast Content -->
+				<Grid Grid.Row="0" Classes="ToastContent">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+
+					<!-- Icon -->
+					<PathIcon Grid.Column="0"
+                              Classes="ToastIcon"
+                              Data="{Binding Type, Converter={StaticResource ToastTypeToIconConverter}}" />
+
+					<!-- Message -->
+					<TextBlock Grid.Column="1"
+                              Classes="ToastMessage"
+                              Text="{Binding Message}" />
+
+					<!-- Close Button -->
+					<Button Grid.Column="2"
+                            Classes="ToastCloseButton"
+                            Command="{Binding CloseCommand}">
+						<PathIcon Classes="ToastCloseIcon"
+                                  Data="{StaticResource dismiss_regular}" />
+					</Button>
+				</Grid>
+
+				<!-- Duration Progress Bar -->
+				<ProgressBar Grid.Row="1"
+                            Classes="ToastProgressBar"
+                            Value="{Binding Progress}"
+                            Maximum="100"
+                            IsVisible="{Binding IsVisible}" />
+			</Grid>
+		</Border>
+	</Grid>
+</UserControl>
