@@ -98,14 +98,11 @@ namespace userinterface.ViewModels.Controls
 
         private void StartProgressAnimation(TimeSpan duration)
         {
-            // Stop any existing timer
             progressTimer?.Stop();
 
-            // Store animation parameters
             animationStartTime = DateTime.Now;
             animationDuration = duration;
 
-            // Create timer for smooth animation (60 FPS)
             progressTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(16) // ~60 FPS
@@ -118,11 +115,9 @@ namespace userinterface.ViewModels.Controls
 
                 if (progressRatio >= 1.0)
                 {
-                    // Animation complete
                     Progress = 0;
                     progressTimer?.Stop();
 
-                    // Auto-close when animation completes
                     if (IsVisible)
                     {
                         notificationService.HideToast();
@@ -130,7 +125,6 @@ namespace userinterface.ViewModels.Controls
                 }
                 else
                 {
-                    // Update progress (100% to 0%)
                     Progress = 100 * (1.0 - progressRatio);
                 }
             };
