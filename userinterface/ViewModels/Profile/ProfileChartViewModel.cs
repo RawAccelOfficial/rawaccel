@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
+using userinterface.Commands;
 using userinterface.Services;
 using userspace_backend.Display;
 using userspace_backend.Model.EditableSettings;
@@ -76,6 +78,9 @@ namespace userinterface.ViewModels.Profile
 
             // Subscribe to theme changes
             ThemeService.ThemeChanged += OnThemeChanged;
+
+            RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
+            FitToDataCommand = new RelayCommand(() => FitToData());
         }
 
         private ICurvePreview XCurvePreview { get; }
@@ -93,6 +98,10 @@ namespace userinterface.ViewModels.Profile
         public SolidColorPaint TooltipTextPaint { get; set; }
 
         public SolidColorPaint TooltipBackgroundPaint { get; set; }
+
+        public ICommand RecreateAxesCommand { get; }
+
+        public ICommand FitToDataCommand { get; }
 
         public void FitToData()
         {
