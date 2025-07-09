@@ -24,6 +24,7 @@
 			<Setter Property="BorderThickness" Value="1" />
 			<Setter Property="CornerRadius" Value="6" />
 			<Setter Property="Padding" Value="8" />
+			<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
 		</Style>
 
 		<Style Selector="ListBoxItem">
@@ -71,14 +72,17 @@
 			Devices
 		</TextBlock>
 
-		<ListBox x:Name="DevicesListInView"
-                 ItemsSource="{Binding DeviceViews}"
-                 MinHeight="200" />
+		<ScrollViewer Height="550" VerticalScrollBarVisibility="Auto">
+			<StackPanel>
+				<ListBox x:Name="DevicesListInView"
+						 ItemsSource="{Binding DeviceViews}" />
 
-		<Button Classes="AddButton"
-                HorizontalAlignment="Center"
-                Click="AddDevice">
-			Add Device
-		</Button>
+				<Button Classes="AddButton"
+						HorizontalAlignment="Center"
+						Click="AddDevice">
+					Add Device
+				</Button>
+			</StackPanel>
+		</ScrollViewer>
 	</StackPanel>
 </UserControl>
