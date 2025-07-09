@@ -70,7 +70,7 @@
 
 			<Button Classes="AddButton"
                     HorizontalAlignment="Center"
-                    Click="AddMapping">
+                    Command="{Binding AddMappingCommand}">
 				Add Mapping
 			</Button>
 		</StackPanel>

@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Windows.Input;
+using userinterface.Commands;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
@@ -12,11 +14,15 @@ namespace userinterface.ViewModels.Mapping
             MappingViews = [];
             UpdateMappingViews();
             MappingsBE.Mappings.CollectionChanged += MappingsCollectionChanged;
+
+            AddMappingCommand = new RelayCommand(() => TryAddNewMapping());
         }
 
         public BE.MappingsModel MappingsBE { get; }
 
         public ObservableCollection<MappingViewModel> MappingViews { get; }
+
+        public ICommand AddMappingCommand { get; }
 
         private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
             UpdateMappingViews();
