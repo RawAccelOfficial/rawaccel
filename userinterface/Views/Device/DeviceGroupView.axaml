@@ -16,7 +16,7 @@
 			<Setter Property="BorderThickness" Value="1" />
 			<Setter Property="CornerRadius" Value="6" />
 			<Setter Property="Padding" Value="12" />
-			<Setter Property="Margin" Value="0,0,8,0" />
+			<Setter Property="Margin" Value="0,0,8,8" />
 		</Style>
 
 		<Style Selector="Button.DeleteButton">

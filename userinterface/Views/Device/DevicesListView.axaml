@@ -67,12 +67,14 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel Orientation="Vertical">
-		<TextBlock Classes="SectionHeader">
+	<Grid RowDefinitions="Auto,*">
+		<TextBlock Grid.Row="0" Classes="SectionHeader">
 			Devices
 		</TextBlock>
 
-		<ScrollViewer Height="550" VerticalScrollBarVisibility="Auto">
+		<ScrollViewer Grid.Row="1"
+		              VerticalAlignment="Stretch"
+		              VerticalScrollBarVisibility="Auto">
 			<StackPanel>
 				<ListBox x:Name="DevicesListInView"
 						 ItemsSource="{Binding DeviceViews}" />
@@ -84,5 +86,5 @@
 				</Button>
 			</StackPanel>
 		</ScrollViewer>
-	</StackPanel>
+	</Grid>
 </UserControl>
