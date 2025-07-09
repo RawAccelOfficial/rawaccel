@@ -8,95 +8,95 @@
              x:Class="userinterface.Views.Profile.ProfileListElementView"
              x:DataType="vm:ProfileListElementViewModel">
 
-    <UserControl.Styles>
-        <!-- Delete button style -->
-        <Style Selector="Button.DeleteButton">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="Margin" Value="4,0,0,0"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        
-        <Style Selector="Button.DeleteButton:pointerover">
-            <Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
-        </Style>
-        
-        <Style Selector="Button.DeleteButton PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-        </Style>
-        
-        <Style Selector="Button.DeleteButton:pointerover PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
-        </Style>
+	<UserControl.Styles>
+		<!-- Delete button style -->
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Margin" Value="4,0,0,0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="24"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
 
-        <!-- Rename button style -->
-        <Style Selector="Button.RenameButton">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="Margin" Value="4,0,0,0"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        
-        <Style Selector="Button.RenameButton:pointerover">
-            <Setter Property="Background" Value="{DynamicResource RenameButtonHoverBrush}"/>
-        </Style>
-        
-        <Style Selector="Button.RenameButton PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource RenameButtonBrush}"/>
-        </Style>
-        
-        <Style Selector="Button.RenameButton:pointerover PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
-        </Style>
-    </UserControl.Styles>
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
+		</Style>
 
-    <Grid Name="ProfileGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
+		<Style Selector="Button.DeleteButton PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+		</Style>
 
-        <!-- Show TextBlock when not editing -->
-        <TextBlock Grid.Column="0"
+		<Style Selector="Button.DeleteButton:pointerover PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+		</Style>
+
+		<!-- Rename button style -->
+		<Style Selector="Button.RenameButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Margin" Value="4,0,0,0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="24"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+
+		<Style Selector="Button.RenameButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource RenameButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.RenameButton PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource RenameButtonBrush}"/>
+		</Style>
+
+		<Style Selector="Button.RenameButton:pointerover PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid Name="ProfileGrid">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+
+		<!-- Show TextBlock when not editing -->
+		<TextBlock Grid.Column="0"
                    Name="DisplayTextBlock"
                    Text="{Binding CurrentNameForDisplay}"
                    VerticalAlignment="Center"
                    IsVisible="{Binding !IsEditing}"/>
 
-        <!-- Show EditableFieldView when editing -->
-        <Border Grid.Column="0"
+		<!-- Show EditableFieldView when editing -->
+		<Border Grid.Column="0"
                 IsVisible="{Binding IsEditing}"
                 VerticalAlignment="Center">
-            <controls:EditableFieldView DataContext="{Binding EditableFieldViewModel}"/>
-        </Border>
+			<controls:EditableFieldView DataContext="{Binding EditableFieldViewModel}"/>
+		</Border>
 
-        <!-- Rename Button -->
-        <Button Grid.Column="1"
+		<!-- Rename Button -->
+		<Button Grid.Column="1"
                 Classes="RenameButton"
-                Click="RenameProfile"
+                Command="{Binding StartEditingCommand}"
                 VerticalAlignment="Center"
                 IsVisible="{Binding ShowActionButtons}">
-            <PathIcon Data="{StaticResource rename_regular}"
+			<PathIcon Data="{StaticResource rename_regular}"
                       Width="12" Height="12"/>
-        </Button>
+		</Button>
 
-        <!-- Delete Button -->
-        <Button Grid.Column="2"
+		<!-- Delete Button -->
+		<Button Grid.Column="2"
                 Classes="DeleteButton"
-                Click="RemoveProfile"
+                Command="{Binding DeleteProfileCommand}"
                 VerticalAlignment="Center"
                 IsVisible="{Binding ShowActionButtons}">
-            <PathIcon Data="{StaticResource delete_regular}"
+			<PathIcon Data="{StaticResource delete_regular}"
                       Width="12" Height="12"/>
-        </Button>
-    </Grid>
+		</Button>
+	</Grid>
 </UserControl>

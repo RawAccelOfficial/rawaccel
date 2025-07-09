@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Windows.Input;
+using userinterface.Commands;
 using userinterface.ViewModels.Controls;
 using BE = userspace_backend.Model;
 
@@ -25,10 +27,20 @@ namespace userinterface.ViewModels.Profile
 
         public event Action<ProfileListElementViewModel>? EditingFinished;
 
+        public ICommand StartEditingCommand { get; }
+        public ICommand StopEditingCommand { get; }
+        public ICommand CancelEditingCommand { get; }
+        public ICommand DeleteProfileCommand { get; }
+
         public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true)
         {
             Profile = profile;
             ShowActionButtons = showButtons;
+
+            StartEditingCommand = new RelayCommand(() => StartEditing());
+            StopEditingCommand = new RelayCommand(() => StopEditing());
+            CancelEditingCommand = new RelayCommand(() => CancelEditing());
+            DeleteProfileCommand = new RelayCommand(() => DeleteProfile());
         }
 
         public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
