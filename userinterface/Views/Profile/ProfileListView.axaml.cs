@@ -11,14 +11,6 @@ public partial class ProfileListView : UserControl
         InitializeComponent();
     }
 
-    public void AddProfile(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is ProfileListViewModel viewModel)
-        {
-            _ = viewModel.TryAddProfile();
-        }
-    }
-
     public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (DataContext is ProfileListViewModel viewModel

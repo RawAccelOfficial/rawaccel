@@ -33,21 +33,5 @@ namespace userinterface.Views.Profile
                 }
             }
         }
-
-        private void RenameProfile(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                viewModel.StartEditing();
-            }
-        }
-
-        private void RemoveProfile(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                viewModel.DeleteProfile();
-            }
-        }
     }
 }

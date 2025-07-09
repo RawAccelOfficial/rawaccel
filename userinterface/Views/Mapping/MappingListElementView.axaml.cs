@@ -10,12 +10,4 @@ public partial class MappingListElementView : UserControl
     {
         InitializeComponent();
     }
-
-    public void DeleteMapping(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is MappingListElementViewModel viewModel)
-        {
-            viewModel.DeleteSelf();
-        }
-    }
 }

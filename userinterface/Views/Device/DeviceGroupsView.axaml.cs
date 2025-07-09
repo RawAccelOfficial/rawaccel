@@ -10,12 +10,4 @@ public partial class DeviceGroupsView : UserControl
     {
         InitializeComponent();
     }
-
-    public void AddDeviceGroup(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is DeviceGroupsViewModel viewModel)
-        {
-            _ = viewModel.TryAddNewDeviceGroup();
-        }
-    }
 }

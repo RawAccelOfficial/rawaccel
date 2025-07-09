@@ -10,20 +10,4 @@ public partial class ProfileChartView : UserControl
     {
         InitializeComponent();
     }
-
-    private void RecreateAxes_Click(object sender, RoutedEventArgs e)
-    {
-        if (DataContext is ProfileChartViewModel viewModel)
-        {
-            viewModel.RecreateAxes();
-        }
-    }
-
-    private void FitToData_Click(object sender, RoutedEventArgs e)
-    {
-        if (DataContext is ProfileChartViewModel viewModel)
-        {
-            viewModel.FitToData();
-        }
-    }
 }

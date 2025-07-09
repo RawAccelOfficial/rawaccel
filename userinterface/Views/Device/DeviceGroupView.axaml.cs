@@ -13,14 +13,6 @@ public partial class DeviceGroupView : UserControl
         InitializeComponent();
     }
 
-    public void DeleteSelf(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is DeviceGroupViewModel viewModel)
-        {
-            viewModel.DeleteSelf();
-        }
-    }
-
     public void TextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Return)

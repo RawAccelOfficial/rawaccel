@@ -10,12 +10,4 @@ public partial class MappingsPageView : UserControl
     {
         InitializeComponent();
     }
-
-    public void AddMapping(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is MappingsPageViewModel viewModel)
-        {
-            _ = viewModel.TryAddNewMapping();
-        }
-    }
 }

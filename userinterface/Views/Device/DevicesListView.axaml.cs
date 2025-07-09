@@ -10,12 +10,4 @@ public partial class DevicesListView : UserControl
     {
         InitializeComponent();
     }
-
-    public void AddDevice(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is DevicesListViewModel viewModel)
-        {
-            _ = viewModel.TryAddDevice();
-        }
-    }
 }

@@ -20,7 +20,6 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
 
     public ObservableCollection<FieldItemViewModel> Fields { get; }
 
-    // Commands
     public ICommand AddFieldCommand { get; }
     public ICommand AddTextFieldCommand { get; }
     public ICommand RemoveFieldCommand { get; }

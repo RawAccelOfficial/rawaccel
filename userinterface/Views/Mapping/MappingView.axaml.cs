@@ -13,14 +13,6 @@ public partial class MappingView : UserControl
         InitializeComponent();
     }
 
-    public void DeleteSelf(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is MappingViewModel viewModel)
-        {
-            viewModel.DeleteSelf();
-        }
-    }
-
     public void AddMappingSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0
