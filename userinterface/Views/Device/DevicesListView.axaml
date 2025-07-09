@@ -81,7 +81,7 @@
 
 				<Button Classes="AddButton"
 						HorizontalAlignment="Center"
-						Click="AddDevice">
+						Command="{Binding AddDeviceCommand}">
 					Add Device
 				</Button>
 			</StackPanel>

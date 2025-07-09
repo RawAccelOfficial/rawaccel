@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Windows.Input;
+using userinterface.Commands;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Device
@@ -12,6 +14,9 @@ namespace userinterface.ViewModels.Device
             DeviceViews = [];
             UpdateDeviceViews();
             DevicesBE.Devices.CollectionChanged += DevicesCollectionChanged;
+
+            AddDeviceCommand = new RelayCommand(
+                () => TryAddDevice());
         }
 
         protected BE.DevicesModel DevicesBE { get; }
@@ -19,6 +24,8 @@ namespace userinterface.ViewModels.Device
         public ObservableCollection<BE.DeviceModel> Devices => DevicesBE.Devices;
 
         public ObservableCollection<DeviceViewModel> DeviceViews { get; }
+
+        public ICommand AddDeviceCommand { get; }
 
         private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
             UpdateDeviceViews();
