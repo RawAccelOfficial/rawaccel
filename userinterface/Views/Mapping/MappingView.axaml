@@ -176,7 +176,7 @@
               Margin="0,0,0,12">
 			<Button Grid.Column="0"
                     Classes="DeleteButton"
-                    Click="DeleteSelf"
+                    Command="{Binding DeleteCommand}"
                     VerticalAlignment="Center">
 				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
 			</Button>

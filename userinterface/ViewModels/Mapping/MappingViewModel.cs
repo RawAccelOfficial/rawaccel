@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Input;
+using userinterface.Commands;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
@@ -45,6 +47,8 @@ namespace userinterface.ViewModels.Mapping
             {
                 OnPropertyChanged(nameof(HasDeviceGroupsToAdd));
             };
+
+            DeleteCommand = new RelayCommand(() => DeleteSelf());
         }
 
         public BE.MappingModel MappingBE { get; }
@@ -56,6 +60,8 @@ namespace userinterface.ViewModels.Mapping
         public ObservableCollection<MappingListElementViewModel> MappingListElements => mappingListElements;
 
         public bool HasDeviceGroupsToAdd => MappingBE.DeviceGroupsStillUnmapped.Any();
+
+        public ICommand DeleteCommand { get; }
 
         public void HandleAddMappingSelection(SelectionChangedEventArgs e)
         {
