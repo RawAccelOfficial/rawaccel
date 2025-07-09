@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+using userinterface.Commands;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -28,12 +30,18 @@ namespace userinterface.ViewModels.Profile
             {
                 CurrentSelectedProfile = Profiles[0];
             }
+
+            AddProfileCommand = new RelayCommand(() => TryAddProfile());
+            RemoveSelectedProfileCommand = new RelayCommand(() => RemoveSelectedProfile());
         }
 
         public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
 
         // Set in main WindowViewModel
         public Action SelectionChangeAction { get; set; }
+
+        public ICommand AddProfileCommand { get; }
+        public ICommand RemoveSelectedProfileCommand { get; }
 
         public ObservableCollection<ProfileListElementViewModel> ProfileItems
         {

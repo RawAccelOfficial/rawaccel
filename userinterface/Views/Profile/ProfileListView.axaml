@@ -110,7 +110,7 @@
 
 	<StackPanel>
 		<Button Classes="AddButton"
-                Click="AddProfile"
+                Command="{Binding AddProfileCommand}"
                 HorizontalAlignment="Stretch">
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"

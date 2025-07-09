@@ -15,7 +15,6 @@ public partial class MainWindow : Window
 {
     private Button? ApplyButtonControl;
     private ProgressBar? LoadingProgressBar;
-    private TextBlock? SuccessMessageText;
     private readonly INotificationService notificationService;
 
     public MainWindow(INotificationService notificationService)
