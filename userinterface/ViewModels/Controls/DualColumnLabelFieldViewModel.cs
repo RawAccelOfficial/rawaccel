@@ -1,5 +1,8 @@
 ﻿using Avalonia.Controls;
+using System;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+using userinterface.Commands;
 
 namespace userinterface.ViewModels.Controls;
 
@@ -17,14 +20,44 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
 
     public ObservableCollection<FieldItemViewModel> Fields { get; }
 
+    // Commands
+    public ICommand AddFieldCommand { get; }
+    public ICommand AddTextFieldCommand { get; }
+    public ICommand RemoveFieldCommand { get; }
+    public ICommand ClearFieldsCommand { get; }
+    public ICommand RegisterElementCommand { get; }
+    public ICommand SetStackPanelCommand { get; }
+
     public DualColumnLabelFieldViewModel()
     {
         Fields = [];
+
+        AddFieldCommand = new RelayCommand<(string label, object inputControl)>(
+            param => AddField(param.label, param.inputControl));
+
+        AddTextFieldCommand = new RelayCommand<(string label, string initialValue)>(
+            param => AddTextField(param.label, param.initialValue ?? ""));
+
+        RemoveFieldCommand = new RelayCommand<int>(
+            index => RemoveField(index),
+            index => index >= 0 && index < Fields.Count);
+
+        ClearFieldsCommand = new RelayCommand(
+            ClearFields);
+
+        RegisterElementCommand = new RelayCommand<Control>(
+            element => RegisterElement(element),
+            element => element != null && TargetStackPanel != null);
+
+        SetStackPanelCommand = new RelayCommand<StackPanel>(
+            stackPanel => SetStackPanel(stackPanel),
+            stackPanel => stackPanel != null);
     }
 
     public void SetStackPanel(StackPanel stackPanel)
     {
         TargetStackPanel = stackPanel;
+        (RegisterElementCommand as RelayCommand<Control>)?.RaiseCanExecuteChanged();
     }
 
     public void RegisterElement(Control element)
@@ -42,6 +75,8 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
 
         var fieldItem = new FieldItemViewModel(label, inputControl);
         Fields.Add(fieldItem);
+
+        (RemoveFieldCommand as RelayCommand<int>)?.RaiseCanExecuteChanged();
     }
 
     public void AddTextField(string label, string initialValue = "")
@@ -54,10 +89,15 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
         if (index >= 0 && index < Fields.Count)
         {
             Fields.RemoveAt(index);
+            (RemoveFieldCommand as RelayCommand<int>)?.RaiseCanExecuteChanged();
         }
     }
 
-    public void ClearFields() => Fields.Clear();
+    public void ClearFields()
+    {
+        Fields.Clear();
+        (RemoveFieldCommand as RelayCommand<int>)?.RaiseCanExecuteChanged();
+    }
 }
 
 public record FieldItemViewModel(string Label, object InputControl);
