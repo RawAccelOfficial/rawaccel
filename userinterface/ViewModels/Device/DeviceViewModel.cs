@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Windows.Input;
+using userinterface.Commands;
 using userinterface.ViewModels.Controls;
 using BE = userspace_backend.Model;
 
@@ -23,6 +25,9 @@ namespace userinterface.ViewModels.Device
             IgnoreBool.PropertyChanged += OnIgnoreBoolChanged;
 
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
+
+            DeleteCommand = new RelayCommand(
+                () => DeleteSelf());
         }
 
         protected BE.DeviceModel DeviceBE { get; }
@@ -40,6 +45,8 @@ namespace userinterface.ViewModels.Device
         public EditableBoolViewModel IgnoreBool { get; set; }
 
         public DeviceGroupSelectorViewModel DeviceGroup { get; set; }
+
+        public ICommand DeleteCommand { get; }
 
         public bool IsExpanderEnabled => !IgnoreBool.Value;
 

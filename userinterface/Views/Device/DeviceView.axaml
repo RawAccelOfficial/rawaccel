@@ -71,7 +71,7 @@
                   Margin="8">
 				<Button Grid.Column="0"
                         Classes="DeleteButton"
-                        Click="DeleteSelf"
+                        Command="{Binding DeleteCommand}"
                         Margin="0,0,16,0">
 					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16" />
 				</Button>
