@@ -58,7 +58,7 @@
 				<Button Classes="AddButton"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Bottom"
-						Click="AddDeviceGroup">
+						Command="{Binding AddDeviceGroupCommand}">
 					Add Device Group
 				</Button>
 			</StackPanel>
