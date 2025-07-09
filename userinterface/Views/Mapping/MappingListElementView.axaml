@@ -94,7 +94,7 @@
 
 		<Button Grid.Column="1"
                 Classes="DeleteButton"
-                Click="DeleteMapping"
+				Command="{Binding DeleteCommand}"
                 VerticalAlignment="Center"
                 IsVisible="{Binding ShowActionButtons}">
 			<PathIcon Data="{StaticResource delete_regular}"

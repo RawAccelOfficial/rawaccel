@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using userinterface.Commands;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping;
@@ -12,6 +14,8 @@ public partial class MappingListElementViewModel : ViewModelBase
     {
         this.mappingGroup = mappingGroup;
         this.parentMapping = parentMapping;
+
+        DeleteCommand = new RelayCommand(() => DeleteSelf());
     }
 
     public BE.MappingGroup MappingGroup => mappingGroup;
@@ -34,6 +38,8 @@ public partial class MappingListElementViewModel : ViewModelBase
     }
 
     public bool ShowActionButtons => true;
+
+    public ICommand DeleteCommand { get; }
 
     public void DeleteSelf()
     {
