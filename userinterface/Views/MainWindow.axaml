@@ -207,15 +207,6 @@
 			<Setter Property="Margin" Value="0,8,0,0"/>
 		</Style>
 
-		<!-- Success Message Style -->
-		<Style Selector="TextBlock.SuccessMessage">
-			<Setter Property="Foreground" Value="#4CAF50"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="HorizontalAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
-		</Style>
-
 		<!-- Theme Toggle Button Styles -->
 		<Style Selector="ToggleButton.ThemeToggle">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
@@ -290,14 +281,6 @@
 				</Transitions>
 			</Setter>
 		</Style>
-
-		<Style Selector="TextBlock.SuccessMessage">
-			<Setter Property="Transitions">
-				<Transitions>
-					<DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
-				</Transitions>
-			</Setter>
-		</Style>
 	</Window.Styles>
 
 	<Panel>
@@ -305,11 +288,6 @@
 			<DockPanel>
 				<!-- Apply Settings Button at bottom -->
 				<StackPanel DockPanel.Dock="Bottom">
-					<TextBlock Classes="SuccessMessage"
-							   Name="SuccessMessage"
-							   Text="Settings Applied"
-							   IsVisible="False"
-							   Opacity="0"/>
 					<Grid>
 						<Button Classes="ApplyButton"
 								Name="ApplyButton"

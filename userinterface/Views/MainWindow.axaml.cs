@@ -26,7 +26,6 @@ public partial class MainWindow : Window
         UpdateSelectedButton("Devices"); // Initial navigation selection
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
-        SuccessMessageText = this.FindControl<TextBlock>("SuccessMessage");
     }
 
     public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
@@ -41,13 +40,6 @@ public partial class MainWindow : Window
             LoadingProgressBar.IsVisible = true;
         }
 
-        // Hide success message if it was previously shown
-        if (SuccessMessageText != null)
-        {
-            SuccessMessageText.IsVisible = false;
-            SuccessMessageText.Opacity = 0;
-        }
-
         if (this.DataContext is MainWindowViewModel viewModel)
         {
             viewModel.Apply();
@@ -56,7 +48,6 @@ public partial class MainWindow : Window
         // Wait for 1 second to mask write delay
         await Task.Delay(1000);
 
-        // Hide loading bar
         if (LoadingProgressBar != null)
         {
             LoadingProgressBar.IsVisible = false;
@@ -65,19 +56,9 @@ public partial class MainWindow : Window
         // Show success toast notification
         notificationService.ShowSuccessToast("Settings applied successfully!");
 
-        if (SuccessMessageText != null)
+        if (ApplyButtonControl != null)
         {
-            SuccessMessageText.IsVisible = true;
-            await Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                SuccessMessageText.Opacity = 1;
-                ApplyButtonControl.IsEnabled = true;
-                // Hide the success message after 1.5 seconds
-                await Task.Delay(1500);
-                SuccessMessageText.Opacity = 0;
-                await Task.Delay(300);
-                SuccessMessageText.IsVisible = false;
-            });
+            ApplyButtonControl.IsEnabled = true;
         }
     }
 
