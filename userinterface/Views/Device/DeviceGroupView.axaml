@@ -55,7 +55,7 @@
 
 	<Border Classes="GroupBorder">
 		<StackPanel Orientation="Horizontal">
-			<Button Classes="DeleteButton" Click="DeleteSelf">
+			<Button Classes="DeleteButton" Command="{Binding DeleteCommand}">
 				<PathIcon Data="{StaticResource delete_regular}" Width="12" Height="12" />
 			</Button>
 
