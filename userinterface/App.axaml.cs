@@ -36,7 +36,7 @@ public partial class App : Application
             // Create the main window with the notification service
             var mainWindow = new MainWindow(notificationService)
             {
-                DataContext = new MainWindowViewModel(backEnd),
+                DataContext = new MainWindowViewModel(backEnd, notificationService),
             };
 
             // Set up the toast control with the notification service

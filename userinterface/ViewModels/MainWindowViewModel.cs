@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using userinterface.Services;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
@@ -17,13 +18,13 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private string SelectedPageValue = DefaultPage;
     private bool IsProfilesExpandedValue = false;
 
-    public MainWindowViewModel(BE.BackEnd BackEnd)
+    public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService)
     {
         this.BackEnd = BackEnd;
         DevicesPage = new DevicesPageViewModel(BackEnd.Devices);
 
         ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
-        ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView);
+        ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
         MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
 
         ProfileListView.SelectionChangeAction = OnProfileSelectionChanged;

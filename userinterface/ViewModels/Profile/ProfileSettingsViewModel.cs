@@ -1,16 +1,17 @@
-﻿using userinterface.ViewModels.Controls;
+﻿using userinterface.Services;
+using userinterface.ViewModels.Controls;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileSettingsViewModel : ViewModelBase
     {
-        public ProfileSettingsViewModel(BE.ProfileModel profileBE)
+        public ProfileSettingsViewModel(BE.ProfileModel profileBE, INotificationService notificationService)
         {
             ProfileModelBE = profileBE;
             OutputDPIField = new EditableFieldViewModel(profileBE.OutputDPI);
             YXRatioField = new EditableFieldViewModel(profileBE.YXRatio);
-            AccelerationSettings = new AccelerationProfileSettingsViewModel(profileBE.Acceleration);
+            AccelerationSettings = new AccelerationProfileSettingsViewModel(profileBE.Acceleration, notificationService);
             HiddenSettings = new HiddenProfileSettingsViewModel(profileBE.Hidden);
         }
 

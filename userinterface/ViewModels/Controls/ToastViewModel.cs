@@ -13,10 +13,10 @@ namespace userinterface.ViewModels.Controls
     {
         private readonly INotificationService notificationService;
         private bool isVisible;
-        private string message;
+        private string message = string.Empty;
         private ToastType type;
         private double progress = 100;
-        private DispatcherTimer progressTimer;
+        private DispatcherTimer? progressTimer;
         private DateTime animationStartTime;
         private TimeSpan animationDuration;
 
@@ -70,7 +70,7 @@ namespace userinterface.ViewModels.Controls
 
         public ICommand CloseCommand { get; }
 
-        private async void OnToastRequested(object sender, ToastNotificationEventArgs e)
+        private async void OnToastRequested(object? sender, ToastNotificationEventArgs e)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -79,16 +79,13 @@ namespace userinterface.ViewModels.Controls
                 IsVisible = true;
                 Progress = 100;
 
-                // Start the progress animation
                 StartProgressAnimation(e.Duration);
             });
         }
 
-        private void OnToastDismissed(object sender, EventArgs e)
+        private void OnToastDismissed(object? sender, EventArgs e)
         {
-            // Stop the animation
             progressTimer?.Stop();
-
             Dispatcher.UIThread.Post(() =>
             {
                 IsVisible = false;
@@ -99,7 +96,6 @@ namespace userinterface.ViewModels.Controls
         private void StartProgressAnimation(TimeSpan duration)
         {
             progressTimer?.Stop();
-
             animationStartTime = DateTime.Now;
             animationDuration = duration;
 
@@ -117,7 +113,6 @@ namespace userinterface.ViewModels.Controls
                 {
                     Progress = 0;
                     progressTimer?.Stop();
-
                     if (IsVisible)
                     {
                         notificationService.HideToast();
@@ -137,8 +132,9 @@ namespace userinterface.ViewModels.Controls
             notificationService.HideToast();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

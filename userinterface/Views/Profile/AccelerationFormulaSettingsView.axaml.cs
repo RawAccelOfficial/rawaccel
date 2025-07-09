@@ -207,7 +207,6 @@ public partial class AccelerationFormulaSettingsView : UserControl
         if (bindingSource is not EditableFieldViewModel editableField)
             return new TextBox();
 
-        // Set the EditableFieldViewModel to use OnChange mode for real-time updates
         editableField.UpdateMode = UpdateMode.OnChange;
 
         var editableFieldView = new EditableFieldView

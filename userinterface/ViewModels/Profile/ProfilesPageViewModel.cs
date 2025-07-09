@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -12,8 +13,11 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
 
-        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView)
+        private readonly INotificationService notificationService;
+
+        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView, INotificationService notificationService)
         {
+            this.notificationService = notificationService;
             ProfileModels = profileModels.Profiles;
             ProfileViewModels = [];
             UpdateProfileViewModels();
@@ -58,7 +62,7 @@ namespace userinterface.ViewModels.Profile
             ProfileViewModels.Clear();
             foreach (var profileModelBE in ProfileModels)
             {
-                ProfileViewModels.Add(new ProfileViewModel(profileModelBE));
+                ProfileViewModels.Add(new ProfileViewModel(profileModelBE, notificationService));
             }
         }
     }
