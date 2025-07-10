@@ -9,6 +9,7 @@ namespace userinterface.Services
         private Timer? timer;
 
         public event EventHandler<ToastNotificationEventArgs>? ToastRequested;
+
         public event EventHandler? ToastDismissed;
 
         public void ShowToast(string message, ToastType type, int durationMs = 5000)
