@@ -16,11 +16,13 @@ public partial class MainWindow : Window
     private Button? ApplyButtonControl;
     private ProgressBar? LoadingProgressBar;
     private readonly INotificationService notificationService;
+    private readonly IModalService modalService;
 
     public MainWindow(INotificationService notificationService, IModalService modalService)
     {
         InitializeComponent();
         this.notificationService = notificationService;
+        this.modalService = modalService;
         UpdateThemeToggleButton();
         UpdateSelectedButton("Devices"); // Initial navigation selection
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
@@ -52,7 +54,6 @@ public partial class MainWindow : Window
             LoadingProgressBar.IsVisible = false;
         }
 
-        // Show success toast notification
         notificationService.ShowSuccessToast("Settings applied successfully!");
 
         if (ApplyButtonControl != null)

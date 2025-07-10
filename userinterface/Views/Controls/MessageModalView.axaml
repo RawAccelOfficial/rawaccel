@@ -2,11 +2,117 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="userinterface.Views.Controls.MessageModalView"
              x:Name="Root">
-    <Grid RowDefinitions="Auto,*,Auto" Margin="20">
-        <TextBlock Grid.Row="0" Text="{Binding #Root.Title}" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
-        <TextBlock Grid.Row="1" Text="{Binding #Root.Message}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
-            <Button Content="{Binding #Root.OkText}" Click="OnOkClick" MinWidth="80" Classes="accent"/>
-        </StackPanel>
-    </Grid>
+
+	<UserControl.Styles>
+		<!-- Modal Container Style -->
+		<Style Selector="Border.ModalContainer">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Padding" Value="24"/>
+			<Setter Property="MinWidth" Value="450"/>
+			<Setter Property="MinHeight" Value="200"/>
+			<Setter Property="Margin" Value="20,0"/>
+		</Style>
+
+		<!-- Modal Title Style -->
+		<Style Selector="TextBlock.ModalTitle">
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="Margin" Value="0,0,0,16"/>
+		</Style>
+
+		<!-- Modal Message Style -->
+		<Style Selector="TextBlock.ModalMessage">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="Normal"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="Margin" Value="0,0,0,24"/>
+		</Style>
+
+		<!-- Modal Button Base Style -->
+		<Style Selector="Button.ModalButton">
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="16,10"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="MinWidth" Value="100"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="PART_LayoutRoot"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							Padding="{TemplateBinding Padding}">
+						<TextBlock Text="{TemplateBinding Content}"
+								   FontFamily="{TemplateBinding FontFamily}"
+								   FontSize="{TemplateBinding FontSize}"
+								   FontWeight="{TemplateBinding FontWeight}"
+								   Foreground="{TemplateBinding Foreground}"
+								   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								   VerticalAlignment="Center"
+								   Background="Transparent"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<!-- OK Button Style (Primary) -->
+		<Style Selector="Button.ModalButton.Ok">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="Button.ModalButton.Ok:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.ModalButton.Ok:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<!-- Button Stack Panel -->
+		<Style Selector="StackPanel.ModalButtons">
+			<Setter Property="Orientation" Value="Horizontal"/>
+			<Setter Property="HorizontalAlignment" Value="Right"/>
+			<Setter Property="Spacing" Value="12"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid>
+		<Border Classes="ModalContainer">
+			<Grid RowDefinitions="Auto,*,Auto">
+				<TextBlock Grid.Row="0"
+						   Classes="ModalTitle"
+						   Text="{Binding #Root.Title}"/>
+
+				<TextBlock Grid.Row="1"
+						   Classes="ModalMessage"
+						   Text="{Binding #Root.Message}"
+						   TextWrapping="Wrap"/>
+
+				<StackPanel Grid.Row="2"
+							Classes="ModalButtons">
+					<Button Classes="ModalButton Ok"
+							Content="{Binding #Root.OkText}"
+							Click="OnOkClick"/>
+				</StackPanel>
+			</Grid>
+		</Border>
+	</Grid>
 </UserControl>
