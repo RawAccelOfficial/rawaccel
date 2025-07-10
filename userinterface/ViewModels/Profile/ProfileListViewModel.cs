@@ -89,12 +89,12 @@ namespace userinterface.ViewModels.Profile
             StopEditing();
         }
 
-        private partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
+        partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
         {
             SelectionChangeAction?.Invoke();
         }
 
-        private partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
+        partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
         {
             foreach (var item in ProfileElementViewModels.Values)
             {
