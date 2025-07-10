@@ -129,6 +129,16 @@
 			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
 		</Style>
 
+		<Style Selector="Button.DeleteButton:disabled">
+			<Setter Property="Background" Value="{DynamicResource DisabledButtonBrush}"/>
+			<Setter Property="Cursor" Value="Arrow"/>
+			<Setter Property="Opacity" Value="0.5"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:disabled PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+		</Style>
+
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
@@ -178,7 +188,7 @@
                     Classes="DeleteButton"
                     Command="{Binding DeleteCommand}"
                     VerticalAlignment="Center"
-                    IsVisible="{Binding !IsDefaultMapping}">
+                    IsEnabled="{Binding !IsDefaultMapping}">
 				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
 			</Button>
 			<TextBlock Grid.Column="1"

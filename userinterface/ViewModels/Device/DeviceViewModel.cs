@@ -8,10 +8,11 @@ namespace userinterface.ViewModels.Device
 {
     public partial class DeviceViewModel : ViewModelBase
     {
-        public DeviceViewModel(BE.DeviceModel deviceBE, BE.DevicesModel devicesBE)
+        public DeviceViewModel(BE.DeviceModel deviceBE, BE.DevicesModel devicesBE, bool isDefault = false)
         {
             DeviceBE = deviceBE;
             DevicesBE = devicesBE;
+            IsDefaultDevice = isDefault;
 
             NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
 
@@ -33,6 +34,8 @@ namespace userinterface.ViewModels.Device
         protected BE.DeviceModel DeviceBE { get; }
 
         protected BE.DevicesModel DevicesBE { get; }
+
+        public bool IsDefaultDevice { get; }
 
         public NamedEditableFieldViewModel NameField { get; set; }
 

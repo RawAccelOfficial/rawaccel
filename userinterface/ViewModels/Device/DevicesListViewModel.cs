@@ -33,9 +33,12 @@ namespace userinterface.ViewModels.Device
         public void UpdateDeviceViews()
         {
             DeviceViews.Clear();
-            foreach (BE.DeviceModel device in DevicesBE.Devices)
+            for (int i = 0; i < DevicesBE.Devices.Count; i++)
             {
-                DeviceViews.Add(new DeviceViewModel(device, DevicesBE));
+                var device = DevicesBE.Devices[i];
+                // Consider the first device as the default device
+                bool isDefault = i == 0;
+                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, isDefault));
             }
         }
 
