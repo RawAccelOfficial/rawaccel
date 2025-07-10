@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:controls="using:userinterface.Views.Controls"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
+             mc:Ignorable="d" d:DesignWidth="800"
              x:Class="userinterface.Views.Profile.ProfileListElementView"
              x:DataType="vm:ProfileListElementViewModel">
 
@@ -58,43 +58,49 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid Name="ProfileGrid">
+	<Grid Name="ProfileGrid" Height="24">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 
-		<!-- Show TextBlock when not editing -->
 		<TextBlock Grid.Column="0"
                    Name="DisplayTextBlock"
                    Text="{Binding CurrentNameForDisplay}"
                    VerticalAlignment="Center"
                    IsVisible="{Binding !IsEditing}"/>
 
-		<!-- Show EditableFieldView when editing -->
 		<Border Grid.Column="0"
                 IsVisible="{Binding IsEditing}"
                 VerticalAlignment="Center">
 			<controls:EditableFieldView DataContext="{Binding EditableFieldViewModel}"/>
 		</Border>
 
-		<!-- Rename Button -->
 		<Button Grid.Column="1"
                 Classes="RenameButton"
                 Command="{Binding StartEditingCommand}"
-                VerticalAlignment="Center"
-                IsVisible="{Binding ShowActionButtons}">
+                VerticalAlignment="Center">
+			<Button.IsVisible>
+				<MultiBinding Converter="{x:Static BoolConverters.And}">
+					<Binding Path="ShowActionButtons"/>
+					<Binding Path="!IsDefaultProfile"/>
+				</MultiBinding>
+			</Button.IsVisible>
 			<PathIcon Data="{StaticResource rename_regular}"
                       Width="12" Height="12"/>
 		</Button>
 
-		<!-- Delete Button -->
 		<Button Grid.Column="2"
                 Classes="DeleteButton"
                 Command="{Binding DeleteProfileCommand}"
-                VerticalAlignment="Center"
-                IsVisible="{Binding ShowActionButtons}">
+                VerticalAlignment="Center">
+			<Button.IsVisible>
+				<MultiBinding Converter="{x:Static BoolConverters.And}">
+					<Binding Path="ShowActionButtons"/>
+					<Binding Path="!IsDefaultProfile"/>
+				</MultiBinding>
+			</Button.IsVisible>
 			<PathIcon Data="{StaticResource delete_regular}"
                       Width="12" Height="12"/>
 		</Button>

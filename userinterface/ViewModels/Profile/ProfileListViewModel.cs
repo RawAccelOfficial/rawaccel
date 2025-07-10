@@ -41,6 +41,7 @@ namespace userinterface.ViewModels.Profile
         public Action SelectionChangeAction { get; set; }
 
         public ICommand AddProfileCommand { get; }
+
         public ICommand RemoveSelectedProfileCommand { get; }
 
         public ObservableCollection<ProfileListElementViewModel> ProfileItems
@@ -48,11 +49,14 @@ namespace userinterface.ViewModels.Profile
             get
             {
                 var items = new ObservableCollection<ProfileListElementViewModel>();
-                foreach (var profile in Profiles)
+                for (int i = 0; i < Profiles.Count; i++)
                 {
+                    var profile = Profiles[i];
                     if (!ProfileElementViewModels.TryGetValue(profile, out ProfileListElementViewModel? value))
                     {
-                        var elementViewModel = new ProfileListElementViewModel(profile, showButtons: true);
+                        // Consider the first profile as the default profile
+                        bool isDefault = i == 0;
+                        var elementViewModel = new ProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
 
                         // Subscribe to events
                         elementViewModel.ProfileDeleted += OnProfileDeleted;

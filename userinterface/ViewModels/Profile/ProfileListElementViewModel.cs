@@ -17,6 +17,9 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         private bool showActionButtons = true;
 
+        [ObservableProperty]
+        private bool isDefaultProfile;
+
         public BE.ProfileModel Profile { get; }
 
         public event Action<ProfileListElementViewModel>? ProfileDeleted;
@@ -28,14 +31,18 @@ namespace userinterface.ViewModels.Profile
         public event Action<ProfileListElementViewModel>? EditingFinished;
 
         public ICommand StartEditingCommand { get; }
+
         public ICommand StopEditingCommand { get; }
+
         public ICommand CancelEditingCommand { get; }
+
         public ICommand DeleteProfileCommand { get; }
 
-        public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true)
+        public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true, bool isDefault = false)
         {
             Profile = profile;
             ShowActionButtons = showButtons;
+            this.IsDefaultProfile = isDefault;
 
             StartEditingCommand = new RelayCommand(() => StartEditing());
             StopEditingCommand = new RelayCommand(() => StopEditing());
