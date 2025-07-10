@@ -44,11 +44,41 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Resources\Device.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Device.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources\Mapping.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Mapping.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources\Profile.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Profile.resx</DependentUpon>
+    </Compile>
     <Compile Update="Views\Controls\EditableExpanderView.axaml.cs">
       <DependentUpon>EditableExpanderView.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\Controls\ToastView.axaml.cs">
       <DependentUpon>ToastView.axaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources\Device.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Device.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources\Mapping.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Mapping.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources\Profile.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Profile.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
