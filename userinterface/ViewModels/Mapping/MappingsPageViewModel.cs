@@ -30,9 +30,11 @@ namespace userinterface.ViewModels.Mapping
         public void UpdateMappingViews()
         {
             MappingViews.Clear();
-            foreach (BE.MappingModel mappingBE in MappingsBE.Mappings)
+            for (int i = 0; i < MappingsBE.Mappings.Count; i++)
             {
-                MappingViews.Add(new MappingViewModel(mappingBE, MappingsBE));
+                var mappingBE = MappingsBE.Mappings[i];
+                bool isDefault = i == 0;
+                MappingViews.Add(new MappingViewModel(mappingBE, MappingsBE, isDefault));
             }
         }
 

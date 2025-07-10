@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Mapping"
              xmlns:mapping="using:userinterface.Views.Mapping"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="800"
              x:Class="userinterface.Views.Mapping.MappingView"
              x:DataType="vm:MappingViewModel">
 
@@ -177,7 +177,8 @@
 			<Button Grid.Column="0"
                     Classes="DeleteButton"
                     Command="{Binding DeleteCommand}"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Center"
+                    IsVisible="{Binding !IsDefaultMapping}">
 				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
 			</Button>
 			<TextBlock Grid.Column="1"
@@ -222,4 +223,3 @@
 		</ListBox>
 	</DockPanel>
 </UserControl>
-

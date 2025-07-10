@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Mapping"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
+             mc:Ignorable="d" d:DesignWidth="800"
              x:Class="userinterface.Views.Mapping.MappingListElementView"
              x:DataType="vm:MappingListElementViewModel">
 
@@ -30,6 +30,16 @@
 
 		<Style Selector="Button.DeleteButton:pointerover PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:disabled">
+			<Setter Property="Background" Value="{DynamicResource DisabledButtonBrush}"/>
+			<Setter Property="Cursor" Value="Arrow"/>
+			<Setter Property="Opacity" Value="0.6"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:disabled PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
 		</Style>
 
 		<!-- ComboBox styles -->
@@ -60,7 +70,7 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid Name="MappingGrid">
+	<Grid Name="MappingGrid" Height="36">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
 			<ColumnDefinition Width="Auto"/>
@@ -96,7 +106,8 @@
                 Classes="DeleteButton"
 				Command="{Binding DeleteCommand}"
                 VerticalAlignment="Center"
-                IsVisible="{Binding ShowActionButtons}">
+                IsVisible="{Binding ShowActionButtons}"
+                IsEnabled="{Binding CanDelete}">
 			<PathIcon Data="{StaticResource delete_regular}"
                       Width="12" Height="12"/>
 		</Button>

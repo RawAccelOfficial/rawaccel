@@ -12,35 +12,18 @@ namespace userinterface.ViewModels.Mapping
     {
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
 
-        public MappingViewModel(BE.MappingModel mappingBE, BE.MappingsModel mappingsBE)
+        public MappingViewModel(BE.MappingModel mappingBE, BE.MappingsModel mappingsBE, bool isDefault = false)
         {
             MappingBE = mappingBE;
             MappingsBE = mappingsBE;
+            IsDefaultMapping = isDefault;
 
-            mappingListElements = new ObservableCollection<MappingListElementViewModel>(
-                MappingBE.IndividualMappings.Select(mg => new MappingListElementViewModel(mg, MappingBE))
-            );
+            mappingListElements = new ObservableCollection<MappingListElementViewModel>();
+            UpdateMappingListElements();
 
             MappingBE.IndividualMappings.CollectionChanged += (sender, e) =>
             {
-                if (e.NewItems != null)
-                {
-                    foreach (BE.MappingGroup newItem in e.NewItems)
-                    {
-                        mappingListElements.Add(new MappingListElementViewModel(newItem, MappingBE));
-                    }
-                }
-                if (e.OldItems != null)
-                {
-                    foreach (BE.MappingGroup oldItem in e.OldItems)
-                    {
-                        var viewModelToRemove = mappingListElements.FirstOrDefault(vm => vm.MappingGroup == oldItem);
-                        if (viewModelToRemove != null)
-                        {
-                            mappingListElements.Remove(viewModelToRemove);
-                        }
-                    }
-                }
+                UpdateMappingListElements();
             };
 
             MappingBE.DeviceGroupsStillUnmapped.CollectionChanged += (sender, e) =>
@@ -55,6 +38,8 @@ namespace userinterface.ViewModels.Mapping
 
         protected BE.MappingsModel MappingsBE { get; }
 
+        public bool IsDefaultMapping { get; }
+
         public ObservableCollection<BE.MappingGroup> IndividualMappings => MappingBE.IndividualMappings;
 
         public ObservableCollection<MappingListElementViewModel> MappingListElements => mappingListElements;
@@ -62,6 +47,23 @@ namespace userinterface.ViewModels.Mapping
         public bool HasDeviceGroupsToAdd => MappingBE.DeviceGroupsStillUnmapped.Any();
 
         public ICommand DeleteCommand { get; }
+
+        private void UpdateMappingListElements()
+        {
+            foreach (var element in mappingListElements)
+            {
+                element.Cleanup();
+            }
+
+            mappingListElements.Clear();
+            for (int i = 0; i < MappingBE.IndividualMappings.Count; i++)
+            {
+                var mappingGroup = MappingBE.IndividualMappings[i];
+                // Consider the first mapping element as default
+                bool isDefaultElement = IsDefaultMapping && i == 0;
+                mappingListElements.Add(new MappingListElementViewModel(mappingGroup, MappingBE, isDefaultElement));
+            }
+        }
 
         public void HandleAddMappingSelection(SelectionChangedEventArgs e)
         {
@@ -75,6 +77,14 @@ namespace userinterface.ViewModels.Mapping
         {
             bool success = MappingsBE.RemoveMapping(MappingBE);
             Debug.Assert(success);
+        }
+
+        public void Cleanup()
+        {
+            foreach (var element in mappingListElements)
+            {
+                element.Cleanup();
+            }
         }
     }
 }
