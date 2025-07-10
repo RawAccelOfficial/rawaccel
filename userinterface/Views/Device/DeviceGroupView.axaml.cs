@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using userinterface.ViewModels.Device;
 using BE = userspace_backend.Model;
 
 namespace userinterface.Views.Device;

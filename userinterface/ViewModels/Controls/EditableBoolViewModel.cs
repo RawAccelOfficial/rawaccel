@@ -31,7 +31,7 @@ namespace userinterface.ViewModels.Controls
         private void ResetValueFromBackEnd() =>
             ValueInDisplay = bool.TryParse(SettingBE.InterfaceValue, out bool result) && result;
 
-        partial void OnValueInDisplayChanged(bool value)
+        private partial void OnValueInDisplayChanged(bool value)
         {
             OnPropertyChanged(nameof(Value));
         }

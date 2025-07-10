@@ -168,7 +168,7 @@ namespace userinterface.Services
 
         public void Dispose()
         {
-            CloseCurrentModal();
+            GC.SuppressFinalize(this);
         }
     }
 }

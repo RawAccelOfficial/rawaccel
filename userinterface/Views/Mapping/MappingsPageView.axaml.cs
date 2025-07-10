@@ -1,6 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using userinterface.ViewModels.Mapping;
 
 namespace userinterface.Views.Mapping;
 

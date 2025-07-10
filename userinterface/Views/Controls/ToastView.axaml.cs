@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls;
-using userinterface.ViewModels.Controls;
 
 namespace userinterface.Views.Controls
 {

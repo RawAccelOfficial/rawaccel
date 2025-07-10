@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using System.Linq;
 using userinterface.ViewModels.Mapping;
 using userspace_backend.Model;
