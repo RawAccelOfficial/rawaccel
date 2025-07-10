@@ -20,10 +20,15 @@ public class DualColumnLabelFieldViewModel : ViewModelBase
     public ObservableCollection<FieldItemViewModel> Fields { get; }
 
     public ICommand AddFieldCommand { get; }
+
     public ICommand AddTextFieldCommand { get; }
+
     public ICommand RemoveFieldCommand { get; }
+
     public ICommand ClearFieldsCommand { get; }
+
     public ICommand RegisterElementCommand { get; }
+
     public ICommand SetStackPanelCommand { get; }
 
     public DualColumnLabelFieldViewModel()
