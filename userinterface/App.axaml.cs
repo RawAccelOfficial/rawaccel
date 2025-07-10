@@ -30,13 +30,13 @@ public partial class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
 
-            // Create the notification service
             var notificationService = new NotificationService();
+            var modalService = new ModalService();
 
             // Create the main window with the notification service
-            var mainWindow = new MainWindow(notificationService)
+            var mainWindow = new MainWindow(notificationService, modalService)
             {
-                DataContext = new MainWindowViewModel(backEnd, notificationService),
+                DataContext = new MainWindowViewModel(backEnd, notificationService, modalService),
             };
 
             // Set up the toast control with the notification service

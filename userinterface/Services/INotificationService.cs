@@ -3,7 +3,7 @@ using userinterface.Models;
 
 namespace userinterface.Services
 {
-    public interface INotificationService
+    public interface INotificationService: IDisposable
     {
         void ShowToast(string message, ToastType type, int durationMs = 5000);
         void HideToast();
@@ -16,12 +16,5 @@ namespace userinterface.Services
 
         event EventHandler<ToastNotificationEventArgs> ToastRequested;
         event EventHandler ToastDismissed;
-    }
-
-    public class ToastNotificationEventArgs : EventArgs
-    {
-        public string Message { get; set; }
-        public ToastType Type { get; set; }
-        public TimeSpan Duration { get; set; } = TimeSpan.FromSeconds(5);
     }
 }

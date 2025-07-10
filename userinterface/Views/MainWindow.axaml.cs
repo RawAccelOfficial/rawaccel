@@ -17,7 +17,7 @@ public partial class MainWindow : Window
     private ProgressBar? LoadingProgressBar;
     private readonly INotificationService notificationService;
 
-    public MainWindow(INotificationService notificationService)
+    public MainWindow(INotificationService notificationService, IModalService modalService)
     {
         InitializeComponent();
         this.notificationService = notificationService;

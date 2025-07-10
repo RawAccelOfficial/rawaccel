@@ -54,5 +54,10 @@ namespace userinterface.Services
         {
             ShowToast(message, ToastType.Info, durationMs);
         }
+
+        public void Dispose()
+        {
+            timer?.Dispose();
+        }
     }
 }

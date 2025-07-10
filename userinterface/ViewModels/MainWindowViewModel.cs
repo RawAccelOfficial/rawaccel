@@ -18,7 +18,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private string SelectedPageValue = DefaultPage;
     private bool IsProfilesExpandedValue = false;
 
-    public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService)
+    public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService, IModalService modalService)
     {
         this.BackEnd = BackEnd;
         DevicesPage = new DevicesPageViewModel(BackEnd.Devices);

@@ -10,14 +10,14 @@ namespace userinterface.ViewModels.Profile
 {
     public class AccelerationFormulaSettingsViewModel : ViewModelBase
     {
-        private readonly INotificationService? notificationService;
+        private readonly INotificationService notificationService;
 
         public static ObservableCollection<string> FormulaTypes { get; } =
             new(Enum.GetValues(typeof(BEData.AccelerationFormulaType))
                 .Cast<BEData.AccelerationFormulaType>()
                 .Select(formulaType => formulaType.ToString()));
 
-        public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel, INotificationService? notificationService = null)
+        public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel, INotificationService notificationService)
         {
             this.notificationService = notificationService;
             FormulaAccelBE = formulaAccel;
@@ -67,7 +67,7 @@ namespace userinterface.ViewModels.Profile
                 if (double.TryParse(ClassicSettings.Exponent.ValueText, out double exponentValue) &&
                     Math.Abs(exponentValue - 2.0) < 0.001)
                 {
-                    notificationService?.ShowInfoToast("Classic with a power of 2 is equal to linear");
+                    notificationService.ShowInfoToast("Classic with a power of 2 is equal to linear");
                 }
             }
         }
