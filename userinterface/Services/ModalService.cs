@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Threading;
+using System;
+using System.Threading.Tasks;
 using userinterface.Views.Controls;
 
 namespace userinterface.Services

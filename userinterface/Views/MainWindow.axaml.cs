@@ -3,11 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
-using userinterface.Models;
 
 namespace userinterface.Views;
 
@@ -84,9 +82,11 @@ public partial class MainWindow : Window
             case "Devices":
                 DevicesButton.Classes.Add("Selected");
                 break;
+
             case "Mappings":
                 MappingsButton.Classes.Add("Selected");
                 break;
+
             case "Profiles":
                 ProfilesButton.Classes.Add("Selected");
                 break;

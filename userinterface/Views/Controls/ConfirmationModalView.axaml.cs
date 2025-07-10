@@ -44,6 +44,7 @@ namespace userinterface.Views.Controls
         }
 
         public event Action? ConfirmClicked;
+
         public event Action? CancelClicked;
 
         public ConfirmationModalView()
