@@ -178,58 +178,105 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
+
+		<Style Selector="Button.ActivationButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Width" Value="20"/>
+			<Setter Property="Height" Value="20"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="CornerRadius" Value="10"/>
+		</Style>
+
+		<Style Selector="Button.ActivationButton:pointerover">
+			<Setter Property="Background" Value="#22C55E33"/>
+		</Style>
+
+		<Style Selector="Ellipse.ActiveIndicator">
+			<Setter Property="Width" Value="12"/>
+			<Setter Property="Height" Value="12"/>
+		</Style>
+
+		<Style Selector="Ellipse.ActiveIndicator.Active">
+			<Setter Property="Fill" Value="#22C55E"/>
+			<Setter Property="Stroke" Value="#22C55E"/>
+			<Setter Property="StrokeThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="Ellipse.ActiveIndicator.Inactive">
+			<Setter Property="Fill" Value="Transparent"/>
+			<Setter Property="Stroke" Value="#6B7280"/>
+			<Setter Property="StrokeThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="Ellipse.ActiveIndicator.Inactive:pointerover">
+			<Setter Property="Stroke" Value="#22C55E"/>
+		</Style>
 	</UserControl.Styles>
 
-	<DockPanel>
-		<Grid DockPanel.Dock="Top"
-              ColumnDefinitions="Auto,*"
-              Margin="0,0,0,12">
-			<Button Grid.Column="0"
-                    Classes="DeleteButton"
-                    Command="{Binding DeleteCommand}"
-                    VerticalAlignment="Center"
-                    IsEnabled="{Binding !IsDefaultMapping}">
-				<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
-			</Button>
-			<TextBlock Grid.Column="1"
-                       Classes="MappingTitle"
-                       Text="{Binding MappingBE.Name.CurrentValidatedValue}"
-                       VerticalAlignment="Center"/>
-		</Grid>
-
-		<Button DockPanel.Dock="Bottom"
-		Classes="AddButton"
-		HorizontalAlignment="Stretch"
-		Name="AddEntryButton"
-		IsEnabled="{Binding HasDeviceGroupsToAdd}">
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-                          Width="16" Height="16"
-                          Margin="0,0,8,0"/>
-				<TextBlock Text="Add Entry"/>
-			</StackPanel>
-			<Button.Flyout>
-				<Flyout Placement="Bottom">
-					<ListBox Name="DeviceGroupSelectorToAddMapping"
-                             SelectionChanged="AddMappingSelectionChanged"
-                             ItemsSource="{Binding MappingBE.DeviceGroupsStillUnmapped}"
-                             Width="280">
-						<ListBox.ItemTemplate>
-							<DataTemplate>
-								<TextBlock Text="{Binding CurrentValidatedValue}"/>
-							</DataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
-				</Flyout>
-			</Button.Flyout>
+	<Grid>
+		<Button Classes="ActivationButton"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Top"
+				Margin="0,8,8,0"
+				ZIndex="1"
+				Command="{Binding ActivateCommand}">
+			<Ellipse Classes="ActiveIndicator"
+					 Name="ActivationIndicator"/>
 		</Button>
 
-		<ListBox ItemsSource="{Binding MappingListElements}">
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<mapping:MappingListElementView/>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
-	</DockPanel>
+		<DockPanel>
+			<Grid DockPanel.Dock="Top"
+                  ColumnDefinitions="Auto,*"
+                  Margin="0,0,0,12">
+				<Button Grid.Column="0"
+                        Classes="DeleteButton"
+                        Command="{Binding DeleteCommand}"
+                        VerticalAlignment="Center"
+                        IsEnabled="{Binding !IsActiveMapping}">
+					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16"/>
+				</Button>
+				<TextBlock Grid.Column="1"
+                           Classes="MappingTitle"
+                           Text="{Binding MappingBE.Name.CurrentValidatedValue}"
+                           VerticalAlignment="Center"/>
+			</Grid>
+
+			<Button DockPanel.Dock="Bottom"
+                    Classes="AddButton"
+                    HorizontalAlignment="Stretch"
+                    Name="AddEntryButton"
+                    IsEnabled="{Binding HasDeviceGroupsToAdd}">
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
+                              Width="16" Height="16"
+                              Margin="0,0,8,0"/>
+					<TextBlock Text="Add Entry"/>
+				</StackPanel>
+				<Button.Flyout>
+					<Flyout Placement="Bottom">
+						<ListBox Name="DeviceGroupSelectorToAddMapping"
+                                 SelectionChanged="AddMappingSelectionChanged"
+                                 ItemsSource="{Binding MappingBE.DeviceGroupsStillUnmapped}"
+                                 Width="280">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding CurrentValidatedValue}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Flyout>
+				</Button.Flyout>
+			</Button>
+
+			<ListBox ItemsSource="{Binding MappingListElements}">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<mapping:MappingListElementView/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</DockPanel>
+	</Grid>
 </UserControl>

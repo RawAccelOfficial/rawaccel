@@ -23,6 +23,16 @@
 			<Setter Property="Background" Value="#353537"/>
 		</Style>
 
+		<Style Selector="Border.MappingCard.Active">
+			<Setter Property="BorderBrush" Value="#22C55E"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="Border.MappingCard.Active:pointerover">
+			<Setter Property="BorderBrush" Value="#16A34A"/>
+			<Setter Property="Background" Value="#353537"/>
+		</Style>
+
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -59,7 +69,11 @@
 				</ItemsRepeater.Layout>
 				<ItemsRepeater.ItemTemplate>
 					<DataTemplate>
-						<Border Classes="MappingCard">
+						<Border x:DataType="vm:MappingViewModel"
+								Name="MappingCardBorder"
+								BorderBrush="{Binding BorderBrush}"
+								BorderThickness="{Binding BorderThickness}"
+								Classes="MappingCard">
 							<Panel Classes="MappingContainer">
 								<ContentControl Content="{Binding}"/>
 							</Panel>
