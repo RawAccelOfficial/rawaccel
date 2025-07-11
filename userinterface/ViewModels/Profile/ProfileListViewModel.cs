@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using userinterface.Commands;
 using BE = userspace_backend.Model;
@@ -32,7 +33,6 @@ namespace userinterface.ViewModels.Profile
             }
 
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
-            RemoveSelectedProfileCommand = new RelayCommand(() => RemoveSelectedProfile());
         }
 
         public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
@@ -41,8 +41,6 @@ namespace userinterface.ViewModels.Profile
         public Action SelectionChangeAction { get; set; }
 
         public ICommand AddProfileCommand { get; }
-
-        public ICommand RemoveSelectedProfileCommand { get; }
 
         public ObservableCollection<ProfileListElementViewModel> ProfileItems
         {
@@ -133,19 +131,13 @@ namespace userinterface.ViewModels.Profile
                 string newProfileName = $"Profile{i}";
                 if (ProfilesModel.TryAddNewDefaultProfile(newProfileName))
                 {
+                    CurrentSelectedProfile = Profiles.LastOrDefault();
+
                     OnPropertyChanged(nameof(ProfileItems));
                     return true;
                 }
             }
             return false;
-        }
-
-        public void RemoveSelectedProfile()
-        {
-            if (CurrentSelectedProfile != null)
-            {
-                RemoveProfile(CurrentSelectedProfile);
-            }
         }
 
         public void RemoveProfile(BE.ProfileModel profile)
@@ -161,7 +153,6 @@ namespace userinterface.ViewModels.Profile
                     elementViewModel.EditingStarted -= OnEditingStarted;
                     elementViewModel.EditingFinished -= OnEditingFinished;
 
-                    // Cleanup
                     elementViewModel.Cleanup();
                     ProfileElementViewModels.Remove(profile);
                 }

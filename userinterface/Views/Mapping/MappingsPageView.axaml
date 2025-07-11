@@ -72,7 +72,7 @@
 						<Border x:DataType="vm:MappingViewModel"
 								Name="MappingCardBorder"
 								BorderBrush="{Binding BorderBrush}"
-								BorderThickness="{Binding BorderThickness}"
+								BorderThickness="1"
 								Classes="MappingCard">
 							<Panel Classes="MappingContainer">
 								<ContentControl Content="{Binding}"/>

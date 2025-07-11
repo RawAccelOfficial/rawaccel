@@ -88,7 +88,13 @@
 		<Style Selector="ListBoxItem:pressed">
 			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+		
+		<Style Selector="ListBoxItem.StopAnimations">
+			<Setter Property="Transitions" Value="{x:Null}"/>
+			<Setter Property="RenderTransform" Value="scale(1.0)"/>
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 		</Style>
 
 		<Style Selector="Button.AddButton">
@@ -101,6 +107,7 @@
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Height" Value="36"/>
 		</Style>
 
 		<Style Selector="Button.AddButton:pointerover">
@@ -109,18 +116,6 @@
 	</UserControl.Styles>
 
 	<StackPanel>
-		<Button Classes="AddButton"
-                Command="{Binding AddProfileCommand}"
-                HorizontalAlignment="Stretch">
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-                          Width="16" Height="16"
-                          Margin="0,0,8,0"/>
-				<TextBlock Text="Add New Profile"/>
-			</StackPanel>
-		</Button>
-
-		<!-- Profile List -->
 		<ListBox ItemsSource="{Binding ProfileItems}"
                  SelectionChanged="OnSelectionChanged">
 			<ListBox.ItemTemplate>
@@ -129,5 +124,17 @@
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
+		
+		<Button Classes="AddButton"
+                Command="{Binding AddProfileCommand}"
+                HorizontalAlignment="Stretch">
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
+                          Width="16" Height="16"
+                          Margin="0,0,8,0"/>
+				<TextBlock Text="Add New Profile"
+						   Margin="0,4,0,0"/>
+			</StackPanel>
+		</Button>
 	</StackPanel>
 </UserControl>

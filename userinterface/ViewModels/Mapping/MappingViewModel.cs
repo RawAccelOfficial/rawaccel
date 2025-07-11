@@ -56,7 +56,6 @@ namespace userinterface.ViewModels.Mapping
                 {
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(BorderBrush));
-                    OnPropertyChanged(nameof(BorderThickness));
 
                     // Update the ActivateCommand's can execute state
                     if (ActivateCommand is RelayCommand cmd)
@@ -78,10 +77,6 @@ namespace userinterface.ViewModels.Mapping
         public IBrush BorderBrush => IsActiveMapping ?
             new SolidColorBrush(Color.Parse("#22C55E")) :
             new SolidColorBrush(Color.Parse("#404040"));
-
-        public Thickness BorderThickness => IsActiveMapping ?
-            new Thickness(2) :
-            new Thickness(1);
 
         private void UpdateMappingListElements()
         {

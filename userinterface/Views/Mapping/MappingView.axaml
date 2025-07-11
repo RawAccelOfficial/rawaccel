@@ -38,7 +38,6 @@
 					<Border Name="PART_LayoutRoot"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{TemplateBinding CornerRadius}"
                             Padding="{TemplateBinding Padding}">
 						<ContentPresenter Name="PART_ContentPresenter"

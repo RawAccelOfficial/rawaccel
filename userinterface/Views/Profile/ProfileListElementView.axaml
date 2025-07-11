@@ -9,7 +9,6 @@
              x:DataType="vm:ProfileListElementViewModel">
 
 	<UserControl.Styles>
-		<!-- Delete button style -->
 		<Style Selector="Button.DeleteButton">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
@@ -33,7 +32,6 @@
 			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
 		</Style>
 
-		<!-- Rename button style -->
 		<Style Selector="Button.RenameButton">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
@@ -55,6 +53,18 @@
 
 		<Style Selector="Button.RenameButton:pointerover PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:selected, Button.DeleteButton:pointerover, Button.DeleteButton:selected:pointerover, Button.DeleteButton:focus, Button.DeleteButton:selected:focus">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<Style Selector="Button.RenameButton:selected, Button.RenameButton:pointerover, Button.RenameButton:selected:pointerover, Button.RenameButton:focus, Button.RenameButton:selected:focus">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 	</UserControl.Styles>
 
@@ -92,9 +102,10 @@
 		</Button>
 
 		<Button Grid.Column="2"
-                Classes="DeleteButton"
-                Command="{Binding DeleteProfileCommand}"
-                VerticalAlignment="Center">
+				Name="DeleteButton"
+				Classes="DeleteButton"
+				Click="OnDeleteButtonClick"
+				VerticalAlignment="Center">
 			<Button.IsVisible>
 				<MultiBinding Converter="{x:Static BoolConverters.And}">
 					<Binding Path="ShowActionButtons"/>
