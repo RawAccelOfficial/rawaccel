@@ -19,6 +19,9 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public BE.ProfileModel? currentEditingProfile;
 
+        [ObservableProperty]
+        private ProfileListElementViewModel? selectedProfileItem;
+
         private Dictionary<BE.ProfileModel, ProfileListElementViewModel> ProfileElementViewModels = [];
 
         private BE.ProfilesModel ProfilesModel { get; }
@@ -30,6 +33,8 @@ namespace userinterface.ViewModels.Profile
             if (Profiles?.Count > 0)
             {
                 CurrentSelectedProfile = Profiles[0];
+                // Set the initial selected item
+                UpdateSelectedProfileItem();
             }
 
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
@@ -70,6 +75,33 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
+        partial void OnSelectedProfileItemChanged(ProfileListElementViewModel? value)
+        {
+            if (value?.Profile != null)
+            {
+                CurrentSelectedProfile = value.Profile;
+            }
+        }
+
+        partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
+        {
+            // Update the selected item when the profile changes programmatically
+            UpdateSelectedProfileItem();
+            SelectionChangeAction?.Invoke();
+        }
+
+        private void UpdateSelectedProfileItem()
+        {
+            if (CurrentSelectedProfile != null && ProfileElementViewModels.TryGetValue(CurrentSelectedProfile, out var elementViewModel))
+            {
+                SelectedProfileItem = elementViewModel;
+            }
+            else
+            {
+                SelectedProfileItem = null;
+            }
+        }
+
         private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
         {
             RemoveProfile(elementViewModel.Profile);
@@ -89,11 +121,6 @@ namespace userinterface.ViewModels.Profile
         private void OnEditingFinished(ProfileListElementViewModel elementViewModel)
         {
             StopEditing();
-        }
-
-        partial void OnCurrentSelectedProfileChanged(BE.ProfileModel? value)
-        {
-            SelectionChangeAction?.Invoke();
         }
 
         partial void OnCurrentEditingProfileChanged(BE.ProfileModel? value)
@@ -169,7 +196,7 @@ namespace userinterface.ViewModels.Profile
                     CurrentSelectedProfile = null;
                 }
 
-                _ = ProfilesModel.RemoveProfile(profile);
+                ProfilesModel.RemoveProfile(profile);
                 OnPropertyChanged(nameof(ProfileItems));
             }
         }

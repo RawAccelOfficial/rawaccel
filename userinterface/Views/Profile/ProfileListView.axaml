@@ -130,14 +130,14 @@
 
 	<StackPanel>
 		<ListBox ItemsSource="{Binding ProfileItems}"
-                 SelectionChanged="OnSelectionChanged">
+                 SelectedItem="{Binding SelectedProfileItem, Mode=TwoWay}">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<vp:ProfileListElementView/>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
-		
+
 		<Button Classes="AddButton"
                 Command="{Binding AddProfileCommand}"
                 HorizontalAlignment="Stretch">
