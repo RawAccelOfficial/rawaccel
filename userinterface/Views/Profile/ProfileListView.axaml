@@ -88,8 +88,21 @@
 		<Style Selector="ListBoxItem:pressed">
 			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
-		
+
+		<Style Selector="ListBoxItem /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
 		<Style Selector="ListBoxItem.StopAnimations">
 			<Setter Property="Transitions" Value="{x:Null}"/>
 			<Setter Property="RenderTransform" Value="scale(1.0)"/>

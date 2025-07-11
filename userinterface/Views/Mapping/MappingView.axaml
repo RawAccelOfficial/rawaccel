@@ -36,10 +36,11 @@
 			<Setter Property="Template">
 				<ControlTemplate>
 					<Border Name="PART_LayoutRoot"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            CornerRadius="{TemplateBinding CornerRadius}"
-                            Padding="{TemplateBinding Padding}">
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							Padding="{TemplateBinding Padding}">
 						<ContentPresenter Name="PART_ContentPresenter"
                                           Content="{TemplateBinding Content}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
@@ -55,10 +56,20 @@
 		<Style Selector="ListBoxItem ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
+		
 		<Style Selector="ListBoxItem:selected ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
+		
 		<Style Selector="ListBoxItem:pointerover ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
