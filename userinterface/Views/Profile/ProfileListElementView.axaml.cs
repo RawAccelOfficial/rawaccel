@@ -9,14 +9,24 @@ namespace userinterface.Views.Profile
 {
     public partial class ProfileListElementView : UserControl
     {
-        // Store the previous ViewModel to unsubscribe from events without memory leaks
-        private ProfileListElementViewModel? previousViewModel;
-
         public ProfileListElementView()
         {
             InitializeComponent();
             DeleteButton.Click += OnDeleteButtonClick;
             DataContextChanged += OnDataContextChanged;
+        }
+
+        private void OnDataContextChanged(object? sender, EventArgs e)
+        {
+            // Subscribe to selection changes once when DataContext is first set
+            if (DataContext is ProfileListElementViewModel viewModel && !viewModel.HasViewSubscribed)
+            {
+                viewModel.SelectionChanged += OnSelectionChanged;
+                viewModel.HasViewSubscribed = true;
+
+                // Set initial selection state
+                OnSelectionChanged(viewModel, viewModel.IsSelected);
+            }
         }
 
         private void OnDeleteButtonClick(object? sender, RoutedEventArgs e)
@@ -39,27 +49,10 @@ namespace userinterface.Views.Profile
             }
         }
 
-        private void OnDataContextChanged(object? sender, EventArgs e)
-        {
-            // Unsubscribe from previous ViewModel if it exists
-            if (previousViewModel != null)
-            {
-                previousViewModel.SelectionChanged -= OnSelectionChanged;
-                previousViewModel = null;
-            }
-
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                // Subscribe to the new ViewModel
-                viewModel.SelectionChanged += OnSelectionChanged;
-                // Store reference for cleanup
-                previousViewModel = viewModel;
-            }
-        }
-
         private void OnSelectionChanged(ProfileListElementViewModel viewModel, bool isSelected)
         {
             System.Diagnostics.Debug.WriteLine($"Selection changed: {viewModel.CurrentNameForDisplay} is now {(isSelected ? "selected" : "deselected")}");
+
             var listBoxItem = this.FindLogicalAncestorOfType<ListBoxItem>();
             if (listBoxItem != null)
             {

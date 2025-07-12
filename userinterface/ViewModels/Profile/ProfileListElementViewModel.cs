@@ -23,6 +23,9 @@ namespace userinterface.ViewModels.Profile
 
         public event Action<ProfileListElementViewModel, bool>? SelectionChanged;
 
+        // This property tracks if we are subscribed to the SelectionChanged event to prevent memeory leaks (because of virtualization)
+        public bool HasViewSubscribed { get; set; } = false;
+
         public ICommand DeleteProfileCommand { get; }
 
         public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true, bool isDefault = false)

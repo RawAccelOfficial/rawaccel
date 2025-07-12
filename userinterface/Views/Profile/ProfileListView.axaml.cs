@@ -21,6 +21,7 @@ public partial class ProfileListView : UserControl
 
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is ProfileListElementViewModel selectedItem)
             {
+                System.Diagnostics.Debug.WriteLine("New selected item" + selectedItem.CurrentNameForDisplay);
                 selectedItem.UpdateSelection(true);
             }
         }

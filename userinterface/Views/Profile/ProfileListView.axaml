@@ -54,6 +54,26 @@
 			</Setter>
 		</Style>
 
+		<!-- Override all default selection styles to look like normal state -->
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pressed">
+			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
 		<!-- Remove all default ContentPresenter selection styling -->
 		<Style Selector="ListBoxItem ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
@@ -67,22 +87,15 @@
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
+		<Style Selector="ListBoxItem:selected:pointerover ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
 		<Style Selector="ListBoxItem:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="RenderTransform" Value="scale(1.02)"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:pointerover">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
 		</Style>
 
 		<Style Selector="ListBoxItem:pressed">
@@ -103,7 +116,19 @@
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
-		<Style Selector="ListBoxItem.StopAnimations">
+		<!-- Custom selected class that we control manually -->
+		<Style Selector="ListBoxItem.CurrentlySelected">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem.CurrentlySelected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem.StopAnimations, ListBoxItem.StopAnimations:pointerover">
 			<Setter Property="Transitions" Value="{x:Null}"/>
 			<Setter Property="RenderTransform" Value="scale(1.0)"/>
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
