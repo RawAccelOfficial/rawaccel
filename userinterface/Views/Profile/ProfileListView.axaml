@@ -130,7 +130,8 @@
 
 	<StackPanel>
 		<ListBox ItemsSource="{Binding ProfileItems}"
-                 SelectedItem="{Binding SelectedProfileItem, Mode=TwoWay}">
+                 SelectedItem="{Binding SelectedProfileViewModel, Mode=TwoWay}"
+                 SelectionChanged="OnSelectionChanged">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<vp:ProfileListElementView/>

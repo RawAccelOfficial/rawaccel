@@ -16,7 +16,7 @@ public partial class ProfileListView : UserControl
             && e.AddedItems.Count > 0
             && e.AddedItems[0] is ProfileListElementViewModel selectedItem)
         {
-            viewModel.CurrentSelectedProfile = selectedItem.Profile;
+            viewModel.SelectedProfileData = selectedItem.Profile;
         }
     }
 }

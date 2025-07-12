@@ -38,7 +38,7 @@ namespace userinterface.ViewModels.Profile
         {
             UpdateProfileViewModels();
 
-            var selectedProfile = ProfileListView.CurrentSelectedProfile;
+            var selectedProfile = ProfileListView.SelectedProfileData;
 
             UpdateSelectedProfileView(selectedProfile);
         }

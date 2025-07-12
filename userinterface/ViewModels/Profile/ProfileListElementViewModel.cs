@@ -21,6 +21,9 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         private bool isDefaultProfile;
 
+        [ObservableProperty]
+        private bool isSelected;
+
         public BE.ProfileModel Profile { get; }
 
         public event Action<ProfileListElementViewModel>? ProfileDeleted;
@@ -30,6 +33,8 @@ namespace userinterface.ViewModels.Profile
         public event Action<ProfileListElementViewModel>? EditingStarted;
 
         public event Action<ProfileListElementViewModel>? EditingFinished;
+
+        public event Action<ProfileListElementViewModel, bool>? SelectionChanged;
 
         public ICommand StartEditingCommand { get; }
 
@@ -43,7 +48,7 @@ namespace userinterface.ViewModels.Profile
         {
             Profile = profile;
             ShowActionButtons = showButtons;
-            this.IsDefaultProfile = isDefault;
+            IsDefaultProfile = isDefault;
 
             StartEditingCommand = new RelayCommand(() => StartEditing());
             StopEditingCommand = new RelayCommand(() => StopEditing());
@@ -64,6 +69,21 @@ namespace userinterface.ViewModels.Profile
                 }
                 return FieldViewModel;
             }
+        }
+
+        partial void OnIsSelectedChanged(bool value)
+        {
+            SelectionChanged?.Invoke(this, value);
+        }
+
+        public void UpdateSelection(bool selected)
+        {
+            IsSelected = selected;
+        }
+
+        public void UpdateSelectionVisual(bool isSelected)
+        {
+            SelectionChanged?.Invoke(this, isSelected);
         }
 
         public void StartEditing()
