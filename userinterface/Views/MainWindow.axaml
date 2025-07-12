@@ -363,6 +363,6 @@
 			<ContentControl Content="{Binding CurrentPageContent}"/>
 		</Border>
 
-		<controls:ToastView x:Name="ToastView" />
+		<controls:ToastView DataContext="{Binding ToastViewModel}" />
 	</Panel>
 </Window>

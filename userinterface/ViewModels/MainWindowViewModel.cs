@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using userinterface.Services;
+using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
@@ -22,7 +23,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         this.BackEnd = BackEnd;
         DevicesPage = new DevicesPageViewModel(BackEnd.Devices);
-
+        ToastViewModel = new ToastViewModel(notificationService);
         ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
         ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
         MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
@@ -37,6 +38,8 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public MappingsPageViewModel MappingsPage { get; }
 
     public ProfileListViewModel ProfileListView { get; }
+
+    public ToastViewModel ToastViewModel { get; }
 
     protected BE.BackEnd BackEnd { get; }
 
