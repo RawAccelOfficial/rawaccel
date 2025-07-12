@@ -15,6 +15,7 @@ namespace userinterface.ViewModels.Profile
 
         private readonly ObservableCollection<ProfileListElementViewModel> profileItems;
 
+        // Just for optimization, only for cleaning up
         private readonly Dictionary<BE.ProfileModel, ProfileListElementViewModel> profileViewModelCache;
 
         private BE.ProfilesModel ProfilesModel { get; }
@@ -27,7 +28,6 @@ namespace userinterface.ViewModels.Profile
 
             ProfilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
 
-            // Initial population
             UpdateProfileItems();
 
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
@@ -60,21 +60,17 @@ namespace userinterface.ViewModels.Profile
                 }
             }
 
-            // Add or reuse ViewModels for current profiles
             for (int i = 0; i < Profiles.Count; i++)
             {
                 var profile = Profiles[i];
 
                 if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
                 {
-                    // Create new ViewModel if it doesn't exist
                     bool isDefault = i == 0;
                     elementViewModel = new ProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
 
-                    // Subscribe to events
                     elementViewModel.ProfileDeleted += OnProfileDeleted;
 
-                    // Cache it
                     profileViewModelCache[profile] = elementViewModel;
                 }
                 else
@@ -99,11 +95,21 @@ namespace userinterface.ViewModels.Profile
                 string newProfileName = $"Profile{i}";
                 if (ProfilesModel.TryAddNewDefaultProfile(newProfileName))
                 {
+                    var newProfile = Profiles.FirstOrDefault(p => p.CurrentNameForDisplay == newProfileName);
+                    if (newProfile != null)
+                    {
+                        var newProfileViewModel = ProfileItems.FirstOrDefault(vm => vm.Profile == newProfile);
+                        if (newProfileViewModel != null)
+                        {
+                            SetSelectedProfile(newProfileViewModel);
+                        }
+                    }
                     return true;
                 }
             }
             return false;
         }
+
 
         public void RemoveProfile(BE.ProfileModel profile)
         {
@@ -121,11 +127,22 @@ namespace userinterface.ViewModels.Profile
         // Helper method to set selection on a specific profile
         public void SetSelectedProfile(BE.ProfileModel? profile)
         {
+
             foreach (var item in ProfileItems)
             {
                 item.UpdateSelection(item.Profile == profile);
             }
         }
+
+        // Helper method to set selection on a specific profile view model
+        public void SetSelectedProfile(ProfileListElementViewModel? profileViewModel)
+        {
+            foreach (var item in ProfileItems)
+            {
+                item.UpdateSelection(item == profileViewModel);
+            }
+        }
+
 
         // Cleanup method to prevent memory leaks
         public void Cleanup()

@@ -101,7 +101,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                     item.SelectionChanged += OnProfileSelectionChanged;
                 }
             }
-
             if (e.OldItems != null)
             {
                 foreach (ProfileListElementViewModel item in e.OldItems)
@@ -119,6 +118,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OnProfileSelectionChanged(ProfileListElementViewModel profileElement, bool isSelected)
     {
+        // Only update when a profile becomes selected (not when deselected)
         if (isSelected)
         {
             ProfilesPage?.UpdateCurrentProfile();
@@ -138,7 +138,5 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             item.SelectionChanged -= OnProfileSelectionChanged;
         }
-
-        ProfileListView.Cleanup();
     }
 }

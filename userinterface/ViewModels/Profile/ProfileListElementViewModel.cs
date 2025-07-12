@@ -14,7 +14,6 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         private bool isDefaultProfile;
 
-        [ObservableProperty]
         private bool isSelected;
 
         public BE.ProfileModel Profile { get; }
@@ -23,35 +22,33 @@ namespace userinterface.ViewModels.Profile
 
         public event Action<ProfileListElementViewModel, bool>? SelectionChanged;
 
-        // This property tracks if we are subscribed to the SelectionChanged event to prevent memeory leaks (because of virtualization)
-        public bool HasViewSubscribed { get; set; } = false;
-
         public ICommand DeleteProfileCommand { get; }
+
+        // Track if a view has subscribed to this ViewModel
+        public bool HasViewSubscribed { get; set; } = false;
 
         public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true, bool isDefault = false)
         {
             Profile = profile;
             ShowActionButtons = showButtons;
             IsDefaultProfile = isDefault;
-
+            UpdateSelection(false);
             DeleteProfileCommand = new RelayCommand(() => DeleteProfile());
         }
 
         public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
 
-        partial void OnIsSelectedChanged(bool value)
+        public bool IsSelected
         {
-            SelectionChanged?.Invoke(this, value);
+            get => isSelected;
+            private set => isSelected = value;
         }
 
         public void UpdateSelection(bool selected)
         {
+            if (selected) System.Diagnostics.Debug.WriteLine("New selected item: " + Profile.CurrentNameForDisplay);
             IsSelected = selected;
-        }
-
-        public void UpdateSelectionVisual(bool isSelected)
-        {
-            SelectionChanged?.Invoke(this, isSelected);
+            SelectionChanged?.Invoke(this, selected);
         }
 
         public void DeleteProfile()

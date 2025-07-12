@@ -1,8 +1,11 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using userinterface.ViewModels.Profile;
 
 namespace userinterface.Views.Profile
@@ -14,18 +17,55 @@ namespace userinterface.Views.Profile
             InitializeComponent();
             DeleteButton.Click += OnDeleteButtonClick;
             DataContextChanged += OnDataContextChanged;
+            AttachedToVisualTree += OnAttachedToVisualTree;
+            DetachedFromVisualTree += OnDetachedFromVisualTree;
+        }
+
+        private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+        {
+            // Ensure subscription when control is attached to visual tree
+            if (DataContext is ProfileListElementViewModel viewModel)
+            {
+                System.Diagnostics.Debug.WriteLine($"Control attached to visual tree, ensuring subscription for: {viewModel.CurrentNameForDisplay}");
+                EnsureSubscription(viewModel);
+            }
+        }
+
+        private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+        {
+            // Clean up when detached
+            if (DataContext is ProfileListElementViewModel viewModel)
+            {
+                System.Diagnostics.Debug.WriteLine($"Control detached from visual tree, cleaning up subscription for: {viewModel.CurrentNameForDisplay}");
+                viewModel.SelectionChanged -= OnSelectionChanged;
+                viewModel.HasViewSubscribed = false;
+            }
+        }
+
+        private void EnsureSubscription(ProfileListElementViewModel viewModel)
+        {
+            if (!viewModel.HasViewSubscribed)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ensuring subscription for: {viewModel.CurrentNameForDisplay}");
+                viewModel.SelectionChanged += OnSelectionChanged;
+                viewModel.HasViewSubscribed = true;
+                OnSelectionChanged(viewModel, viewModel.IsSelected);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Already subscribed for: {viewModel.CurrentNameForDisplay}");
+                // Still force UI update to ensure sync
+                OnSelectionChanged(viewModel, viewModel.IsSelected);
+            }
         }
 
         private void OnDataContextChanged(object? sender, EventArgs e)
         {
-            // Subscribe to selection changes once when DataContext is first set
-            if (DataContext is ProfileListElementViewModel viewModel && !viewModel.HasViewSubscribed)
-            {
-                viewModel.SelectionChanged += OnSelectionChanged;
-                viewModel.HasViewSubscribed = true;
+            System.Diagnostics.Debug.WriteLine($"DataContextChanged fired. DataContext type: {DataContext?.GetType().Name ?? "null"}");
 
-                // Set initial selection state
-                OnSelectionChanged(viewModel, viewModel.IsSelected);
+            if (DataContext is ProfileListElementViewModel viewModel)
+            {
+                EnsureSubscription(viewModel);
             }
         }
 
@@ -37,12 +77,10 @@ namespace userinterface.Views.Profile
             {
                 listBoxItem.Classes.Add("StopAnimations");
             }
-
             if (DataContext is ProfileListElementViewModel viewModel)
             {
                 viewModel.DeleteProfileCommand?.Execute(null);
             }
-
             if (listBoxItem != null)
             {
                 listBoxItem.Classes.Remove("StopAnimations");
@@ -51,7 +89,7 @@ namespace userinterface.Views.Profile
 
         private void OnSelectionChanged(ProfileListElementViewModel viewModel, bool isSelected)
         {
-            System.Diagnostics.Debug.WriteLine($"Selection changed: {viewModel.CurrentNameForDisplay} is now {(isSelected ? "selected" : "deselected")}");
+            System.Diagnostics.Debug.WriteLine($"OnSelectionChanged called for: {viewModel.CurrentNameForDisplay}, isSelected: {isSelected}");
 
             var listBoxItem = this.FindLogicalAncestorOfType<ListBoxItem>();
             if (listBoxItem != null)
@@ -64,6 +102,12 @@ namespace userinterface.Views.Profile
                 {
                     listBoxItem.Classes.Remove("CurrentlySelected");
                 }
+                System.Diagnostics.Debug.WriteLine($"Selection changed: {viewModel.CurrentNameForDisplay} is now {(isSelected ? "selected" : "deselected")}");
+                System.Diagnostics.Debug.WriteLine(string.Join(",", listBoxItem.Classes.ToList()));
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Could not find ListBoxItem for: {viewModel.CurrentNameForDisplay}");
             }
         }
     }
