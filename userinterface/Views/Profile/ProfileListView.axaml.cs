@@ -12,11 +12,17 @@ public partial class ProfileListView : UserControl
 
     public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (DataContext is ProfileListViewModel viewModel
-            && e.AddedItems.Count > 0
-            && e.AddedItems[0] is ProfileListElementViewModel selectedItem)
+        if (DataContext is ProfileListViewModel viewModel)
         {
-            viewModel.SelectedProfileData = selectedItem.Profile;
+            foreach (var item in viewModel.ProfileItems)
+            {
+                item.UpdateSelection(false);
+            }
+
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is ProfileListElementViewModel selectedItem)
+            {
+                selectedItem.UpdateSelection(true);
+            }
         }
     }
 }

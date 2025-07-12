@@ -1,9 +1,6 @@
-﻿using Avalonia.Animation;
-using Avalonia.Controls;
-using Avalonia.Input;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
-using Avalonia.Media;
 using Avalonia.VisualTree;
 using System;
 using userinterface.ViewModels.Profile;
@@ -18,7 +15,6 @@ namespace userinterface.Views.Profile
         public ProfileListElementView()
         {
             InitializeComponent();
-            KeyDown += OnKeyDown;
             DeleteButton.Click += OnDeleteButtonClick;
             DataContextChanged += OnDataContextChanged;
         }
@@ -74,25 +70,6 @@ namespace userinterface.Views.Profile
                 else
                 {
                     listBoxItem.Classes.Remove("CurrentlySelected");
-                }
-            }
-        }
-
-        private void OnKeyDown(object? sender, KeyEventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel && viewModel.IsEditing)
-            {
-                switch (e.Key)
-                {
-                    case Key.Enter:
-                        viewModel.StopEditing();
-                        e.Handled = true;
-                        break;
-
-                    case Key.Escape:
-                        viewModel.CancelEditing();
-                        e.Handled = true;
-                        break;
                 }
             }
         }

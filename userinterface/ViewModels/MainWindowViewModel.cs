@@ -28,7 +28,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
         MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
 
-        ProfileListView.SelectionChangeAction = OnProfileSelectionChanged;
+        SubscribeToProfileSelectionChanges();
     }
 
     public DevicesPageViewModel DevicesPage { get; }
@@ -90,9 +90,39 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         BackEnd.Apply();
     }
 
-    private void OnProfileSelectionChanged()
+    private void SubscribeToProfileSelectionChanges()
     {
-        ProfilesPage?.UpdateCurrentProfile();
+        ProfileListView.ProfileItems.CollectionChanged += (sender, e) =>
+        {
+            if (e.NewItems != null)
+            {
+                foreach (ProfileListElementViewModel item in e.NewItems)
+                {
+                    item.SelectionChanged += OnProfileSelectionChanged;
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (ProfileListElementViewModel item in e.OldItems)
+                {
+                    item.SelectionChanged -= OnProfileSelectionChanged;
+                }
+            }
+        };
+
+        foreach (var item in ProfileListView.ProfileItems)
+        {
+            item.SelectionChanged += OnProfileSelectionChanged;
+        }
+    }
+
+    private void OnProfileSelectionChanged(ProfileListElementViewModel profileElement, bool isSelected)
+    {
+        if (isSelected)
+        {
+            ProfilesPage?.UpdateCurrentProfile();
+        }
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
@@ -100,5 +130,15 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     protected virtual new void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+    }
+
+    public void Cleanup()
+    {
+        foreach (var item in ProfileListView.ProfileItems)
+        {
+            item.SelectionChanged -= OnProfileSelectionChanged;
+        }
+
+        ProfileListView.Cleanup();
     }
 }
