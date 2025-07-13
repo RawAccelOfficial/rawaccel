@@ -35,7 +35,84 @@ namespace userinterface.ViewModels.Profile
 
         private void OnProfilesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            UpdateProfileItems();
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    if (e.NewItems != null)
+                    {
+                        foreach (BE.ProfileModel profile in e.NewItems)
+                        {
+                            AddProfileItem(profile, e.NewStartingIndex);
+                        }
+                    }
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null)
+                    {
+                        foreach (BE.ProfileModel profile in e.OldItems)
+                        {
+                            RemoveProfileItem(profile);
+                        }
+                    }
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                    UpdateProfileItems();
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                    // For these cases, fall back to full update
+                    UpdateProfileItems();
+                    break;
+            }
+
+            // Update default profile status after any change
+            UpdateDefaultProfileStatus();
+        }
+
+        private void AddProfileItem(BE.ProfileModel profile, int index)
+        {
+            if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
+            {
+                bool isDefault = index == 0;
+                elementViewModel = new ProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
+                elementViewModel.ProfileDeleted += OnProfileDeleted;
+                profileViewModelCache[profile] = elementViewModel;
+            }
+
+            // Insert at the correct position
+            if (index >= 0 && index < profileItems.Count)
+            {
+                profileItems.Insert(index, elementViewModel);
+            }
+            else
+            {
+                profileItems.Add(elementViewModel);
+            }
+        }
+
+        private void RemoveProfileItem(BE.ProfileModel profile)
+        {
+            if (profileViewModelCache.TryGetValue(profile, out var elementViewModel))
+            {
+                // Remove from UI collection
+                profileItems.Remove(elementViewModel);
+
+                // Clean up the view model
+                elementViewModel.ProfileDeleted -= OnProfileDeleted;
+                profileViewModelCache.Remove(profile);
+            }
+        }
+
+        private void UpdateDefaultProfileStatus()
+        {
+            for (int i = 0; i < profileItems.Count; i++)
+            {
+                var item = profileItems[i];
+                item.IsDefaultProfile = i == 0;
+            }
         }
 
         public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
@@ -46,6 +123,9 @@ namespace userinterface.ViewModels.Profile
 
         private void UpdateProfileItems()
         {
+            // Store current selection before clearing
+            var selectedProfile = GetSelectedProfile();
+
             // Clear the observable collection but keep the cache for reuse
             profileItems.Clear();
 
@@ -81,6 +161,11 @@ namespace userinterface.ViewModels.Profile
 
                 profileItems.Add(elementViewModel);
             }
+
+            if (selectedProfile != null && Profiles.Contains(selectedProfile))
+            {
+                SetSelectedProfile(selectedProfile);
+            }
         }
 
         private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
@@ -110,7 +195,6 @@ namespace userinterface.ViewModels.Profile
             return false;
         }
 
-
         public void RemoveProfile(BE.ProfileModel profile)
         {
             if (profile != null)
@@ -127,7 +211,6 @@ namespace userinterface.ViewModels.Profile
         // Helper method to set selection on a specific profile
         public void SetSelectedProfile(BE.ProfileModel? profile)
         {
-
             foreach (var item in ProfileItems)
             {
                 item.UpdateSelection(item.Profile == profile);
@@ -142,7 +225,6 @@ namespace userinterface.ViewModels.Profile
                 item.UpdateSelection(item == profileViewModel);
             }
         }
-
 
         // Cleanup method to prevent memory leaks
         public void Cleanup()
