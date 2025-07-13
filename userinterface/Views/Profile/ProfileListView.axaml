@@ -128,13 +128,6 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
 		</Style>
 
-		<Style Selector="ListBoxItem.StopAnimations, ListBoxItem.StopAnimations:pointerover">
-			<Setter Property="Transitions" Value="{x:Null}"/>
-			<Setter Property="RenderTransform" Value="scale(1.0)"/>
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-		</Style>
-
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>

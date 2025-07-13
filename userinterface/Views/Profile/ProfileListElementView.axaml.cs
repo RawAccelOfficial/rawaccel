@@ -71,19 +71,9 @@ namespace userinterface.Views.Profile
 
         private void OnDeleteButtonClick(object? sender, RoutedEventArgs e)
         {
-            // Removes the weird bug where the pressed animation carries over to the first element
-            var listBoxItem = this.FindAncestorOfType<ListBoxItem>();
-            if (listBoxItem != null)
-            {
-                listBoxItem.Classes.Add("StopAnimations");
-            }
             if (DataContext is ProfileListElementViewModel viewModel)
             {
                 viewModel.DeleteProfileCommand?.Execute(null);
-            }
-            if (listBoxItem != null)
-            {
-                listBoxItem.Classes.Remove("StopAnimations");
             }
         }
 
