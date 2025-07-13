@@ -23,20 +23,16 @@ namespace userinterface.Views.Profile
 
         private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
-            // Ensure subscription when control is attached to visual tree
             if (DataContext is ProfileListElementViewModel viewModel)
             {
-                System.Diagnostics.Debug.WriteLine($"Control attached to visual tree, ensuring subscription for: {viewModel.CurrentNameForDisplay}");
                 EnsureSubscription(viewModel);
             }
         }
 
         private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
-            // Clean up when detached
             if (DataContext is ProfileListElementViewModel viewModel)
             {
-                System.Diagnostics.Debug.WriteLine($"Control detached from visual tree, cleaning up subscription for: {viewModel.CurrentNameForDisplay}");
                 viewModel.SelectionChanged -= OnSelectionChanged;
                 viewModel.HasViewSubscribed = false;
             }
@@ -46,23 +42,18 @@ namespace userinterface.Views.Profile
         {
             if (!viewModel.HasViewSubscribed)
             {
-                System.Diagnostics.Debug.WriteLine($"Ensuring subscription for: {viewModel.CurrentNameForDisplay}");
                 viewModel.SelectionChanged += OnSelectionChanged;
                 viewModel.HasViewSubscribed = true;
                 OnSelectionChanged(viewModel, viewModel.IsSelected);
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"Already subscribed for: {viewModel.CurrentNameForDisplay}");
-                // Still force UI update to ensure sync
                 OnSelectionChanged(viewModel, viewModel.IsSelected);
             }
         }
 
         private void OnDataContextChanged(object? sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"DataContextChanged fired. DataContext type: {DataContext?.GetType().Name ?? "null"}");
-
             if (DataContext is ProfileListElementViewModel viewModel)
             {
                 EnsureSubscription(viewModel);
@@ -79,8 +70,6 @@ namespace userinterface.Views.Profile
 
         private void OnSelectionChanged(ProfileListElementViewModel viewModel, bool isSelected)
         {
-            System.Diagnostics.Debug.WriteLine($"OnSelectionChanged called for: {viewModel.CurrentNameForDisplay}, isSelected: {isSelected}");
-
             var listBoxItem = this.FindLogicalAncestorOfType<ListBoxItem>();
             if (listBoxItem != null)
             {
@@ -92,12 +81,6 @@ namespace userinterface.Views.Profile
                 {
                     listBoxItem.Classes.Remove("CurrentlySelected");
                 }
-                System.Diagnostics.Debug.WriteLine($"Selection changed: {viewModel.CurrentNameForDisplay} is now {(isSelected ? "selected" : "deselected")}");
-                System.Diagnostics.Debug.WriteLine(string.Join(",", listBoxItem.Classes.ToList()));
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Could not find ListBoxItem for: {viewModel.CurrentNameForDisplay}");
             }
         }
     }
