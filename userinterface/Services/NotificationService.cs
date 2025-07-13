@@ -14,10 +14,8 @@ namespace userinterface.Services
 
         public void ShowToast(string message, ToastType type, int durationMs = 5000)
         {
-            // Stop existing timer if running
             timer?.Dispose();
 
-            // Raise event to show toast
             ToastRequested?.Invoke(this, new ToastNotificationEventArgs
             {
                 Message = message,
@@ -25,7 +23,6 @@ namespace userinterface.Services
                 Duration = TimeSpan.FromMilliseconds(durationMs)
             });
 
-            // Start auto-hide timer
             timer = new Timer(state => HideToast(), null, durationMs, Timeout.Infinite);
         }
 
