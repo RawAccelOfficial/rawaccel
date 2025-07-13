@@ -52,7 +52,6 @@
 		<Button Grid.Column="1"
 				Name="DeleteButton"
 				Classes="DeleteButton"
-				Click="OnDeleteButtonClick"
 				VerticalAlignment="Center">
 			<Button.IsVisible>
 				<MultiBinding Converter="{x:Static BoolConverters.And}">
