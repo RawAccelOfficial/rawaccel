@@ -50,9 +50,20 @@ namespace userinterface.ViewModels.Profile
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     if (e.OldItems != null)
                     {
+                        bool wasSelectedItemDeleted = false;
                         foreach (BE.ProfileModel profile in e.OldItems)
                         {
+                            if (profileViewModelCache.TryGetValue(profile, out var viewModel) && viewModel.IsSelected)
+                            {
+                                wasSelectedItemDeleted = true;
+                            }
                             RemoveProfileItem(profile);
+                        }
+
+                        // If we deleted the selected item, select the default
+                        if (wasSelectedItemDeleted)
+                        {
+                            SelectDefaultItem();
                         }
                     }
                     break;
@@ -62,6 +73,7 @@ namespace userinterface.ViewModels.Profile
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                    throw new NotImplementedException("Move action is not written yet.");
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
                     // For these cases, fall back to full update
                     UpdateProfileItems();
@@ -97,7 +109,6 @@ namespace userinterface.ViewModels.Profile
         {
             if (profileViewModelCache.TryGetValue(profile, out var elementViewModel))
             {
-                // Remove from UI collection
                 profileItems.Remove(elementViewModel);
 
                 // Clean up the view model
@@ -115,6 +126,22 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
+        private void SelectDefaultItem()
+        {
+            foreach (var item in profileItems)
+            {
+                if (item.IsDefaultProfile)
+                {
+                    item.UpdateSelection(true);
+                    return; // Exit early - there can only be one default item
+                }
+                else
+                {
+                    item.UpdateSelection(false);
+                }
+            }
+        }
+
         public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
 
         public ICommand AddProfileCommand { get; }
@@ -123,9 +150,6 @@ namespace userinterface.ViewModels.Profile
 
         private void UpdateProfileItems()
         {
-            // Store current selection before clearing
-            var selectedProfile = GetSelectedProfile();
-
             // Clear the observable collection but keep the cache for reuse
             profileItems.Clear();
 
@@ -155,17 +179,13 @@ namespace userinterface.ViewModels.Profile
                 }
                 else
                 {
-                    // Update existing ViewModel properties if needed
                     elementViewModel.IsDefaultProfile = i == 0;
                 }
 
                 profileItems.Add(elementViewModel);
             }
 
-            if (selectedProfile != null && Profiles.Contains(selectedProfile))
-            {
-                SetSelectedProfile(selectedProfile);
-            }
+            SelectDefaultItem();
         }
 
         private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
@@ -208,7 +228,6 @@ namespace userinterface.ViewModels.Profile
             return ProfileItems.FirstOrDefault(vm => vm.IsSelected)?.Profile;
         }
 
-        // Helper method to set selection on a specific profile
         public void SetSelectedProfile(BE.ProfileModel? profile)
         {
             foreach (var item in ProfileItems)
@@ -217,7 +236,6 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // Helper method to set selection on a specific profile view model
         public void SetSelectedProfile(ProfileListElementViewModel? profileViewModel)
         {
             foreach (var item in ProfileItems)
@@ -226,7 +244,6 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // Cleanup method to prevent memory leaks
         public void Cleanup()
         {
             ProfilesModel.Profiles.CollectionChanged -= OnProfilesCollectionChanged;
