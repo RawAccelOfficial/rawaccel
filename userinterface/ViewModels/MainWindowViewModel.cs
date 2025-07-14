@@ -21,7 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private NavigationPage selectedPageValue = DefaultPage;
     private bool IsProfilesExpandedValue = false;
 
-    public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService, IModalService modalService)
+    public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService, IModalService modalService, ISettingsService settingsService)
     {
         this.BackEnd = BackEnd;
         DevicesPage = new DevicesPageViewModel(BackEnd.Devices);
@@ -29,7 +29,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
         ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
         MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
-        SettingsPage = new SettingsPageViewModel();
+        SettingsPage = new SettingsPageViewModel(settingsService);
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));

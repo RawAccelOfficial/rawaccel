@@ -1,15 +1,24 @@
-﻿using userinterface.ViewModels;
+﻿using userinterface.Services;
+using userinterface.ViewModels;
 
 namespace userinterface.ViewModels.Settings;
 
 public class SettingsPageViewModel : ViewModelBase
 {
-    public SettingsPageViewModel()
+    private readonly ISettingsService settingsService;
+
+    public SettingsPageViewModel(ISettingsService settingsService)
     {
-        // Initialize settings properties here
+        this.settingsService = settingsService;
     }
 
-    // Add your settings properties here
-    // For example:
-    // public bool SomeSettingProperty { get; set; }
+    public bool ShowToastNotifications
+    {
+        get => settingsService.ShowToastNotifications;
+        set
+        {
+            settingsService.ShowToastNotifications = value;
+            OnPropertyChanged();
+        }
+    }
 }
