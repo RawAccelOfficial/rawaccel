@@ -22,41 +22,42 @@ public partial class MainWindow : Window
         this.notificationService = notificationService;
         this.modalService = modalService;
         UpdateThemeToggleButton();
-        UpdateSelectedButton("Devices"); // Initial navigation selection
+        UpdateSelectedButton("Devices");
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
     }
 
     public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
     {
-        // Disable the button and show loading
-        if (ApplyButtonControl != null)
+        if (DataContext is MainWindowViewModel viewModel)
         {
-            ApplyButtonControl.IsEnabled = false;
-        }
-        if (LoadingProgressBar != null)
-        {
-            LoadingProgressBar.IsVisible = true;
-        }
+            if (ApplyButtonControl != null)
+            {
+                ApplyButtonControl.IsEnabled = false;
+            }
+            if (LoadingProgressBar != null)
+            {
+                LoadingProgressBar.IsVisible = true;
+            }
 
-        if (this.DataContext is MainWindowViewModel viewModel)
-        {
-            viewModel.Apply();
-        }
+            if (viewModel.ApplyCommand.CanExecute(null))
+            {
+                viewModel.ApplyCommand.Execute(null);
+            }
 
-        // Wait for 1 second to mask write delay
-        await Task.Delay(1000);
+            await Task.Delay(1000);
 
-        if (LoadingProgressBar != null)
-        {
-            LoadingProgressBar.IsVisible = false;
-        }
+            if (LoadingProgressBar != null)
+            {
+                LoadingProgressBar.IsVisible = false;
+            }
 
-        notificationService.ShowSuccessToast("Settings applied successfully!");
+            notificationService.ShowSuccessToast("Settings applied successfully!");
 
-        if (ApplyButtonControl != null)
-        {
-            ApplyButtonControl.IsEnabled = true;
+            if (ApplyButtonControl != null)
+            {
+                ApplyButtonControl.IsEnabled = true;
+            }
         }
     }
 
@@ -66,7 +67,10 @@ public partial class MainWindow : Window
         {
             if (DataContext is MainWindowViewModel viewModel)
             {
-                viewModel.SelectPage(pageName);
+                if (viewModel.NavigateCommand.CanExecute(pageName))
+                {
+                    viewModel.NavigateCommand.Execute(pageName);
+                }
                 UpdateSelectedButton(pageName);
             }
         }
@@ -95,14 +99,14 @@ public partial class MainWindow : Window
 
     private void ToggleTheme(object sender, RoutedEventArgs e)
     {
-        var currentTheme = Application.Current?.ActualThemeVariant;
-        var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-        if (Application.Current != null)
+        if (DataContext is MainWindowViewModel viewModel)
         {
-            Application.Current.RequestedThemeVariant = newTheme;
+            if (viewModel.ToggleThemeCommand.CanExecute(null))
+            {
+                viewModel.ToggleThemeCommand.Execute(null);
+            }
         }
         UpdateThemeToggleButton();
-        ThemeService.NotifyThemeChanged();
     }
 
     private void UpdateThemeToggleButton()

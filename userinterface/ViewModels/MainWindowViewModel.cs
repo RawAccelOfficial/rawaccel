@@ -1,5 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using Avalonia;
+using Avalonia.Styling;
+using userinterface.Commands;
 using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Device;
@@ -28,6 +32,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
         MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
 
+        ApplyCommand = new RelayCommand(() => Apply());
+        NavigateCommand = new RelayCommand<string>(pageName => SelectPage(pageName));
+        ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
+
         SubscribeToProfileSelectionChanges();
     }
 
@@ -42,6 +50,12 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ToastViewModel ToastViewModel { get; }
 
     protected BE.BackEnd BackEnd { get; }
+
+    public ICommand ApplyCommand { get; }
+
+    public ICommand NavigateCommand { get; }
+
+    public ICommand ToggleThemeCommand { get; }
 
     public string SelectedPage
     {
@@ -90,6 +104,17 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         BackEnd.Apply();
     }
 
+    private void ToggleTheme()
+    {
+        var currentTheme = Application.Current?.ActualThemeVariant;
+        var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
+        if (Application.Current != null)
+        {
+            Application.Current.RequestedThemeVariant = newTheme;
+        }
+        ThemeService.NotifyThemeChanged();
+    }
+
     private void SubscribeToProfileSelectionChanges()
     {
         ProfileListView.ProfileItems.CollectionChanged += (sender, e) =>
@@ -118,7 +143,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OnProfileSelectionChanged(ProfileListElementViewModel profileElement, bool isSelected)
     {
-        // Only update when a profile becomes selected (not when deselected)
         if (isSelected)
         {
             ProfilesPage?.UpdateCurrentProfile();
