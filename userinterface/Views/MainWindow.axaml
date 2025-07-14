@@ -59,7 +59,7 @@
 		<Style Selector="ScrollBar /template/ RepeatButton">
 			<Setter Property="IsVisible" Value="False"/>
 		</Style>
-		
+
 		<!-- Sidebar Border -->
 		<Style Selector="Border.SidebarBorder">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
@@ -243,6 +243,31 @@
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
+		<!-- Settings Button Styles (reusing ThemeToggle styles) -->
+		<Style Selector="Button.SettingsButton">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="25"/>
+			<Setter Property="Width" Value="40"/>
+			<Setter Property="Height" Value="40"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
+		</Style>
+
 		<!-- Separator Style -->
 		<Style Selector="Border.ProfileSeparator">
 			<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
@@ -281,6 +306,16 @@
 				</Transitions>
 			</Setter>
 		</Style>
+
+		<Style Selector="Button.SettingsButton">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+				</Transitions>
+			</Setter>
+		</Style>
 	</Window.Styles>
 
 	<Panel>
@@ -307,16 +342,25 @@
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
 					<StackPanel>
 						<DockPanel Margin="0,0,0,16">
-							<ToggleButton Classes="ThemeToggle"
-										  Click="ToggleTheme"
-										  Name="ThemeToggleButton"
-										  DockPanel.Dock="Right"
-										  VerticalAlignment="Center">
-								<PathIcon Data="{StaticResource weather_moon_regular}"
-										  Width="16"
-										  Height="16"
-										  Name="ThemeIcon"/>
-							</ToggleButton>
+							<StackPanel DockPanel.Dock="Right"
+										Orientation="Horizontal"
+										Spacing="8"
+										VerticalAlignment="Center">
+								<Button Classes="SettingsButton"
+										Name="SettingsButton">
+									<PathIcon Data="{StaticResource settings_regular}"
+											  Width="16"
+											  Height="16"/>
+								</Button>
+								<ToggleButton Classes="ThemeToggle"
+											  Click="ToggleTheme"
+											  Name="ThemeToggleButton">
+									<PathIcon Data="{StaticResource weather_moon_regular}"
+											  Width="16"
+											  Height="16"
+											  Name="ThemeIcon"/>
+								</ToggleButton>
+							</StackPanel>
 							<TextBlock Classes="SidebarTitle"
 									   Text="Navigation"
 									   VerticalAlignment="Center"/>
