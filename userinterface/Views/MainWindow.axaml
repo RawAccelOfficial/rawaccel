@@ -18,7 +18,7 @@
 	</Design.DataContext>
 
 	<Window.Styles>
-		<!-- Custom Universal Scrollbar Styles -->
+		<!-- Scrollbar Styles -->
 		<Style Selector="ScrollBar">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Transitions">
@@ -60,7 +60,7 @@
 			<Setter Property="IsVisible" Value="False"/>
 		</Style>
 
-		<!-- Sidebar Border -->
+		<!-- Sidebar Styles -->
 		<Style Selector="Border.SidebarBorder">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -71,7 +71,6 @@
 			<Setter Property="Width" Value="400"/>
 		</Style>
 
-		<!-- Sidebar title style -->
 		<Style Selector="TextBlock.SidebarTitle">
 			<Setter Property="FontSize" Value="28"/>
 			<Setter Property="FontWeight" Value="Bold"/>
@@ -117,7 +116,6 @@
 			</Setter>
 		</Style>
 
-		<!-- Navigation Button hover state -->
 		<Style Selector="Button.NavButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
@@ -125,24 +123,22 @@
 			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
 
-		<!-- Navigation Button selected state -->
 		<Style Selector="Button.NavButton.Selected">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
-		<!-- Navigation Button selected hover state -->
 		<Style Selector="Button.NavButton.Selected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
-		<!-- Navigation Button pressed state -->
 		<Style Selector="Button.NavButton:pressed">
 			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
 
+		<!-- Content Area Styles -->
 		<Style Selector="Border.ContentArea">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -152,6 +148,7 @@
 			<Setter Property="Margin" Value="16"/>
 		</Style>
 
+		<!-- Apply Button Styles -->
 		<Style Selector="Button.ApplyButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -198,7 +195,7 @@
 			<Setter Property="Opacity" Value="0.6"/>
 		</Style>
 
-		<!-- Loading Progress Bar Style -->
+		<!-- Loading Progress Bar Styles -->
 		<Style Selector="ProgressBar.LoadingBar">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Foreground" Value="#4CAF50"/>
@@ -279,7 +276,7 @@
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
-		<!-- Separator Style -->
+		<!-- Separator Styles -->
 		<Style Selector="Border.ProfileSeparator">
 			<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="Height" Value="1"/>
@@ -332,12 +329,10 @@
 	<Panel>
 		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
 			<DockPanel>
-				<!-- Apply Settings Button at bottom -->
 				<StackPanel DockPanel.Dock="Bottom">
 					<Grid>
 						<Button Classes="ApplyButton"
 								Name="ApplyButton"
-								Click="ApplyButtonHandler"
 								IsEnabled="True">
 							Apply Settings
 						</Button>
@@ -349,7 +344,6 @@
 					</Grid>
 				</StackPanel>
 
-				<!-- Navigation content -->
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
 					<StackPanel>
 						<DockPanel Margin="0,0,0,16">
@@ -364,7 +358,6 @@
 											  Height="16"/>
 								</Button>
 								<ToggleButton Classes="ThemeToggle"
-											  Click="ToggleTheme"
 											  Name="ThemeToggleButton">
 									<PathIcon Data="{StaticResource weather_moon_regular}"
 											  Width="16"
@@ -380,31 +373,23 @@
 						<StackPanel Spacing="4">
 							<Button Classes="NavButton"
 									Name="DevicesButton"
-									Click="OnNavigationClick"
 									Tag="Devices">
 								Devices
 							</Button>
 							<Button Classes="NavButton"
 									Name="MappingsButton"
-									Click="OnNavigationClick"
 									Tag="Mappings">
 								Mappings
 							</Button>
 							<Button Classes="NavButton"
 									Name="ProfilesButton"
-									Click="OnNavigationClick"
 									Tag="Profiles">
 								Profiles
 							</Button>
 							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
 								<StackPanel>
-									<!-- Active Profiles List View -->
 									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
-
-									<!-- Separator -->
 									<Border Classes="ProfileSeparator"/>
-
-									<!-- Profile List View -->
 									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
 								</StackPanel>
 							</ContentControl>

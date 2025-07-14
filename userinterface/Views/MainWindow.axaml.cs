@@ -23,16 +23,51 @@ public partial class MainWindow : Window
         InitializeComponent();
         this.notificationService = notificationService;
         this.modalService = modalService;
+
+        InitializeControls();
         UpdateThemeToggleButton();
         UpdateSelectedButton(NavigationPage.Devices);
+    }
+
+    private void InitializeControls()
+    {
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
 
-        // Subscribe to settings button click
+        // Subscribe to click events
+        if (ApplyButtonControl != null)
+        {
+            ApplyButtonControl.Click += ApplyButtonHandler;
+        }
+
         var settingsButton = this.FindControl<Button>("SettingsButton");
         if (settingsButton != null)
         {
             settingsButton.Click += OnSettingsClick;
+        }
+
+        var themeToggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
+        if (themeToggleButton != null)
+        {
+            themeToggleButton.Click += ToggleTheme;
+        }
+
+        var devicesButton = this.FindControl<Button>("DevicesButton");
+        if (devicesButton != null)
+        {
+            devicesButton.Click += OnNavigationClick;
+        }
+
+        var mappingsButton = this.FindControl<Button>("MappingsButton");
+        if (mappingsButton != null)
+        {
+            mappingsButton.Click += OnNavigationClick;
+        }
+
+        var profilesButton = this.FindControl<Button>("ProfilesButton");
+        if (profilesButton != null)
+        {
+            profilesButton.Click += OnNavigationClick;
         }
     }
 
@@ -100,35 +135,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void UpdateSelectedButton(NavigationPage selectedPage)
-    {
-        DevicesButton.Classes.Remove("Selected");
-        MappingsButton.Classes.Remove("Selected");
-        ProfilesButton.Classes.Remove("Selected");
-
-        var settingsButton = this.FindControl<Button>("SettingsButton");
-        settingsButton?.Classes.Remove("Selected");
-
-        switch (selectedPage)
-        {
-            case NavigationPage.Devices:
-                DevicesButton.Classes.Add("Selected");
-                break;
-
-            case NavigationPage.Mappings:
-                MappingsButton.Classes.Add("Selected");
-                break;
-
-            case NavigationPage.Profiles:
-                ProfilesButton.Classes.Add("Selected");
-                break;
-
-            case NavigationPage.Settings:
-                settingsButton?.Classes.Add("Selected");
-                break;
-        }
-    }
-
     private void ToggleTheme(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel)
@@ -139,6 +145,38 @@ public partial class MainWindow : Window
             }
         }
         UpdateThemeToggleButton();
+    }
+
+    private void UpdateSelectedButton(NavigationPage selectedPage)
+    {
+        var devicesButton = this.FindControl<Button>("DevicesButton");
+        var mappingsButton = this.FindControl<Button>("MappingsButton");
+        var profilesButton = this.FindControl<Button>("ProfilesButton");
+        var settingsButton = this.FindControl<Button>("SettingsButton");
+
+        devicesButton?.Classes.Remove("Selected");
+        mappingsButton?.Classes.Remove("Selected");
+        profilesButton?.Classes.Remove("Selected");
+        settingsButton?.Classes.Remove("Selected");
+
+        switch (selectedPage)
+        {
+            case NavigationPage.Devices:
+                devicesButton?.Classes.Add("Selected");
+                break;
+
+            case NavigationPage.Mappings:
+                mappingsButton?.Classes.Add("Selected");
+                break;
+
+            case NavigationPage.Profiles:
+                profilesButton?.Classes.Add("Selected");
+                break;
+
+            case NavigationPage.Settings:
+                settingsButton?.Classes.Add("Selected");
+                break;
+        }
     }
 
     private void UpdateThemeToggleButton()
