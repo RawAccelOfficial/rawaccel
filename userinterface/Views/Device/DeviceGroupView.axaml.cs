@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using userinterface.ViewModels.Device;
 using BE = userspace_backend.Model;
 
 namespace userinterface.Views.Device;
@@ -11,14 +10,6 @@ public partial class DeviceGroupView : UserControl
     public DeviceGroupView()
     {
         InitializeComponent();
-    }
-
-    public void DeleteSelf(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is DeviceGroupViewModel viewModel)
-        {
-            viewModel.DeleteSelf();
-        }
     }
 
     public void TextBox_KeyDown(object sender, KeyEventArgs e)

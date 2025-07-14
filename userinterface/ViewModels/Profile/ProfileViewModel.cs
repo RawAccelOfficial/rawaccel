@@ -1,13 +1,14 @@
-﻿using BE = userspace_backend.Model;
+﻿using userinterface.Services;
+using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileViewModel : ViewModelBase
     {
-        public ProfileViewModel(BE.ProfileModel profileBE)
+        public ProfileViewModel(BE.ProfileModel profileBE, INotificationService notificationService)
         {
             ProfileModelBE = profileBE;
-            Settings = new ProfileSettingsViewModel(profileBE);
+            Settings = new ProfileSettingsViewModel(profileBE, notificationService);
             Chart = new ProfileChartViewModel(profileBE.XCurvePreview, profileBE.YCurvePreview, ProfileModelBE.YXRatio);
         }
 

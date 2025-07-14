@@ -47,12 +47,12 @@
 			            VerticalAlignment="Bottom"
 			            Margin="16,16,16,2">
 				<Button Classes="chart-control"
-				        Click="RecreateAxes_Click"
+				        Command="{Binding RecreateAxesCommand}"
 				        ToolTip.Tip="Reset Zoom">
 					<PathIcon Data="{StaticResource screenshot_regular}"/>
 				</Button>
 				<Button Classes="chart-control"
-				        Click="FitToData_Click"
+				        Command="{Binding FitToDataCommand}"
 				        ToolTip.Tip="Fit to Data">
 					<PathIcon Data="{StaticResource full_screen_zoom_regular}"/>
 				</Button>

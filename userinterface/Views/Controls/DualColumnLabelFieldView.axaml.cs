@@ -14,9 +14,9 @@ public partial class DualColumnLabelFieldView : UserControl
         set
         {
             StackPanel = value;
-            if (StackPanel != null)
+            if (StackPanel != null && ViewModel != null)
             {
-                ViewModel?.SetStackPanel(StackPanel);
+                ViewModel.SetStackPanelCommand.Execute(StackPanel);
             }
         }
     }

@@ -54,6 +54,26 @@
 			</Setter>
 		</Style>
 
+		<!-- Override all default selection styles to look like normal state -->
+		<Style Selector="ListBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pressed">
+			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
 		<!-- Remove all default ContentPresenter selection styling -->
 		<Style Selector="ListBoxItem ContentPresenter">
 			<Setter Property="Background" Value="Transparent"/>
@@ -67,6 +87,10 @@
 			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
+		<Style Selector="ListBoxItem:selected:pointerover ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
 		<Style Selector="ListBoxItem:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
@@ -74,21 +98,34 @@
 			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
 
-		<Style Selector="ListBoxItem:selected">
+		<Style Selector="ListBoxItem:pressed">
+			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<Style Selector="ListBoxItem /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<!-- Custom selected class that we control manually -->
+		<Style Selector="ListBoxItem.CurrentlySelected">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
 		</Style>
 
-		<Style Selector="ListBoxItem:selected:pointerover">
+		<Style Selector="ListBoxItem.CurrentlySelected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:pressed">
-			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
 
 		<Style Selector="Button.AddButton">
@@ -101,6 +138,7 @@
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Height" Value="36"/>
 		</Style>
 
 		<Style Selector="Button.AddButton:pointerover">
@@ -109,18 +147,6 @@
 	</UserControl.Styles>
 
 	<StackPanel>
-		<Button Classes="AddButton"
-                Click="AddProfile"
-                HorizontalAlignment="Stretch">
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-                          Width="16" Height="16"
-                          Margin="0,0,8,0"/>
-				<TextBlock Text="Add New Profile"/>
-			</StackPanel>
-		</Button>
-
-		<!-- Profile List -->
 		<ListBox ItemsSource="{Binding ProfileItems}"
                  SelectionChanged="OnSelectionChanged">
 			<ListBox.ItemTemplate>
@@ -129,5 +155,17 @@
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
+
+		<Button Classes="AddButton"
+                Command="{Binding AddProfileCommand}"
+                HorizontalAlignment="Stretch">
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
+                          Width="16" Height="16"
+                          Margin="0,0,8,0"/>
+				<TextBlock Text="Add New Profile"
+						   Margin="0,4,0,0"/>
+			</StackPanel>
+		</Button>
 	</StackPanel>
 </UserControl>

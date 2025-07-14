@@ -5,7 +5,6 @@
              xmlns:vm="using:userinterface.ViewModels.Device"
              mc:Ignorable="d"
              d:DesignWidth="800"
-             d:DesignHeight="450"
              x:Class="userinterface.Views.Device.DeviceGroupView"
              x:DataType="vm:DeviceGroupViewModel">
 
@@ -16,7 +15,7 @@
 			<Setter Property="BorderThickness" Value="1" />
 			<Setter Property="CornerRadius" Value="6" />
 			<Setter Property="Padding" Value="12" />
-			<Setter Property="Margin" Value="0,0,8,0" />
+			<Setter Property="Margin" Value="0,0,8,8" />
 		</Style>
 
 		<Style Selector="Button.DeleteButton">
@@ -37,6 +36,16 @@
 			<Setter Property="Background" Value="{DynamicResource DangerButtonPressedBrush}" />
 		</Style>
 
+		<Style Selector="Button.DeleteButton:disabled">
+			<Setter Property="Background" Value="{DynamicResource DisabledButtonBrush}" />
+			<Setter Property="Cursor" Value="Arrow" />
+			<Setter Property="Opacity" Value="0.5" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:disabled PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}" />
+		</Style>
+
 		<Style Selector="TextBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
@@ -54,14 +63,23 @@
 	</UserControl.Styles>
 
 	<Border Classes="GroupBorder">
-		<StackPanel Orientation="Horizontal">
-			<Button Classes="DeleteButton" Click="DeleteSelf">
+		<Grid Height="36">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<Button Grid.Column="0"
+					Classes="DeleteButton"
+					Command="{Binding DeleteCommand}"
+					IsEnabled="{Binding !IsDefaultGroup}">
 				<PathIcon Data="{StaticResource delete_regular}" Width="12" Height="12" />
 			</Button>
 
-			<TextBox KeyDown="TextBox_KeyDown"
-                     LostFocus="LostFocusHandler"
-                     Text="{Binding DeviceGroupBE.InterfaceValue, Mode=TwoWay}" />
-		</StackPanel>
+			<TextBox Grid.Column="1"
+					 KeyDown="TextBox_KeyDown"
+					 LostFocus="LostFocusHandler"
+					 Text="{Binding DeviceGroupBE.InterfaceValue, Mode=TwoWay}" />
+		</Grid>
 	</Border>
 </UserControl>

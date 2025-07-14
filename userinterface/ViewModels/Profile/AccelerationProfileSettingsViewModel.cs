@@ -3,6 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using userinterface.Services;
 using BE = userspace_backend.Model.AccelDefinitions;
 using BEData = userspace_backend.Data.Profiles.Acceleration;
 
@@ -18,10 +19,10 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public bool areAccelSettingsVisible;
 
-        public AccelerationProfileSettingsViewModel(BE.AccelerationModel accelerationBE)
+        public AccelerationProfileSettingsViewModel(BE.AccelerationModel accelerationBE, INotificationService notificationService)
         {
             AccelerationBE = accelerationBE;
-            AccelerationFormulaSettings = new AccelerationFormulaSettingsViewModel(accelerationBE.FormulaAccel);
+            AccelerationFormulaSettings = new AccelerationFormulaSettingsViewModel(accelerationBE.FormulaAccel, notificationService);
             AccelerationLUTSettings = new AccelerationLUTSettingsViewModel(accelerationBE.LookupTableAccel);
             AnisotropySettings = new AnisotropyProfileSettingsViewModel(accelerationBE.Anisotropy);
             CoalescionSettings = new CoalescionProfileSettingsViewModel(accelerationBE.Coalescion);

@@ -6,7 +6,6 @@
              xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d"
              d:DesignWidth="800"
-             d:DesignHeight="450"
              x:Class="userinterface.Views.Device.DeviceView"
              x:DataType="vm:DeviceViewModel">
 
@@ -25,6 +24,16 @@
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
 		</Style>
 
+		<Style Selector="Button.DeleteButton:disabled">
+			<Setter Property="Background" Value="{DynamicResource DisabledButtonBrush}" />
+			<Setter Property="Cursor" Value="Arrow" />
+			<Setter Property="Opacity" Value="0.5" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:disabled PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}" />
+		</Style>
+
 		<Style Selector="controls|EditableExpanderView">
 			<Setter Property="Margin" Value="0,0,0,8" />
 		</Style>
@@ -40,7 +49,7 @@
                                    IsExpanderEnabled="{Binding IsExpanderEnabled}"
                                    Classes.DisabledExpander="{Binding !IsExpanderEnabled}">
 		<controls:EditableExpanderView.Header>
-			<Grid ColumnDefinitions="2*,*,*,2*"
+			<Grid ColumnDefinitions="2*,*,*,2*,Auto"
                   HorizontalAlignment="Stretch"
                   Background="Transparent"
                   Margin="8,4">
@@ -62,26 +71,27 @@
                                 HorizontalAlignment="Left"
                                 Content="{Binding DeviceGroup}"
                                 IsEnabled="{Binding IsExpanderEnabled}" />
+
+				<Button Grid.Column="4"
+                        Classes="DeleteButton"
+                        Command="{Binding DeleteCommand}"
+                        Margin="8,0,0,0"
+                        IsEnabled="{Binding !IsDefaultDevice}">
+					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16" />
+				</Button>
 			</Grid>
 		</controls:EditableExpanderView.Header>
 
 		<controls:EditableExpanderView.ExpanderContent>
-			<Grid ColumnDefinitions="Auto,*,*"
+			<Grid ColumnDefinitions="*,*"
                   HorizontalAlignment="Stretch"
-                  Margin="8">
-				<Button Grid.Column="0"
-                        Classes="DeleteButton"
-                        Click="DeleteSelf"
-                        Margin="0,0,16,0">
-					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16" />
-				</Button>
-
-				<ContentControl Grid.Column="1"
+                  Margin="26,8,8,8">
+				<ContentControl Grid.Column="0"
                                 HorizontalAlignment="Stretch"
                                 Content="{Binding HWIDField}"
                                 Margin="0,0,16,0" />
 
-				<ContentControl Grid.Column="2"
+				<ContentControl Grid.Column="1"
                                 HorizontalAlignment="Left"
                                 Content="{Binding PollRateField}" />
 			</Grid>

@@ -43,22 +43,25 @@
 			Device Groups
 		</TextBlock>
 
-		<ScrollViewer HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Disabled">
-			<ItemsControl ItemsSource="{Binding DeviceGroupViews}">
-				<ItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<StackPanel Orientation="Horizontal" />
-					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-			</ItemsControl>
-		</ScrollViewer>
+		<ScrollViewer Height="300"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+			<StackPanel>
+				<ItemsControl ItemsSource="{Binding DeviceGroupViews}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<WrapPanel Orientation="Horizontal" />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+				</ItemsControl>
 
-		<Button Classes="AddButton"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Bottom"
-                Click="AddDeviceGroup">
-			Add Device Group
-		</Button>
+				<Button Classes="AddButton"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Bottom"
+						Command="{Binding AddDeviceGroupCommand}">
+					Add Device Group
+				</Button>
+			</StackPanel>
+		</ScrollViewer>
 	</StackPanel>
 </UserControl>

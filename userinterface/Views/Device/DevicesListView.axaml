@@ -18,12 +18,25 @@
 			<Setter Property="Margin" Value="0,0,0,16" />
 		</Style>
 
-		<Style Selector="ListBox">
+		<Style Selector="StackPanel.DevicesContainer">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="Margin" Value="1" />
+		</Style>
+
+		<Style Selector="Border.DevicesContainerBorder">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
 			<Setter Property="BorderThickness" Value="1" />
 			<Setter Property="CornerRadius" Value="6" />
 			<Setter Property="Padding" Value="8" />
+		</Style>
+
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
 		</Style>
 
 		<Style Selector="ListBoxItem">
@@ -66,19 +79,26 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel Orientation="Vertical">
-		<TextBlock Classes="SectionHeader">
+	<Grid RowDefinitions="Auto,*">
+		<TextBlock Grid.Row="0" Classes="SectionHeader">
 			Devices
 		</TextBlock>
 
-		<ListBox x:Name="DevicesListInView"
-                 ItemsSource="{Binding DeviceViews}"
-                 MinHeight="200" />
+		<ScrollViewer Grid.Row="1"
+		              VerticalAlignment="Stretch"
+		              VerticalScrollBarVisibility="Auto">
+			<Border Classes="DevicesContainerBorder">
+				<StackPanel Classes="DevicesContainer">
+					<ListBox x:Name="DevicesListInView"
+							 ItemsSource="{Binding DeviceViews}" />
 
-		<Button Classes="AddButton"
-                HorizontalAlignment="Center"
-                Click="AddDevice">
-			Add Device
-		</Button>
-	</StackPanel>
+					<Button Classes="AddButton"
+							HorizontalAlignment="Center"
+							Command="{Binding AddDeviceCommand}">
+						Add Device
+					</Button>
+				</StackPanel>
+			</Border>
+		</ScrollViewer>
+	</Grid>
 </UserControl>

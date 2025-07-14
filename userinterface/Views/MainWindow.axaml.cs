@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
@@ -14,64 +13,51 @@ public partial class MainWindow : Window
 {
     private Button? ApplyButtonControl;
     private ProgressBar? LoadingProgressBar;
-    private TextBlock? SuccessMessageText;
+    private readonly INotificationService notificationService;
+    private readonly IModalService modalService;
 
-    public MainWindow()
+    public MainWindow(INotificationService notificationService, IModalService modalService)
     {
         InitializeComponent();
+        this.notificationService = notificationService;
+        this.modalService = modalService;
         UpdateThemeToggleButton();
-        UpdateSelectedButton("Devices"); // Initial navigation selection
+        UpdateSelectedButton("Devices");
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
-        SuccessMessageText = this.FindControl<TextBlock>("SuccessMessage");
     }
 
     public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
     {
-        // Disable the button and show loading
-        if (ApplyButtonControl != null)
+        if (DataContext is MainWindowViewModel viewModel)
         {
-            ApplyButtonControl.IsEnabled = false;
-        }
-        if (LoadingProgressBar != null)
-        {
-            LoadingProgressBar.IsVisible = true;
-        }
-        // Hide success message if it was previously shown
-        if (SuccessMessageText != null)
-        {
-            SuccessMessageText.IsVisible = false;
-            SuccessMessageText.Opacity = 0;
-        }
-
-        if (this.DataContext is MainWindowViewModel viewModel)
-        {
-            viewModel.Apply();
-        }
-
-        // Wait for 1 second to mask write delay
-        await Task.Delay(1000);
-
-        // Hide loading bar
-        if (LoadingProgressBar != null)
-        {
-            LoadingProgressBar.IsVisible = false;
-        }
-
-        if (SuccessMessageText != null)
-        {
-            SuccessMessageText.IsVisible = true;
-
-            await Dispatcher.UIThread.InvokeAsync(async () =>
+            if (ApplyButtonControl != null)
             {
-                SuccessMessageText.Opacity = 1;
+                ApplyButtonControl.IsEnabled = false;
+            }
+            if (LoadingProgressBar != null)
+            {
+                LoadingProgressBar.IsVisible = true;
+            }
+
+            if (viewModel.ApplyCommand.CanExecute(null))
+            {
+                viewModel.ApplyCommand.Execute(null);
+            }
+
+            await Task.Delay(1000);
+
+            if (LoadingProgressBar != null)
+            {
+                LoadingProgressBar.IsVisible = false;
+            }
+
+            notificationService.ShowSuccessToast("Settings applied successfully!");
+
+            if (ApplyButtonControl != null)
+            {
                 ApplyButtonControl.IsEnabled = true;
-                // Hide the success message after 1.5 seconds
-                await Task.Delay(1500);
-                SuccessMessageText.Opacity = 0;
-                await Task.Delay(300);
-                SuccessMessageText.IsVisible = false;
-            });
+            }
         }
     }
 
@@ -81,7 +67,10 @@ public partial class MainWindow : Window
         {
             if (DataContext is MainWindowViewModel viewModel)
             {
-                viewModel.SelectPage(pageName);
+                if (viewModel.NavigateCommand.CanExecute(pageName))
+                {
+                    viewModel.NavigateCommand.Execute(pageName);
+                }
                 UpdateSelectedButton(pageName);
             }
         }
@@ -92,7 +81,6 @@ public partial class MainWindow : Window
         DevicesButton.Classes.Remove("Selected");
         MappingsButton.Classes.Remove("Selected");
         ProfilesButton.Classes.Remove("Selected");
-
         switch (selectedPage)
         {
             case "Devices":
@@ -111,23 +99,20 @@ public partial class MainWindow : Window
 
     private void ToggleTheme(object sender, RoutedEventArgs e)
     {
-        var currentTheme = Application.Current?.ActualThemeVariant;
-        var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-
-        if (Application.Current != null)
+        if (DataContext is MainWindowViewModel viewModel)
         {
-            Application.Current.RequestedThemeVariant = newTheme;
+            if (viewModel.ToggleThemeCommand.CanExecute(null))
+            {
+                viewModel.ToggleThemeCommand.Execute(null);
+            }
         }
-
         UpdateThemeToggleButton();
-        ThemeService.NotifyThemeChanged();
     }
 
     private void UpdateThemeToggleButton()
     {
         var themeIcon = this.FindControl<PathIcon>("ThemeIcon");
         var toggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
-
         if (themeIcon != null && toggleButton != null)
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
