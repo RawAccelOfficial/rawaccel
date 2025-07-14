@@ -243,7 +243,7 @@
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
-		<!-- Settings Button Styles (reusing ThemeToggle styles) -->
+		<!-- Settings Button Styles -->
 		<Style Selector="Button.SettingsButton">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -260,6 +260,17 @@
 		<Style Selector="Button.SettingsButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton.Selected">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton.Selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Button.SettingsButton:pressed">

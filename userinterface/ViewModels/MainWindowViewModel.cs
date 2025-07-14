@@ -4,23 +4,21 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Styling;
 using userinterface.Commands;
+using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
+using userinterface.ViewModels.Settings;
 using BE = userspace_backend;
 
 namespace userinterface.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private const string DefaultPage = "Devices";
-    private const string DevicesPageName = "Devices";
-    private const string MappingsPageName = "Mappings";
-    private const string ProfilesPageName = "Profiles";
-
-    private string SelectedPageValue = DefaultPage;
+    private const NavigationPage DefaultPage = NavigationPage.Devices;
+    private NavigationPage selectedPageValue = DefaultPage;
     private bool IsProfilesExpandedValue = false;
 
     public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService, IModalService modalService)
@@ -31,9 +29,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
         ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
         MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
+        SettingsPage = new SettingsPageViewModel();
 
         ApplyCommand = new RelayCommand(() => Apply());
-        NavigateCommand = new RelayCommand<string>(pageName => SelectPage(pageName));
+        NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
 
         SubscribeToProfileSelectionChanges();
@@ -44,6 +43,8 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ProfilesPageViewModel ProfilesPage { get; }
 
     public MappingsPageViewModel MappingsPage { get; }
+
+    public SettingsPageViewModel SettingsPage { get; }
 
     public ProfileListViewModel ProfileListView { get; }
 
@@ -57,14 +58,14 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public ICommand ToggleThemeCommand { get; }
 
-    public string SelectedPage
+    public NavigationPage SelectedPage
     {
-        get => SelectedPageValue;
+        get => selectedPageValue;
         set
         {
-            if (SelectedPageValue != value)
+            if (selectedPageValue != value)
             {
-                SelectedPageValue = value;
+                selectedPageValue = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentPageContent));
             }
@@ -87,16 +88,17 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public object? CurrentPageContent =>
         SelectedPage switch
         {
-            DevicesPageName => DevicesPage,
-            MappingsPageName => MappingsPage,
-            ProfilesPageName => ProfilesPage,
+            NavigationPage.Devices => DevicesPage,
+            NavigationPage.Mappings => MappingsPage,
+            NavigationPage.Profiles => ProfilesPage,
+            NavigationPage.Settings => SettingsPage,
             _ => DevicesPage
         };
 
-    public void SelectPage(string PageName)
+    public void SelectPage(NavigationPage page)
     {
-        SelectedPage = PageName;
-        IsProfilesExpanded = PageName == ProfilesPageName;
+        SelectedPage = page;
+        IsProfilesExpanded = page == NavigationPage.Profiles;
     }
 
     public void Apply()

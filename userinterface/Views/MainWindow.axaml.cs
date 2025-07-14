@@ -3,7 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using System;
 using System.Threading.Tasks;
+using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels;
 
@@ -22,9 +24,16 @@ public partial class MainWindow : Window
         this.notificationService = notificationService;
         this.modalService = modalService;
         UpdateThemeToggleButton();
-        UpdateSelectedButton("Devices");
+        UpdateSelectedButton(NavigationPage.Devices);
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
+
+        // Subscribe to settings button click
+        var settingsButton = this.FindControl<Button>("SettingsButton");
+        if (settingsButton != null)
+        {
+            settingsButton.Click += OnSettingsClick;
+        }
     }
 
     public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
@@ -63,36 +72,59 @@ public partial class MainWindow : Window
 
     public void OnNavigationClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag is string pageName)
+        if (sender is Button button && button.Tag is string pageNameString)
         {
-            if (DataContext is MainWindowViewModel viewModel)
+            if (Enum.TryParse<NavigationPage>(pageNameString, out var page))
             {
-                if (viewModel.NavigateCommand.CanExecute(pageName))
+                if (DataContext is MainWindowViewModel viewModel)
                 {
-                    viewModel.NavigateCommand.Execute(pageName);
+                    if (viewModel.NavigateCommand.CanExecute(page))
+                    {
+                        viewModel.NavigateCommand.Execute(page);
+                    }
+                    UpdateSelectedButton(page);
                 }
-                UpdateSelectedButton(pageName);
             }
         }
     }
 
-    private void UpdateSelectedButton(string selectedPage)
+    private void OnSettingsClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            if (viewModel.NavigateCommand.CanExecute(NavigationPage.Settings))
+            {
+                viewModel.NavigateCommand.Execute(NavigationPage.Settings);
+            }
+            UpdateSelectedButton(NavigationPage.Settings);
+        }
+    }
+
+    private void UpdateSelectedButton(NavigationPage selectedPage)
     {
         DevicesButton.Classes.Remove("Selected");
         MappingsButton.Classes.Remove("Selected");
         ProfilesButton.Classes.Remove("Selected");
+
+        var settingsButton = this.FindControl<Button>("SettingsButton");
+        settingsButton?.Classes.Remove("Selected");
+
         switch (selectedPage)
         {
-            case "Devices":
+            case NavigationPage.Devices:
                 DevicesButton.Classes.Add("Selected");
                 break;
 
-            case "Mappings":
+            case NavigationPage.Mappings:
                 MappingsButton.Classes.Add("Selected");
                 break;
 
-            case "Profiles":
+            case NavigationPage.Profiles:
                 ProfilesButton.Classes.Add("Selected");
+                break;
+
+            case NavigationPage.Settings:
+                settingsButton?.Classes.Add("Selected");
                 break;
         }
     }
