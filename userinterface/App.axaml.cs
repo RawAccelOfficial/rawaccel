@@ -25,14 +25,13 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // Configure services
         var services = new ServiceCollection();
 
         // Register services
         services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<INotificationService, NotificationService>();
-        services.AddSingleton<ModalService>();
-        services.AddSingleton<SettingsService>();
+        services.AddSingleton<IModalService, ModalService>();
+        services.AddSingleton<ISettingsService ,SettingsService>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
@@ -44,7 +43,6 @@ public partial class App : Application
             return backEnd;
         });
 
-        // Register ViewModels
         RegisterViewModels(services);
 
         Services = services.BuildServiceProvider();
@@ -60,8 +58,8 @@ public partial class App : Application
                 DataContext = Services.GetRequiredService<MainWindowViewModel>(),
             };
 
-            // Set up the toast control using DI
-            var toastView = mainWindow.FindControl<userinterface.Views.Controls.ToastView>("ToastView");
+            // Set up the toast control (was already created in MainWindow.axaml)
+            var toastView = mainWindow.FindControl<Views.Controls.ToastView>("ToastView");
             if (toastView != null)
             {
                 toastView.DataContext = Services.GetRequiredService<ToastViewModel>();
