@@ -44,19 +44,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SubscribeToProfileSelectionChanges();
     }
 
-    // Service accessors using DI
-    private INotificationService NotificationService =>
-        App.Services!.GetRequiredService<INotificationService>();
-
-    private ModalService ModalService =>
-        App.Services!.GetRequiredService<ModalService>();
-
-    private SettingsService SettingsService =>
-        App.Services!.GetRequiredService<SettingsService>();
-
-    private ILocalizationService LocalizationService =>
-        App.Services!.GetRequiredService<ILocalizationService>();
-
     public DevicesPageViewModel DevicesPage =>
         devicesPage ??= new DevicesPageViewModel();
 
@@ -70,7 +57,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         settingsPage ??= new SettingsPageViewModel();
 
     public ProfileListViewModel ProfileListView =>
-        profileListView ??= new ProfileListViewModel();
+        profileListView ??= App.Services!.GetRequiredService<ProfileListViewModel>();
 
     public ToastViewModel ToastViewModel =>
         toastViewModel ??= App.Services!.GetRequiredService<ToastViewModel>();

@@ -55,7 +55,6 @@ public partial class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
 
-            // Create everything through DI
             var mainWindow = new MainWindow()
             {
                 DataContext = Services.GetRequiredService<MainWindowViewModel>(),
@@ -86,23 +85,16 @@ public partial class App : Application
 
         // Device ViewModels
         services.AddTransient<ViewModels.Device.DevicesPageViewModel>();
-        services.AddTransient<ViewModels.Device.DevicesListViewModel>();
-        services.AddTransient<ViewModels.Device.DeviceGroupsViewModel>();
-        services.AddTransient<ViewModels.Device.DeviceViewModel>();
-        services.AddTransient<ViewModels.Device.DeviceGroupViewModel>();
-        services.AddTransient<ViewModels.Device.DeviceGroupSelectorViewModel>();
 
         // Profile ViewModels
         services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
-        services.AddTransient<ViewModels.Profile.ProfileListViewModel>();
-        services.AddTransient<ViewModels.Profile.ProfileListElementViewModel>();
-        services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();
+        services.AddSingleton<ViewModels.Profile.ProfileListViewModel>();
 
         // Mapping ViewModels
         services.AddTransient<ViewModels.Mapping.MappingsPageViewModel>();
 
         // Control ViewModels
-        services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
+        // services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
     }
 
     protected static Bootstrapper BootstrapBackEnd()

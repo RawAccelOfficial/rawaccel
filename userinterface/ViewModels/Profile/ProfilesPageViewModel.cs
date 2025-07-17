@@ -28,7 +28,7 @@ namespace userinterface.ViewModels.Profile
         private BE.ProfilesModel ProfilesModel =>
             App.Services!.GetRequiredService<userspace_backend.BackEnd>().Profiles;
 
-        private ProfileListViewModel ProfileListView =>
+        public ProfileListViewModel ProfileListView =>
             App.Services!.GetRequiredService<ProfileListViewModel>();
 
         private IEnumerable<BE.ProfileModel> ProfileModels => ProfilesModel.Profiles;

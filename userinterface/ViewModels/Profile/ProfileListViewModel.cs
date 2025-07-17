@@ -22,28 +22,41 @@ namespace userinterface.ViewModels.Profile
 
         public ProfileListViewModel()
         {
+            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Constructor started");
+
             profileItems = new ObservableCollection<ProfileListElementViewModel>();
             profileViewModelCache = new Dictionary<BE.ProfileModel, ProfileListElementViewModel>();
+
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: ProfilesModel null check: {ProfilesModel == null}");
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: ProfilesModel.Profiles null check: {ProfilesModel?.Profiles == null}");
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: ProfilesModel.Profiles count: {ProfilesModel?.Profiles?.Count ?? -1}");
 
             ProfilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
 
             UpdateProfileItems();
 
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
+
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Constructor completed. ProfileItems count: {profileItems.Count}");
         }
 
+        // Access ProfilesModel via DI
         private BE.ProfilesModel ProfilesModel =>
             App.Services!.GetRequiredService<userspace_backend.BackEnd>().Profiles;
 
         private void OnProfilesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: OnProfilesCollectionChanged - Action: {e.Action}");
+
             switch (e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                     if (e.NewItems != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Adding {e.NewItems.Count} items");
                         foreach (BE.ProfileModel profile in e.NewItems)
                         {
+                            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Adding profile: {profile.CurrentNameForDisplay}");
                             AddProfileItem(profile, e.NewStartingIndex);
                         }
                     }
@@ -52,6 +65,7 @@ namespace userinterface.ViewModels.Profile
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     if (e.OldItems != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Removing {e.OldItems.Count} items");
                         bool wasSelectedItemDeleted = false;
                         foreach (BE.ProfileModel profile in e.OldItems)
                         {
@@ -71,12 +85,14 @@ namespace userinterface.ViewModels.Profile
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                    System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Reset action - calling UpdateProfileItems");
                     UpdateProfileItems();
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
                     throw new NotImplementedException("Move action is not written yet.");
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                    System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Replace action - calling UpdateProfileItems");
                     // For these cases, fall back to full update
                     UpdateProfileItems();
                     break;
@@ -88,27 +104,34 @@ namespace userinterface.ViewModels.Profile
 
         private void AddProfileItem(BE.ProfileModel profile, int index)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: AddProfileItem - Profile: {profile.CurrentNameForDisplay}, Index: {index}");
+
             if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
             {
                 bool isDefault = index == 0;
                 elementViewModel = new ProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
                 elementViewModel.ProfileDeleted += OnProfileDeleted;
                 profileViewModelCache[profile] = elementViewModel;
+                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Created new ProfileListElementViewModel for {profile.CurrentNameForDisplay}");
             }
 
             // Insert at the correct position
             if (index >= 0 && index < profileItems.Count)
             {
                 profileItems.Insert(index, elementViewModel);
+                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Inserted at index {index}");
             }
             else
             {
                 profileItems.Add(elementViewModel);
+                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Added to end. Total count: {profileItems.Count}");
             }
         }
 
         private void RemoveProfileItem(BE.ProfileModel profile)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: RemoveProfileItem - Profile: {profile.CurrentNameForDisplay}");
+
             if (profileViewModelCache.TryGetValue(profile, out var elementViewModel))
             {
                 profileItems.Remove(elementViewModel);
@@ -116,11 +139,15 @@ namespace userinterface.ViewModels.Profile
                 // Clean up the view model
                 elementViewModel.ProfileDeleted -= OnProfileDeleted;
                 profileViewModelCache.Remove(profile);
+
+                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Removed profile. Remaining count: {profileItems.Count}");
             }
         }
 
         private void UpdateDefaultProfileStatus()
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: UpdateDefaultProfileStatus - Processing {profileItems.Count} items");
+
             for (int i = 0; i < profileItems.Count; i++)
             {
                 var item = profileItems[i];
@@ -130,11 +157,14 @@ namespace userinterface.ViewModels.Profile
 
         private void SelectDefaultItem()
         {
+            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: SelectDefaultItem called");
+
             foreach (var item in profileItems)
             {
                 if (item.IsDefaultProfile)
                 {
                     item.UpdateSelection(true);
+                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Selected default item: {item.Profile.CurrentNameForDisplay}");
                     return; // Exit early - there can only be one default item
                 }
                 else
@@ -152,11 +182,16 @@ namespace userinterface.ViewModels.Profile
 
         private void UpdateProfileItems()
         {
+            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: UpdateProfileItems started");
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Profiles count: {Profiles?.Count ?? -1}");
+
             // Clear the observable collection but keep the cache for reuse
             profileItems.Clear();
 
             // Clean up ViewModels that are no longer needed
             var profilesToRemove = profileViewModelCache.Keys.Except(Profiles).ToList();
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Profiles to remove from cache: {profilesToRemove.Count}");
+
             foreach (var profile in profilesToRemove)
             {
                 if (profileViewModelCache.TryGetValue(profile, out var viewModel))
@@ -169,6 +204,7 @@ namespace userinterface.ViewModels.Profile
             for (int i = 0; i < Profiles.Count; i++)
             {
                 var profile = Profiles[i];
+                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Processing profile {i}: {profile.CurrentNameForDisplay}");
 
                 if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
                 {
@@ -178,30 +214,40 @@ namespace userinterface.ViewModels.Profile
                     elementViewModel.ProfileDeleted += OnProfileDeleted;
 
                     profileViewModelCache[profile] = elementViewModel;
+                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Created new ViewModel for {profile.CurrentNameForDisplay}");
                 }
                 else
                 {
                     elementViewModel.IsDefaultProfile = i == 0;
+                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Reused existing ViewModel for {profile.CurrentNameForDisplay}");
                 }
 
                 profileItems.Add(elementViewModel);
             }
+
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: UpdateProfileItems completed. Final count: {profileItems.Count}");
 
             SelectDefaultItem();
         }
 
         private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: OnProfileDeleted - {elementViewModel.Profile.CurrentNameForDisplay}");
             RemoveProfile(elementViewModel.Profile);
         }
 
         public bool TryAddProfile()
         {
+            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: TryAddProfile called");
+
             for (int i = 0; i < MaxProfileAttempts; i++)
             {
                 string newProfileName = $"Profile{i}";
+                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Trying to add profile: {newProfileName}");
+
                 if (ProfilesModel.TryAddNewDefaultProfile(newProfileName))
                 {
+                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Successfully added profile: {newProfileName}");
                     var newProfile = Profiles.FirstOrDefault(p => p.CurrentNameForDisplay == newProfileName);
                     if (newProfile != null)
                     {
@@ -213,12 +259,18 @@ namespace userinterface.ViewModels.Profile
                     }
                     return true;
                 }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Failed to add profile: {newProfileName}");
+                }
             }
             return false;
         }
 
         public void RemoveProfile(BE.ProfileModel profile)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: RemoveProfile called for {profile?.CurrentNameForDisplay ?? "null"}");
+
             if (profile != null)
             {
                 _ = ProfilesModel.RemoveProfile(profile);
@@ -227,11 +279,15 @@ namespace userinterface.ViewModels.Profile
 
         public BE.ProfileModel? GetSelectedProfile()
         {
-            return ProfileItems.FirstOrDefault(vm => vm.IsSelected)?.Profile;
+            var selected = ProfileItems.FirstOrDefault(vm => vm.IsSelected)?.Profile;
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: GetSelectedProfile returning: {selected?.CurrentNameForDisplay ?? "null"}");
+            return selected;
         }
 
         public void SetSelectedProfile(BE.ProfileModel? profile)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: SetSelectedProfile called for: {profile?.CurrentNameForDisplay ?? "null"}");
+
             foreach (var item in ProfileItems)
             {
                 item.UpdateSelection(item.Profile == profile);
@@ -240,6 +296,8 @@ namespace userinterface.ViewModels.Profile
 
         public void SetSelectedProfile(ProfileListElementViewModel? profileViewModel)
         {
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: SetSelectedProfile (ViewModel) called for: {profileViewModel?.Profile.CurrentNameForDisplay ?? "null"}");
+
             foreach (var item in ProfileItems)
             {
                 item.UpdateSelection(item == profileViewModel);
@@ -248,6 +306,8 @@ namespace userinterface.ViewModels.Profile
 
         public void Cleanup()
         {
+            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Cleanup called");
+
             ProfilesModel.Profiles.CollectionChanged -= OnProfilesCollectionChanged;
 
             foreach (var viewModel in profileViewModelCache.Values)
@@ -257,6 +317,8 @@ namespace userinterface.ViewModels.Profile
 
             profileViewModelCache.Clear();
             profileItems.Clear();
+
+            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Cleanup completed");
         }
     }
 }
