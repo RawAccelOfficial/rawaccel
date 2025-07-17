@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
@@ -14,6 +16,8 @@ namespace userinterface;
 
 public partial class App : Application
 {
+    public IServiceProvider? Services { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -21,8 +25,29 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        BackEnd backEnd = new BackEnd(BootstrapBackEnd());
-        backEnd.Load();
+        // Configure services
+        var services = new ServiceCollection();
+
+        // Register services
+        services.AddSingleton<ILocalizationService, LocalizationService>();
+        services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<ModalService>();
+        services.AddSingleton<SettingsService>();
+
+        // Register backend services
+        services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
+        services.AddSingleton<BackEnd>(provider =>
+        {
+            var bootstrapper = provider.GetRequiredService<Bootstrapper>();
+            var backEnd = new BackEnd(bootstrapper);
+            backEnd.Load();
+            return backEnd;
+        });
+
+        // Register ViewModels
+        RegisterViewModels(services);
+
+        Services = services.BuildServiceProvider();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -30,14 +55,15 @@ public partial class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
 
-            var notificationService = new NotificationService();
-            var modalService = new ModalService();
-            var settingsService = new SettingsService();
+            var localizationService = Services.GetRequiredService<ILocalizationService>();
+            var notificationService = Services.GetRequiredService<INotificationService>();
+            var modalService = Services.GetRequiredService<ModalService>();
+            var settingsService = Services.GetRequiredService<SettingsService>();
 
             // Create the main window with the notification service
             var mainWindow = new MainWindow(notificationService, modalService)
             {
-                DataContext = new MainWindowViewModel(backEnd, notificationService, modalService, settingsService),
+                DataContext = Services.GetRequiredService<MainWindowViewModel>(),
             };
 
             // Set up the toast control with the notification service
@@ -56,6 +82,33 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void RegisterViewModels(IServiceCollection services)
+    {
+        // Main ViewModel
+        services.AddTransient<MainWindowViewModel>();
+
+        // Device ViewModels
+        services.AddTransient<ViewModels.Device.DevicesPageViewModel>();
+        services.AddTransient<ViewModels.Device.DevicesListViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupsViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupSelectorViewModel>();
+
+        // Profile ViewModels
+        services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileListViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileListElementViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();
+
+        // Mapping ViewModels
+        services.AddTransient<ViewModels.Mapping.MappingsPageViewModel>();
+
+        // Control ViewModels
+        services.AddTransient<ViewModels.Controls.ToastViewModel>();
+        services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
     }
 
     protected static Bootstrapper BootstrapBackEnd()
