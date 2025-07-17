@@ -59,5 +59,50 @@ namespace userinterface.Properties.Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply Settings.
+        /// </summary>
+        public static string ApplySettingsButton {
+            get {
+                return ResourceManager.GetString("ApplySettingsButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mappings.
+        /// </summary>
+        public static string DevicesButton {
+            get {
+                return ResourceManager.GetString("DevicesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mappings.
+        /// </summary>
+        public static string MappingsButton {
+            get {
+                return ResourceManager.GetString("MappingsButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Navigation.
+        /// </summary>
+        public static string NavigationTitle {
+            get {
+                return ResourceManager.GetString("NavigationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profiles.
+        /// </summary>
+        public static string ProfilesButton {
+            get {
+                return ResourceManager.GetString("ProfilesButton", resourceCulture);
+            }
+        }
     }
 }

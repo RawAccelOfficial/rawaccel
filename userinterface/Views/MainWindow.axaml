@@ -4,6 +4,7 @@
         xmlns:v="using:userinterface.Views"
         xmlns:vp="using:userinterface.Views.Profile"
 		xmlns:controls="using:userinterface.Views.Controls"
+		xmlns:resx="clr-namespace:userinterface.Properties.Resources"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -333,9 +334,8 @@
 					<Grid>
 						<Button Classes="ApplyButton"
 								Name="ApplyButton"
-								IsEnabled="True">
-							Apply Settings
-						</Button>
+								IsEnabled="True"
+								Content="{x:Static resx:MainWindow.ApplySettingsButton}"/>
 						<ProgressBar Classes="LoadingBar"
 									 Name="LoadingProgress"
 									 IsVisible="False"
@@ -366,26 +366,23 @@
 								</ToggleButton>
 							</StackPanel>
 							<TextBlock Classes="SidebarTitle"
-									   Text="Navigation"
+									   Text="{x:Static resx:MainWindow.NavigationTitle}"
 									   VerticalAlignment="Center"/>
 						</DockPanel>
 
 						<StackPanel Spacing="4">
 							<Button Classes="NavButton"
 									Name="DevicesButton"
-									Tag="Devices">
-								Devices
-							</Button>
+									Tag="Devices"
+									Content="{x:Static resx:MainWindow.DevicesButton}"/>
 							<Button Classes="NavButton"
 									Name="MappingsButton"
-									Tag="Mappings">
-								Mappings
-							</Button>
+									Tag="Mappings"
+									Content="{x:Static resx:MainWindow.MappingsButton}"/>
 							<Button Classes="NavButton"
 									Name="ProfilesButton"
-									Tag="Profiles">
-								Profiles
-							</Button>
+									Tag="Profiles"
+									Content="{x:Static resx:MainWindow.ProfilesButton}"/>
 							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
 								<StackPanel>
 									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
