@@ -32,26 +32,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private ToastViewModel? toastViewModel;
 
     private readonly BE.BackEnd backEnd;
-    private readonly IServiceProvider serviceProvider;
-    private readonly INotificationService notificationService;
-    private readonly ModalService modalService;
-    private readonly SettingsService settingsService;
-    private readonly ILocalizationService localizationService;
 
-    public MainWindowViewModel(
-        BE.BackEnd backEnd,
-        IServiceProvider serviceProvider,
-        INotificationService notificationService,
-        ModalService modalService,
-        SettingsService settingsService,
-        ILocalizationService localizationService)
+    public MainWindowViewModel(BE.BackEnd backEnd)
     {
-        this.backEnd = backEnd;
-        this.serviceProvider = serviceProvider;
-        this.notificationService = notificationService;
-        this.modalService = modalService;
-        this.settingsService = settingsService;
-        this.localizationService = localizationService;
+        this.backEnd = backEnd ?? throw new ArgumentNullException(nameof(backEnd));
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
@@ -60,23 +44,36 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SubscribeToProfileSelectionChanges();
     }
 
+    // Service accessors using DI
+    private INotificationService NotificationService =>
+        App.Services!.GetRequiredService<INotificationService>();
+
+    private ModalService ModalService =>
+        App.Services!.GetRequiredService<ModalService>();
+
+    private SettingsService SettingsService =>
+        App.Services!.GetRequiredService<SettingsService>();
+
+    private ILocalizationService LocalizationService =>
+        App.Services!.GetRequiredService<ILocalizationService>();
+
     public DevicesPageViewModel DevicesPage =>
-        devicesPage ??= new DevicesPageViewModel(backEnd.Devices);
+        devicesPage ??= new DevicesPageViewModel();
 
     public ProfilesPageViewModel ProfilesPage =>
-        profilesPage ??= new ProfilesPageViewModel(backEnd.Profiles, ProfileListView, notificationService);
+        profilesPage ??= new ProfilesPageViewModel();
 
     public MappingsPageViewModel MappingsPage =>
-        mappingsPage ??= new MappingsPageViewModel(backEnd.Mappings);
+        mappingsPage ??= new MappingsPageViewModel();
 
     public SettingsPageViewModel SettingsPage =>
-        settingsPage ??= new SettingsPageViewModel(settingsService);
+        settingsPage ??= new SettingsPageViewModel();
 
     public ProfileListViewModel ProfileListView =>
-        profileListView ??= new ProfileListViewModel(backEnd.Profiles);
+        profileListView ??= new ProfileListViewModel();
 
     public ToastViewModel ToastViewModel =>
-        toastViewModel ??= new ToastViewModel(notificationService);
+        toastViewModel ??= App.Services!.GetRequiredService<ToastViewModel>();
 
     protected BE.BackEnd BackEnd => backEnd;
 

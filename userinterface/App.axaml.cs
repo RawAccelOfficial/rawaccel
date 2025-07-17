@@ -16,7 +16,7 @@ namespace userinterface;
 
 public partial class App : Application
 {
-    public IServiceProvider? Services { get; private set; }
+    public static IServiceProvider? Services { get; private set; }
 
     public override void Initialize()
     {
@@ -55,23 +55,17 @@ public partial class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
 
-            var localizationService = Services.GetRequiredService<ILocalizationService>();
-            var notificationService = Services.GetRequiredService<INotificationService>();
-            var modalService = Services.GetRequiredService<ModalService>();
-            var settingsService = Services.GetRequiredService<SettingsService>();
-
-            // Create the main window with the notification service
-            var mainWindow = new MainWindow(notificationService, modalService)
+            // Create everything through DI
+            var mainWindow = new MainWindow()
             {
                 DataContext = Services.GetRequiredService<MainWindowViewModel>(),
             };
 
-            // Set up the toast control with the notification service
-            var toastViewModel = new ToastViewModel(notificationService);
+            // Set up the toast control using DI
             var toastView = mainWindow.FindControl<userinterface.Views.Controls.ToastView>("ToastView");
             if (toastView != null)
             {
-                toastView.DataContext = toastViewModel;
+                toastView.DataContext = Services.GetRequiredService<ToastViewModel>();
             }
 
             desktop.MainWindow = mainWindow;
@@ -86,8 +80,9 @@ public partial class App : Application
 
     private void RegisterViewModels(IServiceCollection services)
     {
-        // Main ViewModel
-        services.AddTransient<MainWindowViewModel>();
+        // Main ViewModels
+        services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<ToastViewModel>();
 
         // Device ViewModels
         services.AddTransient<ViewModels.Device.DevicesPageViewModel>();
@@ -107,7 +102,6 @@ public partial class App : Application
         services.AddTransient<ViewModels.Mapping.MappingsPageViewModel>();
 
         // Control ViewModels
-        services.AddTransient<ViewModels.Controls.ToastViewModel>();
         services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
     }
 

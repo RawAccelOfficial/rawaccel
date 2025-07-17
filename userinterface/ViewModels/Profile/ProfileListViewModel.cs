@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -18,11 +20,8 @@ namespace userinterface.ViewModels.Profile
         // Just for optimization, only for cleaning up
         private readonly Dictionary<BE.ProfileModel, ProfileListElementViewModel> profileViewModelCache;
 
-        private BE.ProfilesModel ProfilesModel { get; }
-
-        public ProfileListViewModel(BE.ProfilesModel profiles)
+        public ProfileListViewModel()
         {
-            ProfilesModel = profiles;
             profileItems = new ObservableCollection<ProfileListElementViewModel>();
             profileViewModelCache = new Dictionary<BE.ProfileModel, ProfileListElementViewModel>();
 
@@ -32,6 +31,9 @@ namespace userinterface.ViewModels.Profile
 
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
         }
+
+        private BE.ProfilesModel ProfilesModel =>
+            App.Services!.GetRequiredService<userspace_backend.BackEnd>().Profiles;
 
         private void OnProfilesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {

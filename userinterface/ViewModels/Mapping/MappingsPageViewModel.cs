@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Windows.Input;
 using userinterface.Commands;
@@ -11,9 +12,8 @@ namespace userinterface.ViewModels.Mapping
     {
         private MappingViewModel? activeMappingView;
 
-        public MappingsPageViewModel(BE.MappingsModel mappingsBE)
+        public MappingsPageViewModel()
         {
-            MappingsBE = mappingsBE;
             MappingViews = [];
             UpdateMappingViews();
             MappingsBE.Mappings.CollectionChanged += MappingsCollectionChanged;
@@ -21,7 +21,7 @@ namespace userinterface.ViewModels.Mapping
             AddMappingCommand = new RelayCommand(() => TryAddNewMapping());
         }
 
-        public BE.MappingsModel MappingsBE { get; }
+        private BE.MappingsModel MappingsBE => App.Services!.GetRequiredService<userspace_backend.BackEnd>().Mappings;
 
         public ObservableCollection<MappingViewModel> MappingViews { get; }
 

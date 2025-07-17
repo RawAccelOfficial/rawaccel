@@ -1,20 +1,27 @@
-﻿using BE = userspace_backend.Model;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Device
 {
     public partial class DevicesPageViewModel : ViewModelBase
     {
-        public DevicesPageViewModel(BE.DevicesModel devicesBE)
+        private DevicesListViewModel? devicesList;
+        private DeviceGroupsViewModel? deviceGroups;
+
+        public DevicesPageViewModel()
         {
-            DevicesBE = devicesBE;
-            DevicesList = new DevicesListViewModel(devicesBE);
-            DeviceGroups = new DeviceGroupsViewModel(devicesBE.DeviceGroups);
         }
 
-        public DevicesListViewModel DevicesList { get; }
+        private BE.DevicesModel DevicesBE =>
+            App.Services!.GetRequiredService<userspace_backend.BackEnd>().Devices;
 
-        public DeviceGroupsViewModel DeviceGroups { get; }
+        public DevicesListViewModel DevicesList =>
+            devicesList ??= new DevicesListViewModel(DevicesBE);
 
-        protected BE.DevicesModel DevicesBE { get; }
+        public DeviceGroupsViewModel DeviceGroups =>
+            deviceGroups ??= new DeviceGroupsViewModel(DevicesBE.DeviceGroups);
+
+        protected BE.DevicesModel DevicesModel => DevicesBE;
     }
 }

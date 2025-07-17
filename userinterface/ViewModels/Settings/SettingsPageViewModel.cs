@@ -1,23 +1,24 @@
-﻿using userinterface.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
+using userinterface.Services;
 using userinterface.ViewModels;
 
 namespace userinterface.ViewModels.Settings;
 
 public class SettingsPageViewModel : ViewModelBase
 {
-    private readonly ISettingsService settingsService;
-
-    public SettingsPageViewModel(ISettingsService settingsService)
+    public SettingsPageViewModel()
     {
-        this.settingsService = settingsService;
     }
+
+    private SettingsService SettingsService =>
+        App.Services!.GetRequiredService<SettingsService>();
 
     public bool ShowToastNotifications
     {
-        get => settingsService.ShowToastNotifications;
+        get => SettingsService.ShowToastNotifications;
         set
         {
-            settingsService.ShowToastNotifications = value;
+            SettingsService.ShowToastNotifications = value;
             OnPropertyChanged();
         }
     }

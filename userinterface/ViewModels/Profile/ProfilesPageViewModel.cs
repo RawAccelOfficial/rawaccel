@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,24 +14,26 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
 
-        private readonly INotificationService notificationService;
-
-        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView, INotificationService notificationService)
+        public ProfilesPageViewModel()
         {
-            this.notificationService = notificationService;
-            ProfileModels = profileModels.Profiles;
             ProfileViewModels = [];
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
-            ProfileListView = profileListView;
             ActiveProfilesListView = new ActiveProfilesListViewModel();
         }
 
-        protected IEnumerable<BE.ProfileModel> ProfileModels { get; }
+        private INotificationService NotificationService =>
+            App.Services!.GetRequiredService<INotificationService>();
+
+        private BE.ProfilesModel ProfilesModel =>
+            App.Services!.GetRequiredService<userspace_backend.BackEnd>().Profiles;
+
+        private ProfileListViewModel ProfileListView =>
+            App.Services!.GetRequiredService<ProfileListViewModel>();
+
+        private IEnumerable<BE.ProfileModel> ProfileModels => ProfilesModel.Profiles;
 
         protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
-
-        public ProfileListViewModel ProfileListView { get; }
 
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 
@@ -62,7 +65,7 @@ namespace userinterface.ViewModels.Profile
             ProfileViewModels.Clear();
             foreach (var profileModelBE in ProfileModels)
             {
-                ProfileViewModels.Add(new ProfileViewModel(profileModelBE, notificationService));
+                ProfileViewModels.Add(new ProfileViewModel(profileModelBE, NotificationService));
             }
         }
     }
