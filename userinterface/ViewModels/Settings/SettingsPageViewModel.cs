@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
 using Avalonia.Controls;
+using System.Collections.Generic;
 
 namespace userinterface.ViewModels.Settings;
 
@@ -11,36 +13,41 @@ public class SettingsPageViewModel : ViewModelBase
 {
     public DualColumnLabelFieldViewModel SettingsFields { get; }
 
-    public ObservableCollection<string> AvailableLanguages { get; }
+    public ObservableCollection<LanguageItem> AvailableLanguages { get; }
 
-    private string selectedLanguage = "English";
+    private LanguageItem selectedLanguage;
 
     public SettingsPageViewModel()
     {
         SettingsFields = new DualColumnLabelFieldViewModel();
         SettingsFields.LabelWidth = 150;
 
-        // Initialize available languages
-        AvailableLanguages = new ObservableCollection<string>
+        AvailableLanguages = new ObservableCollection<LanguageItem>
         {
-            "English",
-            "Spanish",
-            "French",
-            "German",
-            "Italian",
-            "Portuguese",
-            "Russian",
-            "Chinese (Simplified)",
-            "Chinese (Traditional)",
-            "Japanese",
-            "Korean"
+            new LanguageItem("English", "en-US"),
+            new LanguageItem("Spanish", "es-ES"),
+            new LanguageItem("French", "fr-FR"),
+            new LanguageItem("German", "de-DE"),
+            new LanguageItem("Italian", "it-IT"),
+            new LanguageItem("Portuguese", "pt-PT"),
+            new LanguageItem("Russian", "ru-RU"),
+            new LanguageItem("Chinese (Simplified)", "zh-CN"),
+            new LanguageItem("Chinese (Traditional)", "zh-TW"),
+            new LanguageItem("Japanese", "ja-JP"),
+            new LanguageItem("Korean", "ko-KR"),
+            new LanguageItem("Filipino", "fil-PH") // Added for testing
         };
+
+        selectedLanguage = AvailableLanguages[0]; // Default to English
 
         InitializeSettingsFields();
     }
 
     private SettingsService SettingsService =>
         App.Services!.GetRequiredService<SettingsService>();
+
+    private LocalizationService LocalizationService =>
+        App.Services!.GetRequiredService<LocalizationService>();
 
     public bool ShowToastNotifications
     {
@@ -52,32 +59,43 @@ public class SettingsPageViewModel : ViewModelBase
         }
     }
 
-    public string SelectedLanguage
+    public LanguageItem SelectedLanguage
     {
         get => selectedLanguage;
         set
         {
             if (SetProperty(ref selectedLanguage, value))
             {
-                // Here you would typically save the language preference
-                // SettingsService.Language = value;
+                ChangeLanguage(value.CultureCode);
             }
+        }
+    }
+
+    private void ChangeLanguage(string cultureCode)
+    {
+        try
+        {
+            LocalizationService.ChangeLanguage(cultureCode);
+        }
+        catch (CultureNotFoundException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Culture not found: {cultureCode} - {ex.Message}");
         }
     }
 
     private void InitializeSettingsFields()
     {
-        // Add language selection dropdown
         var languageComboBox = new ComboBox
         {
             ItemsSource = AvailableLanguages,
             SelectedItem = SelectedLanguage,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+            DisplayMemberBinding = new Avalonia.Data.Binding("DisplayName")
         };
 
         languageComboBox.SelectionChanged += (sender, e) =>
         {
-            if (languageComboBox.SelectedItem is string language)
+            if (languageComboBox.SelectedItem is LanguageItem language)
             {
                 SelectedLanguage = language;
             }
@@ -85,7 +103,6 @@ public class SettingsPageViewModel : ViewModelBase
 
         SettingsFields.AddField("Language", languageComboBox);
 
-        // Add toast notifications checkbox
         var toastCheckBox = new CheckBox
         {
             IsChecked = ShowToastNotifications,
@@ -98,8 +115,19 @@ public class SettingsPageViewModel : ViewModelBase
         };
 
         SettingsFields.AddField("Show Toast Notifications", toastCheckBox);
-
-        // You can add more settings here as needed
-        // Example: Theme selection, auto-save interval, etc.
     }
+}
+
+public class LanguageItem
+{
+    public string DisplayName { get; }
+    public string CultureCode { get; }
+
+    public LanguageItem(string displayName, string cultureCode)
+    {
+        DisplayName = displayName;
+        CultureCode = cultureCode;
+    }
+
+    public override string ToString() => DisplayName;
 }

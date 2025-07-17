@@ -31,8 +31,8 @@ public partial class App : Application
         // Register services
         services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IModalService, ModalService>();
-        services.AddSingleton<ISettingsService ,SettingsService>();
         services.AddSingleton<SettingsService>();
+        services.AddSingleton<LocalizationService>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());

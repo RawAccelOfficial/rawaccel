@@ -118,18 +118,18 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ApplySettingsButton" xml:space="preserve">
-    <value>Apply Settings</value>
+    <value>設定を適用</value>
   </data>
   <data name="DevicesButton" xml:space="preserve">
-    <value>Devices</value>
+    <value>デバイス</value>
   </data>
   <data name="MappingsButton" xml:space="preserve">
-    <value>Mappings</value>
+    <value>マッピング</value>
   </data>
   <data name="NavigationTitle" xml:space="preserve">
-    <value>Navigation</value>
+    <value>ナビゲーション</value>
   </data>
   <data name="ProfilesButton" xml:space="preserve">
-    <value>Profiles</value>
+    <value>プロファイル</value>
   </data>
 </root>

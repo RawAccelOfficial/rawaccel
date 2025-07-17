@@ -70,7 +70,7 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mappings.
+        ///   Looks up a localized string similar to Devices.
         /// </summary>
         public static string DevicesButton {
             get {
