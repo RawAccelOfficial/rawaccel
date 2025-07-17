@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using userinterface.Models;
@@ -15,19 +16,18 @@ public partial class MainWindow : Window
 {
     private Button? ApplyButtonControl;
     private ProgressBar? LoadingProgressBar;
-    private readonly INotificationService notificationService;
-    private readonly IModalService modalService;
 
-    public MainWindow(INotificationService notificationService, IModalService modalService)
+    public MainWindow()
     {
         InitializeComponent();
-        this.notificationService = notificationService;
-        this.modalService = modalService;
 
         InitializeControls();
         UpdateThemeToggleButton();
         UpdateSelectedButton(NavigationPage.Devices);
     }
+
+    private INotificationService NotificationService =>
+        App.Services!.GetRequiredService<INotificationService>();
 
     private void InitializeControls()
     {
@@ -96,7 +96,7 @@ public partial class MainWindow : Window
                 LoadingProgressBar.IsVisible = false;
             }
 
-            notificationService.ShowSuccessToast("Settings applied successfully!");
+            NotificationService.ShowSuccessToast("Settings applied successfully!");
 
             if (ApplyButtonControl != null)
             {
