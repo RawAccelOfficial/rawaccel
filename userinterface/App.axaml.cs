@@ -28,7 +28,6 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Register services
-        services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<ISettingsService ,SettingsService>();

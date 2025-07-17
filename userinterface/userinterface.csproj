@@ -47,10 +47,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Resources\Controls.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Controls.resx</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Resources\Device.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Device.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources\MainWindow.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MainWindow.resx</DependentUpon>
     </Compile>
     <Compile Update="Properties\Resources\Mapping.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -62,6 +72,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Profile.resx</DependentUpon>
     </Compile>
+    <Compile Update="Properties\Resources\Settings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.resx</DependentUpon>
+    </Compile>
     <Compile Update="Views\Controls\EditableExpanderView.axaml.cs">
       <DependentUpon>EditableExpanderView.axaml</DependentUpon>
     </Compile>
@@ -71,9 +86,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources\Controls.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Controls.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources\Device.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Device.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources\MainWindow.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MainWindow.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources\Mapping.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -82,6 +105,10 @@
     <EmbeddedResource Update="Properties\Resources\Profile.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Profile.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources\Settings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
