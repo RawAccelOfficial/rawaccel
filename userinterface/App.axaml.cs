@@ -8,6 +8,7 @@ using System;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
+using userinterface.ViewModels.Settings;
 using userinterface.Views;
 using userspace_backend;
 using DATA = userspace_backend.Data;
@@ -31,6 +32,7 @@ public partial class App : Application
         services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<ISettingsService ,SettingsService>();
+        services.AddSingleton<SettingsService>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
@@ -90,8 +92,8 @@ public partial class App : Application
         // Mapping ViewModels
         services.AddTransient<ViewModels.Mapping.MappingsPageViewModel>();
 
-        // Control ViewModels
-        // services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
+        // Settings ViewModels
+        services.AddTransient<SettingsPageViewModel>();
     }
 
     protected static Bootstrapper BootstrapBackEnd()

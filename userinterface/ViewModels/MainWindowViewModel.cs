@@ -19,8 +19,7 @@ namespace userinterface.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private const NavigationPage DefaultPage = NavigationPage.Devices;
-    private NavigationPage selectedPageValue = DefaultPage;
+    private NavigationPage selectedPageValue = NavigationPage.Devices;
     private bool IsProfilesExpandedValue = false;
 
     // Lazy-loaded ViewModels
@@ -54,7 +53,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         mappingsPage ??= new MappingsPageViewModel();
 
     public SettingsPageViewModel SettingsPage =>
-        settingsPage ??= new SettingsPageViewModel();
+        settingsPage ??= App.Services!.GetRequiredService<SettingsPageViewModel>();
 
     public ProfileListViewModel ProfileListView =>
         profileListView ??= App.Services!.GetRequiredService<ProfileListViewModel>();
