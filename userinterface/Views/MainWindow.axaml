@@ -335,7 +335,7 @@
 						<Button Classes="ApplyButton"
 								Name="ApplyButton"
 								IsEnabled="True"
-								Content="{ext:Localized ApplySettingsButton}"/>
+								Content="{ext:Localized MW_ApplySettingsButton}"/>
 						<ProgressBar Classes="LoadingBar"
 									 Name="LoadingProgress"
 									 IsVisible="False"
@@ -366,7 +366,7 @@
 								</ToggleButton>
 							</StackPanel>
 							<TextBlock Classes="SidebarTitle"
-									   Text="{ext:Localized NavigationTitle}"
+									   Text="{ext:Localized MW_NavigationTitle}"
 									   VerticalAlignment="Center"/>
 						</DockPanel>
 
@@ -374,15 +374,15 @@
 							<Button Classes="NavButton"
 									Name="DevicesButton"
 									Tag="Devices"
-									Content="{ext:Localized DevicesButton}"/>
+									Content="{ext:Localized MW_DevicesButton}"/>
 							<Button Classes="NavButton"
 									Name="MappingsButton"
 									Tag="Mappings"
-									Content="{ext:Localized MappingsButton}"/>
+									Content="{ext:Localized MW_MappingsButton}"/>
 							<Button Classes="NavButton"
 									Name="ProfilesButton"
 									Tag="Profiles"
-									Content="{ext:Localized ProfilesButton}"/>
+									Content="{ext:Localized MW_ProfilesButton}"/>
 							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
 								<StackPanel>
 									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>

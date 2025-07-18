@@ -4,25 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Settings"
              xmlns:controls="using:userinterface.Views.Controls"
+             xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Settings.SettingsPageView"
              x:DataType="vm:SettingsPageViewModel">
 
 	<ScrollViewer>
 		<StackPanel Spacing="24" Margin="24">
-			<TextBlock Text="Settings"
+			<TextBlock Text="{ext:Localized ST_SettingsPageTitle}"
                        FontSize="32"
                        FontWeight="Bold"
                        Margin="0,0,0,16"/>
 
-			<!-- Settings using DualColumnLabelFieldView -->
 			<Border Background="{DynamicResource CardBackgroundBrush}"
                     BorderBrush="{DynamicResource CardBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="20">
 				<StackPanel Spacing="16">
-					<TextBlock Text="General Settings"
+					<TextBlock Text="{ext:Localized ST_GeneralSettingsTitle}"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>
@@ -30,8 +30,6 @@
 					<controls:DualColumnLabelFieldView DataContext="{Binding SettingsFields}" />
 				</StackPanel>
 			</Border>
-
-			<!-- You can add more setting sections here -->
 		</StackPanel>
 	</ScrollViewer>
 </UserControl>

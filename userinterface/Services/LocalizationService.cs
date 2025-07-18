@@ -18,13 +18,14 @@ public class LocalizationService : INotifyPropertyChanged
 
             // Set culture for all resource managers
             Properties.Resources.MainWindow.Culture = culture;
-            // Properties.Resources.OtherFile.Culture = culture;
+            Properties.Resources.Controls.Culture = culture;
+            Properties.Resources.Device.Culture = culture;
+            Properties.Resources.Mapping.Culture = culture;
+            Properties.Resources.Profile.Culture = culture;
+            Properties.Resources.Settings.Culture = culture;
 
             // Notify that ALL properties have changed
             OnPropertyChanged(string.Empty);
-
-            System.Diagnostics.Debug.WriteLine($"Language changed to: {culture.DisplayName} ({cultureCode})");
-            System.Diagnostics.Debug.WriteLine($"Test resource value: {Properties.Resources.MainWindow.ApplySettingsButton}");
         }
         catch (CultureNotFoundException ex)
         {
