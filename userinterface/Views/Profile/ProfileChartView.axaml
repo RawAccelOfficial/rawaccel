@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+			 xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileChartView"
              x:DataType="vm:ProfileChartViewModel">
@@ -48,12 +49,12 @@
 			            Margin="16,16,16,2">
 				<Button Classes="chart-control"
 				        Command="{Binding RecreateAxesCommand}"
-				        ToolTip.Tip="Reset Zoom">
+				        ToolTip.Tip="{ext:Localized PR_ResetZoom}">
 					<PathIcon Data="{StaticResource screenshot_regular}"/>
 				</Button>
 				<Button Classes="chart-control"
 				        Command="{Binding FitToDataCommand}"
-				        ToolTip.Tip="Fit to Data">
+				        ToolTip.Tip="{ext:Localized PR_FitToData}">
 					<PathIcon Data="{StaticResource full_screen_zoom_regular}"/>
 				</Button>
 			</StackPanel>

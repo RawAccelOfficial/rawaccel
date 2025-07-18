@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Mapping"
              xmlns:mapping="using:userinterface.Views.Mapping"
+			 xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800"
              x:Class="userinterface.Views.Mapping.MappingView"
              x:DataType="vm:MappingViewModel">
@@ -262,7 +263,7 @@
 					<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
                               Width="16" Height="16"
                               Margin="0,0,8,0"/>
-					<TextBlock Text="Add Entry"/>
+					<TextBlock Text="{ext:Localized MA_AddEntry}"/>
 				</StackPanel>
 				<Button.Flyout>
 					<Flyout Placement="Bottom">

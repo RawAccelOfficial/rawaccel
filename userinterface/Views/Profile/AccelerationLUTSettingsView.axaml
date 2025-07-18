@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:controls="using:userinterface.Views.Controls"
+			 xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.AccelerationLUTSettingsView"
              x:DataType="vm:AccelerationLUTSettingsViewModel">
@@ -42,12 +43,10 @@
 	</UserControl.Styles>
 
 	<StackPanel Spacing="12" x:Name="LUTStackPanel">
-		<TextBlock Classes="Warning">
-			This mode is for experts only.
-		</TextBlock>
-		<TextBlock Classes="Instructions">
-			Format: x1,y1,x2,y2,...xn,yn;
-		</TextBlock>
+		<TextBlock Classes="Warning"
+           Text="{ext:Localized PR_ExpertsOnlyWarning}"/>
+		<TextBlock Classes="Instructions"
+           Text="{ext:Localized PR_LUTFormatInstructions}"/>
 		<ContentControl Content="{Binding LUTPoints}" Height="100"/>
 	</StackPanel>
 </UserControl>

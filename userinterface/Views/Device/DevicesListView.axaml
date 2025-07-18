@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Device"
              xmlns:v="using:userinterface.Views"
+			 xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -80,9 +81,8 @@
 	</UserControl.Styles>
 
 	<Grid RowDefinitions="Auto,*">
-		<TextBlock Grid.Row="0" Classes="SectionHeader">
-			Devices
-		</TextBlock>
+		<TextBlock Grid.Row="0" Classes="SectionHeader"
+				   Text="{ext:Localized DE_Devices}"/>
 
 		<ScrollViewer Grid.Row="1"
 		              VerticalAlignment="Stretch"
@@ -94,9 +94,8 @@
 
 					<Button Classes="AddButton"
 							HorizontalAlignment="Center"
-							Command="{Binding AddDeviceCommand}">
-						Add Device
-					</Button>
+							Command="{Binding AddDeviceCommand}"
+							Content="{ext:Localized DE_AddDevice}"/>
 				</StackPanel>
 			</Border>
 		</ScrollViewer>

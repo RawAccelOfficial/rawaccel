@@ -59,5 +59,23 @@ namespace userinterface.Properties.Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Entry.
+        /// </summary>
+        public static string AddEntry {
+            get {
+                return ResourceManager.GetString("AddEntry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Mapping.
+        /// </summary>
+        public static string AddMapping {
+            get {
+                return ResourceManager.GetString("AddMapping", resourceCulture);
+            }
+        }
     }
 }

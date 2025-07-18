@@ -59,5 +59,50 @@ namespace userinterface.Properties.Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add New Profile.
+        /// </summary>
+        public static string AddNewProfile {
+            get {
+                return ResourceManager.GetString("AddNewProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This mode is for experts only..
+        /// </summary>
+        public static string ExpertsOnlyWarning {
+            get {
+                return ResourceManager.GetString("ExpertsOnlyWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fit to Data.
+        /// </summary>
+        public static string FitToData {
+            get {
+                return ResourceManager.GetString("FitToData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Format: x1,y1,x2,y2,...xn,yn;.
+        /// </summary>
+        public static string LUTFormatInstructions {
+            get {
+                return ResourceManager.GetString("LUTFormatInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset Zoom.
+        /// </summary>
+        public static string ResetZoom {
+            get {
+                return ResourceManager.GetString("ResetZoom", resourceCulture);
+            }
+        }
     }
 }

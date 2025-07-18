@@ -61,11 +61,38 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Device.
+        /// </summary>
+        public static string AddDevice {
+            get {
+                return ResourceManager.GetString("AddDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Device Group.
+        /// </summary>
+        public static string AddDeviceGroup {
+            get {
+                return ResourceManager.GetString("AddDeviceGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device Groups.
         /// </summary>
-        public static string DeviceGroupsHeader {
+        public static string DeviceGroups {
             get {
-                return ResourceManager.GetString("DeviceGroupsHeader", resourceCulture);
+                return ResourceManager.GetString("DeviceGroups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Devices.
+        /// </summary>
+        public static string Devices {
+            get {
+                return ResourceManager.GetString("Devices", resourceCulture);
             }
         }
     }

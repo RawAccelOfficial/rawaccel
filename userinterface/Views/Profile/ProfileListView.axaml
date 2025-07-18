@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:vp="using:userinterface.Views.Profile"
+			 xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
@@ -163,7 +164,7 @@
 				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
                           Width="16" Height="16"
                           Margin="0,0,8,0"/>
-				<TextBlock Text="Add New Profile"
+				<TextBlock Text="{ext:Localized PR_AddNewProfile}"
 						   Margin="0,4,0,0"/>
 			</StackPanel>
 		</Button>
