@@ -3,52 +3,39 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Settings"
+             xmlns:controls="using:userinterface.Views.Controls"
              xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Settings.SettingsPageView"
              x:DataType="vm:SettingsPageViewModel">
 
 	<UserControl.Styles>
-		<Style Selector="TextBlock">
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-		</Style>
-		<Style Selector="TextBlock.SectionTitle">
-			<Setter Property="FontSize" Value="18"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Margin" Value="0,0,0,8"/>
-		</Style>
-		<Style Selector="TextBlock.Label">
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="MinWidth" Value="150"/>
-		</Style>
-		<Style Selector="ComboBox">
+		<Style Selector="ComboBox, CheckBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Padding" Value="8"/>
-			<Setter Property="MinWidth" Value="200"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-		</Style>
-		<Style Selector="ComboBox:focus">
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
-		</Style>
-		<Style Selector="ComboBox:pointerover">
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-		</Style>
-		<Style Selector="CheckBox">
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="VerticalAlignment" Value="Center"/>
 		</Style>
-		<Style Selector="CheckBox:focus">
+
+		<Style Selector="ComboBox:focus, CheckBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
-		<Style Selector="CheckBox:pointerover">
+
+		<Style Selector="ComboBox:pointerover, CheckBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="MaxDropDownHeight" Value="200"/>
+		</Style>
+
+		<Style Selector="controls|DualColumnLabelFieldView ContentPresenter">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 		</Style>
 	</UserControl.Styles>
 
@@ -59,47 +46,20 @@
                        FontWeight="Bold"
                        Margin="0,0,0,16"/>
 
-			<!-- General Settings Section -->
 			<Border Background="{DynamicResource CardBackgroundBrush}"
                     BorderBrush="{DynamicResource CardBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="20">
-				<StackPanel Spacing="16" DataContext="{Binding GeneralSettings}">
+				<StackPanel Spacing="16">
 					<TextBlock Text="{ext:Localized ST_GeneralSettingsTitle}"
-                               Classes="SectionTitle"/>
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
 
-					<!-- Language Setting -->
-					<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
-						<TextBlock Grid.Column="0"
-								   Text="Language"
-								   Classes="Label"/>
-						<ComboBox Grid.Column="1"
-								  ItemsSource="{Binding AvailableLanguages}"
-								  SelectedItem="{Binding SelectedLanguage}"
-								  DisplayMemberBinding="{Binding DisplayName}"/>
-					</Grid>
-				</StackPanel>
-			</Border>
-
-			<!-- Notification Settings Section -->
-			<Border Background="{DynamicResource CardBackgroundBrush}"
-                    BorderBrush="{DynamicResource CardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20">
-				<StackPanel Spacing="16" DataContext="{Binding NotificationSettings}">
-					<TextBlock Text="Notifications"
-                               Classes="SectionTitle"/>
-
-					<!-- Toast Notifications Setting -->
-					<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
-						<TextBlock Grid.Column="0"
-								   Text="Show Toast Notifications"
-								   Classes="Label"/>
-						<CheckBox Grid.Column="1"
-								  IsChecked="{Binding ShowToastNotifications}"/>
-					</Grid>
+					<StackPanel Spacing="12" x:Name="SettingsStackPanel">
+						<!-- The DualColumnLabelFieldView will be added in code-behind -->
+					</StackPanel>
 				</StackPanel>
 			</Border>
 		</StackPanel>
