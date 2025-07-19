@@ -1,46 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
-using Avalonia.Controls;
-using System.Collections.Generic;
 
 namespace userinterface.ViewModels.Settings;
 
 public class SettingsPageViewModel : ViewModelBase
 {
-    public DualColumnLabelFieldViewModel SettingsFields { get; }
-
-    public ObservableCollection<LanguageItem> AvailableLanguages { get; }
-
-    private LanguageItem selectedLanguage;
+    private readonly INotificationService? notificationService;
 
     public SettingsPageViewModel()
     {
-        SettingsFields = new DualColumnLabelFieldViewModel();
-        SettingsFields.LabelWidth = 150;
+        notificationService = App.Services?.GetService<INotificationService>();
 
-        AvailableLanguages = new ObservableCollection<LanguageItem>
-        {
-            new LanguageItem("English", "en-US"),
-            new LanguageItem("Spanish", "es-ES"),
-            new LanguageItem("French", "fr-FR"),
-            new LanguageItem("German", "de-DE"),
-            new LanguageItem("Italian", "it-IT"),
-            new LanguageItem("Portuguese", "pt-PT"),
-            new LanguageItem("Russian", "ru-RU"),
-            new LanguageItem("Chinese (Simplified)", "zh-CN"),
-            new LanguageItem("Chinese (Traditional)", "zh-TW"),
-            new LanguageItem("Japanese", "ja-JP"),
-            new LanguageItem("Korean", "ko-KR"),
-            new LanguageItem("Filipino", "fil-PH") // Added for testing
-        };
+        GeneralSettings = new GeneralSettings(SettingsService, LocalizationService);
+        NotificationSettings = new NotificationSettings(SettingsService);
 
-        selectedLanguage = AvailableLanguages[0]; // Default to English
-
-        InitializeSettingsFields();
+        // Subscribe to language changes to show notifications if needed
+        GeneralSettings.PropertyChanged += OnGeneralSettingsChanged;
     }
 
     private SettingsService SettingsService =>
@@ -49,15 +28,40 @@ public class SettingsPageViewModel : ViewModelBase
     private LocalizationService LocalizationService =>
         App.Services!.GetRequiredService<LocalizationService>();
 
-    public bool ShowToastNotifications
+    public GeneralSettings GeneralSettings { get; }
+
+    public NotificationSettings NotificationSettings { get; }
+
+    private void OnGeneralSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        get => SettingsService.ShowToastNotifications;
-        set
+        if (e.PropertyName == nameof(GeneralSettings.SelectedLanguage) && notificationService != null)
         {
-            SettingsService.ShowToastNotifications = value;
-            OnPropertyChanged();
+            notificationService.ShowInfoToast($"Language changed to {GeneralSettings.SelectedLanguage.DisplayName}");
         }
     }
+}
+
+public class GeneralSettings : ViewModelBase
+{
+    private readonly SettingsService settingsService;
+    private readonly LocalizationService localizationService;
+    private LanguageItem selectedLanguage;
+
+    public GeneralSettings(SettingsService settingsService, LocalizationService localizationService)
+    {
+        this.settingsService = settingsService;
+        this.localizationService = localizationService;
+
+        AvailableLanguages = new ObservableCollection<LanguageItem>
+        {
+            new LanguageItem("English", "en-US"),
+            new LanguageItem("Japanese", "ja-JP"),
+        };
+
+        selectedLanguage = AvailableLanguages[0]; // Default to English
+    }
+
+    public ObservableCollection<LanguageItem> AvailableLanguages { get; }
 
     public LanguageItem SelectedLanguage
     {
@@ -75,46 +79,32 @@ public class SettingsPageViewModel : ViewModelBase
     {
         try
         {
-            LocalizationService.ChangeLanguage(cultureCode);
+            localizationService.ChangeLanguage(cultureCode);
         }
         catch (CultureNotFoundException ex)
         {
             System.Diagnostics.Debug.WriteLine($"Culture not found: {cultureCode} - {ex.Message}");
         }
     }
+}
 
-    private void InitializeSettingsFields()
+public class NotificationSettings : ViewModelBase
+{
+    private readonly SettingsService settingsService;
+
+    public NotificationSettings(SettingsService settingsService)
     {
-        var languageComboBox = new ComboBox
+        this.settingsService = settingsService;
+    }
+
+    public bool ShowToastNotifications
+    {
+        get => settingsService.ShowToastNotifications;
+        set
         {
-            ItemsSource = AvailableLanguages,
-            SelectedItem = SelectedLanguage,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-            DisplayMemberBinding = new Avalonia.Data.Binding("DisplayName")
-        };
-
-        languageComboBox.SelectionChanged += (sender, e) =>
-        {
-            if (languageComboBox.SelectedItem is LanguageItem language)
-            {
-                SelectedLanguage = language;
-            }
-        };
-
-        SettingsFields.AddField("Language", languageComboBox);
-
-        var toastCheckBox = new CheckBox
-        {
-            IsChecked = ShowToastNotifications,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
-        };
-
-        toastCheckBox.IsCheckedChanged += (sender, e) =>
-        {
-            ShowToastNotifications = toastCheckBox.IsChecked ?? false;
-        };
-
-        SettingsFields.AddField("Show Toast Notifications", toastCheckBox);
+            settingsService.ShowToastNotifications = value;
+            OnPropertyChanged();
+        }
     }
 }
 
