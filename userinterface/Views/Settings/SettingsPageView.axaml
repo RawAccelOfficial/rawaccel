@@ -10,7 +10,7 @@
              x:DataType="vm:SettingsPageViewModel">
 
 	<UserControl.Styles>
-		<Style Selector="ComboBox, CheckBox">
+		<Style Selector="ComboBox">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -20,17 +20,44 @@
 			<Setter Property="VerticalAlignment" Value="Center"/>
 		</Style>
 
-		<Style Selector="ComboBox:focus, CheckBox:focus">
+		<Style Selector="ComboBox:focus">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
-		<Style Selector="ComboBox:pointerover, CheckBox:pointerover">
+		<Style Selector="ComboBox:pointerover">
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 		</Style>
 
 		<Style Selector="ComboBox">
 			<Setter Property="MaxDropDownHeight" Value="200"/>
+		</Style>
+
+		<Style Selector="CheckBox">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+		</Style>
+
+		<Style Selector="CheckBox /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
+
+		<Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}" />
 		</Style>
 
 		<Style Selector="controls|DualColumnLabelFieldView ContentPresenter">
