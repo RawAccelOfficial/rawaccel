@@ -178,19 +178,19 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
                 contentButton.IsVisible = true;
                 headerButton.Classes.Add(ExpandedClass);
                 
-                // Run chevron and content animations concurrently
+                // Run chevron and height animations concurrently (height animation handles the smooth layout)
                 var chevronTask = AnimateChevron(expandIcon, ExpandedChevronAngle);
-                var contentTask = AnimateContentExpand(contentButton);
+                var heightTask = AnimateHeightExpand(contentButton);
                 
-                await Task.WhenAll(chevronTask, contentTask);
+                await Task.WhenAll(chevronTask, heightTask);
             }
             else
             {
-                // Run chevron and content animations concurrently while keeping expanded styling
+                // Run chevron and height animations concurrently while keeping expanded styling
                 var chevronTask = AnimateChevron(expandIcon, CollapsedChevronAngle);
-                var contentTask = AnimateContentCollapse(contentButton);
+                var heightTask = AnimateHeightCollapse(contentButton);
                 
-                await Task.WhenAll(chevronTask, contentTask);
+                await Task.WhenAll(chevronTask, heightTask);
                 
                 // Only remove expanded styling and hide content after animation completes
                 headerButton.Classes.Remove(ExpandedClass);
@@ -320,6 +320,97 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
                     {
                         new Setter { Property = Visual.OpacityProperty, Value = 0.0 },
                         new Setter { Property = ScaleTransform.ScaleYProperty, Value = 0.0 }
+                    }
+                }
+            }
+        };
+
+        await animation.RunAsync(contentControl, CancellationToken.None);
+    }
+
+    private static async Task AnimateHeightExpand(Control contentControl)
+    {
+        // Ensure content is visible and reset any previous state
+        contentControl.Opacity = 1.0;
+        contentControl.RenderTransform = null;
+        contentControl.ClearValue(Control.HeightProperty);
+        
+        // Measure the natural height of the content
+        contentControl.Measure(Size.Infinity);
+        var targetHeight = contentControl.DesiredSize.Height;
+        
+        // Start with height 0 and animate to target height
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
+            Easing = new CubicEaseOut(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = 0.0 },
+                        new Setter { Property = Visual.OpacityProperty, Value = 0.0 }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = targetHeight },
+                        new Setter { Property = Visual.OpacityProperty, Value = 1.0 }
+                    }
+                }
+            }
+        };
+
+        await animation.RunAsync(contentControl, CancellationToken.None);
+        
+        // Clear explicit height to allow natural responsive sizing
+        contentControl.ClearValue(Control.HeightProperty);
+    }
+
+    private static async Task AnimateHeightCollapse(Control contentControl)
+    {
+        // Get current height and ensure we start from a known state
+        var currentHeight = contentControl.Bounds.Height;
+        if (currentHeight <= 0)
+        {
+            // If no height, measure the content to get actual size
+            contentControl.Measure(Size.Infinity);
+            currentHeight = contentControl.DesiredSize.Height;
+        }
+        
+        // Set explicit height to current height before animating
+        contentControl.Height = currentHeight;
+        
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
+            Easing = new CubicEaseIn(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = currentHeight },
+                        new Setter { Property = Visual.OpacityProperty, Value = 1.0 }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = 0.0 },
+                        new Setter { Property = Visual.OpacityProperty, Value = 0.0 }
                     }
                 }
             }
