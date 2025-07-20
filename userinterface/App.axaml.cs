@@ -196,9 +196,6 @@ public partial class App : Application
 
     private async Task ShowAlphaBuildWarningAsync()
     {
-        // Wait a bit for the main window to be fully loaded
-        await Task.Delay(500);
-
         var modalService = Services?.GetService<IModalService>();
         if (modalService != null)
         {
