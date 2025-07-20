@@ -6,7 +6,7 @@
 	<UserControl.Styles>
 		<!-- Modal Background Overlay Style -->
 		<Style Selector="Border.ModalBackground">
-			<Setter Property="Background" Value="#AA000000"/>
+			<Setter Property="Background" Value="{DynamicResource ModalBackgroundBrush}"/>
 			<Setter Property="ZIndex" Value="1000"/>
 		</Style>
 
@@ -19,7 +19,7 @@
 			<Setter Property="RenderTransform" Value="scale(1)"/>
 			<Setter Property="Opacity" Value="1"/>
 			<Setter Property="CornerRadius" Value="12"/>
-			<Setter Property="BoxShadow" Value="0 16 32 0 #40000000"/>
+			<Setter Property="BoxShadow" Value="{DynamicResource ModalShadow}"/>
 		</Style>
 
 		<!-- Modal Animation Styles -->

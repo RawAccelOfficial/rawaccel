@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using System;
@@ -74,6 +74,8 @@ namespace userinterface.ViewModels.Mapping
 
         public ICommand ActivateCommand { get; }
 
+        // TODO: Replace hardcoded colors with theme-aware approach
+        // These colors should match ActiveBrush (#22C55E) and InactiveBrush from themes
         public IBrush BorderBrush => IsActiveMapping ?
             new SolidColorBrush(Color.Parse("#22C55E")) :
             new SolidColorBrush(Color.Parse("#404040"));

@@ -199,7 +199,7 @@
 		<!-- Loading Progress Bar Styles -->
 		<Style Selector="ProgressBar.LoadingBar">
 			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="#4CAF50"/>
+			<Setter Property="Foreground" Value="{DynamicResource SuccessButtonBrush}"/>
 			<Setter Property="Height" Value="4"/>
 			<Setter Property="CornerRadius" Value="2"/>
 			<Setter Property="Margin" Value="0,8,0,0"/>

@@ -16,11 +16,11 @@
 			<Setter Property="FontWeight" Value="Medium"/>
 		</Style>
 		<Style Selector="TextBlock.Warning">
-			<Setter Property="Foreground" Value="#F59E0B"/>
+			<Setter Property="Foreground" Value="{DynamicResource RenameButtonBrush}"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
 		</Style>
 		<Style Selector="TextBlock.Instructions">
-			<Setter Property="Foreground" Value="#9CA3AF"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
 			<Setter Property="FontSize" Value="12"/>
 			<Setter Property="FontStyle" Value="Italic"/>
 		</Style>
