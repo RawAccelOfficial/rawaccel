@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using LiveChartsCore;
@@ -61,8 +61,12 @@ namespace userinterface.ViewModels.Profile
 
         public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
-        public ProfileChartViewModel(ICurvePreview xCurvePreview, ICurvePreview yCurvePreview, EditableSetting<double> yxRatio)
+        private readonly IThemeService themeService;
+
+        public ProfileChartViewModel(ICurvePreview xCurvePreview, ICurvePreview yCurvePreview, EditableSetting<double> yxRatio, IThemeService themeService)
         {
+            this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
+            
             XCurvePreview = xCurvePreview;
             YCurvePreview = yCurvePreview;
             YXRatio = yxRatio;
@@ -77,7 +81,7 @@ namespace userinterface.ViewModels.Profile
             TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
 
             // Subscribe to theme changes
-            ThemeService.ThemeChanged += OnThemeChanged;
+            this.themeService.ThemeChanged += OnThemeChanged;
 
             RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
             FitToDataCommand = new RelayCommand(() => FitToData());
@@ -141,7 +145,7 @@ namespace userinterface.ViewModels.Profile
 
         public void Dispose()
         {
-            ThemeService.ThemeChanged -= OnThemeChanged;
+            themeService.ThemeChanged -= OnThemeChanged;
             YXRatio.PropertyChanged -= OnYXRatioChanged;
         }
 

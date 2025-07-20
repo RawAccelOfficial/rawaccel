@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -16,13 +16,18 @@ namespace userinterface.ViewModels.Profile
         private const int MaxProfileAttempts = 10;
 
         private readonly ObservableCollection<ProfileListElementViewModel> profileItems;
+        private readonly IViewModelFactory viewModelFactory;
+        private readonly BE.ProfilesModel profilesModel;
 
         // Just for optimization, only for cleaning up
         private readonly Dictionary<BE.ProfileModel, ProfileListElementViewModel> profileViewModelCache;
 
-        public ProfileListViewModel()
+        public ProfileListViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory)
         {
             System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Constructor started");
+
+            this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
+            this.profilesModel = backEnd?.Profiles ?? throw new ArgumentNullException(nameof(backEnd));
 
             profileItems = new ObservableCollection<ProfileListElementViewModel>();
             profileViewModelCache = new Dictionary<BE.ProfileModel, ProfileListElementViewModel>();
@@ -40,9 +45,8 @@ namespace userinterface.ViewModels.Profile
             System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Constructor completed. ProfileItems count: {profileItems.Count}");
         }
 
-        // Access ProfilesModel via DI
-        private BE.ProfilesModel ProfilesModel =>
-            App.Services!.GetRequiredService<userspace_backend.BackEnd>().Profiles;
+        // Access ProfilesModel via constructor injection
+        private BE.ProfilesModel ProfilesModel => profilesModel;
 
         private void OnProfilesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -109,7 +113,7 @@ namespace userinterface.ViewModels.Profile
             if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
             {
                 bool isDefault = index == 0;
-                elementViewModel = new ProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
+                elementViewModel = viewModelFactory.CreateProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
                 elementViewModel.ProfileDeleted += OnProfileDeleted;
                 profileViewModelCache[profile] = elementViewModel;
                 System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Created new ProfileListElementViewModel for {profile.CurrentNameForDisplay}");
@@ -209,7 +213,7 @@ namespace userinterface.ViewModels.Profile
                 if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
                 {
                     bool isDefault = i == 0;
-                    elementViewModel = new ProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
+                    elementViewModel = viewModelFactory.CreateProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
 
                     elementViewModel.ProfileDeleted += OnProfileDeleted;
 

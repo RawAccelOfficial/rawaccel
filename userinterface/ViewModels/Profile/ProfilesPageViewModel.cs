@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -14,22 +14,32 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
 
-        public ProfilesPageViewModel()
+        private readonly INotificationService notificationService;
+        private readonly BE.ProfilesModel profilesModel;
+        private readonly ProfileListViewModel profileListView;
+        private readonly IViewModelFactory viewModelFactory;
+
+        public ProfilesPageViewModel(
+            INotificationService notificationService,
+            userspace_backend.BackEnd backEnd,
+            ProfileListViewModel profileListView,
+            ActiveProfilesListViewModel activeProfilesListView,
+            IViewModelFactory viewModelFactory)
         {
+            this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            this.profilesModel = backEnd?.Profiles ?? throw new ArgumentNullException(nameof(backEnd));
+            this.profileListView = profileListView ?? throw new ArgumentNullException(nameof(profileListView));
+            this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
+
             ProfileViewModels = [];
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
-            ActiveProfilesListView = new ActiveProfilesListViewModel();
+            ActiveProfilesListView = activeProfilesListView ?? throw new ArgumentNullException(nameof(activeProfilesListView));
         }
 
-        private INotificationService NotificationService =>
-            App.Services!.GetRequiredService<INotificationService>();
-
-        private BE.ProfilesModel ProfilesModel =>
-            App.Services!.GetRequiredService<userspace_backend.BackEnd>().Profiles;
-
-        public ProfileListViewModel ProfileListView =>
-            App.Services!.GetRequiredService<ProfileListViewModel>();
+        private INotificationService NotificationService => notificationService;
+        private BE.ProfilesModel ProfilesModel => profilesModel;
+        public ProfileListViewModel ProfileListView => profileListView;
 
         private IEnumerable<BE.ProfileModel> ProfileModels => ProfilesModel.Profiles;
 
@@ -65,7 +75,7 @@ namespace userinterface.ViewModels.Profile
             ProfileViewModels.Clear();
             foreach (var profileModelBE in ProfileModels)
             {
-                ProfileViewModels.Add(new ProfileViewModel(profileModelBE, NotificationService));
+                ProfileViewModels.Add(viewModelFactory.CreateProfileViewModel(profileModelBE));
             }
         }
     }

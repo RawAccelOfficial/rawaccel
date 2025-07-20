@@ -31,6 +31,8 @@ public partial class App : Application
         // Register services
         services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IModalService, ModalService>();
+        services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<SettingsService>();
         services.AddSingleton<LocalizationService>();
 
@@ -84,16 +86,40 @@ public partial class App : Application
 
         // Device ViewModels
         services.AddTransient<ViewModels.Device.DevicesPageViewModel>();
+        services.AddTransient<ViewModels.Device.DevicesListViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupsViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupSelectorViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceViewModel>();
 
         // Profile ViewModels
         services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
         services.AddSingleton<ViewModels.Profile.ProfileListViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileListElementViewModel>();
+        services.AddTransient<ViewModels.Profile.ActiveProfilesListViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();
+        services.AddTransient<ViewModels.Profile.AccelerationFormulaSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.AccelerationLUTSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.AccelerationProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.AnisotropyProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.CoalescionProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.HiddenProfileSettingsViewModel>();
 
         // Mapping ViewModels
         services.AddTransient<ViewModels.Mapping.MappingsPageViewModel>();
+        services.AddTransient<ViewModels.Mapping.MappingViewModel>();
+        services.AddTransient<ViewModels.Mapping.MappingListElementViewModel>();
 
         // Settings ViewModels
         services.AddTransient<SettingsPageViewModel>();
+
+        // Control ViewModels
+        services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
+        services.AddTransient<ViewModels.Controls.EditableBoolViewModel>();
+        services.AddTransient<ViewModels.Controls.EditableFieldViewModel>();
+        services.AddTransient<ViewModels.Controls.NamedEditableFieldViewModel>();
     }
 
     protected static Bootstrapper BootstrapBackEnd()

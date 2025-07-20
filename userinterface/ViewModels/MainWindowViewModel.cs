@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -31,10 +31,12 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private ToastViewModel? toastViewModel;
 
     private readonly BE.BackEnd backEnd;
+    private readonly IThemeService themeService;
 
-    public MainWindowViewModel(BE.BackEnd backEnd)
+    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService)
     {
         this.backEnd = backEnd ?? throw new ArgumentNullException(nameof(backEnd));
+        this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
@@ -44,13 +46,13 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     public DevicesPageViewModel DevicesPage =>
-        devicesPage ??= new DevicesPageViewModel();
+        devicesPage ??= App.Services!.GetRequiredService<DevicesPageViewModel>();
 
     public ProfilesPageViewModel ProfilesPage =>
-        profilesPage ??= new ProfilesPageViewModel();
+        profilesPage ??= App.Services!.GetRequiredService<ProfilesPageViewModel>();
 
     public MappingsPageViewModel MappingsPage =>
-        mappingsPage ??= new MappingsPageViewModel();
+        mappingsPage ??= App.Services!.GetRequiredService<MappingsPageViewModel>();
 
     public SettingsPageViewModel SettingsPage =>
         settingsPage ??= App.Services!.GetRequiredService<SettingsPageViewModel>();
@@ -125,7 +127,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             Application.Current.RequestedThemeVariant = newTheme;
         }
-        ThemeService.NotifyThemeChanged();
+        themeService.NotifyThemeChanged();
     }
 
     private void SubscribeToProfileSelectionChanges()
