@@ -12,6 +12,13 @@
              x:DataType="vm:DevicesListViewModel">
 
 	<UserControl.Styles>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="FontSize" Value="32" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Margin" Value="4,0,0,16" />
+		</Style>
+
 		<Style Selector="StackPanel.DevicesContainer">
 			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
 			<Setter Property="Margin" Value="1" />
@@ -74,6 +81,10 @@
 	</UserControl.Styles>
 
 	<Grid RowDefinitions="Auto,*">
+		<TextBlock Grid.Row="0" 
+				   Classes="SectionHeader"
+				   Text="{ext:Localized DeviceDevices}"/>
+
 		<ScrollViewer Grid.Row="1"
 		              VerticalAlignment="Stretch"
 		              VerticalScrollBarVisibility="Auto">
