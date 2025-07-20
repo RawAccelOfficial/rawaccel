@@ -1,7 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -33,7 +36,7 @@ namespace userinterface.ViewModels.Profile
             ShowActionButtons = showButtons;
             IsDefaultProfile = isDefault;
             UpdateSelection(false);
-            DeleteProfileCommand = new RelayCommand(() => DeleteProfile());
+            DeleteProfileCommand = new AsyncRelayCommand(DeleteProfile);
         }
 
         public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
@@ -51,9 +54,27 @@ namespace userinterface.ViewModels.Profile
             SelectionChanged?.Invoke(this, selected);
         }
 
-        public void DeleteProfile()
+        public async Task DeleteProfile()
         {
-            ProfileDeleted?.Invoke(this);
+            var modalService = App.Services?.GetService<IModalService>();
+            if (modalService != null)
+            {
+                var confirmed = await modalService.ShowConfirmationAsync(
+                    "Delete Profile", 
+                    $"Are you sure you want to delete the profile '{Profile.CurrentNameForDisplay}'?",
+                    "Delete",
+                    "Cancel");
+                
+                if (confirmed)
+                {
+                    ProfileDeleted?.Invoke(this);
+                }
+            }
+            else
+            {
+                // Fallback if modal service is not available
+                ProfileDeleted?.Invoke(this);
+            }
         }
     }
 }

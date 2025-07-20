@@ -89,6 +89,52 @@
 					</StackPanel>
 				</StackPanel>
 			</Border>
+
+			<!-- Bug Report Section -->
+			<Border Background="{DynamicResource CardBackgroundBrush}"
+                    BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+				<StackPanel Spacing="16">
+					<TextBlock Text="Support &amp; Bug Reports"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+					<TextBlock Text="Found a bug or need help? Report issues directly to the development team."
+                               FontSize="14"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12"/>
+
+					<Button Content="Report a Bug"
+                            Command="{Binding BugReportCommand}"
+                            Background="{DynamicResource PrimaryButtonBrush}"
+                            Foreground="{DynamicResource PrimaryTextBrush}"
+                            BorderThickness="0"
+                            CornerRadius="6"
+                            Padding="20,12"
+                            FontSize="14"
+                            FontWeight="Medium"
+                            Cursor="Hand"
+                            HorizontalAlignment="Left">
+						<Button.Styles>
+							<Style Selector="Button:pointerover">
+								<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+							</Style>
+							<Style Selector="Button:pressed">
+								<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+							</Style>
+						</Button.Styles>
+					</Button>
+
+					<TextBlock Text="Opens: https://github.com/RawAccelOfficial/rawaccel/issues"
+                               FontSize="12"
+                               Foreground="{DynamicResource DisabledTextBrush}"
+                               FontStyle="Italic"/>
+				</StackPanel>
+			</Border>
 		</StackPanel>
 	</ScrollViewer>
 </UserControl>

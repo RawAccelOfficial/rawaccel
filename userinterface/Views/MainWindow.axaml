@@ -401,5 +401,8 @@
 		</Border>
 
 		<controls:ToastView DataContext="{Binding ToastViewModel}" />
+
+		<!-- Modal Overlay -->
+		<controls:ModalOverlay Name="ModalOverlay" />
 	</Panel>
 </Window>

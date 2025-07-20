@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="userinterface.Views.Controls.ModalOverlay"
+             x:Name="Root">
+
+	<UserControl.Styles>
+		<!-- Modal Background Overlay Style -->
+		<Style Selector="Border.ModalBackground">
+			<Setter Property="Background" Value="#AA000000"/>
+			<Setter Property="ZIndex" Value="1000"/>
+		</Style>
+
+		<!-- Modal Content Container Style -->
+		<Style Selector="Border.ModalContentContainer">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="ZIndex" Value="1001"/>
+			<Setter Property="RenderTransform" Value="scale(1)"/>
+			<Setter Property="Opacity" Value="1"/>
+			<Setter Property="CornerRadius" Value="12"/>
+			<Setter Property="BoxShadow" Value="0 16 32 0 #40000000"/>
+		</Style>
+
+		<!-- Modal Animation Styles -->
+		<Style Selector="Border.ModalContentContainer">
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.25"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Border.ModalBackground">
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.25"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<!-- Show animation -->
+		<Style Selector="Grid:not(.Hidden) Border.ModalContentContainer">
+			<Setter Property="RenderTransform" Value="scale(1)"/>
+			<Setter Property="Opacity" Value="1"/>
+		</Style>
+
+		<!-- Hide animation -->
+		<Style Selector="Grid.Hidden Border.ModalContentContainer">
+			<Setter Property="RenderTransform" Value="scale(0.9)"/>
+			<Setter Property="Opacity" Value="0"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid IsVisible="{Binding #Root.IsModalVisible}">
+		<!-- Background overlay -->
+		<Border Classes="ModalBackground" 
+				PointerPressed="OnBackgroundPressed"/>
+		
+		<!-- Modal content container -->
+		<Border Classes="ModalContentContainer">
+			<ContentControl Content="{Binding #Root.ModalContent}"
+							RenderTransform="scale(1)"
+							Opacity="1"/>
+		</Border>
+	</Grid>
+</UserControl>

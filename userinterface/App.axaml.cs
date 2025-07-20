@@ -5,6 +5,8 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
@@ -69,6 +71,9 @@ public partial class App : Application
             }
 
             desktop.MainWindow = mainWindow;
+
+            // Show alpha build warning modal
+            _ = ShowAlphaBuildWarningAsync();
 
 #if DEBUG
             desktop.MainWindow.AttachDevTools();
@@ -187,5 +192,40 @@ public partial class App : Application
                 ],
             },
         };
+    }
+
+    private async Task ShowAlphaBuildWarningAsync()
+    {
+        // Wait a bit for the main window to be fully loaded
+        await Task.Delay(500);
+
+        var modalService = Services?.GetService<IModalService>();
+        if (modalService != null)
+        {
+            var message = "This is an alpha build of RawAccel. You may encounter bugs or unexpected behavior.\n\n" +
+                          "You can report issues at: https://github.com/RawAccelOfficial/rawaccel/issues\n\n" +
+                          "There's also a bug report button in the Settings page for easy access.";
+
+            await modalService.ShowMessageAsync(
+                "Alpha Build Warning",
+                message,
+                "I Understand");
+        }
+    }
+
+    public static void OpenBugReportUrl()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/RawAccelOfficial/rawaccel/issues",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
+        }
     }
 }

@@ -11,6 +11,7 @@
 			<Setter Property="Padding" Value="24"/>
 			<Setter Property="MinWidth" Value="450"/>
 			<Setter Property="MinHeight" Value="200"/>
+			<Setter Property="CornerRadius" Value="12"/>
 		</Style>
 
 		<Style Selector="TextBlock.ModalTitle">

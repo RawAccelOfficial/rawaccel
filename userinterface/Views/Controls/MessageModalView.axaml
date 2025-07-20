@@ -13,6 +13,7 @@
 			<Setter Property="MinWidth" Value="450"/>
 			<Setter Property="MinHeight" Value="200"/>
 			<Setter Property="Margin" Value="20,0"/>
+			<Setter Property="CornerRadius" Value="12"/>
 		</Style>
 
 		<!-- Modal Title Style -->

@@ -1,6 +1,8 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
+using userinterface.Commands;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
@@ -20,6 +22,8 @@ public class SettingsPageViewModel : ViewModelBase
 
         // Subscribe to language changes to show notifications if needed
         GeneralSettings.PropertyChanged += OnGeneralSettingsChanged;
+
+        BugReportCommand = new RelayCommand(() => App.OpenBugReportUrl());
     }
 
     private SettingsService SettingsService =>
@@ -31,6 +35,8 @@ public class SettingsPageViewModel : ViewModelBase
     public GeneralSettings GeneralSettings { get; }
 
     public NotificationSettings NotificationSettings { get; }
+
+    public ICommand BugReportCommand { get; }
 
     private void OnGeneralSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {

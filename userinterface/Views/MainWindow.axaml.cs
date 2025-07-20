@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels;
+using userinterface.Views.Controls;
 
 namespace userinterface.Views;
 
