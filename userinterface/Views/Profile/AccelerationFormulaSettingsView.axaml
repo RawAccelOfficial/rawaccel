@@ -43,17 +43,21 @@
 		<DataTemplate x:Key="FormulaTypeItemTemplate">
 			<StackPanel Orientation="Horizontal" Spacing="8">
 				<TextBlock Text="{Binding}" VerticalAlignment="Center"/>
-				<Path x:Name="RecommendedIcon"
-					  Data="{StaticResource info_regular}"
-					  Fill="{DynamicResource PrimaryButtonBrush}"
-					  Width="16"
-					  Height="16"
-					  VerticalAlignment="Center">
-					<Path.IsVisible>
+				<Viewbox x:Name="RecommendedIcon"
+						 Width="16"
+						 Height="16"
+						 VerticalAlignment="Top"
+						 Margin="0,2,0,0"
+						 ToolTip.Tip="Recommended">
+					<Viewbox.IsVisible>
 						<Binding Path="." Converter="{x:Static ObjectConverters.Equal}" ConverterParameter="Synchronous"/>
-					</Path.IsVisible>
-					<ToolTip.Tip>Recommended</ToolTip.Tip>
-				</Path>
+					</Viewbox.IsVisible>
+					<Grid>
+						<Rectangle Fill="Transparent" Width="28" Height="28"/>
+						<Path Data="{StaticResource info_regular}"
+							  Fill="{DynamicResource PrimaryTextBrush}"/>
+					</Grid>
+				</Viewbox>
 			</StackPanel>
 		</DataTemplate>
 	</UserControl.Resources>
