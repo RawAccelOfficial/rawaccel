@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,10 +117,68 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AddEntry" xml:space="preserve">
-    <value>エントリを追加</value>
+  
+  <!-- MainWindow Resources -->
+  <data name="MainWindowApplySettingsButton" xml:space="preserve">
+    <value>Apply Settings</value>
   </data>
-  <data name="AddMapping" xml:space="preserve">
-    <value>マッピングを追加</value>
+  <data name="MainWindowDevicesButton" xml:space="preserve">
+    <value>Devices</value>
+  </data>
+  <data name="MainWindowMappingsButton" xml:space="preserve">
+    <value>Mappings</value>
+  </data>
+  <data name="MainWindowNavigationTitle" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="MainWindowProfilesButton" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  
+  <!-- Settings Resources -->
+  <data name="SettingsGeneralSettingsTitle" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="SettingsPageTitle" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  
+  <!-- Device Resources -->
+  <data name="DeviceAddDevice" xml:space="preserve">
+    <value>Add Device</value>
+  </data>
+  <data name="DeviceAddDeviceGroup" xml:space="preserve">
+    <value>Add Device Group</value>
+  </data>
+  <data name="DeviceDeviceGroups" xml:space="preserve">
+    <value>Device Groups</value>
+  </data>
+  <data name="DeviceDevices" xml:space="preserve">
+    <value>Devices</value>
+  </data>
+  
+  <!-- Mapping Resources -->
+  <data name="MappingAddEntry" xml:space="preserve">
+    <value>Add Entry</value>
+  </data>
+  <data name="MappingAddMapping" xml:space="preserve">
+    <value>Add Mapping</value>
+  </data>
+  
+  <!-- Profile Resources -->
+  <data name="ProfileAddNewProfile" xml:space="preserve">
+    <value>Add New Profile</value>
+  </data>
+  <data name="ProfileExpertsOnlyWarning" xml:space="preserve">
+    <value>This mode is for experts only.</value>
+  </data>
+  <data name="ProfileFitToData" xml:space="preserve">
+    <value>Fit to Data</value>
+  </data>
+  <data name="ProfileLUTFormatInstructions" xml:space="preserve">
+    <value>Format: x1,y1,x2,y2,...xn,yn;</value>
+  </data>
+  <data name="ProfileResetZoom" xml:space="preserve">
+    <value>Reset Zoom</value>
   </data>
 </root>

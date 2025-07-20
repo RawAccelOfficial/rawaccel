@@ -44,9 +44,9 @@
 
 	<StackPanel Spacing="12" x:Name="LUTStackPanel">
 		<TextBlock Classes="Warning"
-           Text="{ext:Localized PR_ExpertsOnlyWarning}"/>
+           Text="{ext:Localized ProfileExpertsOnlyWarning}"/>
 		<TextBlock Classes="Instructions"
-           Text="{ext:Localized PR_LUTFormatInstructions}"/>
+           Text="{ext:Localized ProfileLUTFormatInstructions}"/>
 		<ContentControl Content="{Binding LUTPoints}" Height="100"/>
 	</StackPanel>
 </UserControl>

@@ -68,7 +68,7 @@
 
 	<ScrollViewer>
 		<StackPanel Spacing="24" Margin="24">
-			<TextBlock Text="{ext:Localized ST_SettingsPageTitle}"
+			<TextBlock Text="{ext:Localized SettingsPageTitle}"
                        FontSize="32"
                        FontWeight="Bold"
                        Margin="0,0,0,16"/>
@@ -79,7 +79,7 @@
                     CornerRadius="8"
                     Padding="20">
 				<StackPanel Spacing="16">
-					<TextBlock Text="{ext:Localized ST_GeneralSettingsTitle}"
+					<TextBlock Text="{ext:Localized SettingsGeneralSettingsTitle}"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>

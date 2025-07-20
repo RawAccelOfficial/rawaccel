@@ -41,7 +41,7 @@
 
 	<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
 		<TextBlock Classes="SectionHeader"
-				   Text="{ext:Localized DE_DeviceGroups}"/>
+				   Text="{ext:Localized DeviceDeviceGroups}"/>
 
 		<ScrollViewer Height="300"
                       HorizontalScrollBarVisibility="Disabled"
@@ -59,7 +59,7 @@
 						HorizontalAlignment="Center"
 						VerticalAlignment="Bottom"
 						Command="{Binding AddDeviceGroupCommand}"
-						Content="{ext:Localized DE_AddDeviceGroup}"/>
+						Content="{ext:Localized DeviceAddDeviceGroup}"/>
 			</StackPanel>
 		</ScrollViewer>
 	</StackPanel>

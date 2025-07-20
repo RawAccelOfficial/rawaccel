@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -16,13 +16,8 @@ public class LocalizationService : INotifyPropertyChanged
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
 
-            // Set culture for all resource managers
-            Properties.Resources.MainWindow.Culture = culture;
-            Properties.Resources.Controls.Culture = culture;
-            Properties.Resources.Device.Culture = culture;
-            Properties.Resources.Mapping.Culture = culture;
-            Properties.Resources.Profile.Culture = culture;
-            Properties.Resources.Settings.Culture = culture;
+            // Set culture for the consolidated resource manager
+            Properties.Resources.Strings.Culture = culture;
 
             // Notify that ALL properties have changed
             OnPropertyChanged(string.Empty);

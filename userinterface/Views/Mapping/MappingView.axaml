@@ -263,7 +263,7 @@
 					<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
                               Width="16" Height="16"
                               Margin="0,0,8,0"/>
-					<TextBlock Text="{ext:Localized MA_AddEntry}"/>
+					<TextBlock Text="{ext:Localized MappingAddEntry}"/>
 				</StackPanel>
 				<Button.Flyout>
 					<Flyout Placement="Bottom">

@@ -49,12 +49,12 @@
 			            Margin="16,16,16,2">
 				<Button Classes="chart-control"
 				        Command="{Binding RecreateAxesCommand}"
-				        ToolTip.Tip="{ext:Localized PR_ResetZoom}">
+				        ToolTip.Tip="{ext:Localized ProfileResetZoom}">
 					<PathIcon Data="{StaticResource screenshot_regular}"/>
 				</Button>
 				<Button Classes="chart-control"
 				        Command="{Binding FitToDataCommand}"
-				        ToolTip.Tip="{ext:Localized PR_FitToData}">
+				        ToolTip.Tip="{ext:Localized ProfileFitToData}">
 					<PathIcon Data="{StaticResource full_screen_zoom_regular}"/>
 				</Button>
 			</StackPanel>

@@ -14,9 +14,9 @@
 	<UserControl.Styles>
 		<Style Selector="TextBlock.SectionHeader">
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-			<Setter Property="FontSize" Value="18" />
+			<Setter Property="FontSize" Value="32" />
 			<Setter Property="FontWeight" Value="SemiBold" />
-			<Setter Property="Margin" Value="0,0,0,16" />
+			<Setter Property="Margin" Value="4,0,0,16" />
 		</Style>
 
 		<Style Selector="StackPanel.DevicesContainer">
@@ -81,8 +81,9 @@
 	</UserControl.Styles>
 
 	<Grid RowDefinitions="Auto,*">
-		<TextBlock Grid.Row="0" Classes="SectionHeader"
-				   Text="{ext:Localized DE_Devices}"/>
+		<TextBlock Grid.Row="0" 
+				   Classes="SectionHeader"
+				   Text="{ext:Localized DeviceDevices}"/>
 
 		<ScrollViewer Grid.Row="1"
 		              VerticalAlignment="Stretch"
@@ -95,7 +96,7 @@
 					<Button Classes="AddButton"
 							HorizontalAlignment="Center"
 							Command="{Binding AddDeviceCommand}"
-							Content="{ext:Localized DE_AddDevice}"/>
+							Content="{ext:Localized DeviceAddDevice}"/>
 				</StackPanel>
 			</Border>
 		</ScrollViewer>

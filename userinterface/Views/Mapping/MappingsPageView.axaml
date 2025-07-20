@@ -86,7 +86,7 @@
 			<Button Classes="AddButton"
 					HorizontalAlignment="Center"
 					Command="{Binding AddMappingCommand}"
-					Content="{ext:Localized MA_AddMapping}"/>
+					Content="{ext:Localized MappingAddMapping}"/>
 		</StackPanel>
 	</ScrollViewer>
 </UserControl>

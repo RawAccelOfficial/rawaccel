@@ -47,21 +47,13 @@ public class LocalizedExtension : MarkupExtension, INotifyPropertyChanged
 
     private ResourceManager GetResourceManagerForKey(string key)
     {
-        return key.ToUpper() switch
-        {
-            var k when k.StartsWith("MW_") => Properties.Resources.MainWindow.ResourceManager,
-            var k when k.StartsWith("ST_") => Properties.Resources.Settings.ResourceManager,
-            var k when k.StartsWith("DE_") => Properties.Resources.Device.ResourceManager,
-            var k when k.StartsWith("MA_") => Properties.Resources.Mapping.ResourceManager,
-            var k when k.StartsWith("PR_") => Properties.Resources.Profile.ResourceManager,
-            var k when k.StartsWith("CT_") => Properties.Resources.Controls.ResourceManager,
-            _ => Properties.Resources.MainWindow.ResourceManager // Default fallback
-        };
+        // Always use the consolidated Strings resource manager
+        return Properties.Resources.Strings.ResourceManager;
     }
 
     private string GetActualKey(string key)
     {
-        var parts = key.Split('_', 2);
-        return parts.Length > 1 ? parts[1] : key;
+        // No longer need to strip prefixes - use the key as-is
+        return key;
     }
 } 
