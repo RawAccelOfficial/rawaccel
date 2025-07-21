@@ -5,19 +5,28 @@ namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileViewModel : ViewModelBase
     {
-        public ProfileViewModel(BE.ProfileModel profileBE, INotificationService notificationService, IViewModelFactory viewModelFactory)
+        private readonly INotificationService notificationService;
+        private readonly IViewModelFactory viewModelFactory;
+        
+        public ProfileViewModel(INotificationService notificationService, IViewModelFactory viewModelFactory)
         {
-            ProfileModelBE = profileBE;
-            Settings = viewModelFactory.CreateProfileSettingsViewModel(profileBE);
-            Chart = viewModelFactory.CreateProfileChartViewModel(profileBE);
+            this.notificationService = notificationService;
+            this.viewModelFactory = viewModelFactory;
         }
 
-        protected BE.ProfileModel ProfileModelBE { get; }
+        protected BE.ProfileModel ProfileModelBE { get; private set; } = null!;
 
-        public string CurrentName => ProfileModelBE.Name.CurrentValidatedValue;
+        public string CurrentName => ProfileModelBE?.Name.CurrentValidatedValue ?? string.Empty;
 
-        public ProfileSettingsViewModel Settings { get; }
+        public ProfileSettingsViewModel Settings { get; private set; } = null!;
 
-        public ProfileChartViewModel Chart { get; }
+        public ProfileChartViewModel Chart { get; private set; } = null!;
+
+        public void Initialize(BE.ProfileModel profileModel)
+        {
+            ProfileModelBE = profileModel;
+            Settings = viewModelFactory.CreateProfileSettingsViewModel(profileModel);
+            Chart = viewModelFactory.CreateProfileChartViewModel(profileModel);
+        }
     }
 }

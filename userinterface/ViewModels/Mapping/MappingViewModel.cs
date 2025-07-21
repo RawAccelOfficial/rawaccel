@@ -17,16 +17,22 @@ namespace userinterface.ViewModels.Mapping
     {
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
         private bool isActiveMapping;
-        private readonly Action<MappingViewModel>? onActivationRequested;
+        private Action<MappingViewModel>? onActivationRequested;
 
-        public MappingViewModel(BE.MappingModel mappingBE, BE.MappingsModel mappingsBE, bool isDefault = false, Action<MappingViewModel>? onActivationRequested = null)
+        public MappingViewModel()
         {
-            MappingBE = mappingBE;
-            MappingsBE = mappingsBE;
-            IsActiveMapping = isDefault;
+            mappingListElements = new ObservableCollection<MappingListElementViewModel>();
+            DeleteCommand = new RelayCommand(() => DeleteSelf());
+            ActivateCommand = new RelayCommand(() => ActivateMapping(), () => !IsActiveMapping);
+        }
+
+        public void Initialize(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested)
+        {
+            MappingBE = mappingModel;
+            MappingsBE = mappingsModel;
+            IsActiveMapping = isActive;
             this.onActivationRequested = onActivationRequested;
 
-            mappingListElements = new ObservableCollection<MappingListElementViewModel>();
             UpdateMappingListElements();
 
             MappingBE.IndividualMappings.CollectionChanged += (sender, e) =>
@@ -38,14 +44,11 @@ namespace userinterface.ViewModels.Mapping
             {
                 OnPropertyChanged(nameof(HasDeviceGroupsToAdd));
             };
-
-            DeleteCommand = new RelayCommand(() => DeleteSelf());
-            ActivateCommand = new RelayCommand(() => ActivateMapping(), () => !IsActiveMapping);
         }
 
-        public BE.MappingModel MappingBE { get; }
+        public BE.MappingModel MappingBE { get; private set; } = null!;
 
-        protected BE.MappingsModel MappingsBE { get; }
+        protected BE.MappingsModel MappingsBE { get; private set; } = null!;
 
         public bool IsActiveMapping
         {

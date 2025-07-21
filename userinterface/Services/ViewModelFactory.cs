@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using userinterface.Services;
 using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Device;
@@ -9,38 +10,46 @@ namespace userinterface.Services
 {
     public class ViewModelFactory : IViewModelFactory
     {
-        private readonly INotificationService notificationService;
-        private readonly IThemeService themeService;
+        private readonly IServiceProvider serviceProvider;
 
-        public ViewModelFactory(INotificationService notificationService, IThemeService themeService)
+        public ViewModelFactory(IServiceProvider serviceProvider)
         {
-            this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
-            this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public ProfileViewModel CreateProfileViewModel(BE.ProfileModel profileModel)
         {
-            return new ProfileViewModel(profileModel, notificationService, this);
+            var viewModel = serviceProvider.GetRequiredService<ProfileViewModel>();
+            viewModel.Initialize(profileModel);
+            return viewModel;
         }
 
         public ProfileSettingsViewModel CreateProfileSettingsViewModel(BE.ProfileModel profileModel)
         {
-            return new ProfileSettingsViewModel(profileModel, notificationService);
+            var viewModel = serviceProvider.GetRequiredService<ProfileSettingsViewModel>();
+            viewModel.Initialize(profileModel);
+            return viewModel;
         }
 
         public ProfileChartViewModel CreateProfileChartViewModel(BE.ProfileModel profileModel)
         {
-            return new ProfileChartViewModel(profileModel.XCurvePreview, profileModel.YCurvePreview, profileModel.YXRatio, themeService);
+            var viewModel = serviceProvider.GetRequiredService<ProfileChartViewModel>();
+            viewModel.Initialize(profileModel);
+            return viewModel;
         }
 
         public ProfileListElementViewModel CreateProfileListElementViewModel(BE.ProfileModel profileModel, bool showButtons, bool isDefault)
         {
-            return new ProfileListElementViewModel(profileModel, showButtons, isDefault);
+            var viewModel = serviceProvider.GetRequiredService<ProfileListElementViewModel>();
+            viewModel.Initialize(profileModel, showButtons, isDefault);
+            return viewModel;
         }
 
         public MappingViewModel CreateMappingViewModel(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested)
         {
-            return new MappingViewModel(mappingModel, mappingsModel, isActive, onActivationRequested);
+            var viewModel = serviceProvider.GetRequiredService<MappingViewModel>();
+            viewModel.Initialize(mappingModel, mappingsModel, isActive, onActivationRequested);
+            return viewModel;
         }
     }
 }

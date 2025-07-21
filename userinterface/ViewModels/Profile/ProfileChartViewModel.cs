@@ -14,6 +14,7 @@ using userinterface.Commands;
 using userinterface.Services;
 using userspace_backend.Display;
 using userspace_backend.Model.EditableSettings;
+using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
@@ -63,13 +64,25 @@ namespace userinterface.ViewModels.Profile
 
         private readonly IThemeService themeService;
 
-        public ProfileChartViewModel(ICurvePreview xCurvePreview, ICurvePreview yCurvePreview, EditableSetting<double> yxRatio, IThemeService themeService)
+        public ProfileChartViewModel(IThemeService themeService)
         {
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
             
-            XCurvePreview = xCurvePreview;
-            YCurvePreview = yCurvePreview;
-            YXRatio = yxRatio;
+            RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
+            FitToDataCommand = new RelayCommand(() => FitToData());
+        }
+
+        private ICurvePreview XCurvePreview { get; set; } = null!;
+
+        private ICurvePreview YCurvePreview { get; set; } = null!;
+
+        private EditableSetting<double> YXRatio { get; set; } = null!;
+
+        public void Initialize(BE.ProfileModel profileModel)
+        {
+            XCurvePreview = profileModel.XCurvePreview;
+            YCurvePreview = profileModel.YCurvePreview;
+            YXRatio = profileModel.YXRatio;
 
             YXRatio.PropertyChanged += OnYXRatioChanged;
 
@@ -82,16 +95,7 @@ namespace userinterface.ViewModels.Profile
 
             // Subscribe to theme changes
             this.themeService.ThemeChanged += OnThemeChanged;
-
-            RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
-            FitToDataCommand = new RelayCommand(() => FitToData());
         }
-
-        private ICurvePreview XCurvePreview { get; }
-
-        private ICurvePreview YCurvePreview { get; }
-
-        private EditableSetting<double> YXRatio { get; }
 
         public ISeries[] Series { get; set; }
 

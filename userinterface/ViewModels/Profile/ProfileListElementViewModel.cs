@@ -19,7 +19,7 @@ namespace userinterface.ViewModels.Profile
 
         private bool isSelected;
 
-        public BE.ProfileModel Profile { get; }
+        public BE.ProfileModel Profile { get; private set; } = null!;
 
         public event Action<ProfileListElementViewModel>? ProfileDeleted;
 
@@ -30,13 +30,17 @@ namespace userinterface.ViewModels.Profile
         // Track if a view has subscribed to this ViewModel
         public bool HasViewSubscribed { get; set; } = false;
 
-        public ProfileListElementViewModel(BE.ProfileModel profile, bool showButtons = true, bool isDefault = false)
+        public ProfileListElementViewModel()
+        {
+            DeleteProfileCommand = new AsyncRelayCommand(DeleteProfile);
+        }
+
+        public void Initialize(BE.ProfileModel profile, bool showButtons = true, bool isDefault = false)
         {
             Profile = profile;
             ShowActionButtons = showButtons;
             IsDefaultProfile = isDefault;
             UpdateSelection(false);
-            DeleteProfileCommand = new AsyncRelayCommand(DeleteProfile);
         }
 
         public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
