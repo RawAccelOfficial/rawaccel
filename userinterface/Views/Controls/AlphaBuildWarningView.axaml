@@ -1,0 +1,97 @@
+<UserControl x:Class="userinterface.Views.Controls.AlphaBuildWarningView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<UserControl.Styles>
+		<Style Selector="Button.LinkButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0,0,0,1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Padding" Value="2,0,2,1"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="CornerRadius" Value="0"/>
+		</Style>
+		
+		<Style Selector="Button.LinkButton:pointerover">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+		
+		<Style Selector="Button.PrimaryButton">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="20,12"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+		</Style>
+		
+		<Style Selector="Button.PrimaryButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Border Background="{DynamicResource CardBackgroundBrush}"
+	        BorderBrush="{DynamicResource CardBorderBrush}"
+	        BorderThickness="1"
+	        CornerRadius="12"
+	        MinWidth="500"
+	        MaxWidth="600"
+	        Padding="32">
+		
+		<StackPanel Spacing="20">
+			<!-- Header -->
+			<TextBlock Text="Alpha Build Warning"
+			           FontSize="24"
+			           FontWeight="Bold"
+			           Foreground="{DynamicResource PrimaryTextBrush}"
+			           HorizontalAlignment="Center"/>
+			
+			<!-- Warning Message -->
+			<StackPanel Spacing="16">
+				<TextBlock Text="This is an alpha build of RawAccel. Before reporting issues, please:"
+				           FontSize="14"
+				           Foreground="{DynamicResource PrimaryTextBrush}"
+				           TextWrapping="Wrap"/>
+				
+				<StackPanel Spacing="8" Margin="16,0,0,0">
+					<StackPanel Orientation="Horizontal" Spacing="4">
+						<TextBlock Text="1. Check existing issues" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+						<Button Classes="LinkButton" Content="here" Click="OnBugReportLinkClicked"/>
+						<TextBlock Text="to see if your problem has already been reported" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+					</StackPanel>
+					
+					<TextBlock Text="2. Search through closed issues for similar problems that may have been resolved"
+					           FontSize="14"
+					           Foreground="{DynamicResource PrimaryTextBrush}"
+					           TextWrapping="Wrap"/>
+					
+					<StackPanel Orientation="Horizontal" Spacing="4">
+						<TextBlock Text="3. For questions or help, join our Discord" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+						<Button Classes="LinkButton" Content="here" Click="OnDiscordLinkClicked"/>
+						<TextBlock Text="and ask in English" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+					</StackPanel>
+				</StackPanel>
+				
+				<TextBlock Text="Only create new issue reports for genuine bugs that haven't been reported yet."
+				           FontSize="14"
+				           Foreground="{DynamicResource SecondaryTextBrush}"
+				           FontStyle="Italic"
+				           TextWrapping="Wrap"
+				           Margin="0,8,0,0"/>
+			</StackPanel>
+			
+			<!-- Understand Button -->
+			<Button Classes="PrimaryButton"
+			        Content="I Understand"
+			        Click="OnUnderstandClicked"
+			        Margin="0,8,0,0"/>
+		</StackPanel>
+	</Border>
+</UserControl>

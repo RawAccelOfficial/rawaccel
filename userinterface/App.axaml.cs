@@ -199,14 +199,8 @@ public partial class App : Application
         var modalService = Services?.GetService<IModalService>();
         if (modalService != null)
         {
-            var message = "This is an alpha build of RawAccel. You may encounter bugs or unexpected behavior.\n\n" +
-                          "You can report issues at: https://github.com/RawAccelOfficial/rawaccel/issues\n\n" +
-                          "There's also a bug report button in the Settings page for easy access.";
-
-            await modalService.ShowMessageAsync(
-                "Alpha Build Warning",
-                message,
-                "I Understand");
+            var warningView = new Views.Controls.AlphaBuildWarningView();
+            await modalService.ShowDialogAsync<bool>(warningView);
         }
     }
 
@@ -223,6 +217,22 @@ public partial class App : Application
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
+        }
+    }
+
+    public static void OpenDiscordUrl()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://discord.gg/7pQh8zH",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to open Discord URL: {ex.Message}");
         }
     }
 }
