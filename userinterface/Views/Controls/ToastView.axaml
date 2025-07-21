@@ -87,6 +87,15 @@
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="VerticalAlignment" Value="Bottom"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Value" Duration="0:0:0.1">
+						<DoubleTransition.Easing>
+							<LinearEasing/>
+						</DoubleTransition.Easing>
+					</DoubleTransition>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<!-- Toast Icon Style -->

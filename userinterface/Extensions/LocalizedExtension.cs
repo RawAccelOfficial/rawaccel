@@ -42,7 +42,11 @@ public class LocalizedExtension : MarkupExtension, INotifyPropertyChanged
 
     private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+        // Only respond to language change notifications, not all property changes
+        if (e.PropertyName == LocalizationService.LanguageChangedPropertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+        }
     }
 
     private ResourceManager GetResourceManagerForKey(string key)

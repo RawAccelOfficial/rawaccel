@@ -7,6 +7,9 @@ namespace userinterface.Services;
 public class LocalizationService : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
+    
+    // Specific property name for language changes
+    public const string LanguageChangedPropertyName = "CurrentLanguage";
 
     public bool TryChangeLanguage(string cultureCode, out CultureInfo? culture)
     {
@@ -17,11 +20,9 @@ public class LocalizationService : INotifyPropertyChanged
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
 
-            // Set culture for the consolidated resource manager
             Properties.Resources.Strings.Culture = culture;
 
-            // Notify that ALL properties have changed
-            OnPropertyChanged(string.Empty);
+            OnPropertyChanged(LanguageChangedPropertyName);
             return true;
         }
         catch (CultureNotFoundException ex)
