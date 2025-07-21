@@ -10,6 +10,7 @@ using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.Views.Controls;
+using userinterface.Extensions;
 
 namespace userinterface.Views;
 
@@ -41,32 +42,27 @@ public partial class MainWindow : Window
             ApplyButtonControl.Click += ApplyButtonHandler;
         }
 
-        var settingsButton = this.FindControl<Button>("SettingsButton");
-        if (settingsButton != null)
+        if (this.TryFindControl<Button>("SettingsButton", out var settingsButton))
         {
             settingsButton.Click += OnSettingsClick;
         }
 
-        var themeToggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
-        if (themeToggleButton != null)
+        if (this.TryFindControl<ToggleButton>("ThemeToggleButton", out var themeToggleButton))
         {
             themeToggleButton.Click += ToggleTheme;
         }
 
-        var devicesButton = this.FindControl<Button>("DevicesButton");
-        if (devicesButton != null)
+        if (this.TryFindControl<Button>("DevicesButton", out var devicesButton))
         {
             devicesButton.Click += OnNavigationClick;
         }
 
-        var mappingsButton = this.FindControl<Button>("MappingsButton");
-        if (mappingsButton != null)
+        if (this.TryFindControl<Button>("MappingsButton", out var mappingsButton))
         {
             mappingsButton.Click += OnNavigationClick;
         }
 
-        var profilesButton = this.FindControl<Button>("ProfilesButton");
-        if (profilesButton != null)
+        if (this.TryFindControl<Button>("ProfilesButton", out var profilesButton))
         {
             profilesButton.Click += OnNavigationClick;
         }
@@ -108,19 +104,16 @@ public partial class MainWindow : Window
 
     public void OnNavigationClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag is string pageNameString)
+        if (sender is Button button && 
+            button.Tag is string pageNameString && 
+            Enum.TryParse<NavigationPage>(pageNameString, out var page) &&
+            DataContext is MainWindowViewModel viewModel)
         {
-            if (Enum.TryParse<NavigationPage>(pageNameString, out var page))
+            if (viewModel.NavigateCommand.CanExecute(page))
             {
-                if (DataContext is MainWindowViewModel viewModel)
-                {
-                    if (viewModel.NavigateCommand.CanExecute(page))
-                    {
-                        viewModel.NavigateCommand.Execute(page);
-                    }
-                    UpdateSelectedButton(page);
-                }
+                viewModel.NavigateCommand.Execute(page);
             }
+            UpdateSelectedButton(page);
         }
     }
 
@@ -150,10 +143,10 @@ public partial class MainWindow : Window
 
     private void UpdateSelectedButton(NavigationPage selectedPage)
     {
-        var devicesButton = this.FindControl<Button>("DevicesButton");
-        var mappingsButton = this.FindControl<Button>("MappingsButton");
-        var profilesButton = this.FindControl<Button>("ProfilesButton");
-        var settingsButton = this.FindControl<Button>("SettingsButton");
+        this.TryFindControl<Button>("DevicesButton", out var devicesButton);
+        this.TryFindControl<Button>("MappingsButton", out var mappingsButton);
+        this.TryFindControl<Button>("ProfilesButton", out var profilesButton);
+        this.TryFindControl<Button>("SettingsButton", out var settingsButton);
 
         devicesButton?.Classes.Remove("Selected");
         mappingsButton?.Classes.Remove("Selected");
@@ -182,9 +175,8 @@ public partial class MainWindow : Window
 
     private void UpdateThemeToggleButton()
     {
-        var themeIcon = this.FindControl<PathIcon>("ThemeIcon");
-        var toggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
-        if (themeIcon != null && toggleButton != null)
+        if (this.TryFindControl<PathIcon>("ThemeIcon", out var themeIcon) && 
+            this.TryFindControl<ToggleButton>("ThemeToggleButton", out var toggleButton))
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
             if (isDark)
