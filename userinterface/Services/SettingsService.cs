@@ -35,22 +35,32 @@ public class SettingsService : ISettingsService
         }
     }
 
-    public void Save()
+    public bool TrySave(out string? errorMessage)
     {
+        errorMessage = null;
         try
         {
             var settings = new { ShowToastNotifications = showToastNotifications };
             var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(settingsFilePath, json);
+            return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to save settings: {ex.Message}");
+            errorMessage = $"Failed to save settings: {ex.Message}";
+            Console.WriteLine(errorMessage);
+            return false;
         }
     }
 
-    public void Load()
+    public void Save()
     {
+        TrySave(out _);
+    }
+
+    public bool TryLoad(out string? errorMessage)
+    {
+        errorMessage = null;
         try
         {
             if (File.Exists(settingsFilePath))
@@ -63,13 +73,21 @@ public class SettingsService : ISettingsService
                     showToastNotifications = showToastProp.GetBoolean();
                 }
             }
+            return true;
         }
         catch (Exception ex)
         {
             // Handle gracefully - use defaults
-            Console.WriteLine($"Failed to load settings: {ex.Message}");
+            errorMessage = $"Failed to load settings: {ex.Message}";
+            Console.WriteLine(errorMessage);
             showToastNotifications = true;
+            return false;
         }
+    }
+
+    public void Load()
+    {
+        TryLoad(out _);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

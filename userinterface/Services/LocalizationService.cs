@@ -8,11 +8,12 @@ public class LocalizationService : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public void ChangeLanguage(string cultureCode)
+    public bool TryChangeLanguage(string cultureCode, out CultureInfo? culture)
     {
+        culture = null;
         try
         {
-            var culture = new CultureInfo(cultureCode);
+            culture = new CultureInfo(cultureCode);
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
 
@@ -21,11 +22,18 @@ public class LocalizationService : INotifyPropertyChanged
 
             // Notify that ALL properties have changed
             OnPropertyChanged(string.Empty);
+            return true;
         }
         catch (CultureNotFoundException ex)
         {
             System.Diagnostics.Debug.WriteLine($"Culture not found: {cultureCode} - {ex.Message}");
+            return false;
         }
+    }
+
+    public void ChangeLanguage(string cultureCode)
+    {
+        TryChangeLanguage(cultureCode, out _);
     }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

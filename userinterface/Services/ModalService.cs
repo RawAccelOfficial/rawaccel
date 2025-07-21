@@ -13,21 +13,27 @@ namespace userinterface.Services
         private TaskCompletionSource<bool>? currentConfirmationTask;
         private TaskCompletionSource<object?>? currentDialogTask;
 
-        private ModalOverlay? GetModalOverlay()
+        private bool TryGetModalOverlay(out ModalOverlay modalOverlay)
         {
+            modalOverlay = null!;
+            
             // Get the main window and its modal overlay
             if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var mainWindow = desktop.MainWindow as MainWindow;
-                return mainWindow?.FindControl<ModalOverlay>("ModalOverlay");
+                var overlay = mainWindow?.FindControl<ModalOverlay>("ModalOverlay");
+                if (overlay != null)
+                {
+                    modalOverlay = overlay;
+                    return true;
+                }
             }
-            return null;
+            return false;
         }
 
         public async Task<bool> ShowConfirmationAsync(string title, string message, string confirmText = "OK", string cancelText = "Cancel")
         {
-            var modalOverlay = GetModalOverlay();
-            if (modalOverlay == null) return false;
+            if (!TryGetModalOverlay(out var modalOverlay)) return false;
 
             if (currentModalContent != null)
             {
@@ -76,8 +82,7 @@ namespace userinterface.Services
 
         public async Task ShowMessageAsync(string title, string message, string okText = "OK")
         {
-            var modalOverlay = GetModalOverlay();
-            if (modalOverlay == null) return;
+            if (!TryGetModalOverlay(out var modalOverlay)) return;
 
             if (currentModalContent != null)
             {
@@ -119,8 +124,7 @@ namespace userinterface.Services
 
         public async Task<T?> ShowDialogAsync<T>(UserControl dialogContent, string title = "")
         {
-            var modalOverlay = GetModalOverlay();
-            if (modalOverlay == null) return default(T);
+            if (!TryGetModalOverlay(out var modalOverlay)) return default(T);
 
             if (currentModalContent != null)
             {
@@ -150,8 +154,7 @@ namespace userinterface.Services
 
         public void CloseCurrentModal()
         {
-            var modalOverlay = GetModalOverlay();
-            if (modalOverlay != null && currentModalContent != null)
+            if (TryGetModalOverlay(out var modalOverlay) && currentModalContent != null)
             {
                 modalOverlay.HideModal();
                 currentModalContent = null;
