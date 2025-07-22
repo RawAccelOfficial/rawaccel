@@ -20,6 +20,9 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         private bool isSelected;
 
+        [ObservableProperty]
+        private bool isHidden;
+
         public BE.ProfileModel Profile { get; private set; } = null!;
 
         public event Action<ProfileListElementViewModel>? ProfileDeleted;

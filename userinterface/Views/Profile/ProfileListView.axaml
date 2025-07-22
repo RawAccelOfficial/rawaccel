@@ -149,14 +149,11 @@
 	</UserControl.Styles>
 
 	<StackPanel>
-		<ItemsControl ItemsSource="{Binding ProfileItems}">
-			<ItemsControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<controls:AnimatedStackPanel Orientation="Vertical"/>
-				</ItemsPanelTemplate>
-			</ItemsControl.ItemsPanel>
-			<ItemsControl.ItemTemplate>
-				<DataTemplate>
+		<controls:AnimatedItemsCanvas x:Name="ProfileItemsControl" 
+		                              ItemsSource="{Binding ProfileItems}" 
+		                              Orientation="Vertical">
+			<controls:AnimatedItemsCanvas.ItemTemplate>
+				<DataTemplate x:DataType="vm:ProfileListElementViewModel">
 					<Border x:Name="ItemBorder"
 							Background="{DynamicResource CardBackgroundBrush}"
 							Margin="8,1"
@@ -167,7 +164,8 @@
 							Cursor="Hand"
 							ClipToBounds="False"
 							PointerPressed="OnItemPointerPressed"
-							Classes.CurrentlySelected="{Binding IsSelected}">
+							Classes.CurrentlySelected="{Binding IsSelected}"
+							IsVisible="{Binding !IsHidden}">
 						<Border.Transitions>
 							<Transitions>
 								<BrushTransition Property="Background" Duration="0:0:0.2"/>
@@ -205,19 +203,30 @@
 						<vp:ProfileListElementView/>
 					</Border>
 				</DataTemplate>
-			</ItemsControl.ItemTemplate>
-		</ItemsControl>
+			</controls:AnimatedItemsCanvas.ItemTemplate>
+		</controls:AnimatedItemsCanvas>
 
-		<Button Classes="AddButton"
-                Command="{Binding AddProfileCommand}"
-                HorizontalAlignment="Stretch">
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-                          Width="16" Height="16"
-                          Margin="0,0,8,0"/>
-				<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
-						   Margin="0,4,0,0"/>
-			</StackPanel>
-		</Button>
+		<StackPanel Orientation="Horizontal" Spacing="8">
+			<Button Classes="AddButton"
+	                Command="{Binding AddProfileCommand}"
+	                HorizontalAlignment="Stretch">
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
+	                          Width="16" Height="16"
+	                          Margin="0,0,8,0"/>
+					<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
+							   Margin="0,4,0,0"/>
+				</StackPanel>
+			</Button>
+			
+			<Button Classes="AddButton"
+	                Name="TestAnimationButton"
+	                Background="Orange"
+	                HorizontalAlignment="Stretch">
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<TextBlock Text="Test Animation" Margin="0,4,0,0"/>
+				</StackPanel>
+			</Button>
+		</StackPanel>
 	</StackPanel>
 </UserControl>

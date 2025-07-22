@@ -1,12 +1,15 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using userinterface.Services;
+using userinterface.Views.Profile;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -21,6 +24,12 @@ namespace userinterface.ViewModels.Profile
 
         // Just for optimization, only for cleaning up
         private readonly Dictionary<BE.ProfileModel, ProfileListElementViewModel> profileViewModelCache;
+        
+        // Reference to the view for accessing animation methods
+        public ProfileListView? ProfileListViewRef { get; set; }
+        
+        // Track profiles that are being animated for removal to prevent immediate UI removal
+        private readonly HashSet<BE.ProfileModel> profilesBeingRemoved = new();
 
         public ProfileListViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory)
         {
@@ -73,6 +82,14 @@ namespace userinterface.ViewModels.Profile
                         bool wasSelectedItemDeleted = false;
                         foreach (BE.ProfileModel profile in e.OldItems)
                         {
+                            // Skip removal if this profile is being animated
+                            if (profilesBeingRemoved.Contains(profile))
+                            {
+                                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Skipping UI removal for {profile.CurrentNameForDisplay} (being animated)");
+                                profilesBeingRemoved.Remove(profile); // Clean up the flag
+                                continue;
+                            }
+                            
                             if (profileViewModelCache.TryGetValue(profile, out var viewModel) && viewModel.IsSelected)
                             {
                                 wasSelectedItemDeleted = true;
@@ -234,10 +251,30 @@ namespace userinterface.ViewModels.Profile
             SelectDefaultItem();
         }
 
-        private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
+        private async void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
         {
             System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: OnProfileDeleted - {elementViewModel.Profile.CurrentNameForDisplay}");
-            RemoveProfile(elementViewModel.Profile);
+            
+            // Use animated removal if view reference is available
+            if (ProfileListViewRef != null)
+            {
+                // Mark this profile as being animated for removal
+                profilesBeingRemoved.Add(elementViewModel.Profile);
+                
+                await ProfileListViewRef.AnimateProfileRemoval(elementViewModel, () => 
+                {
+                    // After animation completes, actually remove from backend
+                    RemoveProfile(elementViewModel.Profile);
+                    
+                    // Also manually remove from UI since we skipped the automatic removal
+                    RemoveProfileItem(elementViewModel.Profile);
+                });
+            }
+            else
+            {
+                // Fallback to immediate removal
+                RemoveProfile(elementViewModel.Profile);
+            }
         }
 
         public bool TryAddProfile()
@@ -259,6 +296,26 @@ namespace userinterface.ViewModels.Profile
                         if (newProfileViewModel != null)
                         {
                             SetSelectedProfile(newProfileViewModel);
+                            
+                            // TEST CODE: Move the new profile up by 100 pixels to test movement functionality
+                            if (ProfileListViewRef != null)
+                            {
+                                System.Diagnostics.Debug.WriteLine("TEST: Moving new profile up by 100px with smooth animation");
+                                // Add small delay to ensure item is rendered, then run test animation
+                                _ = Task.Delay(200).ContinueWith(async _ =>
+                                {
+                                    await Dispatcher.UIThread.InvokeAsync(async () =>
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("TEST: Executing smooth move animation");
+                                        await ProfileListViewRef.MoveProfileAsync(newProfileViewModel, -100, 800);
+                                        
+                                        // Wait a moment then move it back down to test bidirectional movement
+                                        await Task.Delay(500);
+                                        System.Diagnostics.Debug.WriteLine("TEST: Moving back down to original position");
+                                        await ProfileListViewRef.MoveProfileAsync(newProfileViewModel, 100, 600);
+                                    });
+                                });
+                            }
                         }
                     }
                     return true;
