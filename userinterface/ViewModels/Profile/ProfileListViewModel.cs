@@ -297,7 +297,6 @@ namespace userinterface.ViewModels.Profile
                         {
                             SetSelectedProfile(newProfileViewModel);
                             
-                            // Implement new profile insertion logic: place below Default profile (index 1)
                             _ = Task.Delay(100).ContinueWith(async _ =>
                             {
                                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -317,9 +316,6 @@ namespace userinterface.ViewModels.Profile
             return false;
         }
 
-        /// <summary>
-        /// Inserts a new profile below the Default profile (at index 1) and animates existing profiles down
-        /// </summary>
         private async Task InsertNewProfileBelowDefaultAsync(ProfileListElementViewModel newProfileViewModel)
         {
             if (ProfileListViewRef == null)

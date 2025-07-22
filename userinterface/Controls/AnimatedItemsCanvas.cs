@@ -16,10 +16,6 @@ using System.Threading.Tasks;
 
 namespace userinterface.Controls
 {
-    /// <summary>
-    /// A Canvas-based animated list control that provides smooth animations
-    /// without interference from Avalonia's layout system
-    /// </summary>
     public class AnimatedItemsCanvas : Canvas
     {
         private readonly Dictionary<object, ContentPresenter> itemPresenters = new();
@@ -38,9 +34,6 @@ namespace userinterface.Controls
 
         #region Dependency Properties
 
-        /// <summary>
-        /// The collection of items to display
-        /// </summary>
         public static readonly StyledProperty<IEnumerable?> ItemsSourceProperty =
             AvaloniaProperty.Register<AnimatedItemsCanvas, IEnumerable?>(
                 nameof(ItemsSource),
@@ -52,9 +45,6 @@ namespace userinterface.Controls
             set => SetValue(ItemsSourceProperty, value);
         }
 
-        /// <summary>
-        /// The template used to display each item
-        /// </summary>
         public static readonly StyledProperty<IDataTemplate?> ItemTemplateProperty =
             AvaloniaProperty.Register<AnimatedItemsCanvas, IDataTemplate?>(nameof(ItemTemplate));
 
@@ -64,9 +54,6 @@ namespace userinterface.Controls
             set => SetValue(ItemTemplateProperty, value);
         }
 
-        /// <summary>
-        /// The orientation of the list (Vertical or Horizontal)
-        /// </summary>
         public static readonly StyledProperty<Orientation> OrientationProperty =
             AvaloniaProperty.Register<AnimatedItemsCanvas, Orientation>(
                 nameof(Orientation), 
@@ -421,9 +408,6 @@ namespace userinterface.Controls
 
         #region Animation Methods
 
-        /// <summary>
-        /// Animates removal of an item and compacts the remaining items upward
-        /// </summary>
         private async Task AnimateRemovalWithCompactionAsync(ContentPresenter removingPresenter, object removingItem)
         {
             if (!animationStates.TryGetValue(removingPresenter, out var removingState)) return;
@@ -500,9 +484,6 @@ namespace userinterface.Controls
             await Task.WhenAll(new[] { removalTask }.Concat(compactionTasks));
         }
 
-        /// <summary>
-        /// Animates a presenter to a specific position
-        /// </summary>
         private async Task AnimateToPositionAsync(ContentPresenter presenter, double targetX, double targetY, TimeSpan duration)
         {
             if (!animationStates.TryGetValue(presenter, out var state)) 
@@ -701,21 +682,11 @@ namespace userinterface.Controls
             presenter.InvalidateArrange();
         }
 
-        /// <summary>
-        /// Gets the ContentPresenter for a specific item
-        /// </summary>
         public ContentPresenter? GetPresenterForItem(object item)
         {
             return itemPresenters.TryGetValue(item, out var presenter) ? presenter : null;
         }
 
-        /// <summary>
-        /// Animates an item to a specific index position in the list
-        /// </summary>
-        /// <param name="item">The item to animate</param>
-        /// <param name="targetIndex">The target index position (0-based)</param>
-        /// <param name="duration">Animation duration (optional)</param>
-        /// <returns>Task that completes when animation finishes</returns>
         public async Task AnimateToIndexAsync(object item, int targetIndex, TimeSpan? duration = null)
         {
             if (!itemPresenters.TryGetValue(item, out var presenter))
@@ -762,11 +733,6 @@ namespace userinterface.Controls
             System.Diagnostics.Debug.WriteLine($"AnimateToIndexAsync: Animation to index {targetIndex} completed");
         }
 
-        /// <summary>
-        /// Calculates the pixel position for a given index in the list
-        /// </summary>
-        /// <param name="index">The target index (0-based)</param>
-        /// <returns>Point representing the position, or null if index is invalid</returns>
         private Point? CalculatePositionForIndex(int index)
         {
             if (ItemsSource == null) return null;
@@ -795,11 +761,6 @@ namespace userinterface.Controls
                 : new Point(offset, 0);
         }
 
-        /// <summary>
-        /// Gets the current index of an item in the ItemsSource
-        /// </summary>
-        /// <param name="item">The item to find</param>
-        /// <returns>The index of the item, or -1 if not found</returns>
         public int GetItemIndex(object item)
         {
             if (ItemsSource == null) return -1;
@@ -808,12 +769,6 @@ namespace userinterface.Controls
             return items.IndexOf(item);
         }
 
-        /// <summary>
-        /// Animates multiple items to their target index positions simultaneously
-        /// </summary>
-        /// <param name="itemIndexPairs">Dictionary of items and their target indices</param>
-        /// <param name="duration">Animation duration (optional)</param>
-        /// <returns>Task that completes when all animations finish</returns>
         public async Task AnimateMultipleToIndicesAsync(Dictionary<object, int> itemIndexPairs, TimeSpan? duration = null)
         {
             var animationTasks = new List<Task>();
@@ -829,9 +784,6 @@ namespace userinterface.Controls
             System.Diagnostics.Debug.WriteLine($"AnimateMultipleToIndicesAsync: All {animationTasks.Count} animations completed");
         }
 
-        /// <summary>
-        /// Animates an item by a specific pixel amount
-        /// </summary>
         public async Task AnimateItemByPixelsAsync(object item, double pixelAmount, TimeSpan? duration = null)
         {
             System.Diagnostics.Debug.WriteLine($"AnimateItemByPixelsAsync: Starting animation for item, pixelAmount={pixelAmount}");

@@ -91,35 +91,23 @@ public partial class ProfileListView : UserControl
         }
     }
     
-    /// <summary>
-    /// Gets the AnimatedItemsCanvas used for the profile list
-    /// </summary>
     public AnimatedItemsCanvas? GetAnimatedItemsCanvas()
     {
         return this.FindControl<AnimatedItemsCanvas>("ProfileItemsControl");
     }
     
-    /// <summary>
-    /// Gets the ContentPresenter element for a specific profile view model (for animation)
-    /// </summary>
     public ContentPresenter? GetProfileContentPresenter(ProfileListElementViewModel profileViewModel)
     {
         var canvas = GetAnimatedItemsCanvas();
         return canvas?.GetPresenterForItem(profileViewModel);
     }
     
-    /// <summary>
-    /// Gets the Border element for a specific profile view model (for measurements)
-    /// </summary>
     public Border? GetProfileBorder(ProfileListElementViewModel profileViewModel)
     {
         var presenter = GetProfileContentPresenter(profileViewModel);
         return presenter != null ? FindBorderInContentPresenter(presenter) : null;
     }
     
-    /// <summary>
-    /// Helper method to find the Border element inside a ContentPresenter
-    /// </summary>
     private Border? FindBorderInContentPresenter(ContentPresenter presenter)
     {
         // The Border should be the direct child of the ContentPresenter based on our XAML structure
@@ -132,9 +120,6 @@ public partial class ProfileListView : UserControl
         return FindBorderRecursive(presenter);
     }
     
-    /// <summary>
-    /// Recursively searches for a Border element in the visual tree
-    /// </summary>
     private Border? FindBorderRecursive(Control parent)
     {
         if (parent is Border border)
@@ -158,12 +143,6 @@ public partial class ProfileListView : UserControl
         return null;
     }
     
-    /// <summary>
-    /// Animates a profile to a specific index position in the list
-    /// </summary>
-    /// <param name="profileViewModel">The profile to move</param>
-    /// <param name="targetIndex">Target index position (0-based)</param>
-    /// <param name="durationMs">Duration of movement in milliseconds</param>
     public async Task AnimateProfileToIndexAsync(ProfileListElementViewModel profileViewModel, int targetIndex, int durationMs = 400)
     {
         System.Diagnostics.Debug.WriteLine($"AnimateProfileToIndex: Moving {profileViewModel.Profile.CurrentNameForDisplay} to index {targetIndex}");
@@ -180,11 +159,6 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    /// <summary>
-    /// Animates multiple profiles to their target indices simultaneously
-    /// </summary>
-    /// <param name="profileIndexPairs">Dictionary of profiles and their target indices</param>
-    /// <param name="durationMs">Duration of movement in milliseconds</param>
     public async Task AnimateMultipleProfilesToIndicesAsync(Dictionary<ProfileListElementViewModel, int> profileIndexPairs, int durationMs = 400)
     {
         System.Diagnostics.Debug.WriteLine($"AnimateMultipleProfilesToIndices: Animating {profileIndexPairs.Count} profiles");
@@ -205,23 +179,12 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    /// <summary>
-    /// Gets the current index of a profile in the list
-    /// </summary>
-    /// <param name="profileViewModel">The profile to find</param>
-    /// <returns>The index of the profile, or -1 if not found</returns>
     public int GetProfileIndex(ProfileListElementViewModel profileViewModel)
     {
         var canvas = GetAnimatedItemsCanvas();
         return canvas?.GetItemIndex(profileViewModel) ?? -1;
     }
 
-    /// <summary>
-    /// Moves a profile up or down by the specified pixel amount using smooth animation
-    /// </summary>
-    /// <param name="profileViewModel">The profile to move</param>
-    /// <param name="pixelAmount">Amount to move (positive = down, negative = up)</param>
-    /// <param name="durationMs">Duration of movement in milliseconds</param>
     public async Task MoveProfileAsync(ProfileListElementViewModel profileViewModel, double pixelAmount, int durationMs = 300)
     {
         System.Diagnostics.Debug.WriteLine($"MoveProfile: Attempting to move {profileViewModel.Profile.CurrentNameForDisplay} by {pixelAmount}px");
@@ -242,11 +205,6 @@ public partial class ProfileListView : UserControl
     }
     
     
-    /// <summary>
-    /// Instantly moves a profile by the specified pixel amount
-    /// </summary>
-    /// <param name="profileViewModel">The profile to move</param>
-    /// <param name="pixelAmount">Amount to move (positive = down, negative = up)</param>
     public void MoveProfileInstant(ProfileListElementViewModel profileViewModel, double pixelAmount)
     {
         var canvas = GetAnimatedItemsCanvas();
@@ -268,21 +226,11 @@ public partial class ProfileListView : UserControl
         }
     }
     
-    /// <summary>
-    /// Resets all profile positions to their natural layout positions
-    /// </summary>
     public void ResetAllProfilePositions()
     {
         var canvas = GetAnimatedItemsCanvas();
-        // Canvas automatically maintains proper positions, no manual reset needed
-        // This method is kept for API compatibility
     }
     
-    /// <summary>
-    /// Animates removal of a profile using smooth Canvas animations
-    /// </summary>
-    /// <param name="profileViewModel">The profile to remove</param>
-    /// <param name="onAnimationComplete">Callback when animation is complete</param>
     public async Task AnimateProfileRemoval(ProfileListElementViewModel profileViewModel, Action? onAnimationComplete = null)
     {
         var canvas = GetAnimatedItemsCanvas();
@@ -293,18 +241,7 @@ public partial class ProfileListView : UserControl
             return;
         }
         
-        try
-        {
-            // The Canvas control handles removal animation automatically
-            // when the item is removed from the ItemsSource
-            profileViewModel.IsHidden = true;
-            onAnimationComplete?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error during profile removal animation: {ex.Message}");
-            profileViewModel.IsHidden = true;
-            onAnimationComplete?.Invoke();
-        }
+        profileViewModel.IsHidden = true;
+        onAnimationComplete?.Invoke();
     }
 }
