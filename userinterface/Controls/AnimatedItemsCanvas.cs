@@ -30,8 +30,8 @@ namespace userinterface.Controls
         // Animation constants
         private static readonly int IntroAnimationDelay = 10;
         private static readonly double InitialOpacity = 0.0;
-        private static readonly double InitialScale = 0.7;
-        private static readonly double ScaleIncrement = 0.05;
+        private static readonly double InitialScale = 0.85;
+        private static readonly double TargetScale = 1.0;
         private static readonly double ExitScaleReduction = 0.2;
         private static readonly double PositionThreshold = 1.0;
         private static readonly double FrameIntervalMs = 1000.0;
@@ -733,14 +733,17 @@ namespace userinterface.Controls
             var targetX = targetPosition.Value.X;
             var targetY = targetPosition.Value.Y;
 
-            await StartAnimation(presenter, EnterAnimationDuration, new CubicEaseOut(), (progress) =>
+            await StartAnimation(presenter, EnterAnimationDuration, new QuadraticEaseOut(), (progress) =>
             {
-                // Animate opacity and scale
-                presenter.Opacity = progress;
-                var scale = InitialScale + (ScaleIncrement * progress);
+                // Smooth opacity animation
+                presenter.Opacity = Math.Min(1.0, progress * 1.2); // Opacity reaches full before animation completes
+                
+                // Smooth scale animation with gentle bounce-like easing
+                var scaleProgress = progress;
+                var scale = InitialScale + ((TargetScale - InitialScale) * scaleProgress);
                 presenter.RenderTransform = progress >= 1.0 ? null : new ScaleTransform(scale, scale);
 
-                // Animate position - slide down to target
+                // Animate position - slide down to target with easing
                 var currentX = startX + ((targetX - startX) * progress);
                 var currentY = startY + ((targetY - startY) * progress);
                 SetPosition(presenter, currentX, currentY);
