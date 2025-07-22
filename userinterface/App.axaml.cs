@@ -35,6 +35,7 @@ public partial class App : Application
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+        services.AddSingleton<IProfileAnimationService, ProfileAnimationService>();
         services.AddSingleton<SettingsService>();
         services.AddSingleton<LocalizationService>();
 

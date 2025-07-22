@@ -18,34 +18,10 @@ namespace userinterface.Controls
 {
     public class AnimatedItemsCanvas : Canvas
     {
-        // Animation timing constants
-        private static readonly TimeSpan EnterAnimationDuration = TimeSpan.FromMilliseconds(400);
-        private static readonly TimeSpan MoveAnimationDuration = TimeSpan.FromMilliseconds(300);
-        private static readonly TimeSpan ExitAnimationDuration = TimeSpan.FromMilliseconds(250);
-        private static readonly int AnimationFps = 120;
-        
-        // Layout constants
-        private static readonly double ItemSpacing = 8.0;
-        
-        // Animation constants
-        private static readonly int IntroAnimationDelay = 10;
-        private static readonly double InitialOpacity = 0.0;
-        private static readonly double InitialScale = 0.85;
-        private static readonly double TargetScale = 1.0;
-        private static readonly double ExitScaleReduction = 0.2;
-        private static readonly double PositionThreshold = 1.0;
-        private static readonly double FrameIntervalMs = 1000.0;
+        // Animation configuration
+        public AnimationConfig Config { get; set; } = AnimationConfig.Default;
 
-        // Animation state tracking
-        public enum AnimationState
-        {
-            Idle,
-            IntroAnimating,
-            Moving,
-            AccordionMoving,
-            Exiting,
-            Blocked
-        }
+        // Use the simplified AnimationState enum from separate file
 
         private readonly Dictionary<object, ContentPresenter> itemPresenters = new();
         private readonly Dictionary<ContentPresenter, AnimationContext> animationStates = new();
@@ -79,8 +55,8 @@ namespace userinterface.Controls
             public AnimationState State { get; set; } = AnimationState.Idle;
             public DispatcherTimer? Timer { get; set; }
             public DateTime StartTime { get; set; }
-            public bool CanBeInterrupted => State == AnimationState.Idle || State == AnimationState.Moving;
-            public bool IsIntroAnimating => State == AnimationState.IntroAnimating;
+            public bool CanBeInterrupted => State == AnimationState.Idle;
+            public bool IsAnimating => State == AnimationState.Animating;
         }
 
         #region Dependency Properties
@@ -172,10 +148,8 @@ namespace userinterface.Controls
             
             return requestedState switch
             {
-                AnimationState.IntroAnimating => context.State == AnimationState.Idle,
-                AnimationState.Moving => context.CanBeInterrupted,
-                AnimationState.AccordionMoving => context.CanBeInterrupted,
-                AnimationState.Exiting => true,
+                AnimationState.Animating => context.CanBeInterrupted,
+                AnimationState.PendingRemoval => true, // Can always mark for removal
                 _ => context.State == AnimationState.Idle
             };
         }
@@ -523,18 +497,18 @@ namespace userinterface.Controls
                 var item = visualItems[i];
                 if (itemPresenters.TryGetValue(item, out var presenter))
                 {
-                    if (CanStartAnimation(presenter, AnimationState.AccordionMoving))
+                    if (CanStartAnimation(presenter, AnimationState.Animating))
                     {
-                        SetAnimationState(presenter, AnimationState.AccordionMoving);
+                        SetAnimationState(presenter, AnimationState.Animating);
                         accordionTasks.Add(AccordionAnimateToPositionAsync(presenter, i, TimeSpan.FromMilliseconds(150)));
                     }
                 }
             }
 
             // Also animate the add button if it exists
-            if (addButtonPresenter != null && CanStartAnimation(addButtonPresenter, AnimationState.AccordionMoving))
+            if (addButtonPresenter != null && CanStartAnimation(addButtonPresenter, AnimationState.Animating))
             {
-                SetAnimationState(addButtonPresenter, AnimationState.AccordionMoving);
+                SetAnimationState(addButtonPresenter, AnimationState.Animating);
                 accordionTasks.Add(AccordionAnimateAddButtonAsync());
             }
 
@@ -551,7 +525,7 @@ namespace userinterface.Controls
             var currentX = Canvas.GetLeft(presenter);
             var currentY = Canvas.GetTop(presenter);
 
-            await StartAnimation(presenter, duration, new CubicEaseOut(), (progress) =>
+            await StartAnimation(presenter, duration, Config.MoveEasing, (progress) =>
             {
                 var newX = currentX + ((targetPosition.Value.X - currentX) * progress);
                 var newY = currentY + ((targetPosition.Value.Y - currentY) * progress);
@@ -571,7 +545,7 @@ namespace userinterface.Controls
             var currentX = Canvas.GetLeft(addButtonPresenter);
             var currentY = Canvas.GetTop(addButtonPresenter);
 
-            await StartAnimation(addButtonPresenter, TimeSpan.FromMilliseconds(150), new CubicEaseOut(), (progress) =>
+            await StartAnimation(addButtonPresenter, TimeSpan.FromMilliseconds(150), Config.MoveEasing, (progress) =>
             {
                 var newX = currentX + ((targetPosition.Value.X - currentX) * progress);
                 var newY = currentY + ((targetPosition.Value.Y - currentY) * progress);
@@ -599,9 +573,9 @@ namespace userinterface.Controls
                     var currentX = Canvas.GetLeft(presenter);
                     var currentY = Canvas.GetTop(presenter);
                     
-                    if (Math.Abs(currentX - targetX) > PositionThreshold || Math.Abs(currentY - targetY) > PositionThreshold)
+                    if (Math.Abs(currentX - targetX) > Config.PositionThreshold || Math.Abs(currentY - targetY) > Config.PositionThreshold)
                     {
-                        if (CanStartAnimation(presenter, AnimationState.Moving))
+                        if (CanStartAnimation(presenter, AnimationState.Animating))
                         {
                             AnimateToPosition(presenter, targetX, targetY);
                         }
@@ -623,7 +597,7 @@ namespace userinterface.Controls
                     presenter.Measure(Size.Infinity);
                     itemSize = Orientation == Orientation.Vertical ? presenter.DesiredSize.Height : presenter.DesiredSize.Width;
                 }
-                currentOffset += itemSize + ItemSpacing;
+                currentOffset += itemSize + Config.ItemSpacing;
             }
 
             // Position add button at the end
@@ -637,10 +611,10 @@ namespace userinterface.Controls
                         var currentX = Canvas.GetLeft(addButtonPresenter);
                         var currentY = Canvas.GetTop(addButtonPresenter);
                         
-                        if (Math.Abs(currentX - addButtonPosition.Value.X) > PositionThreshold || 
-                            Math.Abs(currentY - addButtonPosition.Value.Y) > PositionThreshold)
+                        if (Math.Abs(currentX - addButtonPosition.Value.X) > Config.PositionThreshold || 
+                            Math.Abs(currentY - addButtonPosition.Value.Y) > Config.PositionThreshold)
                         {
-                            if (CanStartAnimation(addButtonPresenter, AnimationState.Moving))
+                            if (CanStartAnimation(addButtonPresenter, AnimationState.Animating))
                             {
                                 AnimateToPosition(addButtonPresenter, addButtonPosition.Value.X, addButtonPosition.Value.Y);
                             }
@@ -672,7 +646,7 @@ namespace userinterface.Controls
                         presenter.Measure(Size.Infinity);
                         itemSize = Orientation == Orientation.Vertical ? presenter.DesiredSize.Height : presenter.DesiredSize.Width;
                     }
-                    totalOffset += itemSize + ItemSpacing;
+                    totalOffset += itemSize + Config.ItemSpacing;
                 }
             }
 
@@ -683,29 +657,29 @@ namespace userinterface.Controls
 
         private void StartIntroAnimation(ContentPresenter presenter)
         {
-            if (!CanStartAnimation(presenter, AnimationState.IntroAnimating))
+            if (!CanStartAnimation(presenter, AnimationState.Animating))
                 return;
 
             // Calculate the target position first
             var targetPosition = GetTargetPositionForPresenter(presenter);
             
             // Set initial state - opacity, scale, and position (slide from above)
-            presenter.Opacity = InitialOpacity;
-            presenter.RenderTransform = new ScaleTransform(InitialScale, InitialScale);
+            presenter.Opacity = Config.InitialOpacity;
+            presenter.RenderTransform = new ScaleTransform(Config.InitialScale, Config.InitialScale);
             
             // Position the item above its target (underneath the previous element)
             if (targetPosition.HasValue)
             {
-                var startY = targetPosition.Value.Y - 30; // Start 30 pixels above target
+                var startY = targetPosition.Value.Y - Config.SlideOffset; // Start above target
                 SetPosition(presenter, targetPosition.Value.X, startY);
             }
             
-            SetAnimationState(presenter, AnimationState.IntroAnimating);
+            SetAnimationState(presenter, AnimationState.Animating);
             
             // Start intro animation with movement
             _ = Task.Run(async () =>
             {
-                await Task.Delay(IntroAnimationDelay);
+                await Task.Delay(Config.DelayMs);
                 await Dispatcher.UIThread.InvokeAsync(() => AnimateIntroAsync(presenter, targetPosition));
             });
         }
@@ -733,14 +707,14 @@ namespace userinterface.Controls
             var targetX = targetPosition.Value.X;
             var targetY = targetPosition.Value.Y;
 
-            await StartAnimation(presenter, EnterAnimationDuration, new QuadraticEaseOut(), (progress) =>
+            await StartAnimation(presenter, Config.EnterDuration, Config.EnterEasing, (progress) =>
             {
                 // Smooth opacity animation
                 presenter.Opacity = Math.Min(1.0, progress * 1.2); // Opacity reaches full before animation completes
                 
                 // Smooth scale animation with gentle bounce-like easing
                 var scaleProgress = progress;
-                var scale = InitialScale + ((TargetScale - InitialScale) * scaleProgress);
+                var scale = Config.InitialScale + ((Config.TargetScale - Config.InitialScale) * scaleProgress);
                 presenter.RenderTransform = progress >= 1.0 ? null : new ScaleTransform(scale, scale);
 
                 // Animate position - slide down to target with easing
@@ -758,15 +732,15 @@ namespace userinterface.Controls
 
         private void AnimateToPosition(ContentPresenter presenter, double targetX, double targetY)
         {
-            _ = AnimateToPositionAsync(presenter, targetX, targetY, MoveAnimationDuration);
+            _ = AnimateToPositionAsync(presenter, targetX, targetY, Config.MoveDuration);
         }
 
         private async Task AnimateToPositionAsync(ContentPresenter presenter, double targetX, double targetY, TimeSpan duration)
         {
-            if (!CanStartAnimation(presenter, AnimationState.Moving))
+            if (!CanStartAnimation(presenter, AnimationState.Animating))
                 return;
 
-            SetAnimationState(presenter, AnimationState.Moving);
+            SetAnimationState(presenter, AnimationState.Animating);
 
             var currentX = Canvas.GetLeft(presenter);
             var currentY = Canvas.GetTop(presenter);
@@ -783,7 +757,7 @@ namespace userinterface.Controls
 
         private async Task AnimateRemovalAsync(ContentPresenter presenter, Action onComplete)
         {
-            SetAnimationState(presenter, AnimationState.Exiting);
+            SetAnimationState(presenter, AnimationState.PendingRemoval);
 
             // Get the original size before animating
             var originalSize = Orientation == Orientation.Vertical ? presenter.DesiredSize.Height : presenter.DesiredSize.Width;
@@ -794,11 +768,11 @@ namespace userinterface.Controls
             }
 
             // Animate both opacity/scale and size collapse
-            await StartAnimation(presenter, ExitAnimationDuration, new CubicEaseIn(), (progress) =>
+            await StartAnimation(presenter, Config.ExitDuration, Config.ExitEasing, (progress) =>
             {
                 // Fade out and scale down
                 presenter.Opacity = 1.0 - progress;
-                var scale = 1.0 - (ExitScaleReduction * progress);
+                var scale = 1.0 - (Config.ExitScaleReduction * progress);
                 presenter.RenderTransform = new ScaleTransform(scale, scale);
                 
                 // Collapse size smoothly
@@ -825,7 +799,7 @@ namespace userinterface.Controls
             var context = GetOrCreateAnimationContext(presenter);
             context.Timer?.Stop();
 
-            var frameInterval = TimeSpan.FromMilliseconds(FrameIntervalMs / AnimationFps);
+            var frameInterval = TimeSpan.FromMilliseconds(1000.0 / Config.FrameRate);
             var startTime = DateTime.Now;
             var tcs = new TaskCompletionSource<bool>();
 
@@ -890,7 +864,7 @@ namespace userinterface.Controls
             var targetX = Orientation == Orientation.Horizontal ? currentX + pixelAmount : currentX;
             var targetY = Orientation == Orientation.Vertical ? currentY + pixelAmount : currentY;
 
-            await AnimateToPositionAsync(presenter, targetX, targetY, duration ?? MoveAnimationDuration);
+            await AnimateToPositionAsync(presenter, targetX, targetY, duration ?? Config.MoveDuration);
         }
 
         public int GetItemIndex(object item)
@@ -906,7 +880,7 @@ namespace userinterface.Controls
             var targetPosition = CalculatePositionForIndex(targetIndex);
             if (targetPosition == null) return;
 
-            await AnimateToPositionAsync(presenter, targetPosition.Value.X, targetPosition.Value.Y, duration ?? MoveAnimationDuration);
+            await AnimateToPositionAsync(presenter, targetPosition.Value.X, targetPosition.Value.Y, duration ?? Config.MoveDuration);
         }
 
         public async Task AnimateMultipleToIndicesAsync(Dictionary<object, int> itemIndexPairs, TimeSpan? duration = null)
@@ -939,7 +913,7 @@ namespace userinterface.Controls
                         itemPresenter.Measure(Size.Infinity);
                         size = Orientation == Orientation.Vertical ? itemPresenter.DesiredSize.Height : itemPresenter.DesiredSize.Width;
                     }
-                    offset += size + ItemSpacing;
+                    offset += size + Config.ItemSpacing;
                 }
             }
 
@@ -1003,11 +977,11 @@ namespace userinterface.Controls
 
                 if (Orientation == Orientation.Vertical)
                 {
-                    totalHeight += itemSize.Height + ItemSpacing;
+                    totalHeight += itemSize.Height + Config.ItemSpacing;
                 }
                 else
                 {
-                    totalWidth += itemSize.Width + ItemSpacing;
+                    totalWidth += itemSize.Width + Config.ItemSpacing;
                 }
             }
 
@@ -1015,9 +989,9 @@ namespace userinterface.Controls
             if (Children.Count > 0)
             {
                 if (Orientation == Orientation.Vertical)
-                    totalHeight -= ItemSpacing;
+                    totalHeight -= Config.ItemSpacing;
                 else
-                    totalWidth -= ItemSpacing;
+                    totalWidth -= Config.ItemSpacing;
             }
 
             var finalWidth = Orientation == Orientation.Vertical ? maxItemWidth : totalWidth;
