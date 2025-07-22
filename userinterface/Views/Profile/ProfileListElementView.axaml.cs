@@ -10,6 +10,7 @@ namespace userinterface.Views.Profile;
 public partial class ProfileListElementView : UserControl
 {
     private Animation elementAnimation;
+    private Rectangle animatedElement;
 
     public ProfileListElementView()
     {
@@ -19,33 +20,22 @@ public partial class ProfileListElementView : UserControl
 
     private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        StartElementAnimation();
+        animatedElement = this.FindControl<Rectangle>("AnimatedElement");
+        // Start at position 0 (top) - no automatic animation
     }
 
-    private void StartElementAnimation()
+    public void AnimateToPosition(int position)
     {
-        var animatedElement = this.FindControl<Rectangle>("AnimatedElement");
-        if (animatedElement?.RenderTransform is not TranslateTransform) return;
+        if (animatedElement?.RenderTransform is not TranslateTransform transform) return;
+
+        double targetY = position * 50d; // position 0 = 0px, position 1 = 50px
 
         elementAnimation = new Animation
         {
-            Duration = TimeSpan.FromSeconds(2),
-            IterationCount = IterationCount.Infinite,
-            PlaybackDirection = PlaybackDirection.Alternate,
+            Duration = TimeSpan.FromSeconds(1),
+            FillMode = FillMode.Forward, // Keep final state
             Children =
             {
-                new KeyFrame
-                {
-                    Cue = new Cue(0d),
-                    Setters =
-                    {
-                        new Setter
-                        {
-                            Property = TranslateTransform.YProperty,
-                            Value = 0d
-                        }
-                    }
-                },
                 new KeyFrame
                 {
                     Cue = new Cue(1d),
@@ -54,13 +44,20 @@ public partial class ProfileListElementView : UserControl
                         new Setter
                         {
                             Property = TranslateTransform.YProperty,
-                            Value = 50d // One interval height down (rectangle height)
+                            Value = targetY
                         }
                     }
                 }
             }
         };
 
-        elementAnimation.RunAsync(animatedElement);
+        // Also set the transform directly after animation completes
+        elementAnimation.RunAsync(animatedElement).ContinueWith(_ => 
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => 
+            {
+                transform.Y = targetY;
+            });
+        });
     }
 }

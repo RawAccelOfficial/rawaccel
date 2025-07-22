@@ -16,6 +16,9 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         private int itemCount = 4; // Number of items that can fit in the canvas
 
+        [ObservableProperty]
+        private int currentPosition = 0; // Current animation position (0 or 1)
+
         public int CanvasHeight => ItemCount * RectangleHeight; // Canvas height based on item count
         public int ElementTopPosition => 0; // Always position at top
 
@@ -57,10 +60,10 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // Test method - for test code only, do not change functionality
+        // Test method - toggles animation position between 0 and 1
         private void Test()
         {
-            ItemCount += 1;
+            CurrentPosition = CurrentPosition == 0 ? 1 : 0;
         }
     }
 }
