@@ -148,77 +148,79 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel>
-		<controls:AnimatedItemsCanvas x:Name="ProfileItemsControl" 
-		                              ItemsSource="{Binding ProfileItems}" 
-		                              Orientation="Vertical">
-			<controls:AnimatedItemsCanvas.ItemTemplate>
-				<DataTemplate x:DataType="vm:ProfileListElementViewModel">
-					<Border x:Name="ItemBorder"
-							Background="{DynamicResource CardBackgroundBrush}"
-							Margin="8,1"
-							BorderThickness="1"
-							BorderBrush="{DynamicResource BorderBrush}"
-							CornerRadius="6"
-							Padding="12,6"
-							Cursor="Hand"
-							ClipToBounds="False"
-							PointerPressed="OnItemPointerPressed"
-							Classes.CurrentlySelected="{Binding IsSelected}"
-							IsVisible="{Binding !IsHidden}"
-							HorizontalAlignment="Stretch">
-						<Border.Transitions>
-							<Transitions>
-								<BrushTransition Property="Background" Duration="0:0:0.2"/>
-								<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
-								<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-								<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-								<DoubleTransition Property="Height" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-								<DoubleTransition Property="Width" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-								<ThicknessTransition Property="Margin" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-							</Transitions>
-						</Border.Transitions>
-						<Border.Styles>
-							<!-- Selected state -->
-							<Style Selector="Border.CurrentlySelected">
-								<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-								<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
-							</Style>
-							<Style Selector="Border.CurrentlySelected:pointerover">
-								<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-								<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
-								<Setter Property="RenderTransform" Value="scale(1.02)"/>
-							</Style>
-							<!-- Hover effects -->
-							<Style Selector="Border:pointerover">
-								<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-								<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
-								<Setter Property="RenderTransform" Value="scale(1.02)"/>
-							</Style>
-							<Style Selector="Border:pressed">
-								<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-								<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-								<Setter Property="RenderTransform" Value="scale(0.98)"/>
-							</Style>
-						</Border.Styles>
-						<vp:ProfileListElementView/>
-					</Border>
-				</DataTemplate>
-			</controls:AnimatedItemsCanvas.ItemTemplate>
-		</controls:AnimatedItemsCanvas>
-
-		<Button Classes="AddButton"
-		        Command="{Binding AddProfileCommand}"
-		        HorizontalAlignment="Stretch"
-		        Margin="8,4">
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-		                  Width="16" Height="16"
-		                  Margin="0,0,8,0"/>
-				<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
-						   Margin="0,4,0,0"/>
-			</StackPanel>
-		</Button>
-
-	</StackPanel>
+	<controls:AnimatedItemsCanvas x:Name="ProfileItemsControl" 
+	                              ItemsSource="{Binding ProfileItems}" 
+	                              Orientation="Vertical"
+	                              ShowAddButton="True"
+	                              AddButtonDataContext="{Binding}">
+		<controls:AnimatedItemsCanvas.ItemTemplate>
+			<DataTemplate x:DataType="vm:ProfileListElementViewModel">
+				<Border x:Name="ItemBorder"
+						Background="{DynamicResource CardBackgroundBrush}"
+						Margin="8,1"
+						BorderThickness="1"
+						BorderBrush="{DynamicResource BorderBrush}"
+						CornerRadius="6"
+						Padding="12,6"
+						Cursor="Hand"
+						ClipToBounds="False"
+						PointerPressed="OnItemPointerPressed"
+						Classes.CurrentlySelected="{Binding IsSelected}"
+						IsVisible="{Binding !IsHidden}"
+						HorizontalAlignment="Stretch">
+					<Border.Transitions>
+						<Transitions>
+							<BrushTransition Property="Background" Duration="0:0:0.2"/>
+							<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+							<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+							<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+							<DoubleTransition Property="Height" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+							<DoubleTransition Property="Width" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+							<ThicknessTransition Property="Margin" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+						</Transitions>
+					</Border.Transitions>
+					<Border.Styles>
+						<!-- Selected state -->
+						<Style Selector="Border.CurrentlySelected">
+							<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+							<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
+						</Style>
+						<Style Selector="Border.CurrentlySelected:pointerover">
+							<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+							<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
+							<Setter Property="RenderTransform" Value="scale(1.02)"/>
+						</Style>
+						<!-- Hover effects -->
+						<Style Selector="Border:pointerover">
+							<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+							<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+							<Setter Property="RenderTransform" Value="scale(1.02)"/>
+						</Style>
+						<Style Selector="Border:pressed">
+							<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+							<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+							<Setter Property="RenderTransform" Value="scale(0.98)"/>
+						</Style>
+					</Border.Styles>
+					<vp:ProfileListElementView/>
+				</Border>
+			</DataTemplate>
+		</controls:AnimatedItemsCanvas.ItemTemplate>
+		<controls:AnimatedItemsCanvas.AddButtonTemplate>
+			<DataTemplate x:DataType="vm:ProfileListViewModel">
+				<Button Classes="AddButton"
+				        Command="{Binding AddProfileCommand}"
+				        HorizontalAlignment="Stretch"
+				        Margin="8,4">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
+				                  Width="16" Height="16"
+				                  Margin="0,0,8,0"/>
+						<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
+								   Margin="0,4,0,0"/>
+					</StackPanel>
+				</Button>
+			</DataTemplate>
+		</controls:AnimatedItemsCanvas.AddButtonTemplate>
+	</controls:AnimatedItemsCanvas>
 </UserControl>
