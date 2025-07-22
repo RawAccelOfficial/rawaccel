@@ -10,17 +10,19 @@ namespace userinterface.ViewModels.Profile
     public partial class ProfileListViewModel : ViewModelBase
     {
         private const int MaxProfileAttempts = 10;
-        private const int UnitSize = 20;
+        private const int RectangleHeight = 50; // Height of each profile rectangle
         private readonly BE.ProfilesModel profilesModel;
 
         [ObservableProperty]
-        private int interval = 5;
+        private int itemCount = 4; // Number of items that can fit in the canvas
 
-        public int CanvasHeight => Interval * UnitSize;
+        public int CanvasHeight => ItemCount * RectangleHeight; // Canvas height based on item count
+        public int ElementTopPosition => 0; // Always position at top
 
-        partial void OnIntervalChanged(int value)
+        partial void OnItemCountChanged(int value)
         {
             OnPropertyChanged(nameof(CanvasHeight));
+            OnPropertyChanged(nameof(ElementTopPosition));
         }
 
         public ProfileListViewModel(BackEnd backEnd)
@@ -58,7 +60,7 @@ namespace userinterface.ViewModels.Profile
         // Test method - for test code only, do not change functionality
         private void Test()
         {
-            Interval += 1;
+            ItemCount += 1;
         }
     }
 }

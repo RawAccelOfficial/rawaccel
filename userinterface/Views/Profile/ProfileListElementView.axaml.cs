@@ -54,7 +54,7 @@ public partial class ProfileListElementView : UserControl
                         new Setter
                         {
                             Property = TranslateTransform.YProperty,
-                            Value = -100d
+                            Value = 50d // One interval height down (rectangle height)
                         }
                     }
                 }
