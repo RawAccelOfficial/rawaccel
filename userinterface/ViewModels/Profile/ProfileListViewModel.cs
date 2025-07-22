@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using userinterface.Services;
+using userinterface.Views.Profile;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -20,24 +21,22 @@ namespace userinterface.ViewModels.Profile
         private readonly ObservableCollection<ProfileListElementViewModel> profileItems;
         private readonly IViewModelFactory viewModelFactory;
         private readonly BE.ProfilesModel profilesModel;
-        private readonly IProfileAnimationService animationService;
 
         // Just for optimization, only for cleaning up
         private readonly Dictionary<BE.ProfileModel, ProfileListElementViewModel> profileViewModelCache;
         
-        // Animation service for decoupled animation handling
-        public IProfileAnimationService AnimationService => animationService;
+        // Reference to the view for accessing animation methods
+        public ProfileListView? ProfileListViewRef { get; set; }
         
         // Track profiles that are being animated for removal to prevent immediate UI removal
         private readonly HashSet<BE.ProfileModel> profilesBeingRemoved = new();
 
-        public ProfileListViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory, IProfileAnimationService animationService)
+        public ProfileListViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory)
         {
             System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Constructor started");
 
             this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
             this.profilesModel = backEnd?.Profiles ?? throw new ArgumentNullException(nameof(backEnd));
-            this.animationService = animationService ?? throw new ArgumentNullException(nameof(animationService));
 
             profileItems = new ObservableCollection<ProfileListElementViewModel>();
             profileViewModelCache = new Dictionary<BE.ProfileModel, ProfileListElementViewModel>();
@@ -256,23 +255,23 @@ namespace userinterface.ViewModels.Profile
         {
             System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: OnProfileDeleted - {elementViewModel.Profile.CurrentNameForDisplay}");
             
-            // Mark this profile as being animated for removal
-            profilesBeingRemoved.Add(elementViewModel.Profile);
-            
-            try
+            // Use animated removal if view reference is available
+            if (ProfileListViewRef != null)
             {
-                // Use animation service for removal
-                await animationService.AnimateRemoveAsync(elementViewModel);
+                // Mark this profile as being animated for removal
+                profilesBeingRemoved.Add(elementViewModel.Profile);
                 
-                // After animation completes, actually remove from backend
-                RemoveProfile(elementViewModel.Profile);
-                
-                // Also manually remove from UI since we skipped the automatic removal
-                RemoveProfileItem(elementViewModel.Profile);
+                await ProfileListViewRef.AnimateProfileRemoval(elementViewModel, () => 
+                {
+                    // After animation completes, actually remove from backend
+                    RemoveProfile(elementViewModel.Profile);
+                    
+                    // Also manually remove from UI since we skipped the automatic removal
+                    RemoveProfileItem(elementViewModel.Profile);
+                });
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Animation failed - {ex.Message}");
                 // Fallback to immediate removal
                 RemoveProfile(elementViewModel.Profile);
             }
@@ -319,7 +318,13 @@ namespace userinterface.ViewModels.Profile
 
         private async Task InsertNewProfileBelowDefaultAsync(ProfileListElementViewModel newProfileViewModel)
         {
-            var currentIndex = ProfileItems.IndexOf(newProfileViewModel);
+            if (ProfileListViewRef == null)
+            {
+                System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: ProfileListViewRef is null, skipping animation");
+                return;
+            }
+
+            var currentIndex = ProfileListViewRef.GetProfileIndex(newProfileViewModel);
             var targetIndex = 1; // Position below Default profile (index 0)
 
             System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Current index={currentIndex}, Target index={targetIndex}");
@@ -353,19 +358,12 @@ namespace userinterface.ViewModels.Profile
             profilesToMoveDown[newProfileViewModel] = targetIndex;
             System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Will move new profile {newProfileViewModel.Profile.CurrentNameForDisplay} to index {targetIndex}");
 
-            // Animate all profiles to their new positions simultaneously using animation service
+            // Animate all profiles to their new positions simultaneously
             if (profilesToMoveDown.Count > 0)
             {
-                try
-                {
-                    System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Starting animation for {profilesToMoveDown.Count} profiles");
-                    await animationService.AnimateMultipleAsync(profilesToMoveDown);
-                    System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: Animation completed");
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Animation failed - {ex.Message}");
-                }
+                System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Starting animation for {profilesToMoveDown.Count} profiles");
+                await ProfileListViewRef.AnimateMultipleProfilesToIndicesAsync(profilesToMoveDown, 500);
+                System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: Animation completed");
             }
         }
 
