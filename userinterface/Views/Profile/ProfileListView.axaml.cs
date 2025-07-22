@@ -11,6 +11,7 @@ using Avalonia.Animation.Easings;
 using userspace_backend;
 using BE = userspace_backend.Model;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Specialized;
 
 namespace userinterface.Views.Profile;
 
@@ -26,6 +27,9 @@ public partial class ProfileListView : UserControl
         // Inject BackEnd via DI
         var backEnd = App.Services?.GetRequiredService<BackEnd>() ?? throw new InvalidOperationException("BackEnd service not available");
         profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
+        
+        // Listen for collection changes
+        profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
         
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
@@ -51,6 +55,33 @@ public partial class ProfileListView : UserControl
         }
     }
 
+    private void OnProfilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null)
+        {
+            // Add rectangle for each new profile
+            foreach (var newProfile in e.NewItems)
+            {
+                var newRectangleIndex = rectangles.Count;
+                AddRectangle();
+                
+                // Animate new rectangle to its position
+                AnimateRectangleToPosition(newRectangleIndex, newRectangleIndex);
+            }
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
+        {
+            // Remove rectangles for removed profiles
+            var removeCount = e.OldItems.Count;
+            for (int i = 0; i < removeCount && rectangles.Count > 0; i++)
+            {
+                var lastRectangle = rectangles[rectangles.Count - 1];
+                rectangles.RemoveAt(rectangles.Count - 1);
+                profileContainer?.Children.Remove(lastRectangle);
+            }
+        }
+    }
+
     private void AddRectangle()
     {
         // Alternate colors for visual distinction
@@ -73,24 +104,7 @@ public partial class ProfileListView : UserControl
 
     private void OnDataContextChanged(object sender, System.EventArgs e)
     {
-        if (DataContext is ProfileListViewModel viewModel)
-        {
-            viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        }
-    }
-
-    private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ProfileListViewModel.CurrentPosition))
-        {
-            var viewModel = (ProfileListViewModel)sender;
-            AnimateRectangleToPosition(viewModel.CurrentPosition);
-        }
-    }
-
-    private void AnimateRectangleToPosition(int position)
-    {
-        AnimateRectangleToPosition(0, position); // Animate the first rectangle
+        // DataContext changed - could be used for additional setup if needed
     }
 
     private void AnimateRectangleToPosition(int rectangleIndex, int position)

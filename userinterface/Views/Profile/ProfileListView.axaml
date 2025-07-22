@@ -11,7 +11,7 @@
 
 	<StackPanel>
 		<!-- Test button -->
-		<Button Content="Test" Command="{Binding TestCommand}" Margin="10"/>
+		<Button Content="Add Rectangle" Command="{Binding AddProfileCommand}" Margin="10"/>
 		
 		<!-- Flexible container for animated profile elements -->
 		<Panel x:Name="ProfileContainer" 
