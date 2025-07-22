@@ -195,4 +195,44 @@ public partial class ProfileListView : UserControl
         profileViewModel.IsHidden = true;
         onAnimationComplete?.Invoke();
     }
+
+    /// <summary>
+    /// Force reset animation state for a specific item (useful for debugging stuck animations)
+    /// </summary>
+    public void ForceResetItemState(ProfileListElementViewModel profileViewModel)
+    {
+        var canvas = GetAnimatedItemsCanvas();
+        canvas?.ForceResetItemState(profileViewModel);
+    }
+
+    /// <summary>
+    /// Force reset all animation states (useful for debugging)
+    /// </summary>
+    public void ForceResetAllAnimationStates()
+    {
+        var canvas = GetAnimatedItemsCanvas();
+        canvas?.ForceResetAllStates();
+    }
+
+    /// <summary>
+    /// Simple method to move an item using the collection-based approach
+    /// </summary>
+    public void MoveItemToPosition(ProfileListElementViewModel item, int newIndex)
+    {
+        if (DataContext is ProfileListViewModel viewModel)
+        {
+            viewModel.MoveItemToIndex(item, newIndex);
+        }
+    }
+
+    /// <summary>
+    /// Simple method to swap two items using the collection-based approach
+    /// </summary>
+    public void SwapItems(ProfileListElementViewModel item1, ProfileListElementViewModel item2)
+    {
+        if (DataContext is ProfileListViewModel viewModel)
+        {
+            viewModel.SwapItems(item1, item2);
+        }
+    }
 }

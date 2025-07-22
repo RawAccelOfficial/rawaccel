@@ -404,6 +404,68 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
+        /// <summary>
+        /// Moves an item to a new position in the collection. This automatically triggers animations.
+        /// </summary>
+        public void MoveItemToIndex(ProfileListElementViewModel item, int newIndex)
+        {
+            var currentIndex = ProfileItems.IndexOf(item);
+            if (currentIndex == -1 || currentIndex == newIndex || newIndex < 0 || newIndex >= ProfileItems.Count)
+                return;
+
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Moving {item.Profile.CurrentNameForDisplay} from index {currentIndex} to {newIndex}");
+            
+            // Remove from current position
+            ProfileItems.RemoveAt(currentIndex);
+            
+            // Insert at new position
+            ProfileItems.Insert(newIndex, item);
+            
+            // Update backend model order to match
+            SynchronizeBackendOrder();
+        }
+
+        /// <summary>
+        /// Swaps two items in the collection
+        /// </summary>
+        public void SwapItems(ProfileListElementViewModel item1, ProfileListElementViewModel item2)
+        {
+            var index1 = ProfileItems.IndexOf(item1);
+            var index2 = ProfileItems.IndexOf(item2);
+            
+            if (index1 == -1 || index2 == -1) return;
+            
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Swapping {item1.Profile.CurrentNameForDisplay} (index {index1}) with {item2.Profile.CurrentNameForDisplay} (index {index2})");
+            
+            ProfileItems[index1] = item2;
+            ProfileItems[index2] = item1;
+            
+            SynchronizeBackendOrder();
+        }
+
+        /// <summary>
+        /// Ensures the backend ProfilesModel order matches the UI collection order
+        /// </summary>
+        private void SynchronizeBackendOrder()
+        {
+            // Create a new list with the current UI order
+            var reorderedProfiles = ProfileItems.Select(vm => vm.Profile).ToList();
+            
+            // Clear and rebuild the backend collection
+            var backendProfiles = ProfilesModel.Profiles;
+            backendProfiles.Clear();
+            
+            foreach (var profile in reorderedProfiles)
+            {
+                backendProfiles.Add(profile);
+            }
+            
+            // Update default profile status
+            UpdateDefaultProfileStatus();
+            
+            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Synchronized backend order with {reorderedProfiles.Count} profiles");
+        }
+
         public void Cleanup()
         {
             System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Cleanup called");

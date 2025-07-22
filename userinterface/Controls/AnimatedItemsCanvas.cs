@@ -215,11 +215,25 @@ namespace userinterface.Controls
             };
             animationStates[presenter] = state;
 
-            // Set initial position for entrance animation
+            // Force measure the presenter first so we can position it properly
+            presenter.Measure(Size.Infinity);
+            
+            // Calculate target position before setting initial state
+            var targetPosition = CalculateTargetPosition(presenter);
+            state.TargetX = targetPosition.X;
+            state.TargetY = targetPosition.Y;
+
+            // Set initial position for entrance animation AFTER measuring
             SetInitialEntranceState(presenter);
             
-            // Start entrance animation
-            _ = AnimateEntranceAsync(presenter);
+            System.Diagnostics.Debug.WriteLine($"AddItemPresenter: Starting entrance animation for item {item}");
+            
+            // Start entrance animation with a small delay to ensure layout is complete
+            Dispatcher.UIThread.Post(async () =>
+            {
+                await Task.Delay(10); // Small delay to ensure layout
+                await AnimateEntranceAsync(presenter);
+            });
         }
 
         private void RemoveItemPresenter(object item)
@@ -303,13 +317,28 @@ namespace userinterface.Controls
                 var item = items[i];
                 if (!itemPresenters.TryGetValue(item, out var presenter)) continue;
 
-                // Skip position updates for items that are currently animating
-                if (animationStates.TryGetValue(presenter, out var existingState) && 
-                    (existingState.IsAnimating || existingState.IsEntering || existingState.IsExiting))
+                // Get or create animation state
+                if (!animationStates.TryGetValue(presenter, out var state))
                 {
-                    System.Diagnostics.Debug.WriteLine($"UpdateItemPositions: Skipping presenter {presenter.GetHashCode()} - currently animating");
+                    state = new AnimationState();
+                    animationStates[presenter] = state;
+                }
+
+                // Calculate target position
+                double targetX = Orientation == Orientation.Horizontal ? currentOffset : 0;
+                double targetY = Orientation == Orientation.Vertical ? currentOffset : 0;
+
+                // Only skip position updates for items that are entering (size-up animation)
+                // but still animate position changes for items that are just moving
+                if (state.IsEntering)
+                {
+                    System.Diagnostics.Debug.WriteLine($"UpdateItemPositions: Skipping presenter {presenter.GetHashCode()} - entering (Opacity={presenter.Opacity}, Transform={presenter.RenderTransform})");
                     
-                    // Still need to calculate spacing for layout, so get the size but don't change position
+                    // Update the target position in state for when entrance finishes
+                    state.TargetX = targetX;
+                    state.TargetY = targetY;
+                    
+                    // Calculate spacing but don't change position
                     var animatingItemSize = Orientation == Orientation.Vertical ? presenter.DesiredSize.Height : presenter.DesiredSize.Width;
                     if (animatingItemSize == 0)
                     {
@@ -320,32 +349,31 @@ namespace userinterface.Controls
                     continue;
                 }
 
-                // Calculate target position
-                double targetX = Orientation == Orientation.Horizontal ? currentOffset : 0;
-                double targetY = Orientation == Orientation.Vertical ? currentOffset : 0;
-
-                if (animate && animationStates.TryGetValue(presenter, out var state) && !state.IsEntering)
+                if (animate && !state.IsExiting)
                 {
-                    AnimateToPosition(presenter, targetX, targetY);
-                }
-                else
-                {
-                    // Set position immediately (for initial layout or non-animated updates)
-                    SetPosition(presenter, targetX, targetY);
-                    if (animationStates.TryGetValue(presenter, out var currentState))
+                    // Check if position actually needs to change
+                    var currentX = Canvas.GetLeft(presenter);
+                    var currentY = Canvas.GetTop(presenter);
+                    
+                    if (Math.Abs(currentX - targetX) > 1 || Math.Abs(currentY - targetY) > 1)
                     {
-                        currentState.TargetX = targetX;
-                        currentState.TargetY = targetY;
-                        currentState.CurrentX = targetX;
-                        currentState.CurrentY = targetY;
+                        AnimateToPosition(presenter, targetX, targetY);
                     }
+                }
+                else if (!state.IsExiting)
+                {
+                    // Set position immediately
+                    SetPosition(presenter, targetX, targetY);
+                    state.TargetX = targetX;
+                    state.TargetY = targetY;
+                    state.CurrentX = targetX;
+                    state.CurrentY = targetY;
                 }
 
                 // Calculate spacing for next item
                 var itemSize = Orientation == Orientation.Vertical ? presenter.DesiredSize.Height : presenter.DesiredSize.Width;
                 if (itemSize == 0)
                 {
-                    // Fallback measurement if not yet measured
                     presenter.Measure(Size.Infinity);
                     itemSize = Orientation == Orientation.Vertical ? presenter.DesiredSize.Height : presenter.DesiredSize.Width;
                 }
@@ -355,21 +383,31 @@ namespace userinterface.Controls
 
         private void SetInitialEntranceState(ContentPresenter presenter)
         {
-            presenter.Opacity = 0;
-            presenter.RenderTransform = new ScaleTransform(0.8, 0.8);
+            if (!animationStates.TryGetValue(presenter, out var state))
+                return;
+                
+            System.Diagnostics.Debug.WriteLine($"SetInitialEntranceState: Setting initial state for presenter");
             
-            // Position off-screen initially
-            var targetPosition = CalculateTargetPosition(presenter);
-            var offsetAmount = Orientation == Orientation.Vertical ? -50 : -50;
+            presenter.Opacity = 0;
+            presenter.RenderTransform = new ScaleTransform(0.98, 0.98);
+            
+            // Use the target position we already calculated
+            var offsetAmount = Orientation == Orientation.Vertical ? -20 : -20;
             
             if (Orientation == Orientation.Vertical)
             {
-                SetPosition(presenter, targetPosition.X, targetPosition.Y + offsetAmount);
+                SetPosition(presenter, state.TargetX, state.TargetY + offsetAmount);
+                System.Diagnostics.Debug.WriteLine($"SetInitialEntranceState: Set initial position to ({state.TargetX}, {state.TargetY + offsetAmount})");
             }
             else
             {
-                SetPosition(presenter, targetPosition.X + offsetAmount, targetPosition.Y);
+                SetPosition(presenter, state.TargetX + offsetAmount, state.TargetY);
+                System.Diagnostics.Debug.WriteLine($"SetInitialEntranceState: Set initial position to ({state.TargetX + offsetAmount}, {state.TargetY})");
             }
+            
+            // Force visual update
+            presenter.InvalidateVisual();
+            presenter.InvalidateArrange();
         }
 
         private Point CalculateTargetPosition(ContentPresenter presenter)
@@ -549,23 +587,25 @@ namespace userinterface.Controls
 
         private async Task AnimateEntranceAsync(ContentPresenter presenter)
         {
-            if (!animationStates.TryGetValue(presenter, out var state)) return;
+            if (!animationStates.TryGetValue(presenter, out var state)) 
+            {
+                System.Diagnostics.Debug.WriteLine("AnimateEntranceAsync: No animation state found");
+                return;
+            }
 
-            var targetPosition = CalculateTargetPosition(presenter);
-            state.TargetX = targetPosition.X;
-            state.TargetY = targetPosition.Y;
+            System.Diagnostics.Debug.WriteLine($"AnimateEntranceAsync: Starting entrance animation to ({state.TargetX}, {state.TargetY})");
 
             await StartAnimation(presenter, EnterAnimationDuration, new CubicEaseOut(), (progress) =>
             {
                 // Animate opacity
                 presenter.Opacity = progress;
 
-                // Animate scale
-                var scale = 0.8 + (0.2 * progress);
+                // Animate scale - more subtle
+                var scale = 0.98 + (0.02 * progress);
                 presenter.RenderTransform = new ScaleTransform(scale, scale);
 
                 // Animate position
-                var startOffset = Orientation == Orientation.Vertical ? -50 : -50;
+                var startOffset = Orientation == Orientation.Vertical ? -20 : -20;
                 var currentOffset = startOffset * (1 - progress);
                 
                 if (Orientation == Orientation.Vertical)
@@ -579,13 +619,56 @@ namespace userinterface.Controls
 
                 state.CurrentX = Canvas.GetLeft(presenter);
                 state.CurrentY = Canvas.GetTop(presenter);
+                
+                // CRITICAL: When animation completes, immediately set final state
+                if (progress >= 1.0)
+                {
+                    System.Diagnostics.Debug.WriteLine("AnimateEntranceAsync: Animation progress reached 1.0, setting final state");
+                    presenter.Opacity = 1.0;
+                    presenter.RenderTransform = null;
+                    SetPosition(presenter, state.TargetX, state.TargetY);
+                }
+                
+                // Debug progress occasionally
+                if (progress == 0 || progress >= 1.0 || (progress % 0.5 < 0.1))
+                {
+                    System.Diagnostics.Debug.WriteLine($"AnimateEntranceAsync: Progress {progress:F2}, Opacity {presenter.Opacity:F2}, Scale {scale:F2}, Transform={presenter.RenderTransform}");
+                }
             });
 
-            // Finalize entrance state
+            // CRITICAL: Ensure final state is completely reset with a small delay
+            System.Diagnostics.Debug.WriteLine("AnimateEntranceAsync: Animation awaited, finalizing entrance state");
+            
+            // Wait a frame to ensure animation timer has stopped
+            await Task.Delay(50);
+            
+            // Aggressively reset all animation-related properties
             presenter.Opacity = 1.0;
             presenter.RenderTransform = null;
             SetPosition(presenter, state.TargetX, state.TargetY);
             state.IsEntering = false;
+            state.IsAnimating = false;
+            
+            // Force multiple visual updates to ensure changes stick
+            presenter.InvalidateVisual();
+            presenter.InvalidateArrange();
+            presenter.InvalidateMeasure();
+            
+            // Double-check the state was actually applied
+            System.Diagnostics.Debug.WriteLine($"AnimateEntranceAsync: Final state - Opacity={presenter.Opacity}, Transform={presenter.RenderTransform}, IsEntering={state.IsEntering}");
+            
+            // Schedule another cleanup to happen after the next layout pass
+            Dispatcher.UIThread.Post(() =>
+            {
+                System.Diagnostics.Debug.WriteLine("AnimateEntranceAsync: Post-layout cleanup");
+                presenter.Opacity = 1.0;
+                presenter.RenderTransform = null;
+                
+                // Trigger a layout update to apply any pending position changes
+                UpdateItemPositions(animate: false);
+            }, DispatcherPriority.Loaded);
+            
+            System.Diagnostics.Debug.WriteLine("AnimateEntranceAsync: Entrance animation completed");
         }
 
         private async Task AnimateRemovalAsync(ContentPresenter presenter, Action onComplete)
@@ -842,6 +925,45 @@ namespace userinterface.Controls
             
             state.IsAnimating = false; // Clear animation flag
             System.Diagnostics.Debug.WriteLine("AnimateItemByPixelsAsync: Animation completed");
+        }
+
+        /// <summary>
+        /// Forces reset of animation state for an item that may be stuck
+        /// </summary>
+        public void ForceResetItemState(object item)
+        {
+            if (itemPresenters.TryGetValue(item, out var presenter))
+            {
+                StopAnimation(presenter);
+                
+                if (animationStates.TryGetValue(presenter, out var state))
+                {
+                    state.IsAnimating = false;
+                    state.IsEntering = false;
+                    state.IsExiting = false;
+                }
+                
+                // Reset visual state
+                presenter.Opacity = 1.0;
+                presenter.RenderTransform = null;
+                presenter.InvalidateVisual();
+                presenter.InvalidateArrange();
+                
+                System.Diagnostics.Debug.WriteLine($"ForceResetItemState: Reset state for item {item}");
+            }
+        }
+
+        /// <summary>
+        /// Resets all animation states - useful for debugging stuck animations
+        /// </summary>
+        public void ForceResetAllStates()
+        {
+            foreach (var kvp in itemPresenters)
+            {
+                ForceResetItemState(kvp.Key);
+            }
+            
+            System.Diagnostics.Debug.WriteLine("ForceResetAllStates: Reset all animation states");
         }
 
         #endregion
