@@ -17,6 +17,7 @@ namespace userinterface.ViewModels.Profile
         [ObservableProperty]
         private bool isDefaultProfile;
 
+        [ObservableProperty]
         private bool isSelected;
 
         public BE.ProfileModel Profile { get; private set; } = null!;
@@ -44,12 +45,6 @@ namespace userinterface.ViewModels.Profile
         }
 
         public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
-
-        public bool IsSelected
-        {
-            get => isSelected;
-            private set => isSelected = value;
-        }
 
         public void UpdateSelection(bool selected)
         {

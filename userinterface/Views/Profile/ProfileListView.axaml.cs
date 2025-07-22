@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using userinterface.ViewModels.Profile;
 
 namespace userinterface.Views.Profile;
@@ -10,18 +11,13 @@ public partial class ProfileListView : UserControl
         InitializeComponent();
     }
 
-    public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    public void OnItemPointerPressed(object sender, PointerPressedEventArgs e)
     {
-        if (DataContext is ProfileListViewModel viewModel)
+        if (sender is Border border && border.DataContext is ProfileListElementViewModel item)
         {
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is ProfileListElementViewModel selectedItem)
+            if (DataContext is ProfileListViewModel viewModel)
             {
-                viewModel.SetSelectedProfile(selectedItem);
-            }
-            else
-            {
-                // No item selected, clear all selections
-                viewModel.SetSelectedProfile((ProfileListElementViewModel?)null);
+                viewModel.SetSelectedProfile(item);
             }
         }
     }

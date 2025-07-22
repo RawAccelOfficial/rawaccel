@@ -5,6 +5,7 @@
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:vp="using:userinterface.Views.Profile"
 			 xmlns:ext="using:userinterface.Extensions"
+             xmlns:controls="using:userinterface.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
@@ -148,14 +149,64 @@
 	</UserControl.Styles>
 
 	<StackPanel>
-		<ListBox ItemsSource="{Binding ProfileItems}"
-                 SelectionChanged="OnSelectionChanged">
-			<ListBox.ItemTemplate>
+		<ItemsControl ItemsSource="{Binding ProfileItems}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<controls:AnimatedStackPanel Orientation="Vertical"/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<vp:ProfileListElementView/>
+					<Border x:Name="ItemBorder"
+							Background="{DynamicResource CardBackgroundBrush}"
+							Margin="8,1"
+							BorderThickness="1"
+							BorderBrush="{DynamicResource BorderBrush}"
+							CornerRadius="6"
+							Padding="12,6"
+							Cursor="Hand"
+							ClipToBounds="False"
+							PointerPressed="OnItemPointerPressed"
+							Classes.CurrentlySelected="{Binding IsSelected}">
+						<Border.Transitions>
+							<Transitions>
+								<BrushTransition Property="Background" Duration="0:0:0.2"/>
+								<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+								<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+								<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+								<DoubleTransition Property="Height" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+								<DoubleTransition Property="Width" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+								<ThicknessTransition Property="Margin" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+							</Transitions>
+						</Border.Transitions>
+						<Border.Styles>
+							<!-- Selected state -->
+							<Style Selector="Border.CurrentlySelected">
+								<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+								<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
+							</Style>
+							<Style Selector="Border.CurrentlySelected:pointerover">
+								<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+								<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
+								<Setter Property="RenderTransform" Value="scale(1.02)"/>
+							</Style>
+							<!-- Hover effects -->
+							<Style Selector="Border:pointerover">
+								<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+								<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+								<Setter Property="RenderTransform" Value="scale(1.02)"/>
+							</Style>
+							<Style Selector="Border:pressed">
+								<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+								<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
+								<Setter Property="RenderTransform" Value="scale(0.98)"/>
+							</Style>
+						</Border.Styles>
+						<vp:ProfileListElementView/>
+					</Border>
 				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
 
 		<Button Classes="AddButton"
                 Command="{Binding AddProfileCommand}"
