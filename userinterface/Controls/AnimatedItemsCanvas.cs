@@ -710,6 +710,126 @@ namespace userinterface.Controls
         }
 
         /// <summary>
+        /// Animates an item to a specific index position in the list
+        /// </summary>
+        /// <param name="item">The item to animate</param>
+        /// <param name="targetIndex">The target index position (0-based)</param>
+        /// <param name="duration">Animation duration (optional)</param>
+        /// <returns>Task that completes when animation finishes</returns>
+        public async Task AnimateToIndexAsync(object item, int targetIndex, TimeSpan? duration = null)
+        {
+            if (!itemPresenters.TryGetValue(item, out var presenter))
+            {
+                System.Diagnostics.Debug.WriteLine("AnimateToIndexAsync: Item not found in presenters");
+                return;
+            }
+
+            if (!animationStates.TryGetValue(presenter, out var state))
+            {
+                System.Diagnostics.Debug.WriteLine("AnimateToIndexAsync: No animation state found, creating one");
+                state = new AnimationState();
+                animationStates[presenter] = state;
+            }
+
+            // Calculate target position based on index
+            var targetPosition = CalculatePositionForIndex(targetIndex);
+            if (targetPosition == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"AnimateToIndexAsync: Could not calculate position for index {targetIndex}");
+                return;
+            }
+
+            var animationDuration = duration ?? MoveAnimationDuration;
+            var currentX = Canvas.GetLeft(presenter);
+            var currentY = Canvas.GetTop(presenter);
+
+            System.Diagnostics.Debug.WriteLine($"AnimateToIndexAsync: Moving item to index {targetIndex}, position ({targetPosition.Value.X}, {targetPosition.Value.Y})");
+
+            state.CurrentX = currentX;
+            state.CurrentY = currentY;
+            state.TargetX = targetPosition.Value.X;
+            state.TargetY = targetPosition.Value.Y;
+            state.IsAnimating = true;
+
+            await StartAnimation(presenter, animationDuration, new CubicEaseOut(), (progress) =>
+            {
+                var newX = state.CurrentX + ((state.TargetX - state.CurrentX) * progress);
+                var newY = state.CurrentY + ((state.TargetY - state.CurrentY) * progress);
+                SetPosition(presenter, newX, newY);
+            });
+
+            state.IsAnimating = false;
+            System.Diagnostics.Debug.WriteLine($"AnimateToIndexAsync: Animation to index {targetIndex} completed");
+        }
+
+        /// <summary>
+        /// Calculates the pixel position for a given index in the list
+        /// </summary>
+        /// <param name="index">The target index (0-based)</param>
+        /// <returns>Point representing the position, or null if index is invalid</returns>
+        private Point? CalculatePositionForIndex(int index)
+        {
+            if (ItemsSource == null) return null;
+
+            var items = ItemsSource.Cast<object>().ToList();
+            if (index < 0 || index >= items.Count) return null;
+
+            double offset = 0;
+            for (int i = 0; i < index; i++)
+            {
+                var item = items[i];
+                if (itemPresenters.TryGetValue(item, out var itemPresenter))
+                {
+                    var size = Orientation == Orientation.Vertical ? itemPresenter.DesiredSize.Height : itemPresenter.DesiredSize.Width;
+                    if (size == 0)
+                    {
+                        itemPresenter.Measure(Size.Infinity);
+                        size = Orientation == Orientation.Vertical ? itemPresenter.DesiredSize.Height : itemPresenter.DesiredSize.Width;
+                    }
+                    offset += size + ItemSpacing;
+                }
+            }
+
+            return Orientation == Orientation.Vertical 
+                ? new Point(0, offset) 
+                : new Point(offset, 0);
+        }
+
+        /// <summary>
+        /// Gets the current index of an item in the ItemsSource
+        /// </summary>
+        /// <param name="item">The item to find</param>
+        /// <returns>The index of the item, or -1 if not found</returns>
+        public int GetItemIndex(object item)
+        {
+            if (ItemsSource == null) return -1;
+            
+            var items = ItemsSource.Cast<object>().ToList();
+            return items.IndexOf(item);
+        }
+
+        /// <summary>
+        /// Animates multiple items to their target index positions simultaneously
+        /// </summary>
+        /// <param name="itemIndexPairs">Dictionary of items and their target indices</param>
+        /// <param name="duration">Animation duration (optional)</param>
+        /// <returns>Task that completes when all animations finish</returns>
+        public async Task AnimateMultipleToIndicesAsync(Dictionary<object, int> itemIndexPairs, TimeSpan? duration = null)
+        {
+            var animationTasks = new List<Task>();
+
+            foreach (var kvp in itemIndexPairs)
+            {
+                var item = kvp.Key;
+                var targetIndex = kvp.Value;
+                animationTasks.Add(AnimateToIndexAsync(item, targetIndex, duration));
+            }
+
+            await Task.WhenAll(animationTasks);
+            System.Diagnostics.Debug.WriteLine($"AnimateMultipleToIndicesAsync: All {animationTasks.Count} animations completed");
+        }
+
+        /// <summary>
         /// Animates an item by a specific pixel amount
         /// </summary>
         public async Task AnimateItemByPixelsAsync(object item, double pixelAmount, TimeSpan? duration = null)

@@ -297,25 +297,14 @@ namespace userinterface.ViewModels.Profile
                         {
                             SetSelectedProfile(newProfileViewModel);
                             
-                            // TEST CODE: Move the new profile up by 100 pixels to test movement functionality
-                            if (ProfileListViewRef != null)
+                            // Implement new profile insertion logic: place below Default profile (index 1)
+                            _ = Task.Delay(100).ContinueWith(async _ =>
                             {
-                                System.Diagnostics.Debug.WriteLine("TEST: Moving new profile up by 100px with smooth animation");
-                                // Add small delay to ensure item is rendered, then run test animation
-                                _ = Task.Delay(200).ContinueWith(async _ =>
+                                await Dispatcher.UIThread.InvokeAsync(async () =>
                                 {
-                                    await Dispatcher.UIThread.InvokeAsync(async () =>
-                                    {
-                                        System.Diagnostics.Debug.WriteLine("TEST: Executing smooth move animation");
-                                        await ProfileListViewRef.MoveProfileAsync(newProfileViewModel, -100, 800);
-                                        
-                                        // Wait a moment then move it back down to test bidirectional movement
-                                        await Task.Delay(500);
-                                        System.Diagnostics.Debug.WriteLine("TEST: Moving back down to original position");
-                                        await ProfileListViewRef.MoveProfileAsync(newProfileViewModel, 100, 600);
-                                    });
+                                    await InsertNewProfileBelowDefaultAsync(newProfileViewModel);
                                 });
-                            }
+                            });
                         }
                     }
                     return true;
@@ -326,6 +315,60 @@ namespace userinterface.ViewModels.Profile
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Inserts a new profile below the Default profile (at index 1) and animates existing profiles down
+        /// </summary>
+        private async Task InsertNewProfileBelowDefaultAsync(ProfileListElementViewModel newProfileViewModel)
+        {
+            if (ProfileListViewRef == null)
+            {
+                System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: ProfileListViewRef is null, skipping animation");
+                return;
+            }
+
+            var currentIndex = ProfileListViewRef.GetProfileIndex(newProfileViewModel);
+            var targetIndex = 1; // Position below Default profile (index 0)
+
+            System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Current index={currentIndex}, Target index={targetIndex}");
+
+            if (currentIndex == -1)
+            {
+                System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: Could not find current index, skipping animation");
+                return;
+            }
+
+            if (currentIndex == targetIndex)
+            {
+                System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: Already at target position");
+                return;
+            }
+
+            // Get all profiles that need to move down (originally at indices 1 through currentIndex-1)
+            var profilesToMoveDown = new Dictionary<ProfileListElementViewModel, int>();
+            
+            for (int i = targetIndex; i < currentIndex; i++)
+            {
+                if (i < ProfileItems.Count)
+                {
+                    var profileToMove = ProfileItems[i];
+                    profilesToMoveDown[profileToMove] = i + 1; // Move each profile down by 1
+                    System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Will move {profileToMove.Profile.CurrentNameForDisplay} from index {i} to {i + 1}");
+                }
+            }
+
+            // Add the new profile to move to its target position
+            profilesToMoveDown[newProfileViewModel] = targetIndex;
+            System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Will move new profile {newProfileViewModel.Profile.CurrentNameForDisplay} to index {targetIndex}");
+
+            // Animate all profiles to their new positions simultaneously
+            if (profilesToMoveDown.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"InsertNewProfileBelowDefault: Starting animation for {profilesToMoveDown.Count} profiles");
+                await ProfileListViewRef.AnimateMultipleProfilesToIndicesAsync(profilesToMoveDown, 500);
+                System.Diagnostics.Debug.WriteLine("InsertNewProfileBelowDefault: Animation completed");
+            }
         }
 
         public void RemoveProfile(BE.ProfileModel profile)

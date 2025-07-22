@@ -53,11 +53,38 @@ public partial class ProfileListView : UserControl
         if (canvas == null) return;
         
         // Get the first profile item if available
-        if (DataContext is ProfileListViewModel viewModel && viewModel.ProfileItems.Count > 0)
+        if (DataContext is ProfileListViewModel viewModel && viewModel.ProfileItems.Count >= 2)
         {
             var firstProfile = viewModel.ProfileItems[0];
+            var secondProfile = viewModel.ProfileItems[1];
             
-            // Test animation: move the first profile down 50px, then back up
+            // Test animation: swap positions of first two profiles
+            System.Diagnostics.Debug.WriteLine("Test Animation: Swapping positions of first two profiles");
+            
+            var swapAnimations = new Dictionary<ProfileListElementViewModel, int>
+            {
+                { firstProfile, 1 },  // Move first to second position
+                { secondProfile, 0 }  // Move second to first position  
+            };
+            
+            await AnimateMultipleProfilesToIndicesAsync(swapAnimations, 600);
+            
+            await Task.Delay(1000);
+            
+            // Swap back
+            System.Diagnostics.Debug.WriteLine("Test Animation: Swapping back to original positions");
+            var swapBackAnimations = new Dictionary<ProfileListElementViewModel, int>
+            {
+                { firstProfile, 0 },  // Move back to first position
+                { secondProfile, 1 }  // Move back to second position  
+            };
+            
+            await AnimateMultipleProfilesToIndicesAsync(swapBackAnimations, 600);
+        }
+        else if (DataContext is ProfileListViewModel vm && vm.ProfileItems.Count > 0)
+        {
+            // Fallback to pixel-based animation if only one profile
+            var firstProfile = vm.ProfileItems[0];
             await MoveProfileAsync(firstProfile, 50, 500);
             await Task.Delay(500);
             await MoveProfileAsync(firstProfile, -50, 500);
@@ -131,6 +158,64 @@ public partial class ProfileListView : UserControl
         return null;
     }
     
+    /// <summary>
+    /// Animates a profile to a specific index position in the list
+    /// </summary>
+    /// <param name="profileViewModel">The profile to move</param>
+    /// <param name="targetIndex">Target index position (0-based)</param>
+    /// <param name="durationMs">Duration of movement in milliseconds</param>
+    public async Task AnimateProfileToIndexAsync(ProfileListElementViewModel profileViewModel, int targetIndex, int durationMs = 400)
+    {
+        System.Diagnostics.Debug.WriteLine($"AnimateProfileToIndex: Moving {profileViewModel.Profile.CurrentNameForDisplay} to index {targetIndex}");
+        
+        var canvas = GetAnimatedItemsCanvas();
+        
+        if (canvas != null)
+        {
+            await canvas.AnimateToIndexAsync(profileViewModel, targetIndex, TimeSpan.FromMilliseconds(durationMs));
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("AnimateProfileToIndex: Failed - canvas is null");
+        }
+    }
+
+    /// <summary>
+    /// Animates multiple profiles to their target indices simultaneously
+    /// </summary>
+    /// <param name="profileIndexPairs">Dictionary of profiles and their target indices</param>
+    /// <param name="durationMs">Duration of movement in milliseconds</param>
+    public async Task AnimateMultipleProfilesToIndicesAsync(Dictionary<ProfileListElementViewModel, int> profileIndexPairs, int durationMs = 400)
+    {
+        System.Diagnostics.Debug.WriteLine($"AnimateMultipleProfilesToIndices: Animating {profileIndexPairs.Count} profiles");
+        
+        var canvas = GetAnimatedItemsCanvas();
+        
+        if (canvas != null)
+        {
+            var itemIndexPairs = profileIndexPairs.ToDictionary(
+                kvp => (object)kvp.Key, 
+                kvp => kvp.Value
+            );
+            await canvas.AnimateMultipleToIndicesAsync(itemIndexPairs, TimeSpan.FromMilliseconds(durationMs));
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("AnimateMultipleProfilesToIndices: Failed - canvas is null");
+        }
+    }
+
+    /// <summary>
+    /// Gets the current index of a profile in the list
+    /// </summary>
+    /// <param name="profileViewModel">The profile to find</param>
+    /// <returns>The index of the profile, or -1 if not found</returns>
+    public int GetProfileIndex(ProfileListElementViewModel profileViewModel)
+    {
+        var canvas = GetAnimatedItemsCanvas();
+        return canvas?.GetItemIndex(profileViewModel) ?? -1;
+    }
+
     /// <summary>
     /// Moves a profile up or down by the specified pixel amount using smooth animation
     /// </summary>
