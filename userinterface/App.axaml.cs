@@ -3,9 +3,14 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.ViewModels.Controls;
+using userinterface.ViewModels.Settings;
 using userinterface.Views;
 using userspace_backend;
 using DATA = userspace_backend.Data;
@@ -14,6 +19,8 @@ namespace userinterface;
 
 public partial class App : Application
 {
+    public static IServiceProvider? Services { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -21,8 +28,29 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        BackEnd backEnd = new BackEnd(BootstrapBackEnd());
-        backEnd.Load();
+        var services = new ServiceCollection();
+
+        // Register services
+        services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<IModalService, ModalService>();
+        services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+        services.AddSingleton<SettingsService>();
+        services.AddSingleton<LocalizationService>();
+
+        // Register backend services
+        services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
+        services.AddSingleton<BackEnd>(provider =>
+        {
+            var bootstrapper = provider.GetRequiredService<Bootstrapper>();
+            var backEnd = new BackEnd(bootstrapper);
+            backEnd.Load();
+            return backEnd;
+        });
+
+        RegisterViewModels(services);
+
+        Services = services.BuildServiceProvider();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -30,24 +58,22 @@ public partial class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
 
-            var notificationService = new NotificationService();
-            var modalService = new ModalService();
-
-            // Create the main window with the notification service
-            var mainWindow = new MainWindow(notificationService, modalService)
+            var mainWindow = new MainWindow()
             {
-                DataContext = new MainWindowViewModel(backEnd, notificationService, modalService),
+                DataContext = Services.GetRequiredService<MainWindowViewModel>(),
             };
 
-            // Set up the toast control with the notification service
-            var toastViewModel = new ToastViewModel(notificationService);
-            var toastView = mainWindow.FindControl<userinterface.Views.Controls.ToastView>("ToastView");
+            // Set up the toast control (was already created in MainWindow.axaml)
+            var toastView = mainWindow.FindControl<Views.Controls.ToastView>("ToastView");
             if (toastView != null)
             {
-                toastView.DataContext = toastViewModel;
+                toastView.DataContext = Services.GetRequiredService<ToastViewModel>();
             }
 
             desktop.MainWindow = mainWindow;
+
+            // Show alpha build warning modal
+            _ = ShowAlphaBuildWarningAsync();
 
 #if DEBUG
             desktop.MainWindow.AttachDevTools();
@@ -55,6 +81,50 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void RegisterViewModels(IServiceCollection services)
+    {
+        // Main ViewModels
+        services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<ToastViewModel>();
+
+        // Device ViewModels
+        services.AddTransient<ViewModels.Device.DevicesPageViewModel>();
+        services.AddTransient<ViewModels.Device.DevicesListViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupsViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceGroupSelectorViewModel>();
+        services.AddTransient<ViewModels.Device.DeviceViewModel>();
+
+        // Profile ViewModels
+        services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
+        services.AddSingleton<ViewModels.Profile.ProfileListViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileListElementViewModel>();
+        services.AddTransient<ViewModels.Profile.ActiveProfilesListViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();
+        services.AddTransient<ViewModels.Profile.AccelerationFormulaSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.AccelerationLUTSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.AccelerationProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.AnisotropyProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.CoalescionProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.HiddenProfileSettingsViewModel>();
+
+        // Mapping ViewModels
+        services.AddTransient<ViewModels.Mapping.MappingsPageViewModel>();
+        services.AddTransient<ViewModels.Mapping.MappingViewModel>();
+        services.AddTransient<ViewModels.Mapping.MappingListElementViewModel>();
+
+        // Settings ViewModels
+        services.AddTransient<SettingsPageViewModel>();
+
+        // Control ViewModels
+        services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
+        services.AddTransient<ViewModels.Controls.EditableBoolViewModel>();
+        services.AddTransient<ViewModels.Controls.EditableFieldViewModel>();
+        services.AddTransient<ViewModels.Controls.NamedEditableFieldViewModel>();
     }
 
     protected static Bootstrapper BootstrapBackEnd()
@@ -122,5 +192,47 @@ public partial class App : Application
                 ],
             },
         };
+    }
+
+    private async Task ShowAlphaBuildWarningAsync()
+    {
+        var modalService = Services?.GetService<IModalService>();
+        if (modalService != null)
+        {
+            var warningView = new Views.Controls.AlphaBuildWarningView();
+            await modalService.ShowDialogAsync<bool>(warningView);
+        }
+    }
+
+    public static void OpenBugReportUrl()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/RawAccelOfficial/rawaccel/issues",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
+        }
+    }
+
+    public static void OpenDiscordUrl()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://discord.gg/7pQh8zH",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to open Discord URL: {ex.Message}");
+        }
     }
 }

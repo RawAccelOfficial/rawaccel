@@ -1,7 +1,10 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Animation;
+using Avalonia.Threading;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using userinterface.Models;
@@ -9,16 +12,14 @@ using userinterface.Services;
 
 namespace userinterface.ViewModels.Controls
 {
-    public class ToastViewModel : INotifyPropertyChanged
+    public class ToastViewModel : INotifyPropertyChanged, IDisposable
     {
         private readonly INotificationService notificationService;
         private bool isVisible;
         private string message = string.Empty;
         private ToastType type;
         private double progress = 100;
-        private DispatcherTimer? progressTimer;
-        private DateTime animationStartTime;
-        private TimeSpan animationDuration;
+        private CancellationTokenSource? animationCancellation;
 
         public ToastViewModel(INotificationService notificationService)
         {
@@ -72,20 +73,23 @@ namespace userinterface.ViewModels.Controls
 
         private async void OnToastRequested(object? sender, ToastNotificationEventArgs e)
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            await Dispatcher.UIThread.InvokeAsync(async () =>
             {
+                // Cancel any existing animation
+                animationCancellation?.Cancel();
+                
                 Message = e.Message;
                 Type = e.Type;
                 IsVisible = true;
                 Progress = 100;
 
-                StartProgressAnimation(e.Duration);
+                await StartProgressAnimation(e.Duration);
             });
         }
 
         private void OnToastDismissed(object? sender, EventArgs e)
         {
-            progressTimer?.Stop();
+            animationCancellation?.Cancel();
             Dispatcher.UIThread.Post(() =>
             {
                 IsVisible = false;
@@ -93,38 +97,49 @@ namespace userinterface.ViewModels.Controls
             });
         }
 
-        private void StartProgressAnimation(TimeSpan duration)
+        private async Task StartProgressAnimation(TimeSpan duration)
         {
-            progressTimer?.Stop();
-            animationStartTime = DateTime.Now;
-            animationDuration = duration;
-
-            progressTimer = new DispatcherTimer
+            animationCancellation = new CancellationTokenSource();
+            var token = animationCancellation.Token;
+            
+            try
             {
-                Interval = TimeSpan.FromMilliseconds(16) // ~60 FPS
-            };
-
-            progressTimer.Tick += (sender, e) =>
-            {
-                var elapsed = DateTime.Now - animationStartTime;
-                var progressRatio = elapsed.TotalMilliseconds / animationDuration.TotalMilliseconds;
-
-                if (progressRatio >= 1.0)
+                var startTime = DateTime.UtcNow;
+                var totalMilliseconds = duration.TotalMilliseconds;
+                
+                // Use higher refresh rate for smoother animation
+                while (!token.IsCancellationRequested)
                 {
-                    Progress = 0;
-                    progressTimer?.Stop();
-                    if (IsVisible)
+                    var elapsed = DateTime.UtcNow - startTime;
+                    var progressRatio = elapsed.TotalMilliseconds / totalMilliseconds;
+                    
+                    if (progressRatio >= 1.0)
                     {
-                        notificationService.HideToast();
+                        if (!token.IsCancellationRequested)
+                        {
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                Progress = 0;
+                                if (IsVisible)
+                                {
+                                    notificationService.HideToast();
+                                }
+                            });
+                        }
+                        break;
                     }
+                    
+                    var newProgress = 100 * (1.0 - progressRatio);
+                    await Dispatcher.UIThread.InvokeAsync(() => Progress = newProgress);
+                    
+                    // 8ms interval for ~120 FPS smooth animation
+                    await Task.Delay(8, token);
                 }
-                else
-                {
-                    Progress = 100 * (1.0 - progressRatio);
-                }
-            };
-
-            progressTimer.Start();
+            }
+            catch (OperationCanceledException)
+            {
+                // Animation was cancelled, this is expected
+            }
         }
 
         private void Close()
@@ -137,6 +152,18 @@ namespace userinterface.ViewModels.Controls
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Dispose()
+        {
+            animationCancellation?.Cancel();
+            animationCancellation?.Dispose();
+            
+            if (notificationService != null)
+            {
+                notificationService.ToastRequested -= OnToastRequested;
+                notificationService.ToastDismissed -= OnToastDismissed;
+            }
         }
     }
 }

@@ -1,23 +1,32 @@
-﻿using userinterface.Services;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileViewModel : ViewModelBase
     {
-        public ProfileViewModel(BE.ProfileModel profileBE, INotificationService notificationService)
+        private readonly INotificationService notificationService;
+        private readonly IViewModelFactory viewModelFactory;
+        
+        public ProfileViewModel(INotificationService notificationService, IViewModelFactory viewModelFactory)
         {
-            ProfileModelBE = profileBE;
-            Settings = new ProfileSettingsViewModel(profileBE, notificationService);
-            Chart = new ProfileChartViewModel(profileBE.XCurvePreview, profileBE.YCurvePreview, ProfileModelBE.YXRatio);
+            this.notificationService = notificationService;
+            this.viewModelFactory = viewModelFactory;
         }
 
-        protected BE.ProfileModel ProfileModelBE { get; }
+        protected BE.ProfileModel ProfileModelBE { get; private set; } = null!;
 
-        public string CurrentName => ProfileModelBE.Name.CurrentValidatedValue;
+        public string CurrentName => ProfileModelBE?.Name.CurrentValidatedValue ?? string.Empty;
 
-        public ProfileSettingsViewModel Settings { get; }
+        public ProfileSettingsViewModel Settings { get; private set; } = null!;
 
-        public ProfileChartViewModel Chart { get; }
+        public ProfileChartViewModel Chart { get; private set; } = null!;
+
+        public void Initialize(BE.ProfileModel profileModel)
+        {
+            ProfileModelBE = profileModel;
+            Settings = viewModelFactory.CreateProfileSettingsViewModel(profileModel);
+            Chart = viewModelFactory.CreateProfileChartViewModel(profileModel);
+        }
     }
 }

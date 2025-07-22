@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Mapping"
              xmlns:mapping="using:userinterface.Views.Mapping"
+			 xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800"
              x:Class="userinterface.Views.Mapping.MappingView"
              x:DataType="vm:MappingViewModel">
@@ -200,7 +201,7 @@
 		</Style>
 
 		<Style Selector="Button.ActivationButton:pointerover">
-			<Setter Property="Background" Value="#22C55E33"/>
+			<Setter Property="Background" Value="{DynamicResource ActiveHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Ellipse.ActiveIndicator">
@@ -209,19 +210,19 @@
 		</Style>
 
 		<Style Selector="Ellipse.ActiveIndicator.Active">
-			<Setter Property="Fill" Value="#22C55E"/>
-			<Setter Property="Stroke" Value="#22C55E"/>
+			<Setter Property="Fill" Value="{DynamicResource ActiveBrush}"/>
+			<Setter Property="Stroke" Value="{DynamicResource ActiveBrush}"/>
 			<Setter Property="StrokeThickness" Value="2"/>
 		</Style>
 
 		<Style Selector="Ellipse.ActiveIndicator.Inactive">
 			<Setter Property="Fill" Value="Transparent"/>
-			<Setter Property="Stroke" Value="#6B7280"/>
+			<Setter Property="Stroke" Value="{DynamicResource InactiveBrush}"/>
 			<Setter Property="StrokeThickness" Value="2"/>
 		</Style>
 
 		<Style Selector="Ellipse.ActiveIndicator.Inactive:pointerover">
-			<Setter Property="Stroke" Value="#22C55E"/>
+			<Setter Property="Stroke" Value="{DynamicResource ActiveBrush}"/>
 		</Style>
 	</UserControl.Styles>
 
@@ -262,7 +263,7 @@
 					<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
                               Width="16" Height="16"
                               Margin="0,0,8,0"/>
-					<TextBlock Text="Add Entry"/>
+					<TextBlock Text="{ext:Localized MappingAddEntry}"/>
 				</StackPanel>
 				<Button.Flyout>
 					<Flyout Placement="Bottom">

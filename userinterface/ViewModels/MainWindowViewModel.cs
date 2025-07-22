@@ -1,55 +1,69 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Avalonia;
 using Avalonia.Styling;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
+using userinterface.ViewModels.Settings;
 using BE = userspace_backend;
 
 namespace userinterface.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private const string DefaultPage = "Devices";
-    private const string DevicesPageName = "Devices";
-    private const string MappingsPageName = "Mappings";
-    private const string ProfilesPageName = "Profiles";
-
-    private string SelectedPageValue = DefaultPage;
+    private NavigationPage selectedPageValue = NavigationPage.Devices;
     private bool IsProfilesExpandedValue = false;
 
-    public MainWindowViewModel(BE.BackEnd BackEnd, INotificationService notificationService, IModalService modalService)
+    // Lazy-loaded ViewModels
+    private DevicesPageViewModel? devicesPage;
+    private ProfilesPageViewModel? profilesPage;
+    private MappingsPageViewModel? mappingsPage;
+    private SettingsPageViewModel? settingsPage;
+    private ProfileListViewModel? profileListView;
+    private ToastViewModel? toastViewModel;
+
+    private readonly BE.BackEnd backEnd;
+    private readonly IThemeService themeService;
+
+    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService)
     {
-        this.BackEnd = BackEnd;
-        DevicesPage = new DevicesPageViewModel(BackEnd.Devices);
-        ToastViewModel = new ToastViewModel(notificationService);
-        ProfileListView = new ProfileListViewModel(BackEnd.Profiles);
-        ProfilesPage = new ProfilesPageViewModel(BackEnd.Profiles, ProfileListView, notificationService);
-        MappingsPage = new MappingsPageViewModel(BackEnd.Mappings);
+        this.backEnd = backEnd ?? throw new ArgumentNullException(nameof(backEnd));
+        this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
 
         ApplyCommand = new RelayCommand(() => Apply());
-        NavigateCommand = new RelayCommand<string>(pageName => SelectPage(pageName));
+        NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
 
         SubscribeToProfileSelectionChanges();
     }
 
-    public DevicesPageViewModel DevicesPage { get; }
+    public DevicesPageViewModel DevicesPage =>
+        devicesPage ??= App.Services!.GetRequiredService<DevicesPageViewModel>();
 
-    public ProfilesPageViewModel ProfilesPage { get; }
+    public ProfilesPageViewModel ProfilesPage =>
+        profilesPage ??= App.Services!.GetRequiredService<ProfilesPageViewModel>();
 
-    public MappingsPageViewModel MappingsPage { get; }
+    public MappingsPageViewModel MappingsPage =>
+        mappingsPage ??= App.Services!.GetRequiredService<MappingsPageViewModel>();
 
-    public ProfileListViewModel ProfileListView { get; }
+    public SettingsPageViewModel SettingsPage =>
+        settingsPage ??= App.Services!.GetRequiredService<SettingsPageViewModel>();
 
-    public ToastViewModel ToastViewModel { get; }
+    public ProfileListViewModel ProfileListView =>
+        profileListView ??= App.Services!.GetRequiredService<ProfileListViewModel>();
 
-    protected BE.BackEnd BackEnd { get; }
+    public ToastViewModel ToastViewModel =>
+        toastViewModel ??= App.Services!.GetRequiredService<ToastViewModel>();
+
+    protected BE.BackEnd BackEnd => backEnd;
 
     public ICommand ApplyCommand { get; }
 
@@ -57,14 +71,14 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public ICommand ToggleThemeCommand { get; }
 
-    public string SelectedPage
+    public NavigationPage SelectedPage
     {
-        get => SelectedPageValue;
+        get => selectedPageValue;
         set
         {
-            if (SelectedPageValue != value)
+            if (selectedPageValue != value)
             {
-                SelectedPageValue = value;
+                selectedPageValue = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentPageContent));
             }
@@ -87,16 +101,17 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public object? CurrentPageContent =>
         SelectedPage switch
         {
-            DevicesPageName => DevicesPage,
-            MappingsPageName => MappingsPage,
-            ProfilesPageName => ProfilesPage,
+            NavigationPage.Devices => DevicesPage,
+            NavigationPage.Mappings => MappingsPage,
+            NavigationPage.Profiles => ProfilesPage,
+            NavigationPage.Settings => SettingsPage,
             _ => DevicesPage
         };
 
-    public void SelectPage(string PageName)
+    public void SelectPage(NavigationPage page)
     {
-        SelectedPage = PageName;
-        IsProfilesExpanded = PageName == ProfilesPageName;
+        SelectedPage = page;
+        IsProfilesExpanded = page == NavigationPage.Profiles;
     }
 
     public void Apply()
@@ -112,7 +127,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             Application.Current.RequestedThemeVariant = newTheme;
         }
-        ThemeService.NotifyThemeChanged();
+        themeService.NotifyThemeChanged();
     }
 
     private void SubscribeToProfileSelectionChanges()
@@ -158,9 +173,12 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void Cleanup()
     {
-        foreach (var item in ProfileListView.ProfileItems)
+        if (profileListView != null)
         {
-            item.SelectionChanged -= OnProfileSelectionChanged;
+            foreach (var item in profileListView.ProfileItems)
+            {
+                item.SelectionChanged -= OnProfileSelectionChanged;
+            }
         }
     }
 }

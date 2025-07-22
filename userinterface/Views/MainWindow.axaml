@@ -4,6 +4,7 @@
         xmlns:v="using:userinterface.Views"
         xmlns:vp="using:userinterface.Views.Profile"
 		xmlns:controls="using:userinterface.Views.Controls"
+		xmlns:ext="using:userinterface.Extensions"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -18,7 +19,7 @@
 	</Design.DataContext>
 
 	<Window.Styles>
-		<!-- Custom Universal Scrollbar Styles -->
+		<!-- Scrollbar Styles -->
 		<Style Selector="ScrollBar">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Transitions">
@@ -59,8 +60,8 @@
 		<Style Selector="ScrollBar /template/ RepeatButton">
 			<Setter Property="IsVisible" Value="False"/>
 		</Style>
-		
-		<!-- Sidebar Border -->
+
+		<!-- Sidebar Styles -->
 		<Style Selector="Border.SidebarBorder">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -71,7 +72,6 @@
 			<Setter Property="Width" Value="400"/>
 		</Style>
 
-		<!-- Sidebar title style -->
 		<Style Selector="TextBlock.SidebarTitle">
 			<Setter Property="FontSize" Value="28"/>
 			<Setter Property="FontWeight" Value="Bold"/>
@@ -117,7 +117,6 @@
 			</Setter>
 		</Style>
 
-		<!-- Navigation Button hover state -->
 		<Style Selector="Button.NavButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
@@ -125,24 +124,22 @@
 			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
 
-		<!-- Navigation Button selected state -->
 		<Style Selector="Button.NavButton.Selected">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
-		<!-- Navigation Button selected hover state -->
 		<Style Selector="Button.NavButton.Selected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
-		<!-- Navigation Button pressed state -->
 		<Style Selector="Button.NavButton:pressed">
 			<Setter Property="RenderTransform" Value="scale(0.98)"/>
 		</Style>
 
+		<!-- Content Area Styles -->
 		<Style Selector="Border.ContentArea">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -152,6 +149,7 @@
 			<Setter Property="Margin" Value="16"/>
 		</Style>
 
+		<!-- Apply Button Styles -->
 		<Style Selector="Button.ApplyButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -198,10 +196,10 @@
 			<Setter Property="Opacity" Value="0.6"/>
 		</Style>
 
-		<!-- Loading Progress Bar Style -->
+		<!-- Loading Progress Bar Styles -->
 		<Style Selector="ProgressBar.LoadingBar">
 			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="#4CAF50"/>
+			<Setter Property="Foreground" Value="{DynamicResource SuccessButtonBrush}"/>
 			<Setter Property="Height" Value="4"/>
 			<Setter Property="CornerRadius" Value="2"/>
 			<Setter Property="Margin" Value="0,8,0,0"/>
@@ -243,7 +241,43 @@
 			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
-		<!-- Separator Style -->
+		<!-- Settings Button Styles -->
+		<Style Selector="Button.SettingsButton">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="25"/>
+			<Setter Property="Width" Value="40"/>
+			<Setter Property="Height" Value="40"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton.Selected">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton.Selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.SettingsButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
+		</Style>
+
+		<!-- Separator Styles -->
 		<Style Selector="Border.ProfileSeparator">
 			<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="Height" Value="1"/>
@@ -281,20 +315,27 @@
 				</Transitions>
 			</Setter>
 		</Style>
+
+		<Style Selector="Button.SettingsButton">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+				</Transitions>
+			</Setter>
+		</Style>
 	</Window.Styles>
 
 	<Panel>
 		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
 			<DockPanel>
-				<!-- Apply Settings Button at bottom -->
 				<StackPanel DockPanel.Dock="Bottom">
 					<Grid>
 						<Button Classes="ApplyButton"
 								Name="ApplyButton"
-								Click="ApplyButtonHandler"
-								IsEnabled="True">
-							Apply Settings
-						</Button>
+								IsEnabled="True"
+								Content="{ext:Localized MainWindowApplySettingsButton}"/>
 						<ProgressBar Classes="LoadingBar"
 									 Name="LoadingProgress"
 									 IsVisible="False"
@@ -303,53 +344,49 @@
 					</Grid>
 				</StackPanel>
 
-				<!-- Navigation content -->
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
 					<StackPanel>
 						<DockPanel Margin="0,0,0,16">
-							<ToggleButton Classes="ThemeToggle"
-										  Click="ToggleTheme"
-										  Name="ThemeToggleButton"
-										  DockPanel.Dock="Right"
-										  VerticalAlignment="Center">
-								<PathIcon Data="{StaticResource weather_moon_regular}"
-										  Width="16"
-										  Height="16"
-										  Name="ThemeIcon"/>
-							</ToggleButton>
+							<StackPanel DockPanel.Dock="Right"
+										Orientation="Horizontal"
+										Spacing="8"
+										VerticalAlignment="Center">
+								<Button Classes="SettingsButton"
+										Name="SettingsButton">
+									<PathIcon Data="{StaticResource settings_regular}"
+											  Width="16"
+											  Height="16"/>
+								</Button>
+								<ToggleButton Classes="ThemeToggle"
+											  Name="ThemeToggleButton">
+									<PathIcon Data="{StaticResource weather_moon_regular}"
+											  Width="16"
+											  Height="16"
+											  Name="ThemeIcon"/>
+								</ToggleButton>
+							</StackPanel>
 							<TextBlock Classes="SidebarTitle"
-									   Text="Navigation"
+									   Text="{ext:Localized MainWindowNavigationTitle}"
 									   VerticalAlignment="Center"/>
 						</DockPanel>
 
 						<StackPanel Spacing="4">
 							<Button Classes="NavButton"
 									Name="DevicesButton"
-									Click="OnNavigationClick"
-									Tag="Devices">
-								Devices
-							</Button>
+									Tag="Devices"
+									Content="{ext:Localized MainWindowDevicesButton}"/>
 							<Button Classes="NavButton"
 									Name="MappingsButton"
-									Click="OnNavigationClick"
-									Tag="Mappings">
-								Mappings
-							</Button>
+									Tag="Mappings"
+									Content="{ext:Localized MainWindowMappingsButton}"/>
 							<Button Classes="NavButton"
 									Name="ProfilesButton"
-									Click="OnNavigationClick"
-									Tag="Profiles">
-								Profiles
-							</Button>
+									Tag="Profiles"
+									Content="{ext:Localized MainWindowProfilesButton}"/>
 							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
 								<StackPanel>
-									<!-- Active Profiles List View -->
 									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
-
-									<!-- Separator -->
 									<Border Classes="ProfileSeparator"/>
-
-									<!-- Profile List View -->
 									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
 								</StackPanel>
 							</ContentControl>
@@ -364,5 +401,8 @@
 		</Border>
 
 		<controls:ToastView DataContext="{Binding ToastViewModel}" />
+
+		<!-- Modal Overlay -->
+		<controls:ModalOverlay Name="ModalOverlay" />
 	</Panel>
 </Window>

@@ -38,6 +38,30 @@
 		</Style>
 	</UserControl.Styles>
 
+	<UserControl.Resources>
+		<!-- Custom ComboBox ItemTemplate for Formula Types -->
+		<DataTemplate x:Key="FormulaTypeItemTemplate">
+			<StackPanel Orientation="Horizontal" Spacing="8">
+				<TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+				<Viewbox x:Name="RecommendedIcon"
+						 Width="16"
+						 Height="16"
+						 VerticalAlignment="Top"
+						 Margin="0,2,0,0"
+						 ToolTip.Tip="Recommended">
+					<Viewbox.IsVisible>
+						<Binding Path="." Converter="{x:Static ObjectConverters.Equal}" ConverterParameter="Synchronous"/>
+					</Viewbox.IsVisible>
+					<Grid>
+						<Rectangle Fill="Transparent" Width="28" Height="28"/>
+						<Path Data="{StaticResource info_regular}"
+							  Fill="{DynamicResource PrimaryTextBrush}"/>
+					</Grid>
+				</Viewbox>
+			</StackPanel>
+		</DataTemplate>
+	</UserControl.Resources>
+
 	<StackPanel Spacing="12" x:Name="AccelStackPanel">
 		<!-- The DualColumnLabelFieldView will be added in code-behind -->
 	</StackPanel>

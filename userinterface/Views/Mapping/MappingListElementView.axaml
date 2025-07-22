@@ -44,19 +44,84 @@
 
 		<!-- ComboBox styles -->
 		<Style Selector="ComboBox">
-			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Padding" Value="8"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Padding" Value="8,6" />
+			<Setter Property="MinWidth" Value="120" />
+			<Setter Property="FontSize" Value="14" />
 		</Style>
+
 		<Style Selector="ComboBox:focus">
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
 		</Style>
+
 		<Style Selector="ComboBox:pointerover">
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ Button#PART_Button">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:pointerover /template/ Button#PART_Button">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:focus /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ Popup">
+			<Setter Property="MaxHeight" Value="200" />
+		</Style>
+
+		<Style Selector="ComboBox /template/ Border#PopupBorder">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="4" />
+		</Style>
+
+		<Style Selector="ComboBox ListBox">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="Padding" Value="8,6" />
+			<Setter Property="Margin" Value="2" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+		</Style>
+
+		<Style Selector="ComboBox ListBoxItem:selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
 		</Style>
 
 		<!-- TextBlock styles -->

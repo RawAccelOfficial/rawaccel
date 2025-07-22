@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
@@ -20,6 +20,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 {
     private const int HoverDelayMilliseconds = 50;
     private const int ChevronAnimationDurationMilliseconds = 100;
+    private const int ContentAnimationDurationMilliseconds = 100;
     private const double ExpandedChevronAngle = 90.0;
     private const double CollapsedChevronAngle = 0.0;
     private const string ExpandedClass = "Expanded";
@@ -40,6 +41,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
     private int AngleValue;
     private CancellationTokenSource? HoverDelayCancellationTokenSource;
     private bool IsDisposedValue;
+    private bool isAnimating;
 
     // Cached controls for performance
     private NoInteractionButtonView? CachedHeaderButton;
@@ -148,7 +150,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     private void ToggleButton_Click(object sender, RoutedEventArgs eventArgs)
     {
-        if (!IsExpanderEnabled)
+        if (!IsExpanderEnabled || isAnimating)
             return;
 
         IsExpanded = !IsExpanded;
@@ -163,17 +165,41 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         if (headerButton == null || contentButton == null || expandIcon == null)
             return;
 
-        contentButton.IsVisible = IsExpanded;
+        if (isAnimating)
+            return;
 
-        if (IsExpanded)
+        isAnimating = true;
+
+        try
         {
-            headerButton.Classes.Add(ExpandedClass);
-            await AnimateChevron(expandIcon, ExpandedChevronAngle);
+            if (IsExpanded)
+            {
+                // Show content and animate expand
+                contentButton.IsVisible = true;
+                headerButton.Classes.Add(ExpandedClass);
+                
+                // Run chevron and height animations concurrently (height animation handles the smooth layout)
+                var chevronTask = AnimateChevron(expandIcon, ExpandedChevronAngle);
+                var heightTask = AnimateHeightExpand(contentButton);
+                
+                await Task.WhenAll(chevronTask, heightTask);
+            }
+            else
+            {
+                // Run chevron and height animations concurrently while keeping expanded styling
+                var chevronTask = AnimateChevron(expandIcon, CollapsedChevronAngle);
+                var heightTask = AnimateHeightCollapse(contentButton);
+                
+                await Task.WhenAll(chevronTask, heightTask);
+                
+                // Only remove expanded styling and hide content after animation completes
+                headerButton.Classes.Remove(ExpandedClass);
+                contentButton.IsVisible = false;
+            }
         }
-        else
+        finally
         {
-            headerButton.Classes.Remove(ExpandedClass);
-            await AnimateChevron(expandIcon, CollapsedChevronAngle);
+            isAnimating = false;
         }
     }
 
@@ -219,6 +245,178 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
         await animation.RunAsync(expandIcon, CancellationToken.None);
         rotateTransform.Angle = targetAngle;
+    }
+
+    private static async Task AnimateContentExpand(Control contentControl)
+    {
+        // Set initial state for expand animation
+        contentControl.Opacity = 0.0;
+        contentControl.RenderTransform = new ScaleTransform { ScaleY = 0.0 };
+        contentControl.RenderTransformOrigin = new RelativePoint(0.5, 0.0, RelativeUnit.Relative); // Scale from top
+
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
+            Easing = new CubicEaseOut(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters =
+                    {
+                        new Setter { Property = Visual.OpacityProperty, Value = 0.0 },
+                        new Setter { Property = ScaleTransform.ScaleYProperty, Value = 0.0 }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters =
+                    {
+                        new Setter { Property = Visual.OpacityProperty, Value = 1.0 },
+                        new Setter { Property = ScaleTransform.ScaleYProperty, Value = 1.0 }
+                    }
+                }
+            }
+        };
+
+        await animation.RunAsync(contentControl, CancellationToken.None);
+        
+        // Ensure final state
+        contentControl.Opacity = 1.0;
+        if (contentControl.RenderTransform is ScaleTransform scaleTransform)
+        {
+            scaleTransform.ScaleY = 1.0;
+        }
+    }
+
+    private static async Task AnimateContentCollapse(Control contentControl)
+    {
+        // Ensure transform origin is set for consistent scaling direction
+        contentControl.RenderTransformOrigin = new RelativePoint(0.5, 0.0, RelativeUnit.Relative); // Scale from top
+        
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
+            Easing = new CubicEaseIn(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters =
+                    {
+                        new Setter { Property = Visual.OpacityProperty, Value = 1.0 },
+                        new Setter { Property = ScaleTransform.ScaleYProperty, Value = 1.0 }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters =
+                    {
+                        new Setter { Property = Visual.OpacityProperty, Value = 0.0 },
+                        new Setter { Property = ScaleTransform.ScaleYProperty, Value = 0.0 }
+                    }
+                }
+            }
+        };
+
+        await animation.RunAsync(contentControl, CancellationToken.None);
+    }
+
+    private static async Task AnimateHeightExpand(Control contentControl)
+    {
+        // Ensure content is visible and reset any previous state
+        contentControl.Opacity = 1.0;
+        contentControl.RenderTransform = null;
+        contentControl.ClearValue(Control.HeightProperty);
+        
+        // Measure the natural height of the content
+        contentControl.Measure(Size.Infinity);
+        var targetHeight = contentControl.DesiredSize.Height;
+        
+        // Start with height 0 and animate to target height
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
+            Easing = new CubicEaseOut(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = 0.0 },
+                        new Setter { Property = Visual.OpacityProperty, Value = 0.0 }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = targetHeight },
+                        new Setter { Property = Visual.OpacityProperty, Value = 1.0 }
+                    }
+                }
+            }
+        };
+
+        await animation.RunAsync(contentControl, CancellationToken.None);
+        
+        // Clear explicit height to allow natural responsive sizing
+        contentControl.ClearValue(Control.HeightProperty);
+    }
+
+    private static async Task AnimateHeightCollapse(Control contentControl)
+    {
+        // Get current height and ensure we start from a known state
+        var currentHeight = contentControl.Bounds.Height;
+        if (currentHeight <= 0)
+        {
+            // If no height, measure the content to get actual size
+            contentControl.Measure(Size.Infinity);
+            currentHeight = contentControl.DesiredSize.Height;
+        }
+        
+        // Set explicit height to current height before animating
+        contentControl.Height = currentHeight;
+        
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
+            Easing = new CubicEaseIn(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = currentHeight },
+                        new Setter { Property = Visual.OpacityProperty, Value = 1.0 }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters =
+                    {
+                        new Setter { Property = Control.HeightProperty, Value = 0.0 },
+                        new Setter { Property = Visual.OpacityProperty, Value = 0.0 }
+                    }
+                }
+            }
+        };
+
+        await animation.RunAsync(contentControl, CancellationToken.None);
     }
 
     private void ApplyHoverEffect()

@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Settings"
+             xmlns:controls="using:userinterface.Views.Controls"
+             xmlns:ext="using:userinterface.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Settings.SettingsPageView"
+             x:DataType="vm:SettingsPageViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="MaxDropDownHeight" Value="200"/>
+		</Style>
+
+		<Style Selector="CheckBox">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+		</Style>
+
+		<Style Selector="CheckBox /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
+
+		<Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+		</Style>
+
+		<Style Selector="controls|DualColumnLabelFieldView ContentPresenter">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		</Style>
+	</UserControl.Styles>
+
+	<ScrollViewer>
+		<StackPanel Spacing="24" Margin="24">
+			<TextBlock Text="{ext:Localized SettingsPageTitle}"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Margin="0,0,0,16"/>
+
+			<Border Background="{DynamicResource CardBackgroundBrush}"
+                    BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+				<StackPanel Spacing="16">
+					<TextBlock Text="{ext:Localized SettingsGeneralSettingsTitle}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+					<StackPanel Spacing="12" x:Name="SettingsStackPanel">
+						<!-- The DualColumnLabelFieldView will be added in code-behind -->
+					</StackPanel>
+				</StackPanel>
+			</Border>
+
+			<!-- Bug Report Section -->
+			<Border Background="{DynamicResource CardBackgroundBrush}"
+                    BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+				<StackPanel Spacing="16">
+					<TextBlock Text="Support &amp; Bug Reports"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+					<TextBlock Text="Before reporting a bug, please search through existing issues first to avoid duplicates."
+                               FontSize="14"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12"/>
+
+					<Button Content="Search Existing Issues"
+                            Command="{Binding BugReportCommand}"
+                            Background="{DynamicResource PrimaryButtonBrush}"
+                            Foreground="{DynamicResource PrimaryTextBrush}"
+                            BorderThickness="0"
+                            CornerRadius="6"
+                            Padding="20,12"
+                            FontSize="14"
+                            FontWeight="Medium"
+                            Cursor="Hand"
+                            HorizontalAlignment="Left">
+						<Button.Styles>
+							<Style Selector="Button:pointerover">
+								<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+							</Style>
+							<Style Selector="Button:pressed">
+								<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+							</Style>
+						</Button.Styles>
+					</Button>
+
+					<TextBlock Text="Check closed issues too - your problem may already be resolved"
+                               FontSize="12"
+                               Foreground="{DynamicResource DisabledTextBrush}"
+                               FontStyle="Italic"/>
+				</StackPanel>
+			</Border>
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>

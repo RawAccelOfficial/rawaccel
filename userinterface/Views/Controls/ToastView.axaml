@@ -22,7 +22,7 @@
 			<Setter Property="HorizontalAlignment" Value="Center"/>
 			<Setter Property="VerticalAlignment" Value="Bottom"/>
 			<Setter Property="Margin" Value="20"/>
-			<Setter Property="BoxShadow" Value="0 4 12 0 #33000000"/>
+			<Setter Property="BoxShadow" Value="{DynamicResource ToastShadow}"/>
 			<!-- Initial state: hidden below -->
 			<Setter Property="RenderTransform" Value="translateY(100px)"/>
 			<Setter Property="Opacity" Value="0"/>
@@ -87,6 +87,15 @@
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="VerticalAlignment" Value="Bottom"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Value" Duration="0:0:0.1">
+						<DoubleTransition.Easing>
+							<LinearEasing/>
+						</DoubleTransition.Easing>
+					</DoubleTransition>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<!-- Toast Icon Style -->

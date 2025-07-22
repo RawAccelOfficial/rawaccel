@@ -1,8 +1,11 @@
-﻿using System.Collections.ObjectModel;
+using System;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
@@ -10,18 +13,22 @@ namespace userinterface.ViewModels.Mapping
     public partial class MappingsPageViewModel : ViewModelBase
     {
         private MappingViewModel? activeMappingView;
+        private readonly BE.MappingsModel mappingsModel;
+        private readonly IViewModelFactory viewModelFactory;
 
-        public MappingsPageViewModel(BE.MappingsModel mappingsBE)
+        public MappingsPageViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory)
         {
-            MappingsBE = mappingsBE;
+            mappingsModel = backEnd?.Mappings ?? throw new ArgumentNullException(nameof(backEnd));
+            this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
+            
             MappingViews = [];
             UpdateMappingViews();
-            MappingsBE.Mappings.CollectionChanged += MappingsCollectionChanged;
+            mappingsModel.Mappings.CollectionChanged += MappingsCollectionChanged;
 
             AddMappingCommand = new RelayCommand(() => TryAddNewMapping());
         }
 
-        public BE.MappingsModel MappingsBE { get; }
+        private BE.MappingsModel MappingsBE => mappingsModel;
 
         public ObservableCollection<MappingViewModel> MappingViews { get; }
 
@@ -38,7 +45,7 @@ namespace userinterface.ViewModels.Mapping
                 var mappingBE = MappingsBE.Mappings[i];
                 bool isActive = i == 0; // First mapping is active by default
 
-                var viewModel = new MappingViewModel(mappingBE, MappingsBE, isActive, OnMappingActivationRequested);
+                var viewModel = viewModelFactory.CreateMappingViewModel(mappingBE, MappingsBE, isActive, OnMappingActivationRequested);
 
                 MappingViews.Add(viewModel);
 

@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -59,7 +60,8 @@ public partial class AccelerationFormulaSettingsView : UserControl
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
-            DataContext = DataContext
+            DataContext = DataContext,
+            ItemTemplate = this.FindResource("FormulaTypeItemTemplate") as IDataTemplate
         };
 
         FormulaTypeCombo.Bind(ComboBox.ItemsSourceProperty, new Binding("FormulaTypesLocal"));

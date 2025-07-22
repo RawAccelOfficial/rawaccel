@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,23 +15,35 @@ namespace userinterface.ViewModels.Profile
         public ProfileViewModel? selectedProfileView;
 
         private readonly INotificationService notificationService;
+        private readonly BE.ProfilesModel profilesModel;
+        private readonly ProfileListViewModel profileListView;
+        private readonly IViewModelFactory viewModelFactory;
 
-        public ProfilesPageViewModel(BE.ProfilesModel profileModels, ProfileListViewModel profileListView, INotificationService notificationService)
+        public ProfilesPageViewModel(
+            INotificationService notificationService,
+            userspace_backend.BackEnd backEnd,
+            ProfileListViewModel profileListView,
+            ActiveProfilesListViewModel activeProfilesListView,
+            IViewModelFactory viewModelFactory)
         {
-            this.notificationService = notificationService;
-            ProfileModels = profileModels.Profiles;
+            this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            this.profilesModel = backEnd?.Profiles ?? throw new ArgumentNullException(nameof(backEnd));
+            this.profileListView = profileListView ?? throw new ArgumentNullException(nameof(profileListView));
+            this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
+
             ProfileViewModels = [];
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
-            ProfileListView = profileListView;
-            ActiveProfilesListView = new ActiveProfilesListViewModel();
+            ActiveProfilesListView = activeProfilesListView ?? throw new ArgumentNullException(nameof(activeProfilesListView));
         }
 
-        protected IEnumerable<BE.ProfileModel> ProfileModels { get; }
+        private INotificationService NotificationService => notificationService;
+        private BE.ProfilesModel ProfilesModel => profilesModel;
+        public ProfileListViewModel ProfileListView => profileListView;
+
+        private IEnumerable<BE.ProfileModel> ProfileModels => ProfilesModel.Profiles;
 
         protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
-
-        public ProfileListViewModel ProfileListView { get; }
 
         public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 
@@ -62,7 +75,7 @@ namespace userinterface.ViewModels.Profile
             ProfileViewModels.Clear();
             foreach (var profileModelBE in ProfileModels)
             {
-                ProfileViewModels.Add(new ProfileViewModel(profileModelBE, notificationService));
+                ProfileViewModels.Add(viewModelFactory.CreateProfileViewModel(profileModelBE));
             }
         }
     }

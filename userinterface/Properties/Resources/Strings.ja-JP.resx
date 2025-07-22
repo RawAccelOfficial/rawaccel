@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,7 +117,68 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DeviceGroupsHeader" xml:space="preserve">
-    <value>Device Groups</value>
+  
+  <!-- MainWindow Resources -->
+  <data name="MainWindowApplySettingsButton" xml:space="preserve">
+    <value>設定を適用</value>
+  </data>
+  <data name="MainWindowDevicesButton" xml:space="preserve">
+    <value>デバイス</value>
+  </data>
+  <data name="MainWindowMappingsButton" xml:space="preserve">
+    <value>マッピング</value>
+  </data>
+  <data name="MainWindowNavigationTitle" xml:space="preserve">
+    <value>ナビゲーション</value>
+  </data>
+  <data name="MainWindowProfilesButton" xml:space="preserve">
+    <value>プロファイル</value>
+  </data>
+  
+  <!-- Settings Resources -->
+  <data name="SettingsGeneralSettingsTitle" xml:space="preserve">
+    <value>一般設定</value>
+  </data>
+  <data name="SettingsPageTitle" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  
+  <!-- Device Resources -->
+  <data name="DeviceAddDevice" xml:space="preserve">
+    <value>デバイスを追加</value>
+  </data>
+  <data name="DeviceAddDeviceGroup" xml:space="preserve">
+    <value>デバイスグループを追加</value>
+  </data>
+  <data name="DeviceDeviceGroups" xml:space="preserve">
+    <value>デバイスグループ</value>
+  </data>
+  <data name="DeviceDevices" xml:space="preserve">
+    <value>デバイス</value>
+  </data>
+  
+  <!-- Mapping Resources -->
+  <data name="MappingAddEntry" xml:space="preserve">
+    <value>エントリを追加</value>
+  </data>
+  <data name="MappingAddMapping" xml:space="preserve">
+    <value>マッピングを追加</value>
+  </data>
+  
+  <!-- Profile Resources -->
+  <data name="ProfileAddNewProfile" xml:space="preserve">
+    <value>新しいプロファイルを追加</value>
+  </data>
+  <data name="ProfileExpertsOnlyWarning" xml:space="preserve">
+    <value>この機能は上級者専用です。</value>
+  </data>
+  <data name="ProfileFitToData" xml:space="preserve">
+    <value>データに合わせる</value>
+  </data>
+  <data name="ProfileLUTFormatInstructions" xml:space="preserve">
+    <value>形式: x1,y1,x2,y2,...xn,yn;</value>
+  </data>
+  <data name="ProfileResetZoom" xml:space="preserve">
+    <value>ズームをリセット</value>
   </data>
 </root>

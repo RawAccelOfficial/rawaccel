@@ -15,11 +15,17 @@
 	<UserControl.Styles>
 		<Style Selector="TextBlock.FieldLabel">
 			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
 			<Setter Property="TextTrimming" Value="CharacterEllipsis" />
 			<Setter Property="TextWrapping" Value="NoWrap" />
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
 			<Setter Property="FontSize" Value="14" />
 			<Setter Property="FontWeight" Value="Medium" />
+			<Setter Property="Margin" Value="0,0,8,0" />
+		</Style>
+		
+		<Style Selector="Grid.FieldRow">
+			<Setter Property="Margin" Value="0,4" />
 		</Style>
 	</UserControl.Styles>
 
@@ -27,17 +33,16 @@
 		<ItemsControl ItemsSource="{Binding Fields}">
 			<ItemsControl.ItemTemplate>
 				<DataTemplate x:DataType="vm:FieldItemViewModel">
-					<Grid Margin="0,4">
+					<Grid Classes="FieldRow">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="{Binding $parent[UserControl].((vm:DualColumnLabelFieldViewModel)DataContext).LabelWidth}" />
-							<ColumnDefinition Width="8" />
 							<ColumnDefinition Width="*" />
 						</Grid.ColumnDefinitions>
 						<TextBlock Grid.Column="0"
                                    Classes="FieldLabel"
                                    Text="{Binding Label}"
                                    ToolTip.Tip="{Binding Label}" />
-						<ContentPresenter Grid.Column="2"
+						<ContentPresenter Grid.Column="1"
                                           Content="{Binding InputControl}"
                                           HorizontalAlignment="Stretch"
                                           VerticalAlignment="Center" />

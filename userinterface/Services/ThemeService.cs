@@ -2,13 +2,13 @@ using System;
 
 namespace userinterface.Services
 {
-    public static class ThemeService
+    public class ThemeService : IThemeService
     {
-        public static event EventHandler? ThemeChanged;
+        public event EventHandler? ThemeChanged;
 
-        public static void NotifyThemeChanged()
+        public void NotifyThemeChanged()
         {
-            ThemeChanged?.Invoke(null, EventArgs.Empty);
+            ThemeChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

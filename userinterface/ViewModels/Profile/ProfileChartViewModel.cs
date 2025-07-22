@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using LiveChartsCore;
@@ -14,6 +14,7 @@ using userinterface.Commands;
 using userinterface.Services;
 using userspace_backend.Display;
 using userspace_backend.Model.EditableSettings;
+using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
@@ -61,11 +62,27 @@ namespace userinterface.ViewModels.Profile
 
         public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
-        public ProfileChartViewModel(ICurvePreview xCurvePreview, ICurvePreview yCurvePreview, EditableSetting<double> yxRatio)
+        private readonly IThemeService themeService;
+
+        public ProfileChartViewModel(IThemeService themeService)
         {
-            XCurvePreview = xCurvePreview;
-            YCurvePreview = yCurvePreview;
-            YXRatio = yxRatio;
+            this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
+            
+            RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
+            FitToDataCommand = new RelayCommand(() => FitToData());
+        }
+
+        private ICurvePreview XCurvePreview { get; set; } = null!;
+
+        private ICurvePreview YCurvePreview { get; set; } = null!;
+
+        private EditableSetting<double> YXRatio { get; set; } = null!;
+
+        public void Initialize(BE.ProfileModel profileModel)
+        {
+            XCurvePreview = profileModel.XCurvePreview;
+            YCurvePreview = profileModel.YCurvePreview;
+            YXRatio = profileModel.YXRatio;
 
             YXRatio.PropertyChanged += OnYXRatioChanged;
 
@@ -77,17 +94,8 @@ namespace userinterface.ViewModels.Profile
             TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
 
             // Subscribe to theme changes
-            ThemeService.ThemeChanged += OnThemeChanged;
-
-            RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
-            FitToDataCommand = new RelayCommand(() => FitToData());
+            this.themeService.ThemeChanged += OnThemeChanged;
         }
-
-        private ICurvePreview XCurvePreview { get; }
-
-        private ICurvePreview YCurvePreview { get; }
-
-        private EditableSetting<double> YXRatio { get; }
 
         public ISeries[] Series { get; set; }
 
@@ -141,7 +149,7 @@ namespace userinterface.ViewModels.Profile
 
         public void Dispose()
         {
-            ThemeService.ThemeChanged -= OnThemeChanged;
+            themeService.ThemeChanged -= OnThemeChanged;
             YXRatio.PropertyChanged -= OnYXRatioChanged;
         }
 

@@ -1,20 +1,41 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using System;
 using System.Threading.Tasks;
 using userinterface.Views.Controls;
+using userinterface.Views;
 
 namespace userinterface.Services
 {
     public class ModalService : IModalService
     {
-        private Window? currentModal;
+        private Control? currentModalContent;
         private TaskCompletionSource<bool>? currentConfirmationTask;
         private TaskCompletionSource<object?>? currentDialogTask;
 
+        private bool TryGetModalOverlay(out ModalOverlay modalOverlay)
+        {
+            modalOverlay = null!;
+            
+            // Get the main window and its modal overlay
+            if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var mainWindow = desktop.MainWindow as MainWindow;
+                var overlay = mainWindow?.FindControl<ModalOverlay>("ModalOverlay");
+                if (overlay != null)
+                {
+                    modalOverlay = overlay;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task<bool> ShowConfirmationAsync(string title, string message, string confirmText = "OK", string cancelText = "Cancel")
         {
-            if (currentModal != null)
+            if (!TryGetModalOverlay(out var modalOverlay)) return false;
+
+            if (currentModalContent != null)
             {
                 CloseCurrentModal();
             }
@@ -31,18 +52,6 @@ namespace userinterface.Services
                     CancelText = cancelText
                 };
 
-                currentModal = new Window
-                {
-                    Title = title,
-                    Content = confirmationDialog,
-                    Width = 400,
-                    Height = 200,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    CanResize = false,
-                    ShowInTaskbar = false,
-                    Topmost = true
-                };
-
                 confirmationDialog.ConfirmClicked += () =>
                 {
                     currentConfirmationTask?.SetResult(true);
@@ -55,15 +64,17 @@ namespace userinterface.Services
                     CloseCurrentModal();
                 };
 
-                currentModal.Closed += (sender, e) =>
+                modalOverlay.BackgroundClicked += () =>
                 {
                     if (!currentConfirmationTask!.Task.IsCompleted)
                     {
                         currentConfirmationTask.SetResult(false);
+                        CloseCurrentModal();
                     }
                 };
 
-                currentModal.Show();
+                currentModalContent = confirmationDialog;
+                modalOverlay.ShowModal(confirmationDialog);
             });
 
             return await currentConfirmationTask.Task;
@@ -71,7 +82,9 @@ namespace userinterface.Services
 
         public async Task ShowMessageAsync(string title, string message, string okText = "OK")
         {
-            if (currentModal != null)
+            if (!TryGetModalOverlay(out var modalOverlay)) return;
+
+            if (currentModalContent != null)
             {
                 CloseCurrentModal();
             }
@@ -87,33 +100,23 @@ namespace userinterface.Services
                     OkText = okText
                 };
 
-                currentModal = new Window
-                {
-                    Title = title,
-                    Content = messageDialog,
-                    Width = 400,
-                    Height = 200,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    CanResize = false,
-                    ShowInTaskbar = false,
-                    Topmost = true
-                };
-
                 messageDialog.OkClicked += () =>
                 {
                     messageTask.SetResult(true);
                     CloseCurrentModal();
                 };
 
-                currentModal.Closed += (sender, e) =>
+                modalOverlay.BackgroundClicked += () =>
                 {
                     if (!messageTask.Task.IsCompleted)
                     {
                         messageTask.SetResult(true);
+                        CloseCurrentModal();
                     }
                 };
 
-                currentModal.Show();
+                currentModalContent = messageDialog;
+                modalOverlay.ShowModal(messageDialog);
             });
 
             await messageTask.Task;
@@ -121,7 +124,9 @@ namespace userinterface.Services
 
         public async Task<T?> ShowDialogAsync<T>(UserControl dialogContent, string title = "")
         {
-            if (currentModal != null)
+            if (!TryGetModalOverlay(out var modalOverlay)) return default(T);
+
+            if (currentModalContent != null)
             {
                 CloseCurrentModal();
             }
@@ -130,27 +135,17 @@ namespace userinterface.Services
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                currentModal = new Window
-                {
-                    Title = title,
-                    Content = dialogContent,
-                    Width = 500,
-                    Height = 400,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    CanResize = true,
-                    ShowInTaskbar = false,
-                    Topmost = true
-                };
-
-                currentModal.Closed += (sender, e) =>
+                modalOverlay.BackgroundClicked += () =>
                 {
                     if (!currentDialogTask!.Task.IsCompleted)
                     {
                         currentDialogTask.SetResult(null);
+                        CloseCurrentModal();
                     }
                 };
 
-                currentModal.Show();
+                currentModalContent = dialogContent;
+                modalOverlay.ShowModal(dialogContent);
             });
 
             var result = await currentDialogTask.Task;
@@ -159,10 +154,10 @@ namespace userinterface.Services
 
         public void CloseCurrentModal()
         {
-            if (currentModal != null)
+            if (TryGetModalOverlay(out var modalOverlay) && currentModalContent != null)
             {
-                currentModal.Close();
-                currentModal = null;
+                modalOverlay.HideModal();
+                currentModalContent = null;
             }
         }
 

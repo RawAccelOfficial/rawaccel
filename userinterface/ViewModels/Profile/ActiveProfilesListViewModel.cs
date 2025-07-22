@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -8,6 +8,7 @@ namespace userinterface.ViewModels.Profile
         public ActiveProfilesListViewModel()
         {
             ActiveProfiles = [];
+            ActiveProfileItems = [];
         }
 
         public ObservableCollection<BE.ProfileModel> ActiveProfiles { get; }

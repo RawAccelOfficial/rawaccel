@@ -38,4 +38,22 @@
 	<SolidColorBrush x:Key="SecondaryHighlightBrush">#D97706</SolidColorBrush>
 	<SolidColorBrush x:Key="SecondaryHighlightHoverBrush">#F59E0B</SolidColorBrush>
 	<SolidColorBrush x:Key="SecondaryHighlightPressedBrush">#B45309</SolidColorBrush>
+	
+	<!-- Status Colors -->
+	<SolidColorBrush x:Key="ActiveBrush">#22C55E</SolidColorBrush>
+	<SolidColorBrush x:Key="ActiveHoverBrush">#22C55E33</SolidColorBrush>
+	<SolidColorBrush x:Key="ActiveBorderHoverBrush">#16A34A</SolidColorBrush>
+	<SolidColorBrush x:Key="InactiveBrush">#9CA3AF</SolidColorBrush>
+	
+	<!-- UI Effects -->
+	<SolidColorBrush x:Key="ShadowBrush">#00000040</SolidColorBrush>
+	<SolidColorBrush x:Key="ToastShadowBrush">#33000000</SolidColorBrush>
+	<SolidColorBrush x:Key="ModalShadowBrush">#40000000</SolidColorBrush>
+	<SolidColorBrush x:Key="CardHoverBackgroundBrush">#353537</SolidColorBrush>
+	<SolidColorBrush x:Key="ModalBackgroundBrush">#AA000000</SolidColorBrush>
+	
+	<!-- Box Shadows -->
+	<BoxShadows x:Key="CardShadow">0 2 8 0 #00000040</BoxShadows>
+	<BoxShadows x:Key="ToastShadow">0 4 12 0 #33000000</BoxShadows>
+	<BoxShadows x:Key="ModalShadow">0 16 32 0 #40000000</BoxShadows>
 </ResourceDictionary>
