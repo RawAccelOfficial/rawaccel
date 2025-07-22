@@ -13,22 +13,18 @@
 		<!-- Test button -->
 		<Button Content="Test" Command="{Binding TestCommand}" Margin="10"/>
 		
-		<!-- Canvas for animated profile elements -->
-		<Canvas x:Name="ProfileCanvas" 
-		        Background="LightGray"
-		        Height="{Binding CanvasHeight}"
-		        ClipToBounds="False">
+		<!-- Flexible container for animated profile elements -->
+		<Panel x:Name="ProfileContainer" 
+		       Background="LightGray"
+		       MinHeight="100">
 			<!-- Animated Rectangle -->
 			<Rectangle x:Name="AnimatedRectangle"
 			          Fill="Red"
 			          Width="400"
 			          Height="50"
-			          Canvas.Left="0"
-			          Canvas.Top="0">
-				<Rectangle.RenderTransform>
-					<TranslateTransform Y="0"/>
-				</Rectangle.RenderTransform>
-			</Rectangle>
-		</Canvas>
+			          HorizontalAlignment="Left"
+			          VerticalAlignment="Top"
+			          Margin="0,0,0,0" />
+		</Panel>
 	</StackPanel>
 </UserControl>

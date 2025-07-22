@@ -6,6 +6,7 @@ using userinterface.ViewModels.Profile;
 using System;
 using System.ComponentModel;
 using Avalonia.Styling;
+using Avalonia.Animation.Easings;
 
 namespace userinterface.Views.Profile;
 
@@ -45,14 +46,15 @@ public partial class ProfileListView : UserControl
 
     private void AnimateRectangleToPosition(int position)
     {
-        if (animatedRectangle?.RenderTransform is not TranslateTransform transform) return;
+        if (animatedRectangle == null) return;
 
-        double targetY = position * 50d; // position 0 = 0px, position 1 = 50px
+        double targetMarginTop = position * 50d; // position 0 = 0px, position 1 = 50px
 
         rectangleAnimation = new Animation
         {
-            Duration = TimeSpan.FromSeconds(1),
+            Duration = TimeSpan.FromMilliseconds(300), // Faster animation
             FillMode = FillMode.Forward, // Keep final state
+            Easing = Easing.Parse("0.25,0.1,0.25,1"), // Cubic bezier easing for smooth feel
             Children =
             {
                 new KeyFrame
@@ -62,20 +64,20 @@ public partial class ProfileListView : UserControl
                     {
                         new Setter
                         {
-                            Property = TranslateTransform.YProperty,
-                            Value = targetY
+                            Property = Avalonia.Layout.Layoutable.MarginProperty,
+                            Value = new Avalonia.Thickness(0, targetMarginTop, 0, 0)
                         }
                     }
                 }
             }
         };
 
-        // Also set the transform directly after animation completes
+        // Also set the margin directly after animation completes
         rectangleAnimation.RunAsync(animatedRectangle).ContinueWith(_ => 
         {
             Avalonia.Threading.Dispatcher.UIThread.Post(() => 
             {
-                transform.Y = targetY;
+                animatedRectangle.Margin = new Avalonia.Thickness(0, targetMarginTop, 0, 0);
             });
         });
     }
