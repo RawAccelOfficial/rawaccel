@@ -3,64 +3,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
-             mc:Ignorable="d" d:DesignWidth="800"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="100"
              x:Class="userinterface.Views.Profile.ProfileListElementView"
              x:DataType="vm:ProfileListElementViewModel">
 
-	<UserControl.Styles>
-		<Style Selector="Button.DeleteButton">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="4"/>
-			<Setter Property="Margin" Value="4,0,0,0"/>
-			<Setter Property="CornerRadius" Value="4"/>
-			<Setter Property="Width" Value="24"/>
-			<Setter Property="Height" Value="24"/>
-			<Setter Property="Cursor" Value="Hand"/>
-		</Style>
-
-		<Style Selector="Button.DeleteButton:pointerover">
-			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
-		</Style>
-
-		<Style Selector="Button.DeleteButton PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-		</Style>
-
-		<Style Selector="Button.DeleteButton:pointerover PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
-		</Style>
-
-		<Style Selector="Button.DeleteButton:selected, Button.DeleteButton:pointerover, Button.DeleteButton:selected:pointerover, Button.DeleteButton:focus, Button.DeleteButton:selected:focus">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-	</UserControl.Styles>
-
-	<Grid Name="ProfileGrid" Height="24">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="Auto"/>
-		</Grid.ColumnDefinitions>
-
-		<TextBlock Grid.Column="0"
-                   Name="DisplayTextBlock"
-                   Text="{Binding CurrentNameForDisplay}"
-                   VerticalAlignment="Center"/>
-
-		<Button Grid.Column="1"
-				Name="DeleteButton"
-				Classes="DeleteButton"
-				VerticalAlignment="Center">
-			<Button.IsVisible>
-				<MultiBinding Converter="{x:Static BoolConverters.And}">
-					<Binding Path="ShowActionButtons"/>
-					<Binding Path="!IsDefaultProfile"/>
-				</MultiBinding>
-			</Button.IsVisible>
-			<PathIcon Data="{StaticResource delete_regular}"
-                      Width="12" Height="12"/>
-		</Button>
-	</Grid>
+    <Canvas Height="150">
+        <Rectangle x:Name="AnimatedElement"
+                  Fill="Red"
+                  Height="50"
+                  Width="400"
+                  Canvas.Left="0"
+                  Canvas.Top="125">
+            <Rectangle.RenderTransform>
+                <TranslateTransform Y="0"/>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+    </Canvas>
 </UserControl>

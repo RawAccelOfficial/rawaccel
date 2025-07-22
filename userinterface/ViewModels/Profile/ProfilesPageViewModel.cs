@@ -51,9 +51,9 @@ namespace userinterface.ViewModels.Profile
         {
             UpdateProfileViewModels();
 
-            var selectedProfile = ProfileListView.GetSelectedProfile();
+            //var selectedProfile = ProfileListView.GetSelectedProfile();
 
-            UpdateSelectedProfileView(selectedProfile);
+            //UpdateSelectedProfileView(selectedProfile);
         }
 
         private void UpdateSelectedProfileView(BE.ProfileModel? currentProfile)

@@ -3,224 +3,24 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
-             xmlns:vp="using:userinterface.Views.Profile"
-			 xmlns:ext="using:userinterface.Extensions"
-             xmlns:controls="using:userinterface.Controls"
+             xmlns:ext="using:userinterface.Extensions"
+             xmlns:local="using:userinterface.Views.Profile"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
 
-	<UserControl.Styles>
-		<Style Selector="ListBox">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="0"/>
-			<Setter Property="SelectionMode" Value="Single"/>
-		</Style>
 
-		<Style Selector="ListBoxItem">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="Margin" Value="8,1"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="Padding" Value="12,6"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Transitions">
-				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.2"/>
-					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
-					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
-				</Transitions>
-			</Setter>
-			<Setter Property="Template">
-				<ControlTemplate>
-					<Border Name="PART_LayoutRoot"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{TemplateBinding CornerRadius}"
-                            Padding="{TemplateBinding Padding}">
-						<ContentPresenter Name="PART_ContentPresenter"
-                                          Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          Foreground="{TemplateBinding Foreground}"
-                                          Background="Transparent"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-					</Border>
-				</ControlTemplate>
-			</Setter>
-		</Style>
-
-		<!-- Override all default selection styles to look like normal state -->
-		<Style Selector="ListBoxItem:selected">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:pointerover">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(1.02)"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:pressed">
-			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(0.98)"/>
-		</Style>
-
-		<!-- Remove all default ContentPresenter selection styling -->
-		<Style Selector="ListBoxItem ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:pointerover ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:pointerover ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:pointerover">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(1.02)"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:pressed">
-			<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(0.98)"/>
-		</Style>
-
-		<Style Selector="ListBoxItem /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<!-- Custom selected class that we control manually -->
-		<Style Selector="ListBoxItem.CurrentlySelected">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
-		</Style>
-
-		<Style Selector="ListBoxItem.CurrentlySelected:pointerover">
-			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
-		</Style>
-
-		<Style Selector="Button.AddButton">
-			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="8,6"/>
-			<Setter Property="Margin" Value="8,4"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Height" Value="36"/>
-		</Style>
-
-		<Style Selector="Button.AddButton:pointerover">
-			<Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-		</Style>
-	</UserControl.Styles>
-
-	<controls:AnimatedItemsCanvas x:Name="ProfileItemsControl" 
-	                              ItemsSource="{Binding ProfileItems}" 
-	                              Orientation="Vertical"
-	                              ShowAddButton="True"
-	                              AddButtonDataContext="{Binding}">
-		<controls:AnimatedItemsCanvas.ItemTemplate>
-			<DataTemplate x:DataType="vm:ProfileListElementViewModel">
-				<Border x:Name="ItemBorder"
-						Background="{DynamicResource CardBackgroundBrush}"
-						Margin="8,1"
-						BorderThickness="1"
-						BorderBrush="{DynamicResource BorderBrush}"
-						CornerRadius="6"
-						Padding="12,6"
-						Cursor="Hand"
-						ClipToBounds="False"
-						PointerPressed="OnItemPointerPressed"
-						Classes.CurrentlySelected="{Binding IsSelected}"
-						IsVisible="{Binding !IsHidden}"
-						HorizontalAlignment="Stretch">
-					<Border.Transitions>
-						<Transitions>
-							<BrushTransition Property="Background" Duration="0:0:0.2"/>
-							<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
-							<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-							<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-							<DoubleTransition Property="Height" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-							<DoubleTransition Property="Width" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-							<ThicknessTransition Property="Margin" Duration="0:0:0.4" Easing="CubicEaseOut"/>
-						</Transitions>
-					</Border.Transitions>
-					<Border.Styles>
-						<!-- Selected state -->
-						<Style Selector="Border.CurrentlySelected">
-							<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-							<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightBrush}"/>
-						</Style>
-						<Style Selector="Border.CurrentlySelected:pointerover">
-							<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-							<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightHoverBrush}"/>
-							<Setter Property="RenderTransform" Value="scale(1.02)"/>
-						</Style>
-						<!-- Hover effects -->
-						<Style Selector="Border:pointerover">
-							<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-							<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
-							<Setter Property="RenderTransform" Value="scale(1.02)"/>
-						</Style>
-						<Style Selector="Border:pressed">
-							<Setter Property="Background" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-							<Setter Property="BorderBrush" Value="{DynamicResource SecondaryHighlightPressedBrush}"/>
-							<Setter Property="RenderTransform" Value="scale(0.98)"/>
-						</Style>
-					</Border.Styles>
-					<vp:ProfileListElementView/>
-				</Border>
-			</DataTemplate>
-		</controls:AnimatedItemsCanvas.ItemTemplate>
-		<controls:AnimatedItemsCanvas.AddButtonTemplate>
-			<DataTemplate x:DataType="vm:ProfileListViewModel">
-				<Button Classes="AddButton"
-				        Command="{Binding AddProfileCommand}"
-				        HorizontalAlignment="Stretch"
-				        Margin="8,4">
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-				                  Width="16" Height="16"
-				                  Margin="0,0,8,0"/>
-						<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
-								   Margin="0,4,0,0"/>
-					</StackPanel>
-				</Button>
-			</DataTemplate>
-		</controls:AnimatedItemsCanvas.AddButtonTemplate>
-	</controls:AnimatedItemsCanvas>
+	<StackPanel>
+		<!-- Test button -->
+		<Button Content="Test" Command="{Binding TestCommand}" Margin="10"/>
+		
+		<!-- Canvas for animated profile elements -->
+		<Canvas x:Name="ProfileCanvas" 
+		        Background="LightGray"
+		        Height="{Binding CanvasHeight}"
+		        ClipToBounds="True">
+			<!-- Profile List Element -->
+			<local:ProfileListElementView Canvas.Left="0" Canvas.Top="0" Width="400" Height="150"/>
+		</Canvas>
+	</StackPanel>
 </UserControl>

@@ -1,82 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using userinterface.Commands;
-using userinterface.Services;
-using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
     public partial class ProfileListElementViewModel : ViewModelBase
     {
-        [ObservableProperty]
-        private bool showActionButtons = true;
-
-        [ObservableProperty]
-        private bool isDefaultProfile;
-
-        [ObservableProperty]
-        private bool isSelected;
-
-        [ObservableProperty]
-        private bool isHidden;
-
-        public BE.ProfileModel Profile { get; private set; } = null!;
-
-        public event Action<ProfileListElementViewModel>? ProfileDeleted;
-
-        public event Action<ProfileListElementViewModel, bool>? SelectionChanged;
-
-        public ICommand DeleteProfileCommand { get; }
-
-        // Track if a view has subscribed to this ViewModel
-        public bool HasViewSubscribed { get; set; } = false;
-
         public ProfileListElementViewModel()
         {
-            DeleteProfileCommand = new AsyncRelayCommand(DeleteProfile);
-        }
-
-        public void Initialize(BE.ProfileModel profile, bool showButtons = true, bool isDefault = false)
-        {
-            Profile = profile;
-            ShowActionButtons = showButtons;
-            IsDefaultProfile = isDefault;
-            UpdateSelection(false);
-        }
-
-        public string CurrentNameForDisplay => Profile.CurrentNameForDisplay;
-
-        public void UpdateSelection(bool selected)
-        {
-            if (selected) System.Diagnostics.Debug.WriteLine("New selected item: " + Profile.CurrentNameForDisplay);
-            IsSelected = selected;
-            SelectionChanged?.Invoke(this, selected);
-        }
-
-        public async Task DeleteProfile()
-        {
-            var modalService = App.Services?.GetService<IModalService>();
-            if (modalService != null)
-            {
-                var confirmed = await modalService.ShowConfirmationAsync(
-                    "Delete Profile", 
-                    $"Are you sure you want to delete the profile '{Profile.CurrentNameForDisplay}'?",
-                    "Delete",
-                    "Cancel");
-                
-                if (confirmed)
-                {
-                    ProfileDeleted?.Invoke(this);
-                }
-            }
-            else
-            {
-                // Fallback if modal service is not available
-                ProfileDeleted?.Invoke(this);
-            }
         }
     }
 }

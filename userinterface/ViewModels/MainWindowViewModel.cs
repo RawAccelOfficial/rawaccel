@@ -41,8 +41,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
-
-        SubscribeToProfileSelectionChanges();
     }
 
     public DevicesPageViewModel DevicesPage =>
@@ -130,55 +128,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         themeService.NotifyThemeChanged();
     }
 
-    private void SubscribeToProfileSelectionChanges()
-    {
-        ProfileListView.ProfileItems.CollectionChanged += (sender, e) =>
-        {
-            if (e.NewItems != null)
-            {
-                foreach (ProfileListElementViewModel item in e.NewItems)
-                {
-                    item.SelectionChanged += OnProfileSelectionChanged;
-                }
-            }
-            if (e.OldItems != null)
-            {
-                foreach (ProfileListElementViewModel item in e.OldItems)
-                {
-                    item.SelectionChanged -= OnProfileSelectionChanged;
-                }
-            }
-        };
-
-        foreach (var item in ProfileListView.ProfileItems)
-        {
-            item.SelectionChanged += OnProfileSelectionChanged;
-        }
-    }
-
-    private void OnProfileSelectionChanged(ProfileListElementViewModel profileElement, bool isSelected)
-    {
-        if (isSelected)
-        {
-            ProfilesPage?.UpdateCurrentProfile();
-        }
-    }
-
     public new event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual new void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-    }
-
-    public void Cleanup()
-    {
-        if (profileListView != null)
-        {
-            foreach (var item in profileListView.ProfileItems)
-            {
-                item.SelectionChanged -= OnProfileSelectionChanged;
-            }
-        }
     }
 }

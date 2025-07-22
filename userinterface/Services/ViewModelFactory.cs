@@ -38,12 +38,6 @@ namespace userinterface.Services
             return viewModel;
         }
 
-        public ProfileListElementViewModel CreateProfileListElementViewModel(BE.ProfileModel profileModel, bool showButtons, bool isDefault)
-        {
-            var viewModel = ServiceProvider.GetRequiredService<ProfileListElementViewModel>();
-            viewModel.Initialize(profileModel, showButtons, isDefault);
-            return viewModel;
-        }
 
         public MappingViewModel CreateMappingViewModel(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested)
         {

@@ -101,7 +101,6 @@ public partial class App : Application
         services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
         services.AddSingleton<ViewModels.Profile.ProfileListViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileViewModel>();
-        services.AddTransient<ViewModels.Profile.ProfileListElementViewModel>();
         services.AddTransient<ViewModels.Profile.ActiveProfilesListViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileSettingsViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();

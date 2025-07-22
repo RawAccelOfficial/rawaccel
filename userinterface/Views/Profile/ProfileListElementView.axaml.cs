@@ -1,87 +1,66 @@
-﻿using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
-using Avalonia.VisualTree;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
+using Avalonia.Styling;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using userinterface.ViewModels.Profile;
 
-namespace userinterface.Views.Profile
+namespace userinterface.Views.Profile;
+
+public partial class ProfileListElementView : UserControl
 {
-    public partial class ProfileListElementView : UserControl
+    private Animation elementAnimation;
+
+    public ProfileListElementView()
     {
-        public ProfileListElementView()
-        {
-            InitializeComponent();
-            DeleteButton.Click += OnDeleteButtonClick;
-            DataContextChanged += OnDataContextChanged;
-            AttachedToVisualTree += OnAttachedToVisualTree;
-            DetachedFromVisualTree += OnDetachedFromVisualTree;
-        }
+        InitializeComponent();
+        Loaded += OnLoaded;
+    }
 
-        private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                EnsureSubscription(viewModel);
-            }
-        }
+    private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        StartElementAnimation();
+    }
 
-        private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                viewModel.SelectionChanged -= OnSelectionChanged;
-                viewModel.HasViewSubscribed = false;
-            }
-        }
+    private void StartElementAnimation()
+    {
+        var animatedElement = this.FindControl<Rectangle>("AnimatedElement");
+        if (animatedElement?.RenderTransform is not TranslateTransform) return;
 
-        private void EnsureSubscription(ProfileListElementViewModel viewModel)
+        elementAnimation = new Animation
         {
-            if (!viewModel.HasViewSubscribed)
+            Duration = TimeSpan.FromSeconds(2),
+            IterationCount = IterationCount.Infinite,
+            PlaybackDirection = PlaybackDirection.Alternate,
+            Children =
             {
-                viewModel.SelectionChanged += OnSelectionChanged;
-                viewModel.HasViewSubscribed = true;
-                OnSelectionChanged(viewModel, viewModel.IsSelected);
-            }
-            else
-            {
-                OnSelectionChanged(viewModel, viewModel.IsSelected);
-            }
-        }
-
-        private void OnDataContextChanged(object? sender, EventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                EnsureSubscription(viewModel);
-            }
-        }
-
-        private void OnDeleteButtonClick(object? sender, RoutedEventArgs e)
-        {
-            if (DataContext is ProfileListElementViewModel viewModel)
-            {
-                viewModel.DeleteProfileCommand?.Execute(null);
-            }
-        }
-
-        private void OnSelectionChanged(ProfileListElementViewModel viewModel, bool isSelected)
-        {
-            var listBoxItem = this.FindLogicalAncestorOfType<ListBoxItem>();
-            if (listBoxItem != null)
-            {
-                if (isSelected)
+                new KeyFrame
                 {
-                    listBoxItem.Classes.Add("CurrentlySelected");
-                }
-                else
+                    Cue = new Cue(0d),
+                    Setters =
+                    {
+                        new Setter
+                        {
+                            Property = TranslateTransform.YProperty,
+                            Value = 0d
+                        }
+                    }
+                },
+                new KeyFrame
                 {
-                    listBoxItem.Classes.Remove("CurrentlySelected");
+                    Cue = new Cue(1d),
+                    Setters =
+                    {
+                        new Setter
+                        {
+                            Property = TranslateTransform.YProperty,
+                            Value = -100d
+                        }
+                    }
                 }
             }
-        }
+        };
+
+        elementAnimation.RunAsync(animatedElement);
     }
 }

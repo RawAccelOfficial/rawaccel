@@ -11,7 +11,6 @@ namespace userinterface.Services
         ProfileViewModel CreateProfileViewModel(BE.ProfileModel profileModel);
         ProfileSettingsViewModel CreateProfileSettingsViewModel(BE.ProfileModel profileModel);
         ProfileChartViewModel CreateProfileChartViewModel(BE.ProfileModel profileModel);
-        ProfileListElementViewModel CreateProfileListElementViewModel(BE.ProfileModel profileModel, bool showButtons, bool isDefault);
         MappingViewModel CreateMappingViewModel(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested);
     }
 }
