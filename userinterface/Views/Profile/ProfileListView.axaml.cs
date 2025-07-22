@@ -28,12 +28,6 @@ public partial class ProfileListView : UserControl
             }
         };
         
-        // Wire up test animation button
-        var testButton = this.FindControl<Button>("TestAnimationButton");
-        if (testButton != null)
-        {
-            testButton.Click += OnTestAnimationClick;
-        }
     }
 
     public void OnItemPointerPressed(object sender, PointerPressedEventArgs e)
@@ -47,49 +41,6 @@ public partial class ProfileListView : UserControl
         }
     }
     
-    private async void OnTestAnimationClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        var canvas = GetAnimatedItemsCanvas();
-        if (canvas == null) return;
-        
-        // Get the first profile item if available
-        if (DataContext is ProfileListViewModel viewModel && viewModel.ProfileItems.Count >= 2)
-        {
-            var firstProfile = viewModel.ProfileItems[0];
-            var secondProfile = viewModel.ProfileItems[1];
-            
-            // Test animation: swap positions of first two profiles
-            System.Diagnostics.Debug.WriteLine("Test Animation: Swapping positions of first two profiles");
-            
-            var swapAnimations = new Dictionary<ProfileListElementViewModel, int>
-            {
-                { firstProfile, 1 },  // Move first to second position
-                { secondProfile, 0 }  // Move second to first position  
-            };
-            
-            await AnimateMultipleProfilesToIndicesAsync(swapAnimations, 600);
-            
-            await Task.Delay(1000);
-            
-            // Swap back
-            System.Diagnostics.Debug.WriteLine("Test Animation: Swapping back to original positions");
-            var swapBackAnimations = new Dictionary<ProfileListElementViewModel, int>
-            {
-                { firstProfile, 0 },  // Move back to first position
-                { secondProfile, 1 }  // Move back to second position  
-            };
-            
-            await AnimateMultipleProfilesToIndicesAsync(swapBackAnimations, 600);
-        }
-        else if (DataContext is ProfileListViewModel vm && vm.ProfileItems.Count > 0)
-        {
-            // Fallback to pixel-based animation if only one profile
-            var firstProfile = vm.ProfileItems[0];
-            await MoveProfileAsync(firstProfile, 50, 500);
-            await Task.Delay(500);
-            await MoveProfileAsync(firstProfile, -50, 500);
-        }
-    }
     
     public AnimatedItemsCanvas? GetAnimatedItemsCanvas()
     {

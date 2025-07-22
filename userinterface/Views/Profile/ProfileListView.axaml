@@ -165,7 +165,8 @@
 							ClipToBounds="False"
 							PointerPressed="OnItemPointerPressed"
 							Classes.CurrentlySelected="{Binding IsSelected}"
-							IsVisible="{Binding !IsHidden}">
+							IsVisible="{Binding !IsHidden}"
+							HorizontalAlignment="Stretch">
 						<Border.Transitions>
 							<Transitions>
 								<BrushTransition Property="Background" Duration="0:0:0.2"/>
@@ -206,27 +207,18 @@
 			</controls:AnimatedItemsCanvas.ItemTemplate>
 		</controls:AnimatedItemsCanvas>
 
-		<StackPanel Orientation="Horizontal" Spacing="8">
-			<Button Classes="AddButton"
-	                Command="{Binding AddProfileCommand}"
-	                HorizontalAlignment="Stretch">
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-					<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
-	                          Width="16" Height="16"
-	                          Margin="0,0,8,0"/>
-					<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
-							   Margin="0,4,0,0"/>
-				</StackPanel>
-			</Button>
-			
-			<Button Classes="AddButton"
-	                Name="TestAnimationButton"
-	                Background="Orange"
-	                HorizontalAlignment="Stretch">
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-					<TextBlock Text="Test Animation" Margin="0,4,0,0"/>
-				</StackPanel>
-			</Button>
-		</StackPanel>
+		<Button Classes="AddButton"
+		        Command="{Binding AddProfileCommand}"
+		        HorizontalAlignment="Stretch"
+		        Margin="8,4">
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+				<PathIcon Data="{StaticResource text_bullet_list_add_regular}"
+		                  Width="16" Height="16"
+		                  Margin="0,0,8,0"/>
+				<TextBlock Text="{ext:Localized ProfileAddNewProfile}"
+						   Margin="0,4,0,0"/>
+			</StackPanel>
+		</Button>
+
 	</StackPanel>
 </UserControl>

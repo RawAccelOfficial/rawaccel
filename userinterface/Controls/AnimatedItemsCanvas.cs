@@ -197,7 +197,9 @@ namespace userinterface.Controls
             var presenter = new ContentPresenter
             {
                 Content = item,
-                ContentTemplate = ItemTemplate
+                ContentTemplate = ItemTemplate,
+                HorizontalAlignment = Orientation == Orientation.Vertical ? HorizontalAlignment.Stretch : HorizontalAlignment.Left,
+                VerticalAlignment = Orientation == Orientation.Horizontal ? VerticalAlignment.Stretch : VerticalAlignment.Top
             };
 
             itemPresenters[item] = presenter;
@@ -853,7 +855,12 @@ namespace userinterface.Controls
 
             foreach (var presenter in Children.OfType<ContentPresenter>())
             {
-                presenter.Measure(availableSize);
+                // For vertical orientation, constrain width to available width to enable stretching
+                var measureSize = Orientation == Orientation.Vertical 
+                    ? new Size(availableSize.Width, availableSize.Height)
+                    : availableSize;
+                    
+                presenter.Measure(measureSize);
                 var itemSize = presenter.DesiredSize;
 
                 maxItemWidth = Math.Max(maxItemWidth, itemSize.Width);
@@ -886,9 +893,23 @@ namespace userinterface.Controls
 
         protected override Size ArrangeOverride(Size finalSize)
         {
+            // Arrange each presenter with full width for vertical orientation
+            foreach (var presenter in Children.OfType<ContentPresenter>())
+            {
+                var x = Canvas.GetLeft(presenter);
+                var y = Canvas.GetTop(presenter);
+                
+                // For vertical orientation, use full width; for horizontal, use desired size
+                var arrangeSize = Orientation == Orientation.Vertical
+                    ? new Size(finalSize.Width, presenter.DesiredSize.Height)
+                    : presenter.DesiredSize;
+                    
+                presenter.Arrange(new Rect(x, y, arrangeSize.Width, arrangeSize.Height));
+            }
+            
             // Update positions after measurement
             UpdateItemPositions(animate: false);
-            return base.ArrangeOverride(finalSize);
+            return finalSize;
         }
 
         protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
