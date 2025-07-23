@@ -28,6 +28,7 @@ public partial class ProfileListView : UserControl
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     
     private const double ProfileHeight = 38.0;
+    private const double ProfileSpacing = 4.0;
     private const int StaggerDelayMs = 50;
     private const double ProfileSpawnPosition = 0.0;
 
@@ -311,7 +312,7 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private static double CalculatePositionForIndex(int index) => index * ProfileHeight;
+    private static double CalculatePositionForIndex(int index) => index * (ProfileHeight + ProfileSpacing);
     
     private void CancelAllAnimations()
     {
