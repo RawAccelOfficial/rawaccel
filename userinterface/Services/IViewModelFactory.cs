@@ -12,7 +12,5 @@ namespace userinterface.Services
         ProfileSettingsViewModel CreateProfileSettingsViewModel(BE.ProfileModel profileModel);
         ProfileChartViewModel CreateProfileChartViewModel(BE.ProfileModel profileModel);
         MappingViewModel CreateMappingViewModel(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested);
-        void ClearProfileViewModelCache();
-        void RemoveProfileFromCache(string profileName);
     }
 }

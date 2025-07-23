@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using userinterface.Services;
 using userinterface.ViewModels.Profile;
@@ -11,7 +10,6 @@ namespace userinterface.Services
 {
     public class ViewModelFactory : IViewModelFactory
     {
-        private readonly ConcurrentDictionary<string, ProfileViewModel> _profileViewModelCache = new();
 
         public ViewModelFactory(IServiceProvider serviceProvider)
         {
@@ -22,13 +20,9 @@ namespace userinterface.Services
 
         public ProfileViewModel CreateProfileViewModel(BE.ProfileModel profileModel)
         {
-            var key = profileModel.Name.CurrentValidatedValue;
-            return _profileViewModelCache.GetOrAdd(key, _ =>
-            {
-                var viewModel = ServiceProvider.GetRequiredService<ProfileViewModel>();
-                viewModel.Initialize(profileModel);
-                return viewModel;
-            });
+            var viewModel = ServiceProvider.GetRequiredService<ProfileViewModel>();
+            viewModel.Initialize(profileModel);
+            return viewModel;
         }
 
         public ProfileSettingsViewModel CreateProfileSettingsViewModel(BE.ProfileModel profileModel)
@@ -53,14 +47,5 @@ namespace userinterface.Services
             return viewModel;
         }
 
-        public void ClearProfileViewModelCache()
-        {
-            _profileViewModelCache.Clear();
-        }
-
-        public void RemoveProfileFromCache(string profileName)
-        {
-            _profileViewModelCache.TryRemove(profileName, out _);
-        }
     }
 }
