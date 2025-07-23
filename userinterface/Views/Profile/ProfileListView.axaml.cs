@@ -63,6 +63,9 @@ public partial class ProfileListView : UserControl
             AddProfileAtPosition(i);
         }
         
+        // Refresh all profile names to ensure they display correctly
+        RefreshAllProfileNames();
+        
         // Auto-select the default profile if available
         var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
         if (defaultProfile != null)
@@ -109,15 +112,26 @@ public partial class ProfileListView : UserControl
     {
         if (e.NewItems == null) return;
         
-        foreach (var _ in e.NewItems)
+        // Add profiles at their actual positions in the backend collection
+        int startIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profilesModel.Profiles.Count - e.NewItems.Count;
+        
+        for (int i = 0; i < e.NewItems.Count; i++)
         {
-            AddProfileAtPosition(0);
+            int profileIndex = startIndex + i;
+            AddProfileAtPosition(profileIndex);
         }
         
-        // Auto-select the newly added profile (first in the list)
-        if (profilesModel.Profiles.Count > 0)
+        // Refresh all profile names to ensure they display correctly
+        RefreshAllProfileNames();
+        
+        // Auto-select the newly added profile (the last one added)
+        if (e.NewItems.Count > 0)
         {
-            SetSelectedProfile(profilesModel.Profiles[0]);
+            int lastAddedIndex = startIndex + e.NewItems.Count - 1;
+            if (lastAddedIndex >= 0 && lastAddedIndex < profilesModel.Profiles.Count)
+            {
+                SetSelectedProfile(profilesModel.Profiles[lastAddedIndex]);
+            }
         }
     }
 
@@ -234,6 +248,10 @@ public partial class ProfileListView : UserControl
 
         var profileBorder = CreateProfileBorder(null, targetIndex);
         
+        // Set higher z-index for the new profile so it's visible during animation
+        profileBorder.ZIndex = 1000;
+        profileBorder.Opacity = 1.0; // Ensure full visibility
+        
         profiles.Insert(targetIndex, profileBorder);
         // Insert into container at the correct position (Add Profile button is at index 0)
         int containerIndex = targetIndex + 1; // +1 because Add Profile button is at index 0
@@ -310,8 +328,9 @@ public partial class ProfileListView : UserControl
             Height = ProfileHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(8, CalculatePositionForIndex(targetIndex + 1), 8, 0), // +1 for Add Profile button offset
-            Child = grid
+            Margin = new Thickness(8, ProfileSpawnPosition, 8, 0), // Start at spawn position for animation
+            Child = grid,
+            Opacity = 1.0 // Ensure it's fully visible
         };
         
         // Make the entire border clickable
@@ -399,6 +418,18 @@ public partial class ProfileListView : UserControl
                 {
                     new KeyFrame
                     {
+                        Cue = new Cue(0d),
+                        Setters =
+                        {
+                            new Setter
+                            {
+                                Property = Avalonia.Controls.Border.OpacityProperty,
+                                Value = 1.0
+                            }
+                        }
+                    },
+                    new KeyFrame
+                    {
                         Cue = new Cue(1d),
                         Setters =
                         {
@@ -406,6 +437,11 @@ public partial class ProfileListView : UserControl
                             {
                                 Property = Avalonia.Layout.Layoutable.MarginProperty,
                                 Value = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0) // +1 for Add Profile button offset
+                            },
+                            new Setter
+                            {
+                                Property = Avalonia.Controls.Border.OpacityProperty,
+                                Value = 1.0
                             }
                         }
                     }
@@ -414,6 +450,9 @@ public partial class ProfileListView : UserControl
             
             await animation.RunAsync(profiles[profileIndex], cts.Token);
             profiles[profileIndex].Margin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0); // +1 for Add Profile button offset
+            
+            // Reset z-index after animation completes
+            profiles[profileIndex].ZIndex = 0;
         }
         catch (OperationCanceledException) { }
         finally
@@ -442,14 +481,10 @@ public partial class ProfileListView : UserControl
     {
         if (selectedProfile == profile) return;
 
-        // Remove selected class from previously selected profile
-        if (selectedProfile != null)
+        // Clear selected class from all profiles first
+        foreach (var profileBorder in profiles)
         {
-            var previousIndex = profilesModel.Profiles.IndexOf(selectedProfile);
-            if (previousIndex >= 0 && previousIndex < profiles.Count)
-            {
-                profiles[previousIndex].Classes.Remove("Selected");
-            }
+            profileBorder.Classes.Remove("Selected");
         }
 
         // Set new selected profile
@@ -475,6 +510,25 @@ public partial class ProfileListView : UserControl
     public BE.ProfileModel GetSelectedProfile()
     {
         return selectedProfile;
+    }
+
+    private void RefreshAllProfileNames()
+    {
+        for (int i = 0; i < profiles.Count && i < profilesModel.Profiles.Count; i++)
+        {
+            var border = profiles[i];
+            var profile = profilesModel.Profiles[i];
+            
+            // Find the TextBlock inside the border and update its text
+            if (border.Child is Grid grid)
+            {
+                var textBlock = grid.Children.OfType<TextBlock>().FirstOrDefault();
+                if (textBlock != null)
+                {
+                    textBlock.Text = profile.CurrentNameForDisplay;
+                }
+            }
+        }
     }
 
 }
