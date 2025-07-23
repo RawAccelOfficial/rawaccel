@@ -84,15 +84,16 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
+    private Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
     {
-        if (e.NewItems == null) return;
+        if (e.NewItems == null) return Task.CompletedTask;
         
         int insertIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profiles.Count;
         foreach (var _ in e.NewItems)
         {
             AddProfileAtPosition(insertIndex++);
         }
+        return Task.CompletedTask;
     }
 
     private async Task HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
@@ -147,7 +148,7 @@ public partial class ProfileListView : UserControl
         await AnimateAllProfilesToCorrectPositions(Math.Min(e.OldStartingIndex, e.NewStartingIndex));
     }
 
-    private async Task HandleProfilesReset()
+    private Task HandleProfilesReset()
     {
         CancelAllAnimations();
         profiles.Clear();
@@ -157,6 +158,7 @@ public partial class ProfileListView : UserControl
         {
             AddProfileAtPosition(i);
         }
+        return Task.CompletedTask;
     }
 
     private void RemoveProfileAt(int index)
