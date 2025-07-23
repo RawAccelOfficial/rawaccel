@@ -424,10 +424,11 @@ public partial class ProfileListView : UserControl
         // Animate the new profile to its target position
         _ = AnimateProfileToPosition(targetIndex, targetIndex, 0);
 
-        // Animate existing profiles that need to move down to their new positions
+        // Animate existing profiles that need to move down to their new positions with stagger
         for (int i = targetIndex + 1; i < profiles.Count; i++)
         {
-            _ = AnimateProfileToPosition(i, i, 0);
+            int staggerIndex = i - targetIndex; // Stagger based on distance from insertion point
+            _ = AnimateProfileToPosition(i, i, staggerIndex);
         }
     }
 
