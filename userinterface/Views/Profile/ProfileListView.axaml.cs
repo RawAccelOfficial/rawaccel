@@ -26,6 +26,7 @@ public partial class ProfileListView : UserControl
     private readonly BE.ProfilesModel profilesModel;
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
+    private BE.ProfileModel selectedProfile;
     
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
@@ -60,6 +61,17 @@ public partial class ProfileListView : UserControl
         for (int i = 0; i < profilesModel.Profiles.Count; i++)
         {
             AddProfileAtPosition(i);
+        }
+        
+        // Auto-select the default profile if available
+        var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
+        if (defaultProfile != null)
+        {
+            SetSelectedProfile(defaultProfile);
+        }
+        else if (profilesModel.Profiles.Count > 0)
+        {
+            SetSelectedProfile(profilesModel.Profiles[0]);
         }
     }
 
@@ -101,6 +113,12 @@ public partial class ProfileListView : UserControl
         {
             AddProfileAtPosition(0);
         }
+        
+        // Auto-select the newly added profile (first in the list)
+        if (profilesModel.Profiles.Count > 0)
+        {
+            SetSelectedProfile(profilesModel.Profiles[0]);
+        }
     }
 
     private async Task HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
@@ -127,6 +145,24 @@ public partial class ProfileListView : UserControl
         }
         
         await AnimateAllProfilesToCorrectPositions(removeIndex);
+        
+        // If the selected profile was removed, select the default profile or first available profile
+        if (selectedProfile != null && !profilesModel.Profiles.Contains(selectedProfile))
+        {
+            var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
+            if (defaultProfile != null)
+            {
+                SetSelectedProfile(defaultProfile);
+            }
+            else if (profilesModel.Profiles.Count > 0)
+            {
+                SetSelectedProfile(profilesModel.Profiles[0]);
+            }
+            else
+            {
+                SetSelectedProfile(null);
+            }
+        }
     }
 
     private async Task HandleProfilesReplaced(NotifyCollectionChangedEventArgs e)
@@ -234,7 +270,7 @@ public partial class ProfileListView : UserControl
 
     private Border CreateProfileBorder(IBrush color, int targetIndex)
     {
-        var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].Name.CurrentValidatedValue : $"Profile {targetIndex + 1}";
+        var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].CurrentNameForDisplay : $"Profile {targetIndex + 1}";
         
         // Create the profile name text
         var profileText = new TextBlock
@@ -242,7 +278,6 @@ public partial class ProfileListView : UserControl
             Text = profileName,
             VerticalAlignment = VerticalAlignment.Center
         };
-        profileText.PointerPressed += OnProfileTextClicked;
         
         // Create the delete button with icon
         var deleteButton = new Button
@@ -269,7 +304,7 @@ public partial class ProfileListView : UserControl
         grid.Children.Add(profileText);
         grid.Children.Add(deleteButton);
         
-        return new Border
+        var border = new Border
         {
             Classes = { "ProfileItem" },
             Height = ProfileHeight,
@@ -278,12 +313,24 @@ public partial class ProfileListView : UserControl
             Margin = new Thickness(8, CalculatePositionForIndex(targetIndex + 1), 8, 0), // +1 for Add Profile button offset
             Child = grid
         };
+        
+        // Make the entire border clickable
+        border.PointerPressed += OnProfileBorderClicked;
+        
+        return border;
     }
 
-    private void OnProfileTextClicked(object sender, Avalonia.Input.PointerPressedEventArgs e)
+    private void OnProfileBorderClicked(object sender, Avalonia.Input.PointerPressedEventArgs e)
     {
-        // Handle profile selection/navigation here if needed
-        // For now, this can be empty or implement profile selection logic
+        if (sender is Border border)
+        {
+            var profileIndex = profiles.IndexOf(border);
+            if (profileIndex >= 0 && profileIndex < profilesModel.Profiles.Count)
+            {
+                var clickedProfile = profilesModel.Profiles[profileIndex];
+                SetSelectedProfile(clickedProfile);
+            }
+        }
     }
     
     private void OnAddProfileClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -389,6 +436,45 @@ public partial class ProfileListView : UserControl
         {
             await Task.WhenAll(tasks);
         }
+    }
+
+    private void SetSelectedProfile(BE.ProfileModel profile)
+    {
+        if (selectedProfile == profile) return;
+
+        // Remove selected class from previously selected profile
+        if (selectedProfile != null)
+        {
+            var previousIndex = profilesModel.Profiles.IndexOf(selectedProfile);
+            if (previousIndex >= 0 && previousIndex < profiles.Count)
+            {
+                profiles[previousIndex].Classes.Remove("Selected");
+            }
+        }
+
+        // Set new selected profile
+        selectedProfile = profile;
+
+        // Update the ViewModel's selected profile
+        if (DataContext is ProfileListViewModel viewModel)
+        {
+            viewModel.SelectedProfile = selectedProfile;
+        }
+
+        // Add selected class to newly selected profile
+        if (selectedProfile != null)
+        {
+            var currentIndex = profilesModel.Profiles.IndexOf(selectedProfile);
+            if (currentIndex >= 0 && currentIndex < profiles.Count)
+            {
+                profiles[currentIndex].Classes.Add("Selected");
+            }
+        }
+    }
+
+    public BE.ProfileModel GetSelectedProfile()
+    {
+        return selectedProfile;
     }
 
 }

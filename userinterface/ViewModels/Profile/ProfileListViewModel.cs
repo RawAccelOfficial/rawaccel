@@ -3,6 +3,8 @@ using System.Windows.Input;
 using userinterface.Commands;
 using userspace_backend;
 using BE = userspace_backend.Model;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 
 namespace userinterface.ViewModels.Profile
 {
@@ -10,6 +12,11 @@ namespace userinterface.ViewModels.Profile
     {
         private const int MaxProfileAttempts = 10;
         private readonly BE.ProfilesModel profilesModel;
+        
+        [ObservableProperty]
+        private BE.ProfileModel selectedProfile;
+        
+        public event Action<BE.ProfileModel> SelectedProfileChanged;
 
         public ProfileListViewModel(BackEnd backEnd)
         {
@@ -58,5 +65,10 @@ namespace userinterface.ViewModels.Profile
         }
 
         public bool RemoveProfile(BE.ProfileModel profile) => profile != null && profilesModel.RemoveProfile(profile);
+        
+        partial void OnSelectedProfileChanged(BE.ProfileModel value)
+        {
+            SelectedProfileChanged?.Invoke(value);
+        }
     }
 }

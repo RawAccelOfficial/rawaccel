@@ -32,7 +32,13 @@ namespace userinterface.ViewModels.Profile
 
             ProfileViewModels = [];
             UpdateProfileViewModels();
-            SelectedProfileView = ProfileViewModels.FirstOrDefault();
+            
+            // Listen for profile selection changes
+            profileListView.SelectedProfileChanged += OnProfileSelectionChanged;
+            
+            // Set initial selected profile view based on default profile
+            var defaultProfile = ProfilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
+            UpdateSelectedProfileView(defaultProfile ?? ProfilesModel.Profiles.FirstOrDefault());
         }
 
         private INotificationService NotificationService => notificationService;
@@ -47,10 +53,7 @@ namespace userinterface.ViewModels.Profile
         public void UpdateCurrentProfile()
         {
             UpdateProfileViewModels();
-
-            //var selectedProfile = ProfileListView.GetSelectedProfile();
-
-            //UpdateSelectedProfileView(selectedProfile);
+            UpdateSelectedProfileView(ProfileListView.SelectedProfile);
         }
 
         private void UpdateSelectedProfileView(BE.ProfileModel? currentProfile)
@@ -74,6 +77,11 @@ namespace userinterface.ViewModels.Profile
             {
                 ProfileViewModels.Add(viewModelFactory.CreateProfileViewModel(profileModelBE));
             }
+        }
+        
+        private void OnProfileSelectionChanged(BE.ProfileModel selectedProfile)
+        {
+            UpdateSelectedProfileView(selectedProfile);
         }
     }
 }

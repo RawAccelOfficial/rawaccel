@@ -47,6 +47,24 @@
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
+		<Style Selector="Border.ProfileItem.Selected">
+			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+		</Style>
+
+		<Style Selector="Border.ProfileItem.Selected TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
+		</Style>
+
+		<Style Selector="Border.ProfileItem.Selected:pointerover">
+			<Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Border.ProfileItem.Selected:pointerover TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
+		</Style>
+
 		<Style Selector="Border.AddProfileButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="BorderThickness" Value="1"/>
