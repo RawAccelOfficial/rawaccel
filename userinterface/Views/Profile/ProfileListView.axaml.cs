@@ -84,16 +84,15 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
     {
-        if (e.NewItems == null) return Task.CompletedTask;
+        if (e.NewItems == null) return;
         
         int insertIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profiles.Count;
         foreach (var _ in e.NewItems)
         {
             AddProfileAtPosition(insertIndex++);
         }
-        return Task.CompletedTask;
     }
 
     private async Task HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
