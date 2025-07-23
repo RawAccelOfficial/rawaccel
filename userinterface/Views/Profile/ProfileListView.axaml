@@ -97,16 +97,9 @@
 		</Style>
 	</UserControl.Styles>
 
-	<StackPanel Orientation="Vertical">
-		<!-- Add Profile Button -->
-		<Button Classes="AddButton" 
-		        Content="Add Profile" 
-		        Click="OnAddProfileClicked"/>
-		        
-		<!-- Profile Items Container -->
-		<Panel x:Name="ProfileContainer" 
-		       Background="Transparent"
-		       MinHeight="50">
-		</Panel>
-	</StackPanel>
+	<!-- Profile Items Container -->
+	<Panel x:Name="ProfileContainer" 
+	       Background="Transparent"
+	       MinHeight="50">
+	</Panel>
 </UserControl>

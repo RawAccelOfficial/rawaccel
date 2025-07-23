@@ -15,6 +15,7 @@ using System.Linq;
 using Avalonia.Styling;
 using Avalonia.Layout;
 using Avalonia;
+using Avalonia.Input;
 
 namespace userinterface.Views.Profile;
 
@@ -50,6 +51,11 @@ public partial class ProfileListView : UserControl
     private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         profileContainer = this.FindControl<Panel>("ProfileContainer");
+        
+        // Add the "Add Profile" button as the first item
+        var addButton = CreateAddProfileButton();
+        profileContainer.Children.Add(addButton);
+        
         for (int i = 0; i < profilesModel.Profiles.Count; i++)
         {
             AddProfileAtPosition(i);
@@ -90,10 +96,9 @@ public partial class ProfileListView : UserControl
     {
         if (e.NewItems == null) return;
         
-        int insertIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profiles.Count;
         foreach (var _ in e.NewItems)
         {
-            AddProfileAtPosition(insertIndex++);
+            AddProfileAtPosition(0);
         }
     }
 
@@ -181,8 +186,9 @@ public partial class ProfileListView : UserControl
         profiles.RemoveAt(fromIndex);
         profiles.Insert(toIndex, profile);
         
-        profileContainer?.Children.RemoveAt(fromIndex);
-        profileContainer?.Children.Insert(toIndex, profile);
+        // Account for Add Profile button at index 0
+        profileContainer?.Children.RemoveAt(fromIndex + 1);
+        profileContainer?.Children.Insert(toIndex + 1, profile);
     }
 
     private void AddProfileAtPosition(int targetIndex)
@@ -192,10 +198,40 @@ public partial class ProfileListView : UserControl
         var profileBorder = CreateProfileBorder(null, targetIndex);
         
         profiles.Insert(targetIndex, profileBorder);
-        profileContainer?.Children.Insert(targetIndex, profileBorder);
+        // Insert into container at the correct position (Add Profile button is at index 0)
+        int containerIndex = targetIndex + 1; // +1 because Add Profile button is at index 0
+        profileContainer?.Children.Insert(containerIndex, profileBorder);
         _ = AnimateAllProfilesToCorrectPositions(targetIndex);
     }
     
+    private Border CreateAddProfileButton()
+    {
+        // Create the add profile text
+        var addText = new TextBlock
+        {
+            Text = "Add Profile",
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            FontWeight = FontWeight.Medium
+        };
+        
+        // Create a button-like border that responds to clicks
+        var border = new Border
+        {
+            Classes = { "ProfileItem" },
+            Height = ProfileHeight,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(8, 0, 8, 0),
+            Child = addText,
+            Cursor = new Cursor(StandardCursorType.Hand)
+        };
+        
+        border.PointerPressed += (s, e) => OnAddProfileClicked(s, e);
+        
+        return border;
+    }
+
     private Border CreateProfileBorder(IBrush color, int targetIndex)
     {
         var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].Name.CurrentValidatedValue : $"Profile {targetIndex + 1}";
@@ -239,7 +275,7 @@ public partial class ProfileListView : UserControl
             Height = ProfileHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(8, ProfileSpawnPosition, 8, 0),
+            Margin = new Thickness(8, CalculatePositionForIndex(targetIndex + 1), 8, 0), // +1 for Add Profile button offset
             Child = grid
         };
     }
@@ -252,9 +288,11 @@ public partial class ProfileListView : UserControl
     
     private void OnAddProfileClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Add a new profile to the BE.Profiles collection
-        var newProfileName = $"Profile {profilesModel.Profiles.Count + 1}";
-        profilesModel.TryAddNewDefaultProfile(newProfileName);
+        // Use the ViewModel's TryAddProfile method (same as AddProfileCommand)
+        if (DataContext is ProfileListViewModel viewModel)
+        {
+            viewModel.TryAddProfile();
+        }
     }
     
     private void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -320,7 +358,7 @@ public partial class ProfileListView : UserControl
                             new Setter
                             {
                                 Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = new Avalonia.Thickness(8, CalculatePositionForIndex(position), 8, 0)
+                                Value = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0) // +1 for Add Profile button offset
                             }
                         }
                     }
@@ -328,7 +366,7 @@ public partial class ProfileListView : UserControl
             };
             
             await animation.RunAsync(profiles[profileIndex], cts.Token);
-            profiles[profileIndex].Margin = new Avalonia.Thickness(8, CalculatePositionForIndex(position), 8, 0);
+            profiles[profileIndex].Margin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0); // +1 for Add Profile button offset
         }
         catch (OperationCanceledException) { }
         finally
