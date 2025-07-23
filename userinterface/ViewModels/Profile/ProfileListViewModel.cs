@@ -12,25 +12,21 @@ namespace userinterface.ViewModels.Profile
         private const int MaxProfileAttempts = 10;
         private readonly BE.ProfilesModel profilesModel;
 
-        [ObservableProperty]
-        private int currentPosition = 0; // Current animation position (0 or 1)
 
         public ProfileListViewModel(BackEnd backEnd)
         {
             this.profilesModel = backEnd?.Profiles ?? throw new System.ArgumentNullException(nameof(backEnd));
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
-            TestCommand = new RelayCommand(() => Test());
         }
 
         public ObservableCollection<BE.ProfileModel> Profiles => profilesModel.Profiles;
         public ICommand AddProfileCommand { get; }
-        public ICommand TestCommand { get; }
 
         public bool TryAddProfile()
         {
-            for (int i = 0; i < MaxProfileAttempts; i++)
+            for (int i = 1; i <= MaxProfileAttempts; i++)
             {
-                string newProfileName = $"Profile{i}";
+                string newProfileName = $"Profile {i}";
                 if (profilesModel.TryAddNewDefaultProfile(newProfileName))
                 {
                     return true;
@@ -39,18 +35,10 @@ namespace userinterface.ViewModels.Profile
             return false;
         }
 
-        public void RemoveProfile(BE.ProfileModel profile)
+        public bool RemoveProfile(BE.ProfileModel profile)
         {
-            if (profile != null)
-            {
-                _ = profilesModel.RemoveProfile(profile);
-            }
+            return profile != null && profilesModel.RemoveProfile(profile);
         }
 
-        // Test method - increments position continuously
-        private void Test()
-        {
-            CurrentPosition++;
-        }
     }
 }
