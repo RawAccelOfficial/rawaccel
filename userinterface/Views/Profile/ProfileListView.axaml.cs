@@ -90,7 +90,8 @@ public partial class ProfileListView : UserControl
             {
                 case NotifyCollectionChangedAction.Add:
                     Debug.WriteLine($"[Animation Debug] Handling Add - {e.NewItems?.Count} items at index {e.NewStartingIndex}");
-                    await HandleProfilesAdded(e);
+                    // Pass the target position from the collection change event
+                    await HandleProfilesAdded(e, e.NewStartingIndex >= 0 ? e.NewStartingIndex : (int?)null);
                     break;
                     
                 case NotifyCollectionChangedAction.Remove:
@@ -126,10 +127,9 @@ public partial class ProfileListView : UserControl
         
         int insertIndex = targetPosition ?? (e.NewStartingIndex >= 0 ? e.NewStartingIndex : profiles.Count);
         
-        // Add profile UI for each new profile at the correct index
+        // Add profile UI for each new profile - they will spawn at ProfileSpawnPosition and animate to target
         foreach (var newProfile in e.NewItems)
         {
-            // Use the new method that places the profile directly at the target position
             AddProfileAtPosition(insertIndex);
             insertIndex++; // For multiple additions, insert subsequent items at next index
         }
@@ -384,10 +384,10 @@ public partial class ProfileListView : UserControl
         _ = ProcessOperationQueue();
     }
 
-    // Method for adding profile at specific position without complex animations
-    private void AddProfileAtPosition(int index)
+    // Method for adding profile at specific position - spawns at ProfileSpawnPosition then animates to target
+    private void AddProfileAtPosition(int targetIndex)
     {
-        if (index < 0 || index > profiles.Count) return;
+        if (targetIndex < 0 || targetIndex > profiles.Count) return;
 
         var colors = new[] { Brushes.Red, Brushes.Blue, Brushes.Green, Brushes.Orange };
         var colorIndex = profiles.Count % colors.Length;
@@ -399,13 +399,13 @@ public partial class ProfileListView : UserControl
             Height = ProfileHeight,
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
-            Margin = new Avalonia.Thickness(0, CalculatePositionForIndex(index), 0, 0), // Start at target position
+            Margin = new Avalonia.Thickness(0, ProfileSpawnPosition, 0, 0), // Always spawn at the same position
             CornerRadius = new Avalonia.CornerRadius(4)
         };
 
         var button = new Button
         {
-            Content = index == 0 && profiles.Count == 0 ? "Add Profile" : $"Profile {profiles.Count + 1}",
+            Content = targetIndex == 0 && profiles.Count == 0 ? "Add Profile" : $"Profile {profiles.Count + 1}",
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
             HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
@@ -418,11 +418,14 @@ public partial class ProfileListView : UserControl
         profileBorder.Child = button;
 
         // Insert at specific index
-        profiles.Insert(index, profileBorder);
-        profileContainer?.Children.Insert(index, profileBorder);
+        profiles.Insert(targetIndex, profileBorder);
+        profileContainer?.Children.Insert(targetIndex, profileBorder);
 
-        // Animate existing profiles to their new positions
-        for (int i = index + 1; i < profiles.Count; i++)
+        // Animate the new profile to its target position
+        _ = AnimateProfileToPosition(targetIndex, targetIndex, 0);
+
+        // Animate existing profiles that need to move down to their new positions
+        for (int i = targetIndex + 1; i < profiles.Count; i++)
         {
             _ = AnimateProfileToPosition(i, i, 0);
         }
