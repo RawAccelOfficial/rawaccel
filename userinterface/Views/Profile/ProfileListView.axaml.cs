@@ -156,17 +156,8 @@ public partial class ProfileListView : UserControl
             // Don't increment removeIndex as removing shifts everything down
         }
         
-        // Reposition remaining profiles
-        var animationTasks = new List<Task>();
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            animationTasks.Add(AnimateProfileToPosition(i, i, i));
-        }
-        
-        if (animationTasks.Any())
-        {
-            await Task.WhenAll(animationTasks);
-        }
+        // Animate all remaining profiles to correct positions with stagger from removal point
+        await AnimateAllProfilesToCorrectPositions(removeIndex);
     }
 
     private async Task HandleProfilesReplaced(NotifyCollectionChangedEventArgs e)
@@ -175,18 +166,6 @@ public partial class ProfileListView : UserControl
         if (e.OldItems != null && e.NewItems != null && e.OldStartingIndex >= 0)
         {
             int replaceIndex = e.OldStartingIndex;
-            
-            // Animate replaced profiles
-            var animationTasks = new List<Task>();
-            for (int i = 0; i < e.NewItems.Count && replaceIndex + i < profiles.Count; i++)
-            {
-                animationTasks.Add(AnimateProfileToPosition(replaceIndex + i, replaceIndex + i, i));
-            }
-            
-            if (animationTasks.Any())
-            {
-                await Task.WhenAll(animationTasks);
-            }
             int itemCount = Math.Min(e.OldItems.Count, e.NewItems.Count);
             
             // Replace existing profiles
@@ -202,6 +181,9 @@ public partial class ProfileListView : UserControl
                     }
                 }
             }
+            
+            // Animate all profiles with focus on the replacement area
+            await AnimateAllProfilesToCorrectPositions(replaceIndex);
         }
     }
 
@@ -212,17 +194,9 @@ public partial class ProfileListView : UserControl
         {
             MoveProfile(e.OldStartingIndex, e.NewStartingIndex);
             
-            // Animate all profiles to their new positions
-            var animationTasks = new List<Task>();
-            for (int i = 0; i < profiles.Count; i++)
-            {
-                animationTasks.Add(AnimateProfileToPosition(i, i, i));
-            }
-            
-            if (animationTasks.Any())
-            {
-                await Task.WhenAll(animationTasks);
-            }
+            // Animate all profiles with focus on the move area
+            var focusPoint = Math.Min(e.OldStartingIndex, e.NewStartingIndex);
+            await AnimateAllProfilesToCorrectPositions(focusPoint);
         }
     }
 
@@ -258,13 +232,8 @@ public partial class ProfileListView : UserControl
         // Remove from collections
         profiles.RemoveAt(index);
         profileContainer?.Children.Remove(profileToRemove);
-
-        // Animate remaining profiles up to close the gap with stagger
-        for (int i = index; i < profiles.Count; i++)
-        {
-            int staggerIndex = i - index; // Stagger based on distance from removal point
-            _ = AnimateProfileToPosition(i, i, staggerIndex);
-        }
+        
+        // Note: Animation will be handled by the caller using AnimateAllProfilesToCorrectPositions
     }
 
     private void MoveProfile(int fromIndex, int toIndex)
@@ -282,15 +251,7 @@ public partial class ProfileListView : UserControl
         profileContainer?.Children.RemoveAt(fromIndex);
         profileContainer?.Children.Insert(toIndex, profileToMove);
 
-        // Animate all affected profiles to their new positions with stagger
-        var minIndex = Math.Min(fromIndex, toIndex);
-        var maxIndex = Math.Max(fromIndex, toIndex);
-        
-        for (int i = minIndex; i <= maxIndex; i++)
-        {
-            int staggerIndex = Math.Abs(i - fromIndex); // Stagger based on distance from move origin
-            _ = AnimateProfileToPosition(i, i, staggerIndex);
-        }
+        // Note: Animation will be handled by the caller using AnimateAllProfilesToCorrectPositions
     }
 
     // Method for adding profile at specific position - spawns at ProfileSpawnPosition then animates to target
@@ -330,15 +291,8 @@ public partial class ProfileListView : UserControl
         profiles.Insert(targetIndex, profileBorder);
         profileContainer?.Children.Insert(targetIndex, profileBorder);
 
-        // Animate the new profile to its target position
-        _ = AnimateProfileToPosition(targetIndex, targetIndex, 0);
-
-        // Animate existing profiles that need to move down to their new positions with stagger
-        for (int i = targetIndex + 1; i < profiles.Count; i++)
-        {
-            int staggerIndex = i - targetIndex; // Stagger based on distance from insertion point
-            _ = AnimateProfileToPosition(i, i, staggerIndex);
-        }
+        // Animate all profiles to correct positions with focus on the insertion point
+        _ = AnimateAllProfilesToCorrectPositions(targetIndex);
     }
 
     // Legacy method for backward compatibility
@@ -445,6 +399,36 @@ public partial class ProfileListView : UserControl
             // Clean up the cancellation token
             activeAnimations.Remove(profileIndex);
             cts?.Dispose();
+        }
+    }
+
+    // Unified method to animate all profiles to their correct positions with proper stagger
+    private async Task AnimateAllProfilesToCorrectPositions(int focusIndex = -1)
+    {
+        Debug.WriteLine($"[Animation Debug] AnimateAllProfilesToCorrectPositions called with focusIndex: {focusIndex}");
+        
+        var animationTasks = new List<Task>();
+        
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            // Calculate stagger based on distance from focus point
+            int staggerIndex = 0;
+            if (focusIndex >= 0)
+            {
+                staggerIndex = Math.Abs(i - focusIndex);
+            }
+            else
+            {
+                // Default stagger is just the index
+                staggerIndex = i;
+            }
+            
+            animationTasks.Add(AnimateProfileToPosition(i, i, staggerIndex));
+        }
+        
+        if (animationTasks.Any())
+        {
+            await Task.WhenAll(animationTasks);
         }
     }
 
