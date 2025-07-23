@@ -43,6 +43,9 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
+
+        // Pre-load all pages during construction to eliminate first-click delay
+        PreloadAllPages();
     }
 
     public DevicesPageViewModel DevicesPage =>
@@ -152,6 +155,16 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             Application.Current.RequestedThemeVariant = newTheme;
         }
         themeService.NotifyThemeChanged();
+    }
+
+    private void PreloadAllPages()
+    {
+        // Access all page properties to trigger their creation
+        _ = DevicesPage;
+        _ = ProfilesPage; 
+        _ = MappingsPage;
+        _ = SettingsPage;
+        _ = ProfileListView;
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
