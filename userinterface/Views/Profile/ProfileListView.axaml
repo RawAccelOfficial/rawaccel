@@ -9,19 +9,14 @@
              x:DataType="vm:ProfileListViewModel">
 
 	<UserControl.Styles>
-		<Style Selector="Button.ProfileItem">
+		<Style Selector="Border.ProfileItem">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="Margin" Value="8,1"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Medium"/>
 			<Setter Property="BorderThickness" Value="1"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Padding" Value="12,6"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="HorizontalContentAlignment" Value="Left"/>
-			<Setter Property="MinHeight" Value="32"/>
+			<Setter Property="MinHeight" Value="36"/>
 			<Setter Property="Cursor" Value="Hand"/>
 			<Setter Property="Transitions">
 				<Transitions>
@@ -32,15 +27,24 @@
 			</Setter>
 		</Style>
 
-		<Style Selector="Button.ProfileItem:pointerover">
+		<Style Selector="Border.ProfileItem:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
-			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
 
-		<Style Selector="Button.ProfileItem:pressed">
+		<Style Selector="Border.ProfileItem:pressed">
 			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<Style Selector="Border.ProfileItem TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
+
+		<Style Selector="Border.ProfileItem:pointerover TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
 		<Style Selector="Button.AddButton">
@@ -55,10 +59,41 @@
 			<Setter Property="Cursor" Value="Hand"/>
 			<Setter Property="Height" Value="36"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
 		</Style>
 
 		<Style Selector="Button.AddButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Margin" Value="4,0,0,0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="24"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pointerover PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.DeleteButton:selected, Button.DeleteButton:pointerover, Button.DeleteButton:selected:pointerover, Button.DeleteButton:focus, Button.DeleteButton:selected:focus">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 	</UserControl.Styles>
 

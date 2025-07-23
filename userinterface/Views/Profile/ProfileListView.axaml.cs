@@ -13,6 +13,8 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using System.Linq;
 using Avalonia.Styling;
+using Avalonia.Layout;
+using Avalonia;
 
 namespace userinterface.Views.Profile;
 
@@ -24,7 +26,7 @@ public partial class ProfileListView : UserControl
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     
-    private const double ProfileHeight = 34.0;
+    private const double ProfileHeight = 38.0;
     private const int StaggerDelayMs = 50;
     private const double ProfileSpawnPosition = 0.0;
 
@@ -198,24 +200,51 @@ public partial class ProfileListView : UserControl
     {
         var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].Name.CurrentValidatedValue : $"Profile {targetIndex + 1}";
         
-        var button = new Button
+        // Create the profile name text
+        var profileText = new TextBlock
         {
-            Content = profileName,
-            Classes = { "ProfileItem" }
+            Text = profileName,
+            VerticalAlignment = VerticalAlignment.Center
         };
-        button.Click += OnProfileButtonClicked;
+        profileText.PointerPressed += OnProfileTextClicked;
+        
+        // Create the delete button with icon
+        var deleteButton = new Button
+        {
+            Classes = { "DeleteButton" },
+            VerticalAlignment = VerticalAlignment.Center,
+            Content = new PathIcon
+            {
+                Data = Application.Current?.FindResource("delete_regular") as StreamGeometry,
+                Width = 12,
+                Height = 12
+            }
+        };
+        deleteButton.Click += OnDeleteButtonClicked;
+        
+        // Create a grid to hold the text and button
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+        
+        Grid.SetColumn(profileText, 0);
+        Grid.SetColumn(deleteButton, 1);
+        
+        grid.Children.Add(profileText);
+        grid.Children.Add(deleteButton);
         
         return new Border
         {
+            Classes = { "ProfileItem" },
             Height = ProfileHeight,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
-            Margin = new Avalonia.Thickness(0, ProfileSpawnPosition, 0, 0),
-            Child = button
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(8, ProfileSpawnPosition, 8, 0),
+            Child = grid
         };
     }
 
-    private void OnProfileButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnProfileTextClicked(object sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         // Handle profile selection/navigation here if needed
         // For now, this can be empty or implement profile selection logic
@@ -226,6 +255,22 @@ public partial class ProfileListView : UserControl
         // Add a new profile to the BE.Profiles collection
         var newProfileName = $"Profile {profilesModel.Profiles.Count + 1}";
         profilesModel.TryAddNewDefaultProfile(newProfileName);
+    }
+    
+    private void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Find which profile this delete button belongs to
+        if (sender is Button deleteButton && 
+            deleteButton.Parent is Grid grid && 
+            grid.Parent is Border border)
+        {
+            var profileIndex = profiles.IndexOf(border);
+            if (profileIndex >= 0 && profileIndex < profilesModel.Profiles.Count)
+            {
+                var profileToDelete = profilesModel.Profiles[profileIndex];
+                profilesModel.RemoveProfile(profileToDelete);
+            }
+        }
     }
 
     private static double CalculatePositionForIndex(int index) => index * ProfileHeight;
@@ -275,7 +320,7 @@ public partial class ProfileListView : UserControl
                             new Setter
                             {
                                 Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = new Avalonia.Thickness(0, CalculatePositionForIndex(position), 0, 0)
+                                Value = new Avalonia.Thickness(8, CalculatePositionForIndex(position), 8, 0)
                             }
                         }
                     }
@@ -283,7 +328,7 @@ public partial class ProfileListView : UserControl
             };
             
             await animation.RunAsync(profiles[profileIndex], cts.Token);
-            profiles[profileIndex].Margin = new Avalonia.Thickness(0, CalculatePositionForIndex(position), 0, 0);
+            profiles[profileIndex].Margin = new Avalonia.Thickness(8, CalculatePositionForIndex(position), 8, 0);
         }
         catch (OperationCanceledException) { }
         finally
