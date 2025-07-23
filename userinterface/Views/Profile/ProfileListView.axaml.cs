@@ -219,13 +219,12 @@ public partial class ProfileListView : UserControl
         // Create a button-like border that responds to clicks
         var border = new Border
         {
-            Classes = { "ProfileItem" },
+            Classes = { "AddProfileButton" },
             Height = ProfileHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(8, 0, 8, 0),
-            Child = addText,
-            Cursor = new Cursor(StandardCursorType.Hand)
+            Child = addText
         };
         
         border.PointerPressed += (s, e) => OnAddProfileClicked(s, e);

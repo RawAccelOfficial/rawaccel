@@ -47,6 +47,40 @@
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		</Style>
 
+		<Style Selector="Border.AddProfileButton">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="12,6"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="MinHeight" Value="36"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Border.AddProfileButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="Border.AddProfileButton:pressed">
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<Style Selector="Border.AddProfileButton TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
+
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
