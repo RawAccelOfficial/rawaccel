@@ -23,7 +23,6 @@ namespace userinterface.ViewModels.Profile
             INotificationService notificationService,
             userspace_backend.BackEnd backEnd,
             ProfileListViewModel profileListView,
-            ActiveProfilesListViewModel activeProfilesListView,
             IViewModelFactory viewModelFactory)
         {
             this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
@@ -34,7 +33,6 @@ namespace userinterface.ViewModels.Profile
             ProfileViewModels = [];
             UpdateProfileViewModels();
             SelectedProfileView = ProfileViewModels.FirstOrDefault();
-            ActiveProfilesListView = activeProfilesListView ?? throw new ArgumentNullException(nameof(activeProfilesListView));
         }
 
         private INotificationService NotificationService => notificationService;
@@ -45,7 +43,6 @@ namespace userinterface.ViewModels.Profile
 
         protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
 
-        public ActiveProfilesListViewModel ActiveProfilesListView { get; }
 
         public void UpdateCurrentProfile()
         {

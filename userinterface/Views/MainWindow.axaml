@@ -385,8 +385,6 @@
 									Content="{ext:Localized MainWindowProfilesButton}"/>
 							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
 								<StackPanel>
-									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
-									<Border Classes="ProfileSeparator"/>
 									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
 								</StackPanel>
 							</ContentControl>

@@ -187,8 +187,7 @@ public partial class ProfileListView : UserControl
     {
         if (targetIndex < 0 || targetIndex > profiles.Count) return;
 
-        var colors = new[] { Brushes.Red, Brushes.Blue, Brushes.Green, Brushes.Orange };
-        var profileBorder = CreateProfileBorder(colors[profiles.Count % colors.Length], targetIndex);
+        var profileBorder = CreateProfileBorder(null, targetIndex);
         
         profiles.Insert(targetIndex, profileBorder);
         profileContainer?.Children.Insert(targetIndex, profileBorder);
@@ -197,38 +196,39 @@ public partial class ProfileListView : UserControl
     
     private Border CreateProfileBorder(IBrush color, int targetIndex)
     {
+        var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].Name.CurrentValidatedValue : $"Profile {targetIndex + 1}";
+        
         var button = new Button
         {
-            Content = targetIndex == 0 && profiles.Count == 0 ? "Add Profile" : $"Profile {profiles.Count + 1}",
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
-            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-            VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
-            Background = Brushes.Transparent,
-            BorderThickness = new Avalonia.Thickness(0)
+            Content = profileName,
+            Classes = { "NavButton" },
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left,
+            Margin = new Avalonia.Thickness(0)
         };
         button.Click += OnProfileButtonClicked;
         
         return new Border
         {
-            Background = color,
             Width = 400,
             Height = ProfileHeight,
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
             Margin = new Avalonia.Thickness(0, ProfileSpawnPosition, 0, 0),
-            CornerRadius = new Avalonia.CornerRadius(4),
             Child = button
         };
     }
 
     private void OnProfileButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Get the ViewModel and call AddProfile
-        if (DataContext is ProfileListViewModel viewModel)
-        {
-            viewModel.TryAddProfile();
-        }
+        // Handle profile selection/navigation here if needed
+        // For now, this can be empty or implement profile selection logic
+    }
+    
+    private void OnAddProfileClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Add a new profile to the BE.Profiles collection
+        var newProfileName = $"Profile {profilesModel.Profiles.Count + 1}";
+        profilesModel.TryAddNewDefaultProfile(newProfileName);
     }
 
     private static double CalculatePositionForIndex(int index) => index * ProfileHeight;
@@ -309,67 +309,6 @@ public partial class ProfileListView : UserControl
         {
             await Task.WhenAll(tasks);
         }
-    }
-
-
-    // Test methods for operations
-    private void TestAddProfile(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        // Create a new profile and add it to the model
-        var newProfileName = $"TestProfile{profilesModel.Profiles.Count}";
-        profilesModel.TryAddNewDefaultProfile(newProfileName);
-    }
-
-    private void TestInsertAtIndex(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        // Get the ViewModel and call TryAddProfileAtPosition for position 1
-        if (DataContext is ProfileListViewModel viewModel && profilesModel.Profiles.Count >= 1)
-        {
-            viewModel.TryAddProfileAtPosition(1);
-        }
-    }
-
-    private void TestRemoveFirst(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (profilesModel.Profiles.Count > 0)
-        {
-            var firstProfile = profilesModel.Profiles[0];
-            profilesModel.RemoveProfile(firstProfile);
-        }
-    }
-
-    private void TestRemoveLast(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (profilesModel.Profiles.Count > 0)
-        {
-            var lastProfile = profilesModel.Profiles[profilesModel.Profiles.Count - 1];
-            profilesModel.RemoveProfile(lastProfile);
-        }
-    }
-
-    private void TestRemoveMiddle(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (profilesModel.Profiles.Count >= 3)
-        {
-            var middleIndex = profilesModel.Profiles.Count / 2;
-            var middleProfile = profilesModel.Profiles[middleIndex];
-            profilesModel.RemoveProfile(middleProfile);
-        }
-    }
-
-    private void TestMoveFirstToLast(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (profilesModel.Profiles.Count >= 2)
-        {
-            var firstProfile = profilesModel.Profiles[0];
-            profilesModel.Profiles.RemoveAt(0);
-            profilesModel.Profiles.Add(firstProfile);
-        }
-    }
-
-    private void TestClearAll(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        profilesModel.Profiles.Clear();
     }
 
 }
