@@ -44,7 +44,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
 
-        // Pre-load all pages during construction to eliminate first-click delay
         PreloadAllPages();
     }
 
@@ -119,7 +118,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public async Task SelectPageAsync(NavigationPage page)
     {
-        // Get the page ViewModel with explicit typing
         ViewModelBase pageViewModel = page switch
         {
             NavigationPage.Devices => DevicesPage,
@@ -129,13 +127,11 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _ => DevicesPage
         };
 
-        // Initialize async if supported (should be instant for cached ViewModels)
         if (pageViewModel is IAsyncInitializable asyncViewModel && !asyncViewModel.IsInitialized)
         {
             await asyncViewModel.InitializeAsync();
         }
 
-        // Update navigation immediately
         SelectedPage = page;
         IsProfilesExpanded = page == NavigationPage.Profiles;
     }
@@ -159,7 +155,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void PreloadAllPages()
     {
-        // Access all page properties to trigger their creation
         _ = DevicesPage;
         _ = ProfilesPage; 
         _ = MappingsPage;

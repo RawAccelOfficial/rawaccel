@@ -36,7 +36,6 @@ public partial class MainWindow : Window
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
 
-        // Subscribe to click events
         if (ApplyButtonControl != null)
         {
             ApplyButtonControl.Click += ApplyButtonHandler;

@@ -9,7 +9,7 @@ namespace userinterface.Services;
 public class SettingsService : ISettingsService
 {
     private readonly string settingsFilePath;
-    private bool showToastNotifications = true; // Default to true
+    private bool showToastNotifications = true;
 
     public SettingsService()
     {
@@ -77,7 +77,6 @@ public class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            // Handle gracefully - use defaults
             errorMessage = $"Failed to load settings: {ex.Message}";
             Console.WriteLine(errorMessage);
             showToastNotifications = true;

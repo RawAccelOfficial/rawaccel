@@ -32,7 +32,6 @@ namespace userinterface.Services
             ToastDismissed?.Invoke(this, EventArgs.Empty);
         }
 
-        // Convenience methods
         public void ShowSuccessToast(string message, int durationMs = 5000)
         {
             ShowToast(message, ToastType.Success, durationMs);

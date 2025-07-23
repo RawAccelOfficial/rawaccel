@@ -76,7 +76,6 @@ namespace userinterface.ViewModels.Profile
             // Find the optimal insertion position - before other "Profile X" entries but after custom names
             int insertPosition = FindOptimalInsertPosition();
             
-            // Remove from current position (end) and insert at optimal position
             int currentIndex = Profiles.IndexOf(newProfile);
             if (currentIndex >= 0 && currentIndex != insertPosition)
             {
@@ -114,7 +113,7 @@ namespace userinterface.ViewModels.Profile
             if (!profilesModel.TryAddNewDefaultProfile(profileName)) return false;
             
             // Move the newly added profile to the specified position
-            var newProfile = profilesModel.Profiles[^1]; // Get the last added profile
+            var newProfile = profilesModel.Profiles[^1];
             profilesModel.Profiles.RemoveAt(profilesModel.Profiles.Count - 1);
             
             // Ensure position is within bounds

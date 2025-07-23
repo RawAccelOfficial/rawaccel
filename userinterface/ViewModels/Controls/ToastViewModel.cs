@@ -75,7 +75,6 @@ namespace userinterface.ViewModels.Controls
         {
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                // Cancel any existing animation
                 animationCancellation?.Cancel();
                 
                 Message = e.Message;
@@ -107,7 +106,6 @@ namespace userinterface.ViewModels.Controls
                 var startTime = DateTime.UtcNow;
                 var totalMilliseconds = duration.TotalMilliseconds;
                 
-                // Use higher refresh rate for smoother animation
                 while (!token.IsCancellationRequested)
                 {
                     var elapsed = DateTime.UtcNow - startTime;
@@ -132,13 +130,11 @@ namespace userinterface.ViewModels.Controls
                     var newProgress = 100 * (1.0 - progressRatio);
                     await Dispatcher.UIThread.InvokeAsync(() => Progress = newProgress);
                     
-                    // 8ms interval for ~120 FPS smooth animation
                     await Task.Delay(8, token);
                 }
             }
             catch (OperationCanceledException)
             {
-                // Animation was cancelled, this is expected
             }
         }
 

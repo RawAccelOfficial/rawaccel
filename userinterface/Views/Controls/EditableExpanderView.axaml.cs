@@ -43,7 +43,6 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
     private bool IsDisposedValue;
     private bool isAnimating;
 
-    // Cached controls for performance
     private NoInteractionButtonView? CachedHeaderButton;
 
     private NoInteractionButtonView? CachedContentButton;
@@ -174,11 +173,9 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         {
             if (IsExpanded)
             {
-                // Show content and animate expand
                 contentButton.IsVisible = true;
                 headerButton.Classes.Add(ExpandedClass);
                 
-                // Run chevron and height animations concurrently (height animation handles the smooth layout)
                 var chevronTask = AnimateChevron(expandIcon, ExpandedChevronAngle);
                 var heightTask = AnimateHeightExpand(contentButton);
                 
@@ -186,13 +183,11 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
             }
             else
             {
-                // Run chevron and height animations concurrently while keeping expanded styling
                 var chevronTask = AnimateChevron(expandIcon, CollapsedChevronAngle);
                 var heightTask = AnimateHeightCollapse(contentButton);
                 
                 await Task.WhenAll(chevronTask, heightTask);
                 
-                // Only remove expanded styling and hide content after animation completes
                 headerButton.Classes.Remove(ExpandedClass);
                 contentButton.IsVisible = false;
             }
@@ -249,7 +244,6 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     private static async Task AnimateContentExpand(Control contentControl)
     {
-        // Set initial state for expand animation
         contentControl.Opacity = 0.0;
         contentControl.RenderTransform = new ScaleTransform { ScaleY = 0.0 };
         contentControl.RenderTransformOrigin = new RelativePoint(0.5, 0.0, RelativeUnit.Relative); // Scale from top
@@ -385,7 +379,6 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
             currentHeight = contentControl.DesiredSize.Height;
         }
         
-        // Set explicit height to current height before animating
         contentControl.Height = currentHeight;
         
         var animation = new Animation

@@ -9,7 +9,6 @@ namespace userinterface.Services
 
         void HideToast();
 
-        // Convenience methods
         void ShowSuccessToast(string message, int durationMs = 5000);
 
         void ShowErrorToast(string message, int durationMs = 8000);

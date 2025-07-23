@@ -20,7 +20,6 @@ public class SettingsPageViewModel : ViewModelBase
         GeneralSettings = new GeneralSettings(SettingsService, LocalizationService);
         NotificationSettings = new NotificationSettings(SettingsService);
 
-        // Subscribe to language changes to show notifications if needed
         GeneralSettings.PropertyChanged += OnGeneralSettingsChanged;
 
         BugReportCommand = new RelayCommand(() => App.OpenBugReportUrl());
@@ -64,7 +63,7 @@ public class GeneralSettings : ViewModelBase
             new LanguageItem("Japanese", "ja-JP"),
         };
 
-        selectedLanguage = AvailableLanguages[0]; // Default to English
+        selectedLanguage = AvailableLanguages[0];
     }
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; }

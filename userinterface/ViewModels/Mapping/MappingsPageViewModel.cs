@@ -43,7 +43,7 @@ namespace userinterface.ViewModels.Mapping
             for (int i = 0; i < MappingsBE.Mappings.Count; i++)
             {
                 var mappingBE = MappingsBE.Mappings[i];
-                bool isActive = i == 0; // First mapping is active by default
+                bool isActive = i == 0;
 
                 var viewModel = viewModelFactory.CreateMappingViewModel(mappingBE, MappingsBE, isActive, OnMappingActivationRequested);
 
@@ -74,9 +74,7 @@ namespace userinterface.ViewModels.Mapping
             var activeIndex = MappingViews.IndexOf(newActiveMapping);
             if (activeIndex >= 0)
             {
-                // Call backend method to set active mapping
-                // MappingsBE.SetActiveMapping(activeIndex);
-                // For now, we'll just handle it in the UI layer
+                // TODO: Call backend method to set active mapping
             }
         }
 

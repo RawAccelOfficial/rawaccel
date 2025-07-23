@@ -54,7 +54,6 @@ public partial class MappingListElementViewModel : ViewModelBase
     public void DeleteSelf()
     {
         Cleanup();
-        // Remove this mapping from the parent mapping
         parentMapping.IndividualMappings.Remove(mappingGroup);
     }
 

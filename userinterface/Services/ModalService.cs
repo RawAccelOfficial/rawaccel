@@ -17,7 +17,6 @@ namespace userinterface.Services
         {
             modalOverlay = null!;
             
-            // Get the main window and its modal overlay
             if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var mainWindow = desktop.MainWindow as MainWindow;

@@ -60,7 +60,6 @@ namespace userinterface.ViewModels.Mapping
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(BorderBrush));
 
-                    // Update the ActivateCommand's can execute state
                     if (ActivateCommand is RelayCommand cmd)
                         cmd.RaiseCanExecuteChanged();
                 }
@@ -94,7 +93,6 @@ namespace userinterface.ViewModels.Mapping
             for (int i = 0; i < MappingBE.IndividualMappings.Count; i++)
             {
                 var mappingGroup = MappingBE.IndividualMappings[i];
-                // Consider the first mapping element as default
                 bool isDefaultElement = IsActiveMapping && i == 0;
                 mappingListElements.Add(new MappingListElementViewModel(mappingGroup, MappingBE, isDefaultElement));
             }

@@ -50,7 +50,6 @@ public partial class SettingsPageView : UserControl
         if (SettingsFieldViewModel == null)
             return;
 
-        // Language ComboBox
         var languageComboBox = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -64,7 +63,6 @@ public partial class SettingsPageView : UserControl
 
         SettingsFieldViewModel.AddField("Language", languageComboBox);
 
-        // Toast Notifications CheckBox
         var toastCheckBox = new CheckBox
         {
             HorizontalAlignment = HorizontalAlignment.Left,
