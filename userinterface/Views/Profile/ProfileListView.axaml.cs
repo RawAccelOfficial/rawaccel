@@ -16,6 +16,7 @@ using Avalonia.Styling;
 using Avalonia.Layout;
 using Avalonia;
 using Avalonia.Input;
+using System.Diagnostics;
 
 namespace userinterface.Views.Profile;
 
@@ -30,7 +31,7 @@ public partial class ProfileListView : UserControl
     
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
-    private const int StaggerDelayMs = 50;
+    private const int StaggerDelayMs = 20;
     private const double ProfileSpawnPosition = 0.0;
 
     public ProfileListView()
@@ -111,6 +112,9 @@ public partial class ProfileListView : UserControl
     private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems == null) return;
+        
+        var collectionChangedTime = DateTime.Now;
+        Debug.WriteLine($"[PROFILE_TIMING] ProfilesAdded collection changed event fired at: {collectionChangedTime:HH:mm:ss.fff}");
         
         // Add profiles at their actual positions in the backend collection
         int startIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profilesModel.Profiles.Count - e.NewItems.Count;
@@ -246,6 +250,9 @@ public partial class ProfileListView : UserControl
     {
         if (targetIndex < 0 || targetIndex > profiles.Count) return;
 
+        var profileAddedTime = DateTime.Now;
+        Debug.WriteLine($"[PROFILE_TIMING] Profile being added to visual tree at: {profileAddedTime:HH:mm:ss.fff}");
+        
         var profileBorder = CreateProfileBorder(null, targetIndex);
         
         // Set higher z-index for the new profile so it's visible during animation
@@ -256,6 +263,10 @@ public partial class ProfileListView : UserControl
         // Insert into container at the correct position (Add Profile button is at index 0)
         int containerIndex = targetIndex + 1; // +1 because Add Profile button is at index 0
         profileContainer?.Children.Insert(containerIndex, profileBorder);
+        
+        var treeInsertedTime = DateTime.Now;
+        Debug.WriteLine($"[PROFILE_TIMING] Profile inserted into visual tree at: {treeInsertedTime:HH:mm:ss.fff}");
+        
         _ = AnimateAllProfilesToCorrectPositions(targetIndex);
     }
     
@@ -360,6 +371,9 @@ public partial class ProfileListView : UserControl
     
     private void OnAddProfileClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        var buttonClickTime = DateTime.Now;
+        Debug.WriteLine($"[PROFILE_TIMING] Add Profile button clicked at: {buttonClickTime:HH:mm:ss.fff}");
+        
         // Use the ViewModel's TryAddProfile method (same as AddProfileCommand)
         if (DataContext is ProfileListViewModel viewModel)
         {
@@ -389,8 +403,15 @@ public partial class ProfileListView : UserControl
     {
         foreach (var cts in activeAnimations.Values)
         {
-            cts.Cancel();
-            cts.Dispose();
+            try
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Token was already disposed, ignore
+            }
         }
         activeAnimations.Clear();
     }
@@ -399,10 +420,24 @@ public partial class ProfileListView : UserControl
     {
         if (profileIndex >= profiles.Count) return;
 
+        // Cancel existing animation for this profile
         if (activeAnimations.TryGetValue(profileIndex, out var existingCts))
         {
-            existingCts.Cancel();
+            try
+            {
+                existingCts.Cancel();
+                existingCts.Dispose();
+            }
+            catch (ObjectDisposedException) { }
             activeAnimations.Remove(profileIndex);
+        }
+
+        // Check if profile is already at correct position - skip animation if so
+        var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0);
+        if (profiles[profileIndex].Margin == targetMargin)
+        {
+            profiles[profileIndex].ZIndex = 0; // Reset z-index
+            return;
         }
 
         var cts = new CancellationTokenSource();
@@ -410,10 +445,14 @@ public partial class ProfileListView : UserControl
 
         try
         {
-            if (staggerIndex > 0)
+            // Apply stagger delay only if not canceled
+            if (staggerIndex > 0 && !cts.Token.IsCancellationRequested)
             {
                 await Task.Delay(staggerIndex * StaggerDelayMs, cts.Token);
             }
+
+            // Double-check cancellation after delay
+            if (cts.Token.IsCancellationRequested) return;
 
             var animation = new Animation
             {
@@ -442,7 +481,7 @@ public partial class ProfileListView : UserControl
                             new Setter
                             {
                                 Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0) // +1 for Add Profile button offset
+                                Value = targetMargin
                             },
                             new Setter
                             {
@@ -455,31 +494,59 @@ public partial class ProfileListView : UserControl
             };
             
             await animation.RunAsync(profiles[profileIndex], cts.Token);
-            profiles[profileIndex].Margin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0); // +1 for Add Profile button offset
             
-            // Reset z-index after animation completes
-            profiles[profileIndex].ZIndex = 0;
+            // Set final position and reset z-index
+            if (!cts.Token.IsCancellationRequested)
+            {
+                profiles[profileIndex].Margin = targetMargin;
+                profiles[profileIndex].ZIndex = 0;
+            }
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+            // Silently handle cancellation - this is expected behavior
+            Debug.WriteLine($"[ANIMATION] Animation for profile {profileIndex} was canceled");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ANIMATION] Unexpected error in animation for profile {profileIndex}: {ex.Message}");
+        }
         finally
         {
             activeAnimations.Remove(profileIndex);
-            cts?.Dispose();
+            try
+            {
+                cts?.Dispose();
+            }
+            catch (ObjectDisposedException) { }
         }
     }
 
     private async Task AnimateAllProfilesToCorrectPositions(int focusIndex = -1)
     {
-        var tasks = new Task[profiles.Count];
+        var animationTasks = new List<Task>();
+        
         for (int i = 0; i < profiles.Count; i++)
         {
-            int staggerIndex = focusIndex >= 0 ? Math.Abs(i - focusIndex) : i;
-            tasks[i] = AnimateProfileToPosition(i, i, staggerIndex);
+            // Check if profile is already at correct position
+            var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(i + 1), 8, 0);
+            if (profiles[i].Margin == targetMargin) continue;
+            
+            // Only apply stagger to profiles that are not the newly added one
+            int staggerIndex = (focusIndex >= 0 && i != focusIndex) ? Math.Min(Math.Abs(i - focusIndex), 3) : 0;
+            animationTasks.Add(AnimateProfileToPosition(i, i, staggerIndex));
         }
         
-        if (tasks.Length > 0)
+        if (animationTasks.Count > 0)
         {
-            await Task.WhenAll(tasks);
+            try
+            {
+                await Task.WhenAll(animationTasks);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ANIMATION] Error in AnimateAllProfilesToCorrectPositions: {ex.Message}");
+            }
         }
     }
 

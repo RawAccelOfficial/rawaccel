@@ -6,6 +6,7 @@ using BE = userspace_backend.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Linq;
+using System.Diagnostics;
 
 namespace userinterface.ViewModels.Profile
 {
@@ -30,11 +31,20 @@ namespace userinterface.ViewModels.Profile
 
         public void TryAddProfile()
         {
+            var startTime = DateTime.Now;
+            Debug.WriteLine($"[PROFILE_TIMING] ViewModel TryAddProfile started at: {startTime:HH:mm:ss.fff}");
+            
             var profileName = GenerateProfileName();
             if (TryAddProfileWithName(profileName))
             {
+                var backendAddTime = DateTime.Now;
+                Debug.WriteLine($"[PROFILE_TIMING] Backend profile added at: {backendAddTime:HH:mm:ss.fff}");
+                
                 // Move the newly added profile to the optimal position
                 MoveNewProfileToOptimalPosition(profileName);
+                
+                var reorderTime = DateTime.Now;
+                Debug.WriteLine($"[PROFILE_TIMING] Profile reordering completed at: {reorderTime:HH:mm:ss.fff}");
             }
         }
         
