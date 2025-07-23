@@ -8,17 +8,70 @@
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
 
+	<UserControl.Styles>
+		<Style Selector="Button.ProfileItem">
+			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="Margin" Value="8,1"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="12,6"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Left"/>
+			<Setter Property="MinHeight" Value="32"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.ProfileItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="Button.ProfileItem:pressed">
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<Style Selector="Button.AddButton">
+			<Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="8,6"/>
+			<Setter Property="Margin" Value="8,4"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		</Style>
+
+		<Style Selector="Button.AddButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+		</Style>
+	</UserControl.Styles>
+
 	<StackPanel Orientation="Vertical">
 		<!-- Add Profile Button -->
-		<Button Classes="NavButton" 
+		<Button Classes="AddButton" 
 		        Content="Add Profile" 
-		        Click="OnAddProfileClicked"
-		        Margin="8,4,8,8"/>
+		        Click="OnAddProfileClicked"/>
 		        
 		<!-- Profile Items Container -->
 		<Panel x:Name="ProfileContainer" 
 		       Background="Transparent"
-		       MinHeight="100">
+		       MinHeight="50">
 		</Panel>
 	</StackPanel>
 </UserControl>

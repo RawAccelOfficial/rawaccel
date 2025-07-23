@@ -24,7 +24,7 @@ public partial class ProfileListView : UserControl
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     
-    private const double ProfileHeight = 50.0;
+    private const double ProfileHeight = 34.0;
     private const int StaggerDelayMs = 50;
     private const double ProfileSpawnPosition = 0.0;
 
@@ -201,17 +201,14 @@ public partial class ProfileListView : UserControl
         var button = new Button
         {
             Content = profileName,
-            Classes = { "NavButton" },
-            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left,
-            Margin = new Avalonia.Thickness(0)
+            Classes = { "ProfileItem" }
         };
         button.Click += OnProfileButtonClicked;
         
         return new Border
         {
-            Width = 400,
             Height = ProfileHeight,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
             Margin = new Avalonia.Thickness(0, ProfileSpawnPosition, 0, 0),
             Child = button
