@@ -8,10 +8,22 @@
              x:Class="userinterface.Views.Profile.ProfileListView"
              x:DataType="vm:ProfileListViewModel">
 
+	<StackPanel Orientation="Vertical">
+		<!-- Test buttons for operations -->
+		<StackPanel Orientation="Horizontal" Margin="10" Spacing="10">
+			<Button x:Name="AddProfileButton" Content="Add Profile" Click="TestAddProfile"/>
+			<Button x:Name="InsertAtIndexButton" Content="Insert at Index 1" Click="TestInsertAtIndex"/>
+			<Button x:Name="RemoveFirstButton" Content="Remove First" Click="TestRemoveFirst"/>
+			<Button x:Name="RemoveLastButton" Content="Remove Last" Click="TestRemoveLast"/>
+			<Button x:Name="RemoveMiddleButton" Content="Remove Middle" Click="TestRemoveMiddle"/>
+			<Button x:Name="MoveFirstToLastButton" Content="Move First to Last" Click="TestMoveFirstToLast"/>
+			<Button x:Name="ClearAllButton" Content="Clear All" Click="TestClearAll"/>
+		</StackPanel>
 
-	<!-- Flexible container for animated profile elements -->
-	<Panel x:Name="ProfileContainer" 
-	       Background="LightGray"
-	       MinHeight="100">
-	</Panel>
+		<!-- Flexible container for animated profile elements -->
+		<Panel x:Name="ProfileContainer" 
+		       Background="LightGray"
+		       MinHeight="100">
+		</Panel>
+	</StackPanel>
 </UserControl>
