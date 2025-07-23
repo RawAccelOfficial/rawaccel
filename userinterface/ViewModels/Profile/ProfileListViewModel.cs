@@ -7,6 +7,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace userinterface.ViewModels.Profile
 {
@@ -14,6 +17,9 @@ namespace userinterface.ViewModels.Profile
     {
         private const int MaxProfileAttempts = 10;
         private readonly BE.ProfilesModel profilesModel;
+        private readonly SemaphoreSlim operationQueue = new(1, 1);
+        private readonly ConcurrentQueue<Func<Task>> pendingOperations = new();
+        private volatile bool isProcessingQueue = false;
         
         [ObservableProperty]
         private BE.ProfileModel selectedProfile;
@@ -31,17 +37,33 @@ namespace userinterface.ViewModels.Profile
 
         public void TryAddProfile()
         {
+            // Queue the operation to prevent overlapping
+            pendingOperations.Enqueue(async () => await TryAddProfileAsync());
+            _ = ProcessOperationQueue();
+        }
+        
+        private async Task TryAddProfileAsync()
+        {
             var startTime = DateTime.Now;
+            Debug.WriteLine($"[PROFILE_QUEUE] Starting profile add operation at: {startTime:HH:mm:ss.fff}");
             
             var profileName = GenerateProfileName();
             if (TryAddProfileWithName(profileName))
             {
                 var backendAddTime = DateTime.Now;
+                Debug.WriteLine($"[PROFILE_QUEUE] Profile added to backend at: {backendAddTime:HH:mm:ss.fff}");
                 
                 // Move the newly added profile to the optimal position
                 MoveNewProfileToOptimalPosition(profileName);
                 
                 var reorderTime = DateTime.Now;
+                Debug.WriteLine($"[PROFILE_QUEUE] Profile reordered at: {reorderTime:HH:mm:ss.fff}");
+                
+                // Wait for any animations to complete before allowing next operation
+                await WaitForAnimationsToComplete();
+                
+                var completionTime = DateTime.Now;
+                Debug.WriteLine($"[PROFILE_QUEUE] Profile add operation completed at: {completionTime:HH:mm:ss.fff}");
             }
         }
         
@@ -120,11 +142,63 @@ namespace userinterface.ViewModels.Profile
             return string.Empty;
         }
 
+        private async Task ProcessOperationQueue()
+        {
+            if (isProcessingQueue) return;
+            
+            isProcessingQueue = true;
+            
+            try
+            {
+                while (pendingOperations.TryDequeue(out var operation))
+                {
+                    await operationQueue.WaitAsync();
+                    try
+                    {
+                        await operation();
+                    }
+                    finally
+                    {
+                        operationQueue.Release();
+                    }
+                }
+            }
+            finally
+            {
+                isProcessingQueue = false;
+            }
+        }
+        
+        private async Task WaitForAnimationsToComplete()
+        {
+            // Wait for the UI update and animations to complete
+            // Based on the View's animation settings:
+            // - Animation duration: 300ms 
+            // - Stagger delay: up to 3 * 20ms = 60ms
+            // - Safety margin: 100ms
+            // Total conservative wait: 460ms
+            
+            int baseAnimationTime = 300;  // Animation duration from View
+            int maxStaggerDelay = 60;      // Max stagger delay (3 profiles * 20ms)
+            int safetyMargin = 100;        // Safety margin for UI updates
+            int totalWaitTime = baseAnimationTime + maxStaggerDelay + safetyMargin;
+            
+            Debug.WriteLine($"[PROFILE_QUEUE] Waiting {totalWaitTime}ms for animations to complete");
+            await Task.Delay(totalWaitTime);
+            Debug.WriteLine($"[PROFILE_QUEUE] Animation wait completed");
+        }
+        
+
         public bool RemoveProfile(BE.ProfileModel profile) => profile != null && profilesModel.RemoveProfile(profile);
         
         partial void OnSelectedProfileChanged(BE.ProfileModel value)
         {
             SelectedProfileChanged?.Invoke(value);
+        }
+        
+        public void Dispose()
+        {
+            operationQueue?.Dispose();
         }
     }
 }

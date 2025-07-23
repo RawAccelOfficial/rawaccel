@@ -29,7 +29,8 @@ public partial class ProfileListView : UserControl
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private BE.ProfileModel selectedProfile;
-    private bool areAnimationsActive = false;
+    private volatile bool areAnimationsActive = false;
+    private readonly object animationLock = new();
     private readonly IModalService modalService;
     
     private const double ProfileHeight = 38.0;
@@ -91,6 +92,8 @@ public partial class ProfileListView : UserControl
         await operationSemaphore.WaitAsync();
         try
         {
+            Debug.WriteLine($"[PROFILE_QUEUE] Collection changed: {e.Action} at {DateTime.Now:HH:mm:ss.fff}");
+            
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -396,6 +399,19 @@ public partial class ProfileListView : UserControl
         var buttonClickTime = DateTime.Now;
         Debug.WriteLine($"[PROFILE_TIMING] Add Profile button clicked at: {buttonClickTime:HH:mm:ss.fff}");
         
+        // Prevent rapid clicking during active operations
+        bool animationsActive;
+        lock (animationLock)
+        {
+            animationsActive = areAnimationsActive;
+        }
+        
+        if (animationsActive)
+        {
+            Debug.WriteLine($"[PROFILE_TIMING] Add Profile button click ignored - animations are active");
+            return;
+        }
+        
         // Use the ViewModel's TryAddProfile method (same as AddProfileCommand)
         if (DataContext is ProfileListViewModel viewModel)
         {
@@ -441,6 +457,16 @@ public partial class ProfileListView : UserControl
     
     private void CancelAllAnimations()
     {
+        lock (animationLock)
+        {
+            CancelAllAnimationsInternal();
+            areAnimationsActive = false;
+        }
+        UpdateDeleteButtonStates();
+    }
+    
+    private void CancelAllAnimationsInternal()
+    {
         foreach (var cts in activeAnimations.Values)
         {
             try
@@ -454,10 +480,6 @@ public partial class ProfileListView : UserControl
             }
         }
         activeAnimations.Clear();
-        
-        // Re-enable delete buttons when all animations are canceled
-        areAnimationsActive = false;
-        UpdateDeleteButtonStates();
     }
 
     private async Task AnimateProfileToPosition(int profileIndex, int position, int staggerIndex = 0)
@@ -557,7 +579,17 @@ public partial class ProfileListView : UserControl
         }
         finally
         {
-            activeAnimations.Remove(profileIndex);
+            lock (animationLock)
+            {
+                activeAnimations.Remove(profileIndex);
+                
+                // Check if this was the last animation
+                if (activeAnimations.Count == 0 && areAnimationsActive)
+                {
+                    areAnimationsActive = false;
+                    Debug.WriteLine($"[ANIMATION] All animations completed, re-enabling interactions at {DateTime.Now:HH:mm:ss.fff}");
+                }
+            }
             try
             {
                 cts?.Dispose();
@@ -569,6 +601,12 @@ public partial class ProfileListView : UserControl
     private async Task AnimateAllProfilesToCorrectPositions(int focusIndex = -1)
     {
         var animationTasks = new List<Task>();
+        
+        lock (animationLock)
+        {
+            // Cancel any existing animations before starting new ones
+            CancelAllAnimationsInternal();
+        }
         
         for (int i = 0; i < profiles.Count; i++)
         {
@@ -583,12 +621,18 @@ public partial class ProfileListView : UserControl
         
         if (animationTasks.Count > 0)
         {
-            areAnimationsActive = true;
+            lock (animationLock)
+            {
+                areAnimationsActive = true;
+            }
             UpdateDeleteButtonStates();
+            
+            Debug.WriteLine($"[ANIMATION] Starting {animationTasks.Count} animations at {DateTime.Now:HH:mm:ss.fff}");
             
             try
             {
                 await Task.WhenAll(animationTasks);
+                Debug.WriteLine($"[ANIMATION] All animations completed at {DateTime.Now:HH:mm:ss.fff}");
             }
             catch (Exception ex)
             {
@@ -596,7 +640,10 @@ public partial class ProfileListView : UserControl
             }
             finally
             {
-                areAnimationsActive = false;
+                lock (animationLock)
+                {
+                    areAnimationsActive = false;
+                }
                 UpdateDeleteButtonStates();
             }
         }
@@ -635,6 +682,17 @@ public partial class ProfileListView : UserControl
     public BE.ProfileModel GetSelectedProfile()
     {
         return selectedProfile;
+    }
+    
+    public bool AreAnimationsActive
+    {
+        get
+        {
+            lock (animationLock)
+            {
+                return areAnimationsActive;
+            }
+        }
     }
 
     private void RefreshAllProfileNames()
