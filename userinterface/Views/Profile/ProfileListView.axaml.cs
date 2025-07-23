@@ -16,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Specialized;
 using Avalonia.Layout;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Linq;
 
 namespace userinterface.Views.Profile;
@@ -27,9 +26,7 @@ public partial class ProfileListView : UserControl
     private Panel profileContainer;
     private readonly BE.ProfilesModel profilesModel;
     
-    // Operation queue and animation management
-    private readonly ConcurrentQueue<AnimationOperation> operationQueue = new ConcurrentQueue<AnimationOperation>();
-    private bool isProcessingOperations = false;
+    // Animation management
     private const double ProfileHeight = 50.0;
     private const int StaggerDelayMs = 50;
     
@@ -75,7 +72,7 @@ public partial class ProfileListView : UserControl
         var profileCount = profilesModel.Profiles.Count;
         for (int i = 0; i < profileCount; i++)
         {
-            InsertProfile(i); // Use InsertProfile for consistent creation and animation
+            AddProfileAtPosition(i); // Use direct animation method
         }
     }
 
@@ -242,81 +239,15 @@ public partial class ProfileListView : UserControl
         profiles.Clear();
         profileContainer?.Children.Clear();
         
-        // Recreate all profiles using InsertProfile for proper animation queuing
+        // Recreate all profiles using direct animation
         var profileCount = profilesModel.Profiles.Count;
         for (int i = 0; i < profileCount; i++)
         {
-            InsertProfile(i);
-        }
-        
-        // Animate all new profiles into position
-        var animationTasks = new List<Task>();
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            animationTasks.Add(AnimateProfileToPosition(i, i, i));
-        }
-        
-        if (animationTasks.Any())
-        {
-            await Task.WhenAll(animationTasks);
+            AddProfileAtPosition(i);
         }
     }
 
     // Core profile management methods
-    private void InsertProfile(int index)
-    {
-        if (index < 0 || index > profiles.Count) return;
-
-        var colors = new[] { Brushes.Red, Brushes.Blue, Brushes.Green, Brushes.Orange };
-        var colorIndex = profiles.Count % colors.Length;
-        
-        var profileBorder = new Border
-        {
-            Background = colors[colorIndex],
-            Width = 400,
-            Height = ProfileHeight,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
-            Margin = new Avalonia.Thickness(0, ProfileSpawnPosition, 0, 0), // Start at spawn position
-            CornerRadius = new Avalonia.CornerRadius(4)
-        };
-
-        var button = new Button
-        {
-            Content = index == 0 && profiles.Count == 0 ? "Add Profile" : $"Profile {profiles.Count + 1}",
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
-            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-            VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
-            Background = Brushes.Transparent,
-            BorderThickness = new Avalonia.Thickness(0)
-        };
-
-        button.Click += OnProfileButtonClicked;
-        profileBorder.Child = button;
-
-        // Insert at specific index
-        profiles.Insert(index, profileBorder);
-        profileContainer?.Children.Insert(index, profileBorder);
-
-        // Queue animation for affected profiles (those at index and below)
-        var affectedIndices = new List<int>();
-        for (int i = index; i < profiles.Count; i++)
-        {
-            affectedIndices.Add(i);
-        }
-
-        var operation = new AnimationOperation
-        {
-            Type = OperationType.Insert,
-            Index = index,
-            Profile = profileBorder,
-            AffectedIndices = affectedIndices
-        };
-
-        operationQueue.Enqueue(operation);
-        _ = ProcessOperationQueue();
-    }
 
     private void RemoveProfileAt(int index)
     {
@@ -328,23 +259,12 @@ public partial class ProfileListView : UserControl
         profiles.RemoveAt(index);
         profileContainer?.Children.Remove(profileToRemove);
 
-        // Queue animation for affected profiles (those below the removed one)
-        var affectedIndices = new List<int>();
+        // Animate remaining profiles up to close the gap with stagger
         for (int i = index; i < profiles.Count; i++)
         {
-            affectedIndices.Add(i);
+            int staggerIndex = i - index; // Stagger based on distance from removal point
+            _ = AnimateProfileToPosition(i, i, staggerIndex);
         }
-
-        var operation = new AnimationOperation
-        {
-            Type = OperationType.Remove,
-            Index = index,
-            Profile = profileToRemove,
-            AffectedIndices = affectedIndices
-        };
-
-        operationQueue.Enqueue(operation);
-        _ = ProcessOperationQueue();
     }
 
     private void MoveProfile(int fromIndex, int toIndex)
@@ -362,26 +282,15 @@ public partial class ProfileListView : UserControl
         profileContainer?.Children.RemoveAt(fromIndex);
         profileContainer?.Children.Insert(toIndex, profileToMove);
 
-        // Calculate affected range
+        // Animate all affected profiles to their new positions with stagger
         var minIndex = Math.Min(fromIndex, toIndex);
         var maxIndex = Math.Max(fromIndex, toIndex);
-        var affectedIndices = new List<int>();
+        
         for (int i = minIndex; i <= maxIndex; i++)
         {
-            affectedIndices.Add(i);
+            int staggerIndex = Math.Abs(i - fromIndex); // Stagger based on distance from move origin
+            _ = AnimateProfileToPosition(i, i, staggerIndex);
         }
-
-        var operation = new AnimationOperation
-        {
-            Type = OperationType.Move,
-            Index = fromIndex,
-            NewIndex = toIndex,
-            Profile = profileToMove,
-            AffectedIndices = affectedIndices
-        };
-
-        operationQueue.Enqueue(operation);
-        _ = ProcessOperationQueue();
     }
 
     // Method for adding profile at specific position - spawns at ProfileSpawnPosition then animates to target
@@ -435,7 +344,7 @@ public partial class ProfileListView : UserControl
     // Legacy method for backward compatibility
     private void AddProfile()
     {
-        InsertProfile(profiles.Count);
+        AddProfileAtPosition(profiles.Count);
     }
 
     private void OnProfileButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -539,95 +448,6 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    // Operation queue processing
-    private async Task ProcessOperationQueue()
-    {
-        if (isProcessingOperations) return;
-        isProcessingOperations = true;
-
-        var operations = new List<AnimationOperation>();
-        while (operationQueue.TryDequeue(out var operation))
-        {
-            operations.Add(operation);
-        }
-
-        foreach (var operation in operations)
-        {
-            await ProcessOperation(operation);
-        }
-
-        isProcessingOperations = false;
-    }
-
-    private async Task ProcessOperation(AnimationOperation operation)
-    {
-        switch (operation.Type)
-        {
-            case OperationType.Insert:
-                await ProcessInsertOperation(operation);
-                break;
-            case OperationType.Remove:
-                await ProcessRemoveOperation(operation);
-                break;
-            case OperationType.Move:
-                await ProcessMoveOperation(operation);
-                break;
-            case OperationType.Reposition:
-                await ProcessRepositionOperation(operation);
-                break;
-        }
-    }
-
-    private async Task ProcessInsertOperation(AnimationOperation operation)
-    {
-        // Animate all affected profiles to their new positions with stagger
-        for (int i = 0; i < operation.AffectedIndices.Count; i++)
-        {
-            var index = operation.AffectedIndices[i];
-            if (index < profiles.Count)
-            {
-                _ = AnimateProfileToPosition(index, index, i);
-            }
-        }
-    }
-
-    private async Task ProcessRemoveOperation(AnimationOperation operation)
-    {
-        // Animate all affected profiles to close the gap with stagger
-        for (int i = 0; i < operation.AffectedIndices.Count; i++)
-        {
-            var index = operation.AffectedIndices[i];
-            if (index < profiles.Count)
-            {
-                _ = AnimateProfileToPosition(index, index, i);
-            }
-        }
-    }
-
-    private async Task ProcessMoveOperation(AnimationOperation operation)
-    {
-        // Handle move operations with smooth animations
-        if (operation.NewIndex.HasValue)
-        {
-            for (int i = 0; i < operation.AffectedIndices.Count; i++)
-            {
-                var index = operation.AffectedIndices[i];
-                if (index < profiles.Count)
-                {
-                    _ = AnimateProfileToPosition(index, index, i);
-                }
-            }
-        }
-    }
-
-    private async Task ProcessRepositionOperation(AnimationOperation operation)
-    {
-        // Reposition all profiles with stagger
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            _ = AnimateProfileToPosition(i, i, i);
-        }
-    }
 
     // Test methods for operations
     private void TestAddProfile(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -689,21 +509,4 @@ public partial class ProfileListView : UserControl
         profilesModel.Profiles.Clear();
     }
 
-    // Animation operation types
-    private enum OperationType
-    {
-        Insert,
-        Remove,
-        Move,
-        Reposition
-    }
-
-    private class AnimationOperation
-    {
-        public OperationType Type { get; set; }
-        public int Index { get; set; }
-        public int? NewIndex { get; set; } // For move operations
-        public Border Profile { get; set; }
-        public List<int> AffectedIndices { get; set; } = new List<int>();
-    }
 }
