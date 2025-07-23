@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 using Avalonia.Styling;
 using Avalonia.Animation.Easings;
 using userspace_backend;
@@ -16,6 +17,7 @@ using System.Collections.Specialized;
 using Avalonia.Layout;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace userinterface.Views.Profile;
 
@@ -30,6 +32,10 @@ public partial class ProfileListView : UserControl
     private bool isProcessingOperations = false;
     private const double ProfileHeight = 50.0;
     private const int StaggerDelayMs = 50;
+    
+    // Animation cancellation tracking
+    private readonly Dictionary<int, CancellationTokenSource> activeAnimations = new Dictionary<int, CancellationTokenSource>();
+    private readonly SemaphoreSlim operationSemaphore = new SemaphoreSlim(1, 1);
     
     // Starting position for all new profiles (they animate from here to their final position)
     private const double ProfileSpawnPosition = 0.0;
@@ -46,6 +52,19 @@ public partial class ProfileListView : UserControl
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+    
+    private void OnUnloaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Cancel all active animations and cleanup
+        foreach (var kvp in activeAnimations.ToList())
+        {
+            kvp.Value.Cancel();
+            kvp.Value.Dispose();
+        }
+        activeAnimations.Clear();
+        operationSemaphore?.Dispose();
     }
 
     private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -60,40 +79,48 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private void OnProfilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void OnProfilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         Debug.WriteLine($"[Animation Debug] Collection changed - Action: {e.Action}, NewStartingIndex: {e.NewStartingIndex}, OldStartingIndex: {e.OldStartingIndex}");
         
-        switch (e.Action)
+        await operationSemaphore.WaitAsync();
+        try
         {
-            case NotifyCollectionChangedAction.Add:
-                Debug.WriteLine($"[Animation Debug] Handling Add - {e.NewItems?.Count} items at index {e.NewStartingIndex}");
-                HandleProfilesAdded(e);
-                break;
-                
-            case NotifyCollectionChangedAction.Remove:
-                Debug.WriteLine($"[Animation Debug] Handling Remove - {e.OldItems?.Count} items from index {e.OldStartingIndex}");
-                HandleProfilesRemoved(e);
-                break;
-                
-            case NotifyCollectionChangedAction.Replace:
-                Debug.WriteLine($"[Animation Debug] Handling Replace");
-                HandleProfilesReplaced(e);
-                break;
-                
-            case NotifyCollectionChangedAction.Move:
-                Debug.WriteLine($"[Animation Debug] Handling Move - from {e.OldStartingIndex} to {e.NewStartingIndex}");
-                HandleProfilesMoved(e);
-                break;
-                
-            case NotifyCollectionChangedAction.Reset:
-                Debug.WriteLine($"[Animation Debug] Handling Reset");
-                HandleProfilesReset(e);
-                break;
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    Debug.WriteLine($"[Animation Debug] Handling Add - {e.NewItems?.Count} items at index {e.NewStartingIndex}");
+                    await HandleProfilesAdded(e);
+                    break;
+                    
+                case NotifyCollectionChangedAction.Remove:
+                    Debug.WriteLine($"[Animation Debug] Handling Remove - {e.OldItems?.Count} items from index {e.OldStartingIndex}");
+                    await HandleProfilesRemoved(e);
+                    break;
+                    
+                case NotifyCollectionChangedAction.Replace:
+                    Debug.WriteLine($"[Animation Debug] Handling Replace");
+                    await HandleProfilesReplaced(e);
+                    break;
+                    
+                case NotifyCollectionChangedAction.Move:
+                    Debug.WriteLine($"[Animation Debug] Handling Move - from {e.OldStartingIndex} to {e.NewStartingIndex}");
+                    await HandleProfilesMoved(e);
+                    break;
+                    
+                case NotifyCollectionChangedAction.Reset:
+                    Debug.WriteLine($"[Animation Debug] Handling Reset");
+                    await HandleProfilesReset(e);
+                    break;
+            }
+        }
+        finally
+        {
+            operationSemaphore.Release();
         }
     }
 
-    private void HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems == null) return;
         
@@ -105,29 +132,72 @@ public partial class ProfileListView : UserControl
             InsertProfile(insertIndex);
             insertIndex++; // For multiple additions, insert subsequent items at next index
         }
+        
+        // Wait for all add animations to complete
+        var animationTasks = new List<Task>();
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            animationTasks.Add(AnimateProfileToPosition(i, i, i));
+        }
+        
+        await Task.WhenAll(animationTasks);
     }
 
-    private void HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems == null) return;
         
         int removeIndex = e.OldStartingIndex >= 0 ? e.OldStartingIndex : profiles.Count - 1;
         
-        // Remove profile UIs for removed profiles
+        // Cancel any animations for profiles being removed
         var removeCount = e.OldItems.Count;
+        for (int i = 0; i < removeCount && removeIndex + i < profiles.Count; i++)
+        {
+            if (activeAnimations.TryGetValue(removeIndex + i, out var cts))
+            {
+                cts.Cancel();
+                activeAnimations.Remove(removeIndex + i);
+            }
+        }
+        
+        // Remove profile UIs for removed profiles
         for (int i = 0; i < removeCount && removeIndex < profiles.Count && removeIndex >= 0; i++)
         {
             RemoveProfileAt(removeIndex);
             // Don't increment removeIndex as removing shifts everything down
         }
+        
+        // Reposition remaining profiles
+        var animationTasks = new List<Task>();
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            animationTasks.Add(AnimateProfileToPosition(i, i, i));
+        }
+        
+        if (animationTasks.Any())
+        {
+            await Task.WhenAll(animationTasks);
+        }
     }
 
-    private void HandleProfilesReplaced(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesReplaced(NotifyCollectionChangedEventArgs e)
     {
         // Handle profile replacement - update existing UI elements
         if (e.OldItems != null && e.NewItems != null && e.OldStartingIndex >= 0)
         {
             int replaceIndex = e.OldStartingIndex;
+            
+            // Animate replaced profiles
+            var animationTasks = new List<Task>();
+            for (int i = 0; i < e.NewItems.Count && replaceIndex + i < profiles.Count; i++)
+            {
+                animationTasks.Add(AnimateProfileToPosition(replaceIndex + i, replaceIndex + i, i));
+            }
+            
+            if (animationTasks.Any())
+            {
+                await Task.WhenAll(animationTasks);
+            }
             int itemCount = Math.Min(e.OldItems.Count, e.NewItems.Count);
             
             // Replace existing profiles
@@ -146,17 +216,36 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private void HandleProfilesMoved(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesMoved(NotifyCollectionChangedEventArgs e)
     {
         // Handle profile reordering - animate elements to new positions
         if (e.OldStartingIndex >= 0 && e.NewStartingIndex >= 0)
         {
             MoveProfile(e.OldStartingIndex, e.NewStartingIndex);
+            
+            // Animate all profiles to their new positions
+            var animationTasks = new List<Task>();
+            for (int i = 0; i < profiles.Count; i++)
+            {
+                animationTasks.Add(AnimateProfileToPosition(i, i, i));
+            }
+            
+            if (animationTasks.Any())
+            {
+                await Task.WhenAll(animationTasks);
+            }
         }
     }
 
-    private void HandleProfilesReset(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesReset(NotifyCollectionChangedEventArgs e)
     {
+        // Cancel all active animations
+        foreach (var kvp in activeAnimations.ToList())
+        {
+            kvp.Value.Cancel();
+        }
+        activeAnimations.Clear();
+        
         // Handle complete collection reset - clear and rebuild all UI
         profiles.Clear();
         profileContainer?.Children.Clear();
@@ -166,6 +255,18 @@ public partial class ProfileListView : UserControl
         for (int i = 0; i < profileCount; i++)
         {
             InsertProfile(i);
+        }
+        
+        // Animate all new profiles into position
+        var animationTasks = new List<Task>();
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            animationTasks.Add(AnimateProfileToPosition(i, i, i));
+        }
+        
+        if (animationTasks.Any())
+        {
+            await Task.WhenAll(animationTasks);
         }
     }
 
@@ -326,7 +427,7 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    // Enhanced animation method with stagger support
+    // Enhanced animation method with stagger support and cancellation
     private async Task AnimateProfileToPosition(int profileIndex, int position, int staggerIndex = 0)
     {
         Debug.WriteLine($"[Animation Debug] AnimateProfileToPosition called - profileIndex: {profileIndex}, position: {position}, staggerIndex: {staggerIndex}");
@@ -337,49 +438,74 @@ public partial class ProfileListView : UserControl
             return;
         }
 
+        // Cancel any existing animation for this profile
+        if (activeAnimations.TryGetValue(profileIndex, out var existingCts))
+        {
+            Debug.WriteLine($"[Animation Debug] Cancelling existing animation for profile {profileIndex}");
+            existingCts.Cancel();
+            activeAnimations.Remove(profileIndex);
+        }
+
+        // Create new cancellation token for this animation
+        var cts = new CancellationTokenSource();
+        activeAnimations[profileIndex] = cts;
+
         var animatedProfile = profiles[profileIndex];
         double targetMarginTop = CalculatePositionForIndex(position);
         
         Debug.WriteLine($"[Animation Debug] Profile {profileIndex} animating to position {position}, targetMarginTop: {targetMarginTop}");
 
-        // Apply stagger delay
-        if (staggerIndex > 0)
+        try
         {
-            await Task.Delay(staggerIndex * StaggerDelayMs);
-        }
-
-        var animation = new Animation
-        {
-            Duration = TimeSpan.FromMilliseconds(300),
-            FillMode = FillMode.Forward,
-            Easing = Easing.Parse("0.25,0.1,0.25,1"),
-            Children =
+            // Apply stagger delay with cancellation support
+            if (staggerIndex > 0)
             {
-                new KeyFrame
+                await Task.Delay(staggerIndex * StaggerDelayMs, cts.Token);
+            }
+
+            var animation = new Animation
+            {
+                Duration = TimeSpan.FromMilliseconds(300),
+                FillMode = FillMode.Forward,
+                Easing = Easing.Parse("0.25,0.1,0.25,1"),
+                Children =
                 {
-                    Cue = new Cue(1d),
-                    Setters =
+                    new KeyFrame
                     {
-                        new Setter
+                        Cue = new Cue(1d),
+                        Setters =
                         {
-                            Property = Avalonia.Layout.Layoutable.MarginProperty,
-                            Value = new Avalonia.Thickness(0, targetMarginTop, 0, 0)
+                            new Setter
+                            {
+                                Property = Avalonia.Layout.Layoutable.MarginProperty,
+                                Value = new Avalonia.Thickness(0, targetMarginTop, 0, 0)
+                            }
                         }
                     }
                 }
-            }
-        };
+            };
 
-        Debug.WriteLine($"[Animation Debug] Starting animation for profile {profileIndex}");
-        
-        animation.RunAsync(animatedProfile).ContinueWith(_ => 
-        {
+            Debug.WriteLine($"[Animation Debug] Starting animation for profile {profileIndex}");
+            
+            await animation.RunAsync(animatedProfile, cts.Token);
+            
             Debug.WriteLine($"[Animation Debug] Animation completed for profile {profileIndex}");
-            Avalonia.Threading.Dispatcher.UIThread.Post(() => 
-            {
-                animatedProfile.Margin = new Avalonia.Thickness(0, targetMarginTop, 0, 0);
-            });
-        });
+            animatedProfile.Margin = new Avalonia.Thickness(0, targetMarginTop, 0, 0);
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[Animation Debug] Animation cancelled for profile {profileIndex}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Animation Debug] Animation error for profile {profileIndex}: {ex.Message}");
+        }
+        finally
+        {
+            // Clean up the cancellation token
+            activeAnimations.Remove(profileIndex);
+            cts?.Dispose();
+        }
     }
 
     // Operation queue processing
