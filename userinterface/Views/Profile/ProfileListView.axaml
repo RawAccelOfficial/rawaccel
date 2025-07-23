@@ -181,10 +181,12 @@
 
 		<Style Selector="Button.NoInteractionButtonTemplate PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
 		<Style Selector="Button.NoInteractionButtonTemplate:pointerover PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
 		<!-- Disabled state styling -->
@@ -194,7 +196,42 @@
 
 		<Style Selector="Button.NoInteractionButtonTemplate:disabled PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
 		</Style>
+
+		<!-- Prevent style changes on press/click and focus -->
+		<Style Selector="Button.NoInteractionButtonTemplate:pressed">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="RenderTransform" Value="none"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:pressed PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:focus">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:focus PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:focus-visible">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:focus-visible PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+
 	</UserControl.Styles>
 
 	<!-- Profile Items Container -->

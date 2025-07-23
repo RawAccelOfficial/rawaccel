@@ -17,6 +17,7 @@ using Avalonia.Layout;
 using Avalonia;
 using Avalonia.Input;
 using System.Diagnostics;
+using userinterface.Services;
 
 namespace userinterface.Views.Profile;
 
@@ -29,6 +30,7 @@ public partial class ProfileListView : UserControl
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private BE.ProfileModel selectedProfile;
     private bool areAnimationsActive = false;
+    private readonly IModalService modalService;
     
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
@@ -39,6 +41,7 @@ public partial class ProfileListView : UserControl
     {
         var backEnd = App.Services?.GetRequiredService<BackEnd>() ?? throw new InvalidOperationException("BackEnd service not available");
         profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
+        modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
         
         InitializeComponent();
@@ -400,7 +403,7 @@ public partial class ProfileListView : UserControl
         }
     }
     
-    private void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private async void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Prevent deletion during animations to avoid bugs
         if (areAnimationsActive)
@@ -418,7 +421,18 @@ public partial class ProfileListView : UserControl
             if (profileIndex >= 0 && profileIndex < profilesModel.Profiles.Count)
             {
                 var profileToDelete = profilesModel.Profiles[profileIndex];
-                profilesModel.RemoveProfile(profileToDelete);
+                
+                // Show confirmation modal
+                var confirmed = await modalService.ShowConfirmationAsync(
+                    "Delete Profile",
+                    $"Are you sure you want to delete '{profileToDelete.CurrentNameForDisplay}'?",
+                    "Delete",
+                    "Cancel");
+                
+                if (confirmed)
+                {
+                    profilesModel.RemoveProfile(profileToDelete);
+                }
             }
         }
     }
