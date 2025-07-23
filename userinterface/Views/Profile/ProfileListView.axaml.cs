@@ -329,10 +329,10 @@ public partial class ProfileListView : UserControl
         // Only add delete button for non-default profiles
         if (!isDefaultProfile)
         {
-            // Create the delete button with icon using NoInteractionButtonTemplate
+            // Create the delete button with icon using SimpleDeleteButton
             var deleteButton = new Button
             {
-                Classes = { "NoInteractionButtonTemplate" },
+                Classes = { "SimpleDeleteButton" },
                 VerticalAlignment = VerticalAlignment.Center,
                 Content = new PathIcon
                 {

@@ -148,88 +148,27 @@
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 
-		<!-- NoInteractionButtonTemplate for delete buttons -->
-		<Style Selector="Button.NoInteractionButtonTemplate">
+		<!-- Simple delete button with only icon foreground styling -->
+		<Style Selector="Button.SimpleDeleteButton">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="Padding" Value="4"/>
 			<Setter Property="Margin" Value="4,0,0,0"/>
-			<Setter Property="CornerRadius" Value="4"/>
 			<Setter Property="Width" Value="24"/>
 			<Setter Property="Height" Value="24"/>
 			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Template">
-				<ControlTemplate>
-					<Border Name="PART_LayoutRoot"
-							Background="{TemplateBinding Background}"
-							BorderBrush="{TemplateBinding BorderBrush}"
-							BorderThickness="{TemplateBinding BorderThickness}"
-							CornerRadius="{TemplateBinding CornerRadius}"
-							Padding="{TemplateBinding Padding}">
-						<ContentPresenter Name="PART_ContentPresenter"
-										  Content="{TemplateBinding Content}"
-										  HorizontalContentAlignment="Center"
-										  VerticalContentAlignment="Center"/>
-					</Border>
-				</ControlTemplate>
-			</Setter>
 		</Style>
 
-		<Style Selector="Button.NoInteractionButtonTemplate:pointerover">
-			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate PathIcon">
+		<Style Selector="Button.SimpleDeleteButton PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
-		<Style Selector="Button.NoInteractionButtonTemplate:pointerover PathIcon">
+		<Style Selector="Button.SimpleDeleteButton:pointerover PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
-			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
-		<!-- Disabled state styling -->
-		<Style Selector="Button.NoInteractionButtonTemplate:disabled">
-			<Setter Property="Opacity" Value="0.4"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate:disabled PathIcon">
+		<Style Selector="Button.SimpleDeleteButton:disabled PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<!-- Prevent style changes on press/click and focus -->
-		<Style Selector="Button.NoInteractionButtonTemplate:pressed">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="RenderTransform" Value="none"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate:pressed PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate:focus">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate:focus PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate:focus-visible">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
-
-		<Style Selector="Button.NoInteractionButtonTemplate:focus-visible PathIcon">
-			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
-			<Setter Property="Background" Value="Transparent"/>
 		</Style>
 
 	</UserControl.Styles>
