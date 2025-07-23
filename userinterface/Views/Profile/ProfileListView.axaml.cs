@@ -289,6 +289,7 @@ public partial class ProfileListView : UserControl
     private Border CreateProfileBorder(IBrush color, int targetIndex)
     {
         var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].CurrentNameForDisplay : $"Profile {targetIndex + 1}";
+        var isDefaultProfile = targetIndex < profilesModel.Profiles.Count && profilesModel.Profiles[targetIndex] == BE.ProfilesModel.DefaultProfile;
         
         // Create the profile name text
         var profileText = new TextBlock
@@ -297,30 +298,35 @@ public partial class ProfileListView : UserControl
             VerticalAlignment = VerticalAlignment.Center
         };
         
-        // Create the delete button with icon
-        var deleteButton = new Button
-        {
-            Classes = { "DeleteButton" },
-            VerticalAlignment = VerticalAlignment.Center,
-            Content = new PathIcon
-            {
-                Data = Application.Current?.FindResource("delete_regular") as StreamGeometry,
-                Width = 12,
-                Height = 12
-            }
-        };
-        deleteButton.Click += OnDeleteButtonClicked;
-        
         // Create a grid to hold the text and button
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-        grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
         
         Grid.SetColumn(profileText, 0);
-        Grid.SetColumn(deleteButton, 1);
-        
         grid.Children.Add(profileText);
-        grid.Children.Add(deleteButton);
+        
+        // Only add delete button for non-default profiles
+        if (!isDefaultProfile)
+        {
+            // Create the delete button with icon
+            var deleteButton = new Button
+            {
+                Classes = { "DeleteButton" },
+                VerticalAlignment = VerticalAlignment.Center,
+                Content = new PathIcon
+                {
+                    Data = Application.Current?.FindResource("delete_regular") as StreamGeometry,
+                    Width = 12,
+                    Height = 12
+                }
+            };
+            deleteButton.Click += OnDeleteButtonClicked;
+            
+            // Add second column for delete button
+            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+            Grid.SetColumn(deleteButton, 1);
+            grid.Children.Add(deleteButton);
+        }
         
         var border = new Border
         {
