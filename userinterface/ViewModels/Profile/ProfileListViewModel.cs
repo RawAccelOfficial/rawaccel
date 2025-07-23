@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using userinterface.Commands;
 using userspace_backend;
@@ -15,6 +17,7 @@ namespace userinterface.ViewModels.Profile
 
         public ProfileListViewModel(BackEnd backEnd)
         {
+            Debug.WriteLine("[Animation Debug] ProfileListViewModel constructor called");
             this.profilesModel = backEnd?.Profiles ?? throw new System.ArgumentNullException(nameof(backEnd));
             AddProfileCommand = new RelayCommand(() => TryAddProfile());
         }
@@ -39,6 +42,7 @@ namespace userinterface.ViewModels.Profile
         {
             return profile != null && profilesModel.RemoveProfile(profile);
         }
+
 
     }
 }

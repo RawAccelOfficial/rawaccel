@@ -6,6 +6,7 @@ using userinterface.ViewModels.Profile;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using Avalonia.Styling;
 using Avalonia.Animation.Easings;
 using userspace_backend;
@@ -61,25 +62,32 @@ public partial class ProfileListView : UserControl
 
     private void OnProfilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+        Debug.WriteLine($"[Animation Debug] Collection changed - Action: {e.Action}, NewStartingIndex: {e.NewStartingIndex}, OldStartingIndex: {e.OldStartingIndex}");
+        
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
+                Debug.WriteLine($"[Animation Debug] Handling Add - {e.NewItems?.Count} items at index {e.NewStartingIndex}");
                 HandleProfilesAdded(e);
                 break;
                 
             case NotifyCollectionChangedAction.Remove:
+                Debug.WriteLine($"[Animation Debug] Handling Remove - {e.OldItems?.Count} items from index {e.OldStartingIndex}");
                 HandleProfilesRemoved(e);
                 break;
                 
             case NotifyCollectionChangedAction.Replace:
+                Debug.WriteLine($"[Animation Debug] Handling Replace");
                 HandleProfilesReplaced(e);
                 break;
                 
             case NotifyCollectionChangedAction.Move:
+                Debug.WriteLine($"[Animation Debug] Handling Move - from {e.OldStartingIndex} to {e.NewStartingIndex}");
                 HandleProfilesMoved(e);
                 break;
                 
             case NotifyCollectionChangedAction.Reset:
+                Debug.WriteLine($"[Animation Debug] Handling Reset");
                 HandleProfilesReset(e);
                 break;
         }
@@ -321,10 +329,18 @@ public partial class ProfileListView : UserControl
     // Enhanced animation method with stagger support
     private async Task AnimateProfileToPosition(int profileIndex, int position, int staggerIndex = 0)
     {
-        if (profiles.Count <= profileIndex) return;
+        Debug.WriteLine($"[Animation Debug] AnimateProfileToPosition called - profileIndex: {profileIndex}, position: {position}, staggerIndex: {staggerIndex}");
+        
+        if (profiles.Count <= profileIndex) 
+        {
+            Debug.WriteLine($"[Animation Debug] Early return - profiles.Count ({profiles.Count}) <= profileIndex ({profileIndex})");
+            return;
+        }
 
         var animatedProfile = profiles[profileIndex];
         double targetMarginTop = CalculatePositionForIndex(position);
+        
+        Debug.WriteLine($"[Animation Debug] Profile {profileIndex} animating to position {position}, targetMarginTop: {targetMarginTop}");
 
         // Apply stagger delay
         if (staggerIndex > 0)
@@ -354,8 +370,11 @@ public partial class ProfileListView : UserControl
             }
         };
 
+        Debug.WriteLine($"[Animation Debug] Starting animation for profile {profileIndex}");
+        
         animation.RunAsync(animatedProfile).ContinueWith(_ => 
         {
+            Debug.WriteLine($"[Animation Debug] Animation completed for profile {profileIndex}");
             Avalonia.Threading.Dispatcher.UIThread.Post(() => 
             {
                 animatedProfile.Margin = new Avalonia.Thickness(0, targetMarginTop, 0, 0);
