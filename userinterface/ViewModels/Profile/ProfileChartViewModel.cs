@@ -9,8 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Interfaces;
 using userinterface.Services;
 using userspace_backend.Display;
 using userspace_backend.Model.EditableSettings;
@@ -18,7 +20,7 @@ using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
-    public partial class ProfileChartViewModel : ViewModelBase
+    public partial class ProfileChartViewModel : ViewModelBase, IAsyncInitializable
     {
         // Animation settings
         private const int AnimationMilliseconds = 200;
@@ -63,6 +65,7 @@ namespace userinterface.ViewModels.Profile
         public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
         private readonly IThemeService themeService;
+        private BE.ProfileModel currentProfileModel = null!;
 
         public ProfileChartViewModel(IThemeService themeService)
         {
@@ -72,6 +75,10 @@ namespace userinterface.ViewModels.Profile
             FitToDataCommand = new RelayCommand(() => FitToData());
         }
 
+        public bool IsInitialized { get; private set; }
+
+        public bool IsInitializing { get; private set; }
+
         private ICurvePreview XCurvePreview { get; set; } = null!;
 
         private ICurvePreview YCurvePreview { get; set; } = null!;
@@ -80,6 +87,10 @@ namespace userinterface.ViewModels.Profile
 
         public void Initialize(BE.ProfileModel profileModel)
         {
+            if (IsInitialized && currentProfileModel == profileModel)
+                return;
+
+            currentProfileModel = profileModel;
             XCurvePreview = profileModel.XCurvePreview;
             YCurvePreview = profileModel.YCurvePreview;
             YXRatio = profileModel.YXRatio;
@@ -95,6 +106,49 @@ namespace userinterface.ViewModels.Profile
 
             // Subscribe to theme changes
             this.themeService.ThemeChanged += OnThemeChanged;
+
+            IsInitialized = true;
+        }
+
+        public Task InitializeAsync()
+        {
+            if (IsInitializing || IsInitialized)
+                return Task.CompletedTask;
+
+            IsInitializing = true;
+
+            // These operations should be fast enough to run synchronously
+            CreateSeries();
+            XAxes = CreateXAxes();
+            YAxes = CreateYAxes();
+            TooltipTextPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush));
+            TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+
+            // Subscribe to theme changes
+            this.themeService.ThemeChanged += OnThemeChanged;
+
+            IsInitializing = false;
+            IsInitialized = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task SwitchToProfileAsync(BE.ProfileModel profileModel)
+        {
+            if (currentProfileModel == profileModel && IsInitialized)
+                return Task.CompletedTask;
+
+            currentProfileModel = profileModel;
+            XCurvePreview = profileModel.XCurvePreview;
+            YCurvePreview = profileModel.YCurvePreview;
+            YXRatio = profileModel.YXRatio;
+
+            YXRatio.PropertyChanged += OnYXRatioChanged;
+
+            // Update chart data synchronously for instant response
+            CreateSeries();
+
+            return Task.CompletedTask;
         }
 
         public ISeries[] Series { get; set; }

@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+using userinterface.Interfaces;
 using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
-    public partial class ProfilesPageViewModel : ViewModelBase
+    public partial class ProfilesPageViewModel : ViewModelBase, IAsyncInitializable
     {
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
@@ -48,6 +50,28 @@ namespace userinterface.ViewModels.Profile
         private IEnumerable<BE.ProfileModel> ProfileModels => ProfilesModel.Profiles;
 
         protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
+
+        public bool IsInitialized { get; private set; } = true; // Already initialized in constructor
+
+        public bool IsInitializing { get; private set; }
+
+        public Task InitializeAsync()
+        {
+            if (IsInitializing || IsInitialized)
+                return Task.CompletedTask;
+
+            IsInitializing = true;
+
+            // These operations should be fast with caching
+            UpdateProfileViewModels();
+            var defaultProfile = ProfilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
+            UpdateSelectedProfileView(defaultProfile ?? ProfilesModel.Profiles.FirstOrDefault());
+
+            IsInitializing = false;
+            IsInitialized = true;
+
+            return Task.CompletedTask;
+        }
 
 
         public void UpdateCurrentProfile()

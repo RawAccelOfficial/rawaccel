@@ -4,8 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Interfaces;
 using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels.Controls;
@@ -111,6 +113,30 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SelectedPage = page;
         IsProfilesExpanded = page == NavigationPage.Profiles;
     }
+
+    public async Task SelectPageAsync(NavigationPage page)
+    {
+        // Get the page ViewModel with explicit typing
+        ViewModelBase pageViewModel = page switch
+        {
+            NavigationPage.Devices => DevicesPage,
+            NavigationPage.Profiles => ProfilesPage,
+            NavigationPage.Mappings => MappingsPage,
+            NavigationPage.Settings => SettingsPage,
+            _ => DevicesPage
+        };
+
+        // Initialize async if supported (should be instant for cached ViewModels)
+        if (pageViewModel is IAsyncInitializable asyncViewModel && !asyncViewModel.IsInitialized)
+        {
+            await asyncViewModel.InitializeAsync();
+        }
+
+        // Update navigation immediately
+        SelectedPage = page;
+        IsProfilesExpanded = page == NavigationPage.Profiles;
+    }
+
 
     public void Apply()
     {

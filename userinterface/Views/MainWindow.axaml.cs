@@ -102,29 +102,23 @@ public partial class MainWindow : Window
         }
     }
 
-    public void OnNavigationClick(object? sender, RoutedEventArgs e)
+    public async void OnNavigationClick(object? sender, RoutedEventArgs e)
     {
         if (sender is Button button && 
             button.Tag is string pageNameString && 
             Enum.TryParse<NavigationPage>(pageNameString, out var page) &&
             DataContext is MainWindowViewModel viewModel)
         {
-            if (viewModel.NavigateCommand.CanExecute(page))
-            {
-                viewModel.NavigateCommand.Execute(page);
-            }
+            await viewModel.SelectPageAsync(page);
             UpdateSelectedButton(page);
         }
     }
 
-    private void OnSettingsClick(object? sender, RoutedEventArgs e)
+    private async void OnSettingsClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel)
         {
-            if (viewModel.NavigateCommand.CanExecute(NavigationPage.Settings))
-            {
-                viewModel.NavigateCommand.Execute(NavigationPage.Settings);
-            }
+            await viewModel.SelectPageAsync(NavigationPage.Settings);
             UpdateSelectedButton(NavigationPage.Settings);
         }
     }
