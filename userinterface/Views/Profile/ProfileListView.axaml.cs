@@ -12,13 +12,13 @@ using userspace_backend;
 using BE = userspace_backend.Model;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Specialized;
+using Avalonia.Layout;
 
 namespace userinterface.Views.Profile;
 
 public partial class ProfileListView : UserControl
 {
-    private Animation rectangleAnimation;
-    private readonly List<Rectangle> rectangles = new List<Rectangle>();
+    private readonly List<Border> profiles = new List<Border>();
     private Panel profileContainer;
     private readonly BE.ProfilesModel profilesModel;
 
@@ -40,18 +40,18 @@ public partial class ProfileListView : UserControl
     {
         profileContainer = this.FindControl<Panel>("ProfileContainer");
         
-        // Create rectangles based on profiles count
+        // Create profiles based on profiles count
         var profileCount = profilesModel.Profiles.Count;
         for (int i = 0; i < profileCount; i++)
         {
-            AddRectangle();
+            AddProfile();
         }
         
         // If we have profiles, animate them to their positions
-        for (int i = 0; i < profileCount && i < rectangles.Count; i++)
+        for (int i = 0; i < profileCount && i < profiles.Count; i++)
         {
-            // Animate each rectangle to its index position (0, 1, 2, etc.)
-            AnimateRectangleToPosition(i, i);
+            // Animate each profile to its index position (0, 1, 2, etc.)
+            AnimateProfileToPosition(i, i);
         }
     }
 
@@ -59,47 +59,72 @@ public partial class ProfileListView : UserControl
     {
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null)
         {
-            // Add rectangle for each new profile
+            // Add profile UI for each new profile
             foreach (var newProfile in e.NewItems)
             {
-                var newRectangleIndex = rectangles.Count;
-                AddRectangle();
+                var newProfileIndex = profiles.Count;
+                AddProfile();
                 
-                // Animate new rectangle to its position
-                AnimateRectangleToPosition(newRectangleIndex, newRectangleIndex);
+                // Animate new profile to its position
+                AnimateProfileToPosition(newProfileIndex, newProfileIndex);
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
         {
-            // Remove rectangles for removed profiles
+            // Remove profile UIs for removed profiles
             var removeCount = e.OldItems.Count;
-            for (int i = 0; i < removeCount && rectangles.Count > 0; i++)
+            for (int i = 0; i < removeCount && profiles.Count > 0; i++)
             {
-                var lastRectangle = rectangles[rectangles.Count - 1];
-                rectangles.RemoveAt(rectangles.Count - 1);
-                profileContainer?.Children.Remove(lastRectangle);
+                var lastProfile = profiles[profiles.Count - 1];
+                profiles.RemoveAt(profiles.Count - 1);
+                profileContainer?.Children.Remove(lastProfile);
             }
         }
     }
 
-    private void AddRectangle()
+    private void AddProfile()
     {
         // Alternate colors for visual distinction
         var colors = new[] { Brushes.Red, Brushes.Blue, Brushes.Green, Brushes.Orange };
-        var colorIndex = rectangles.Count % colors.Length;
+        var colorIndex = profiles.Count % colors.Length;
         
-        var rectangle = new Rectangle
+        // Create a Border container with Button inside
+        var profileBorder = new Border
         {
-            Fill = colors[colorIndex],
+            Background = colors[colorIndex],
             Width = 400,
             Height = 50,
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
-            Margin = new Avalonia.Thickness(0)
+            Margin = new Avalonia.Thickness(0),
+            CornerRadius = new Avalonia.CornerRadius(4)
         };
 
-        rectangles.Add(rectangle);
-        profileContainer?.Children.Add(rectangle);
+        var button = new Button
+        {
+            Content = profiles.Count == 0 ? "Add Profile" : $"Profile {profiles.Count + 1}",
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
+            Background = Brushes.Transparent,
+            BorderThickness = new Avalonia.Thickness(0)
+        };
+
+        button.Click += OnProfileButtonClicked;
+        profileBorder.Child = button;
+
+        profiles.Add(profileBorder);
+        profileContainer?.Children.Add(profileBorder);
+    }
+
+    private void OnProfileButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Get the ViewModel and call AddProfile
+        if (DataContext is ProfileListViewModel viewModel)
+        {
+            viewModel.TryAddProfile();
+        }
     }
 
     private void OnDataContextChanged(object sender, System.EventArgs e)
@@ -107,11 +132,11 @@ public partial class ProfileListView : UserControl
         // DataContext changed - could be used for additional setup if needed
     }
 
-    private void AnimateRectangleToPosition(int rectangleIndex, int position)
+    private void AnimateProfileToPosition(int profileIndex, int position)
     {
-        if (rectangles.Count <= rectangleIndex) return;
+        if (profiles.Count <= profileIndex) return;
 
-        var animatedRectangle = rectangles[rectangleIndex];
+        var animatedProfile = profiles[profileIndex];
         double targetMarginTop = position * 50d; // position 0 = 0px, position 1 = 50px
 
         var animation = new Animation
@@ -137,11 +162,11 @@ public partial class ProfileListView : UserControl
         };
 
         // Also set the margin directly after animation completes
-        animation.RunAsync(animatedRectangle).ContinueWith(_ => 
+        animation.RunAsync(animatedProfile).ContinueWith(_ => 
         {
             Avalonia.Threading.Dispatcher.UIThread.Post(() => 
             {
-                animatedRectangle.Margin = new Avalonia.Thickness(0, targetMarginTop, 0, 0);
+                animatedProfile.Margin = new Avalonia.Thickness(0, targetMarginTop, 0, 0);
             });
         });
     }

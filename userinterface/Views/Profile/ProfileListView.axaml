@@ -9,14 +9,9 @@
              x:DataType="vm:ProfileListViewModel">
 
 
-	<StackPanel>
-		<!-- Test button -->
-		<Button Content="Add Rectangle" Command="{Binding AddProfileCommand}" Margin="10"/>
-		
-		<!-- Flexible container for animated profile elements -->
-		<Panel x:Name="ProfileContainer" 
-		       Background="LightGray"
-		       MinHeight="100">
-		</Panel>
-	</StackPanel>
+	<!-- Flexible container for animated profile elements -->
+	<Panel x:Name="ProfileContainer" 
+	       Background="LightGray"
+	       MinHeight="100">
+	</Panel>
 </UserControl>
