@@ -38,6 +38,36 @@ namespace userinterface.ViewModels.Profile
             return false;
         }
 
+        public bool TryAddProfileAtPosition(int position)
+        {
+            for (int i = 1; i <= MaxProfileAttempts; i++)
+            {
+                string newProfileName = $"Profile {i}";
+                if (TryAddNewDefaultProfileAtPosition(newProfileName, position))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool TryAddNewDefaultProfileAtPosition(string profileName, int position)
+        {
+            // Create the profile first
+            if (profilesModel.TryAddNewDefaultProfile(profileName))
+            {
+                // Move it to the desired position if it's not position 1 (inserting at beginning needs special handling)
+                if (position == 1 && profilesModel.Profiles.Count > 1)
+                {
+                    var newProfile = profilesModel.Profiles[profilesModel.Profiles.Count - 1];
+                    profilesModel.Profiles.RemoveAt(profilesModel.Profiles.Count - 1);
+                    profilesModel.Profiles.Insert(1, newProfile);
+                }
+                return true;
+            }
+            return false;
+        }
+
         public bool RemoveProfile(BE.ProfileModel profile)
         {
             return profile != null && profilesModel.RemoveProfile(profile);

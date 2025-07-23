@@ -120,27 +120,19 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
+    private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e, int? targetPosition = null)
     {
         if (e.NewItems == null) return;
         
-        int insertIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profiles.Count;
+        int insertIndex = targetPosition ?? (e.NewStartingIndex >= 0 ? e.NewStartingIndex : profiles.Count);
         
         // Add profile UI for each new profile at the correct index
         foreach (var newProfile in e.NewItems)
         {
-            InsertProfile(insertIndex);
+            // Use the new method that places the profile directly at the target position
+            AddProfileAtPosition(insertIndex);
             insertIndex++; // For multiple additions, insert subsequent items at next index
         }
-        
-        // Wait for all add animations to complete
-        var animationTasks = new List<Task>();
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            animationTasks.Add(AnimateProfileToPosition(i, i, i));
-        }
-        
-        await Task.WhenAll(animationTasks);
     }
 
     private async Task HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
@@ -392,6 +384,50 @@ public partial class ProfileListView : UserControl
         _ = ProcessOperationQueue();
     }
 
+    // Method for adding profile at specific position without complex animations
+    private void AddProfileAtPosition(int index)
+    {
+        if (index < 0 || index > profiles.Count) return;
+
+        var colors = new[] { Brushes.Red, Brushes.Blue, Brushes.Green, Brushes.Orange };
+        var colorIndex = profiles.Count % colors.Length;
+        
+        var profileBorder = new Border
+        {
+            Background = colors[colorIndex],
+            Width = 400,
+            Height = ProfileHeight,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
+            Margin = new Avalonia.Thickness(0, CalculatePositionForIndex(index), 0, 0), // Start at target position
+            CornerRadius = new Avalonia.CornerRadius(4)
+        };
+
+        var button = new Button
+        {
+            Content = index == 0 && profiles.Count == 0 ? "Add Profile" : $"Profile {profiles.Count + 1}",
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
+            Background = Brushes.Transparent,
+            BorderThickness = new Avalonia.Thickness(0)
+        };
+
+        button.Click += OnProfileButtonClicked;
+        profileBorder.Child = button;
+
+        // Insert at specific index
+        profiles.Insert(index, profileBorder);
+        profileContainer?.Children.Insert(index, profileBorder);
+
+        // Animate existing profiles to their new positions
+        for (int i = index + 1; i < profiles.Count; i++)
+        {
+            _ = AnimateProfileToPosition(i, i, 0);
+        }
+    }
+
     // Legacy method for backward compatibility
     private void AddProfile()
     {
@@ -416,15 +452,6 @@ public partial class ProfileListView : UserControl
     private double CalculatePositionForIndex(int index)
     {
         return index * ProfileHeight;
-    }
-
-    private void RecalculateAllPositions()
-    {
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            var targetPosition = CalculatePositionForIndex(i);
-            profiles[i].Margin = new Avalonia.Thickness(0, targetPosition, 0, 0);
-        }
     }
 
     // Enhanced animation method with stagger support and cancellation
@@ -608,17 +635,10 @@ public partial class ProfileListView : UserControl
 
     private void TestInsertAtIndex(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (profilesModel.Profiles.Count >= 1)
+        // Get the ViewModel and call TryAddProfileAtPosition for position 1
+        if (DataContext is ProfileListViewModel viewModel && profilesModel.Profiles.Count >= 1)
         {
-            var newProfileName = $"InsertedProfile{profilesModel.Profiles.Count}";
-            // Use TryAddNewDefaultProfile and then move it, since we need the proper validator
-            if (profilesModel.TryAddNewDefaultProfile(newProfileName))
-            {
-                // Move the newly added profile (last) to index 1
-                var newProfile = profilesModel.Profiles[profilesModel.Profiles.Count - 1];
-                profilesModel.Profiles.RemoveAt(profilesModel.Profiles.Count - 1);
-                profilesModel.Profiles.Insert(1, newProfile);
-            }
+            viewModel.TryAddProfileAtPosition(1);
         }
     }
 
