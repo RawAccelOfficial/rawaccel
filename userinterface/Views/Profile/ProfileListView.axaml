@@ -147,6 +147,54 @@
 			<Setter Property="BorderBrush" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
+
+		<!-- NoInteractionButtonTemplate for delete buttons -->
+		<Style Selector="Button.NoInteractionButtonTemplate">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="4"/>
+			<Setter Property="Margin" Value="4,0,0,0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="24"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="PART_LayoutRoot"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
+							Padding="{TemplateBinding Padding}">
+						<ContentPresenter Name="PART_ContentPresenter"
+										  Content="{TemplateBinding Content}"
+										  HorizontalContentAlignment="Center"
+										  VerticalContentAlignment="Center"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:pointerover">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonHoverBrush}"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:pointerover PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource ButtonIconOnHoverBrush}"/>
+		</Style>
+
+		<!-- Disabled state styling -->
+		<Style Selector="Button.NoInteractionButtonTemplate:disabled">
+			<Setter Property="Opacity" Value="0.4"/>
+		</Style>
+
+		<Style Selector="Button.NoInteractionButtonTemplate:disabled PathIcon">
+			<Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+		</Style>
 	</UserControl.Styles>
 
 	<!-- Profile Items Container -->

@@ -28,6 +28,7 @@ public partial class ProfileListView : UserControl
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private BE.ProfileModel selectedProfile;
+    private bool areAnimationsActive = false;
     
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
@@ -66,6 +67,9 @@ public partial class ProfileListView : UserControl
         
         // Refresh all profile names to ensure they display correctly
         RefreshAllProfileNames();
+        
+        // Ensure delete buttons are enabled initially
+        UpdateDeleteButtonStates();
         
         // Auto-select the default profile if available
         var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
@@ -319,10 +323,10 @@ public partial class ProfileListView : UserControl
         // Only add delete button for non-default profiles
         if (!isDefaultProfile)
         {
-            // Create the delete button with icon
+            // Create the delete button with icon using NoInteractionButtonTemplate
             var deleteButton = new Button
             {
-                Classes = { "DeleteButton" },
+                Classes = { "NoInteractionButtonTemplate" },
                 VerticalAlignment = VerticalAlignment.Center,
                 Content = new PathIcon
                 {
@@ -355,6 +359,21 @@ public partial class ProfileListView : UserControl
         
         return border;
     }
+    
+    private void UpdateDeleteButtonStates()
+    {
+        foreach (var profileBorder in profiles)
+        {
+            if (profileBorder.Child is Grid grid)
+            {
+                var deleteButton = grid.Children.OfType<Button>().FirstOrDefault(b => b.Classes.Contains("DeleteButton"));
+                if (deleteButton != null)
+                {
+                    deleteButton.IsEnabled = !areAnimationsActive;
+                }
+            }
+        }
+    }
 
     private void OnProfileBorderClicked(object sender, Avalonia.Input.PointerPressedEventArgs e)
     {
@@ -383,6 +402,13 @@ public partial class ProfileListView : UserControl
     
     private void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        // Prevent deletion during animations to avoid bugs
+        if (areAnimationsActive)
+        {
+            Debug.WriteLine($"[PROFILE_TIMING] Delete button click ignored - animations are active");
+            return;
+        }
+        
         // Find which profile this delete button belongs to
         if (sender is Button deleteButton && 
             deleteButton.Parent is Grid grid && 
@@ -414,6 +440,10 @@ public partial class ProfileListView : UserControl
             }
         }
         activeAnimations.Clear();
+        
+        // Re-enable delete buttons when all animations are canceled
+        areAnimationsActive = false;
+        UpdateDeleteButtonStates();
     }
 
     private async Task AnimateProfileToPosition(int profileIndex, int position, int staggerIndex = 0)
@@ -539,6 +569,9 @@ public partial class ProfileListView : UserControl
         
         if (animationTasks.Count > 0)
         {
+            areAnimationsActive = true;
+            UpdateDeleteButtonStates();
+            
             try
             {
                 await Task.WhenAll(animationTasks);
@@ -546,6 +579,11 @@ public partial class ProfileListView : UserControl
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ANIMATION] Error in AnimateAllProfilesToCorrectPositions: {ex.Message}");
+            }
+            finally
+            {
+                areAnimationsActive = false;
+                UpdateDeleteButtonStates();
             }
         }
     }
