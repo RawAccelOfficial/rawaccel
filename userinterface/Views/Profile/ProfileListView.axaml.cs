@@ -57,28 +57,95 @@ public partial class ProfileListView : UserControl
 
     private void OnProfilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null)
+        switch (e.Action)
         {
-            // Add profile UI for each new profile
-            foreach (var newProfile in e.NewItems)
-            {
-                var newProfileIndex = profiles.Count;
-                AddProfile();
+            case NotifyCollectionChangedAction.Add:
+                HandleProfilesAdded(e);
+                break;
                 
-                // Animate new profile to its position
-                AnimateProfileToPosition(newProfileIndex, newProfileIndex);
-            }
+            case NotifyCollectionChangedAction.Remove:
+                HandleProfilesRemoved(e);
+                break;
+                
+            case NotifyCollectionChangedAction.Replace:
+                HandleProfilesReplaced(e);
+                break;
+                
+            case NotifyCollectionChangedAction.Move:
+                HandleProfilesMoved(e);
+                break;
+                
+            case NotifyCollectionChangedAction.Reset:
+                HandleProfilesReset(e);
+                break;
         }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
+    }
+
+    private void HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems == null) return;
+        
+        // Add profile UI for each new profile
+        foreach (var newProfile in e.NewItems)
         {
-            // Remove profile UIs for removed profiles
-            var removeCount = e.OldItems.Count;
-            for (int i = 0; i < removeCount && profiles.Count > 0; i++)
-            {
-                var lastProfile = profiles[profiles.Count - 1];
-                profiles.RemoveAt(profiles.Count - 1);
-                profileContainer?.Children.Remove(lastProfile);
-            }
+            var newProfileIndex = profiles.Count;
+            AddProfile();
+            
+            // Animate new profile to its position
+            AnimateProfileToPosition(newProfileIndex, newProfileIndex);
+        }
+    }
+
+    private void HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems == null) return;
+        
+        // Remove profile UIs for removed profiles
+        var removeCount = e.OldItems.Count;
+        for (int i = 0; i < removeCount && profiles.Count > 0; i++)
+        {
+            var lastProfile = profiles[profiles.Count - 1];
+            profiles.RemoveAt(profiles.Count - 1);
+            profileContainer?.Children.Remove(lastProfile);
+        }
+    }
+
+    private void HandleProfilesReplaced(NotifyCollectionChangedEventArgs e)
+    {
+        // Handle profile replacement - update existing UI elements
+        if (e.OldItems != null && e.NewItems != null && e.OldStartingIndex >= 0)
+        {
+            // For now, just refresh the affected profiles
+            // TODO: Implement more efficient replacement logic
+        }
+    }
+
+    private void HandleProfilesMoved(NotifyCollectionChangedEventArgs e)
+    {
+        // Handle profile reordering - animate elements to new positions
+        if (e.OldStartingIndex >= 0 && e.NewStartingIndex >= 0)
+        {
+            // TODO: Implement move logic with animations
+        }
+    }
+
+    private void HandleProfilesReset(NotifyCollectionChangedEventArgs e)
+    {
+        // Handle complete collection reset - clear and rebuild all UI
+        profiles.Clear();
+        profileContainer?.Children.Clear();
+        
+        // Recreate all profiles
+        var profileCount = profilesModel.Profiles.Count;
+        for (int i = 0; i < profileCount; i++)
+        {
+            AddProfile();
+        }
+        
+        // Animate all profiles to their positions
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            AnimateProfileToPosition(i, i);
         }
     }
 
