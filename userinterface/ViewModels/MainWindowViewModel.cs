@@ -154,7 +154,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         
         if (view != null)
         {
-            await view.ExpandProfileAnimation();
+            await view.ExpandElements();
         }
     }
 
@@ -166,7 +166,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         
         if (view != null)
         {
-            await view.CollapseProfileAnimation();
+            await view.CollapseElements();
         }
     }
 
