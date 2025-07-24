@@ -38,6 +38,7 @@ public partial class ProfileListView : UserControl
     private const double ProfileSpacing = 4.0;
     private const int StaggerDelayMs = 20;
     private const double ProfileSpawnPosition = 0.0;
+    private const double FirstIndexOffset = 6;
 
     public ProfileListView()
     {
@@ -451,8 +452,11 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private static double CalculatePositionForIndex(int index, bool includeAddButton = true) => 
-        includeAddButton ? (index + 1) * (ProfileHeight + ProfileSpacing) : index * (ProfileHeight + ProfileSpacing);
+    private static double CalculatePositionForIndex(int index, bool includeAddButton = true)
+    {
+        var adjustedIndex = includeAddButton ? index + 1 : index;
+        return adjustedIndex == 0 ? 0 : (adjustedIndex * (ProfileHeight + ProfileSpacing)) + FirstIndexOffset;
+    }
     
     private void UpdateAllZIndexes()
     {

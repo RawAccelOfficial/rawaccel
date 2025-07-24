@@ -6,7 +6,8 @@
              xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileListView"
-             x:DataType="vm:ProfileListViewModel">
+             x:DataType="vm:ProfileListViewModel"
+             ClipToBounds="False">
 
 	<UserControl.Styles>
 		<Style Selector="Border.ProfileItem">
@@ -176,6 +177,7 @@
 	<!-- Profile Items Container -->
 	<Panel x:Name="ProfileContainer" 
 	       Background="Transparent"
-	       MinHeight="50">
+	       MinHeight="50"
+	       Margin="0,-52,0,0">
 	</Panel>
 </UserControl>

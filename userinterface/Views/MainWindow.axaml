@@ -382,7 +382,8 @@
 							<Button Classes="NavButton"
 									Name="ProfilesButton"
 									Tag="Profiles"
-									Content="{ext:Localized MainWindowProfilesButton}"/>
+									Content="{ext:Localized MainWindowProfilesButton}"
+									ZIndex="1000"/>
 							<vp:ProfileListView Name="ProfileListView" DataContext="{Binding ProfilesPage.ProfileListView}"/>
 						</StackPanel>
 					</StackPanel>
