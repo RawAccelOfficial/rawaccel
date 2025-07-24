@@ -152,7 +152,7 @@ public partial class ProfileListView : UserControl
         
         animationHelper.UpdateAllZIndexes();
         
-        await animationHelper.AnimateAllProfilesToCorrectPositions(removeIndex);
+        await animationHelper.AnimateAllProfilesToCorrectPositionsAsync(removeIndex);
         
         if (selectedProfile != null && !profilesModel.Profiles.Contains(selectedProfile))
         {
@@ -189,7 +189,7 @@ public partial class ProfileListView : UserControl
         
         animationHelper.UpdateAllZIndexes();
         
-        await animationHelper.AnimateAllProfilesToCorrectPositions(replaceIndex);
+        await animationHelper.AnimateAllProfilesToCorrectPositionsAsync(replaceIndex);
     }
 
     private async Task HandleProfilesMoved(NotifyCollectionChangedEventArgs e)
@@ -200,7 +200,7 @@ public partial class ProfileListView : UserControl
         
         animationHelper.UpdateAllZIndexes();
         
-        await animationHelper.AnimateAllProfilesToCorrectPositions(Math.Min(e.OldStartingIndex, e.NewStartingIndex));
+        await animationHelper.AnimateAllProfilesToCorrectPositionsAsync(Math.Min(e.OldStartingIndex, e.NewStartingIndex));
     }
 
     private Task HandleProfilesReset()
@@ -264,7 +264,7 @@ public partial class ProfileListView : UserControl
         
         animationHelper.UpdateAllZIndexes();
         
-        _ = animationHelper.AnimateAllProfilesToCorrectPositions(targetIndex);
+        _ = animationHelper.AnimateAllProfilesToCorrectPositionsAsync(targetIndex);
     }
     
     private Border CreateAddProfileButton()
@@ -429,7 +429,7 @@ public partial class ProfileListView : UserControl
             var profileBorder = CreateProfileBorder(null, i);
             profileBorder.ZIndex = 1000;
             profileBorder.Opacity = 1.0;
-            profileBorder.Margin = new Thickness(8, ProfileListAnimationHelper.CalculatePositionForIndex(0, false), 8, 0);
+            profileBorder.Margin = new Thickness(8, animationHelper?.CalculatePositionForIndex(0, false) ?? 0, 8, 0);
             
             profiles.Insert(i, profileBorder);
             int containerIndex = i + 1; // +1 because Add Profile button is at index 0
@@ -502,12 +502,12 @@ public partial class ProfileListView : UserControl
     
     public async Task ExpandProfileAnimation()
     {
-        await animationHelper.ExpandProfileAnimation();
+        await animationHelper.ExpandProfileAnimationAsync();
     }
     
     public async Task CollapseProfileAnimation()
     {
-        await animationHelper.CollapseProfileAnimation();
+        await animationHelper.CollapseProfileAnimationAsync();
     }
     
 

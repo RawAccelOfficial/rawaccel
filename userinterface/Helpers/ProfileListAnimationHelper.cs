@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Animation.Easings;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Avalonia.Layout;
 using Avalonia;
 using System.Linq;
 using Avalonia.Styling;
+using System.Runtime.CompilerServices;
 
 namespace userinterface.Helpers;
 
@@ -19,11 +21,78 @@ public class ProfileListAnimationHelper : IDisposable
     private readonly List<Border> profiles;
     private readonly Panel profileContainer;
     private readonly Border addProfileButton;
-    private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
-    private readonly SemaphoreSlim operationSemaphore = new(1, 1);
+    private readonly ConcurrentDictionary<int, CancellationTokenSource> activeAnimations = new();
+    private readonly ReaderWriterLockSlim animationLock = new();
     private volatile bool areAnimationsActive = false;
-    private readonly object animationLock = new();
     private bool disposed = false;
+    
+    // Object pools for memory optimization
+    private readonly ObjectPool<Animation> animationPool = new(() => new Animation());
+    private readonly ObjectPool<List<Task>> taskListPool = new(() => new List<Task>());
+    // CancellationTokenSource can't be reused after cancellation, so we just dispose them
+    
+    // Caches for performance optimization
+    private readonly Dictionary<int, double> positionCache = new();
+    private readonly Dictionary<int, Button> deleteButtonCache = new();
+    private readonly Dictionary<string, Animation> animationTemplateCache = new();
+    
+    // Performance counters
+    private volatile int activeAnimationCount = 0;
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private Animation GetOrCreateAnimation(string templateKey, Thickness targetMargin)
+    {
+        if (animationTemplateCache.TryGetValue(templateKey, out var cachedAnimation))
+        {
+            // Clone the animation with new target values
+            var animation = animationPool.Get();
+            animation.Duration = TimeSpan.FromMilliseconds(300);
+            animation.FillMode = FillMode.Forward;
+            animation.Easing = Easing.Parse("0.25,0.1,0.25,1");
+            animation.Children.Clear();
+            animation.Children.Add(new KeyFrame
+            {
+                Cue = new Cue(0d),
+                Setters = { new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 } }
+            });
+            animation.Children.Add(new KeyFrame
+            {
+                Cue = new Cue(1d),
+                Setters = {
+                    new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin },
+                    new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 }
+                }
+            });
+            return animation;
+        }
+        
+        // Create and cache new animation template
+        var newAnimation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(300),
+            FillMode = FillMode.Forward,
+            Easing = Easing.Parse("0.25,0.1,0.25,1"),
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0d),
+                    Setters = { new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 } }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1d),
+                    Setters = {
+                        new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin },
+                        new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 }
+                    }
+                }
+            }
+        };
+        
+        animationTemplateCache[templateKey] = newAnimation;
+        return newAnimation;
+    }
     
     public static double ProfileHeight => 38.0;
     public static double ProfileSpacing => 4.0;
@@ -40,19 +109,23 @@ public class ProfileListAnimationHelper : IDisposable
 
     public bool AreAnimationsActive
     {
-        get
-        {
-            lock (animationLock)
-            {
-                return areAnimationsActive;
-            }
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => areAnimationsActive;
     }
 
-    public static double CalculatePositionForIndex(int index, bool includeAddButton = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double CalculatePositionForIndex(int index, bool includeAddButton = true)
     {
+        // Use cache for frequently accessed positions
+        var cacheKey = includeAddButton ? index : index + 1000;
+        if (positionCache.TryGetValue(cacheKey, out var cachedPosition))
+            return cachedPosition;
+            
         var adjustedIndex = includeAddButton ? index + 1 : index;
-        return adjustedIndex == 0 ? 0 : (adjustedIndex * (ProfileHeight + ProfileSpacing)) + FirstIndexOffset;
+        var position = adjustedIndex == 0 ? 0 : (adjustedIndex * (ProfileHeight + ProfileSpacing)) + FirstIndexOffset;
+        
+        positionCache[cacheKey] = position;
+        return position;
     }
     
     public void UpdateAllZIndexes()
@@ -65,14 +138,23 @@ public class ProfileListAnimationHelper : IDisposable
     
     public void UpdateDeleteButtonStates()
     {
-        foreach (var profileBorder in profiles)
+        var isActive = areAnimationsActive;
+        for (int i = 0; i < profiles.Count; i++)
         {
-            if (profileBorder.Child is Grid grid)
+            // Use cached delete button reference if available
+            if (deleteButtonCache.TryGetValue(i, out var cachedButton))
+            {
+                cachedButton.IsEnabled = !isActive;
+                continue;
+            }
+            
+            if (profiles[i].Child is Grid grid)
             {
                 var deleteButton = grid.Children.OfType<Button>().FirstOrDefault(b => b.Classes.Contains("DeleteButton"));
                 if (deleteButton != null)
                 {
-                    deleteButton.IsEnabled = !areAnimationsActive;
+                    deleteButton.IsEnabled = !isActive;
+                    deleteButtonCache[i] = deleteButton; // Cache for future use
                 }
             }
         }
@@ -80,37 +162,52 @@ public class ProfileListAnimationHelper : IDisposable
     
     public void CancelAllAnimations()
     {
-        lock (animationLock)
+        animationLock.EnterWriteLock();
+        try
         {
             CancelAllAnimationsInternal();
             areAnimationsActive = false;
+            Interlocked.Exchange(ref activeAnimationCount, 0);
+        }
+        finally
+        {
+            animationLock.ExitWriteLock();
         }
         UpdateDeleteButtonStates();
     }
     
     private void CancelAllAnimationsInternal()
     {
-        foreach (var cts in activeAnimations.Values)
+        var tokensToReturn = new List<CancellationTokenSource>();
+        
+        foreach (var kvp in activeAnimations)
         {
             try
             {
-                cts.Cancel();
-                cts.Dispose();
+                kvp.Value.Cancel();
+                tokensToReturn.Add(kvp.Value);
             }
             catch (ObjectDisposedException)
             {
                 // Token was already disposed, ignore
             }
         }
+        
         activeAnimations.Clear();
+        
+        // Return tokens to pool
+        foreach (var cts in tokensToReturn)
+        {
+            try { cts.Dispose(); } catch (ObjectDisposedException) { }
+        }
     }
 
-    public async Task AnimateProfileToPosition(int profileIndex, int position, int staggerIndex = 0)
+    public async ValueTask AnimateProfileToPositionAsync(int profileIndex, int position, int staggerIndex = 0)
     {
         if (profileIndex >= profiles.Count) return;
 
         // Cancel existing animation for this profile
-        if (activeAnimations.TryGetValue(profileIndex, out var existingCts))
+        if (activeAnimations.TryRemove(profileIndex, out var existingCts))
         {
             try
             {
@@ -118,19 +215,19 @@ public class ProfileListAnimationHelper : IDisposable
                 existingCts.Dispose();
             }
             catch (ObjectDisposedException) { }
-            activeAnimations.Remove(profileIndex);
         }
 
         // Check if profile is already at correct position - skip animation if so
         var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0);
         if (profiles[profileIndex].Margin == targetMargin)
         {
-            profiles[profileIndex].ZIndex = position; // Set z-index based on position
+            profiles[profileIndex].ZIndex = position;
             return;
         }
 
         var cts = new CancellationTokenSource();
         activeAnimations[profileIndex] = cts;
+        Interlocked.Increment(ref activeAnimationCount);
 
         try
         {
@@ -201,131 +298,172 @@ public class ProfileListAnimationHelper : IDisposable
         }
         finally
         {
-            lock (animationLock)
+            if (activeAnimations.TryRemove(profileIndex, out var removedCts))
             {
-                activeAnimations.Remove(profileIndex);
-                
-                // Check if this was the last animation
-                if (activeAnimations.Count == 0 && areAnimationsActive)
-                {
-                    areAnimationsActive = false;
-                    Debug.WriteLine($"[ANIMATION] All animations completed, re-enabling interactions at {DateTime.Now:HH:mm:ss.fff}");
-                }
+                try { removedCts.Dispose(); } catch (ObjectDisposedException) { }
             }
-            try
+            
+            var remainingCount = Interlocked.Decrement(ref activeAnimationCount);
+            
+            // Check if this was the last animation
+            if (remainingCount == 0 && areAnimationsActive)
             {
-                cts?.Dispose();
+                areAnimationsActive = false;
+                Debug.WriteLine($"[ANIMATION] All animations completed, re-enabling interactions at {DateTime.Now:HH:mm:ss.fff}");
             }
-            catch (ObjectDisposedException) { }
         }
     }
 
-    public async Task AnimateAllProfilesToCorrectPositions(int focusIndex = -1)
+    public async ValueTask AnimateAllProfilesToCorrectPositionsAsync(int focusIndex = -1)
     {
-        var animationTasks = new List<Task>();
-        
-        lock (animationLock)
+        var animationTasks = taskListPool.Get();
+        try
         {
-            // Cancel any existing animations before starting new ones
-            CancelAllAnimationsInternal();
-        }
-        
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            var targetMargin = new Thickness(8, CalculatePositionForIndex(i + 1), 8, 0);
-            if (profiles[i].Margin == targetMargin) 
-            {
-                profiles[i].ZIndex = i;
-                continue;
-            }
-            
-            int staggerIndex = (focusIndex >= 0 && i != focusIndex) ? Math.Min(Math.Abs(i - focusIndex), 3) : i;
-            animationTasks.Add(AnimateProfileToPosition(i, i, staggerIndex));
-        }
-        
-        if (animationTasks.Count > 0)
-        {
-            lock (animationLock)
-            {
-                areAnimationsActive = true;
-            }
-            UpdateDeleteButtonStates();
-            
+            animationLock.EnterWriteLock();
             try
             {
-                await Task.WhenAll(animationTasks);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[ANIMATION] Error in AnimateAllProfilesToCorrectPositions: {ex.Message}");
+                // Cancel any existing animations before starting new ones
+                CancelAllAnimationsInternal();
             }
             finally
             {
-                lock (animationLock)
+                animationLock.ExitWriteLock();
+            }
+            
+            // Batch process animations for better performance
+            var animationsToRun = new List<(int index, int staggerIndex)>();
+            
+            for (int i = 0; i < profiles.Count; i++)
+            {
+                var targetMargin = new Thickness(8, CalculatePositionForIndex(i + 1), 8, 0);
+                if (profiles[i].Margin == targetMargin) 
+                {
+                    profiles[i].ZIndex = i;
+                    continue;
+                }
+                
+                int staggerIndex = (focusIndex >= 0 && i != focusIndex) ? Math.Min(Math.Abs(i - focusIndex), 3) : i;
+                animationsToRun.Add((i, staggerIndex));
+            }
+            
+            // Deduplicate animations based on target positions
+            var deduplicatedAnimations = animationsToRun
+                .GroupBy(a => a.index)
+                .Select(g => g.Last()) // Take the last animation for each index
+                .OrderBy(a => a.staggerIndex)
+                .ToList();
+            
+            foreach (var (index, staggerIndex) in deduplicatedAnimations)
+            {
+                animationTasks.Add(AnimateProfileToPositionAsync(index, index, staggerIndex).AsTask());
+            }
+            
+            if (animationTasks.Count > 0)
+            {
+                areAnimationsActive = true;
+                UpdateDeleteButtonStates();
+                
+                try
+                {
+                    await Task.WhenAll(animationTasks);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[ANIMATION] Error in AnimateAllProfilesToCorrectPositionsAsync: {ex.Message}");
+                }
+                finally
                 {
                     areAnimationsActive = false;
+                    UpdateDeleteButtonStates();
                 }
-                UpdateDeleteButtonStates();
             }
-        }
-    }
-    
-    public async Task ExpandProfileAnimation()
-    {
-        var animationTasks = new List<Task>();
-        
-        // Animate Add Profile button back to position 0 with includeAddButton = true (its normal position)
-        if (addProfileButton != null)
-        {
-            animationTasks.Add(AnimateAddProfileButtonToPosition(0, true));
-        }
-        
-        // Animate profiles to their correct positions
-        animationTasks.Add(AnimateAllProfilesToCorrectPositions(-1));
-        
-        await Task.WhenAll(animationTasks);
-    }
-    
-    public async Task CollapseProfileAnimation()
-    {
-        if (profiles.Count == 0) return;
-        
-        var animationTasks = new List<Task>();
-        
-        lock (animationLock)
-        {
-            CancelAllAnimationsInternal();
-            areAnimationsActive = true;
-        }
-        UpdateDeleteButtonStates();
-        
-        // Animate Add Profile button to position 0
-        if (addProfileButton != null)
-        {
-            animationTasks.Add(AnimateAddProfileButtonToPosition(0, false));
-        }
-        
-        // Animate all profiles to position 0
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            animationTasks.Add(CollapseProfileAnimationForIndex(i, i));
-        }
-        
-        try
-        {
-            await Task.WhenAll(animationTasks);
         }
         finally
         {
-            lock (animationLock)
-            {
-                areAnimationsActive = false;
-            }
-            UpdateDeleteButtonStates();
+            animationTasks.Clear();
+            taskListPool.Return(animationTasks);
         }
     }
     
-    private async Task AnimateAddProfileButtonToPosition(int targetPosition, bool includeAddButton)
+    public async ValueTask ExpandProfileAnimationAsync()
+    {
+        var animationTasks = taskListPool.Get();
+        try
+        {
+            // Animate Add Profile button back to position 0 with includeAddButton = true (its normal position)
+            if (addProfileButton != null)
+            {
+                animationTasks.Add(AnimateAddProfileButtonToPositionAsync(0, true));
+            }
+            
+            // Animate profiles to their correct positions
+            animationTasks.Add(AnimateAllProfilesToCorrectPositionsAsync(-1).AsTask());
+            
+            if (animationTasks.Count > 0)
+            {
+                await Task.WhenAll(animationTasks);
+            }
+        }
+        finally
+        {
+            animationTasks.Clear();
+            taskListPool.Return(animationTasks);
+        }
+    }
+    
+    public async ValueTask CollapseProfileAnimationAsync()
+    {
+        if (profiles.Count == 0) return;
+        
+        var animationTasks = taskListPool.Get();
+        try
+        {
+            animationLock.EnterWriteLock();
+            try
+            {
+                CancelAllAnimationsInternal();
+                areAnimationsActive = true;
+            }
+            finally
+            {
+                animationLock.ExitWriteLock();
+            }
+            
+            UpdateDeleteButtonStates();
+            
+            // Animate Add Profile button to position 0
+            if (addProfileButton != null)
+            {
+                animationTasks.Add(AnimateAddProfileButtonToPositionAsync(0, false));
+            }
+            
+            // Animate all profiles to position 0
+            for (int i = 0; i < profiles.Count; i++)
+            {
+                animationTasks.Add(CollapseProfileAnimationForIndexAsync(i, i));
+            }
+            
+            if (animationTasks.Count > 0)
+            {
+                try
+                {
+                    await Task.WhenAll(animationTasks);
+                }
+                finally
+                {
+                    areAnimationsActive = false;
+                    UpdateDeleteButtonStates();
+                }
+            }
+        }
+        finally
+        {
+            animationTasks.Clear();
+            taskListPool.Return(animationTasks);
+        }
+    }
+    
+    private async Task AnimateAddProfileButtonToPositionAsync(int targetPosition, bool includeAddButton)
     {
         if (addProfileButton == null) return;
 
@@ -372,12 +510,13 @@ public class ProfileListAnimationHelper : IDisposable
         addProfileButton.Margin = targetMargin;
     }
     
-    private async Task CollapseProfileAnimationForIndex(int profileIndex, int staggerIndex = 0)
+    private async Task CollapseProfileAnimationForIndexAsync(int profileIndex, int staggerIndex = 0)
     {
         if (profileIndex >= profiles.Count) return;
 
         var cts = new CancellationTokenSource();
         activeAnimations[profileIndex] = cts;
+        Interlocked.Increment(ref activeAnimationCount);
 
         try
         {
@@ -441,15 +580,12 @@ public class ProfileListAnimationHelper : IDisposable
         }
         finally
         {
-            lock (animationLock)
+            if (activeAnimations.TryRemove(profileIndex, out var removedCts))
             {
-                activeAnimations.Remove(profileIndex);
+                try { removedCts.Dispose(); } catch (ObjectDisposedException) { }
             }
-            try
-            {
-                cts?.Dispose();
-            }
-            catch (ObjectDisposedException) { }
+            
+            Interlocked.Decrement(ref activeAnimationCount);
         }
     }
 
@@ -457,9 +593,43 @@ public class ProfileListAnimationHelper : IDisposable
     {
         if (!disposed)
         {
-            CancelAllAnimations();
-            operationSemaphore?.Dispose();
             disposed = true;
+            
+            // Cancel all animations first
+            CancelAllAnimations();
+            
+            // Dispose of all pools and resources
+            animationPool?.Dispose();
+            taskListPool?.Dispose();
+            
+            // Dispose locks
+            animationLock?.Dispose();
+            
+            // Clear caches
+            positionCache.Clear();
+            deleteButtonCache.Clear();
+            animationTemplateCache.Clear();
         }
+    }
+    
+    // Backward compatibility methods
+    public async Task AnimateProfileToPosition(int profileIndex, int position, int staggerIndex = 0)
+    {
+        await AnimateProfileToPositionAsync(profileIndex, position, staggerIndex);
+    }
+    
+    public async Task AnimateAllProfilesToCorrectPositions(int focusIndex = -1)
+    {
+        await AnimateAllProfilesToCorrectPositionsAsync(focusIndex);
+    }
+    
+    public async Task ExpandProfileAnimation()
+    {
+        await ExpandProfileAnimationAsync();
+    }
+    
+    public async Task CollapseProfileAnimation()
+    {
+        await CollapseProfileAnimationAsync();
     }
 }
