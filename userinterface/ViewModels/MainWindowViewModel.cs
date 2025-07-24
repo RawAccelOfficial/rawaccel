@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -87,6 +88,27 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    public bool IsProfilesExpanded
+    {
+        get => isProfilesExpandedValue;
+        set
+        {
+            if (isProfilesExpandedValue != value)
+            {
+                isProfilesExpandedValue = value;
+                OnPropertyChanged();
+                
+                if (value)
+                {
+                    ExpandProfiles();
+                }
+                else
+                {
+                    CollapseProfiles();
+                }
+            }
+        }
+    }
 
     public object? CurrentPageContent =>
         SelectedPage switch
@@ -101,6 +123,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public void SelectPage(NavigationPage page)
     {
         SelectedPage = page;
+        IsProfilesExpanded = page == NavigationPage.Profiles;
     }
 
     public async Task SelectPageAsync(NavigationPage page)
@@ -120,8 +143,32 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
 
         SelectedPage = page;
+        IsProfilesExpanded = page == NavigationPage.Profiles;
     }
 
+    private async void ExpandProfiles()
+    {
+        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop 
+            ? desktop.MainWindow?.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView")
+            : null;
+        
+        if (view != null)
+        {
+            await view.ExpandProfileAnimation();
+        }
+    }
+
+    private async void CollapseProfiles()
+    {
+        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop 
+            ? desktop.MainWindow?.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView")
+            : null;
+        
+        if (view != null)
+        {
+            await view.CollapseProfileAnimation();
+        }
+    }
 
     public void Apply()
     {

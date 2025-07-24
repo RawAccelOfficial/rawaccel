@@ -25,6 +25,7 @@ public partial class ProfileListView : UserControl
 {
     private readonly List<Border> profiles = [];
     private Panel profileContainer;
+    private Border addProfileButton;
     private readonly BE.ProfilesModel profilesModel;
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
@@ -60,8 +61,8 @@ public partial class ProfileListView : UserControl
     {
         profileContainer = this.FindControl<Panel>("ProfileContainer");
         
-        var addButton = CreateAddProfileButton();
-        profileContainer.Children.Add(addButton);
+        addProfileButton = CreateAddProfileButton();
+        profileContainer.Children.Add(addProfileButton);
         
         _ = CreateProfilesWithStagger();
         
@@ -450,7 +451,8 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private static double CalculatePositionForIndex(int index) => index * (ProfileHeight + ProfileSpacing);
+    private static double CalculatePositionForIndex(int index, bool includeAddButton = true) => 
+        includeAddButton ? (index + 1) * (ProfileHeight + ProfileSpacing) : index * (ProfileHeight + ProfileSpacing);
     
     private void UpdateAllZIndexes()
     {
@@ -464,10 +466,10 @@ public partial class ProfileListView : UserControl
     {
         for (int i = 0; i < profilesModel.Profiles.Count; i++)
         {
-            // Create the profile border without animation
             var profileBorder = CreateProfileBorder(null, i);
-            profileBorder.ZIndex = 1000; // High z-index during creation
+            profileBorder.ZIndex = 1000;
             profileBorder.Opacity = 1.0;
+            profileBorder.Margin = new Thickness(8, CalculatePositionForIndex(0, false), 8, 0);
             
             profiles.Insert(i, profileBorder);
             int containerIndex = i + 1; // +1 because Add Profile button is at index 0
@@ -476,7 +478,6 @@ public partial class ProfileListView : UserControl
         }
         
         UpdateAllZIndexes();
-        await AnimateAllProfilesToCorrectPositions(-1);
         RefreshAllProfileNames();
         UpdateDeleteButtonStates();
     }
@@ -635,7 +636,7 @@ public partial class ProfileListView : UserControl
         
         for (int i = 0; i < profiles.Count; i++)
         {
-            var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(i + 1), 8, 0);
+            var targetMargin = new Thickness(8, CalculatePositionForIndex(i + 1), 8, 0);
             if (profiles[i].Margin == targetMargin) 
             {
                 profiles[i].ZIndex = i;
@@ -737,7 +738,23 @@ public partial class ProfileListView : UserControl
         }
     }
     
-    public async Task UnfocusProfileAnimation()
+    public async Task ExpandProfileAnimation()
+    {
+        var animationTasks = new List<Task>();
+        
+        // Animate Add Profile button back to position 0 with includeAddButton = true (its normal position)
+        if (addProfileButton != null)
+        {
+            animationTasks.Add(AnimateAddProfileButtonToPosition(0, true));
+        }
+        
+        // Animate profiles to their correct positions
+        animationTasks.Add(AnimateAllProfilesToCorrectPositions(-1));
+        
+        await Task.WhenAll(animationTasks);
+    }
+    
+    public async Task CollapseProfileAnimation()
     {
         if (profiles.Count == 0) return;
         
@@ -750,9 +767,16 @@ public partial class ProfileListView : UserControl
         }
         UpdateDeleteButtonStates();
         
+        // Animate Add Profile button to position 0
+        if (addProfileButton != null)
+        {
+            animationTasks.Add(AnimateAddProfileButtonToPosition(0, false));
+        }
+        
+        // Animate all profiles to position 0
         for (int i = 0; i < profiles.Count; i++)
         {
-            animationTasks.Add(UnfocusProfileAnimationForIndex(i, i));
+            animationTasks.Add(CollapseProfileAnimationForIndex(i, i));
         }
         
         try
@@ -769,7 +793,54 @@ public partial class ProfileListView : UserControl
         }
     }
     
-    private async Task UnfocusProfileAnimationForIndex(int profileIndex, int staggerIndex = 0)
+    private async Task AnimateAddProfileButtonToPosition(int targetPosition, bool includeAddButton)
+    {
+        if (addProfileButton == null) return;
+
+        var targetMargin = new Thickness(8, CalculatePositionForIndex(targetPosition, includeAddButton), 8, 0);
+        
+        // Check if already at target position
+        if (addProfileButton.Margin == targetMargin) return;
+
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(300),
+            FillMode = FillMode.Forward,
+            Easing = Easing.Parse("0.25,0.1,0.25,1"),
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0d),
+                    Setters =
+                    {
+                        new Setter
+                        {
+                            Property = Avalonia.Layout.Layoutable.MarginProperty,
+                            Value = addProfileButton.Margin
+                        }
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1d),
+                    Setters =
+                    {
+                        new Setter
+                        {
+                            Property = Avalonia.Layout.Layoutable.MarginProperty,
+                            Value = targetMargin
+                        }
+                    }
+                }
+            }
+        };
+        
+        await animation.RunAsync(addProfileButton);
+        addProfileButton.Margin = targetMargin;
+    }
+    
+    private async Task CollapseProfileAnimationForIndex(int profileIndex, int staggerIndex = 0)
     {
         if (profileIndex >= profiles.Count) return;
 
@@ -785,11 +856,11 @@ public partial class ProfileListView : UserControl
 
             if (cts.Token.IsCancellationRequested) return;
 
-            var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(1), 8, 0);
+            var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(0, false), 8, 0);
 
             var animation = new Animation
             {
-                Duration = TimeSpan.FromMilliseconds(500),
+                Duration = TimeSpan.FromMilliseconds(300),
                 FillMode = FillMode.Forward,
                 Easing = Easing.Parse("0.25,0.1,0.25,1"),
                 Children =
@@ -803,16 +874,6 @@ public partial class ProfileListView : UserControl
                             {
                                 Property = Avalonia.Layout.Layoutable.MarginProperty,
                                 Value = profiles[profileIndex].Margin
-                            },
-                            new Setter
-                            {
-                                Property = Avalonia.Controls.Border.OpacityProperty,
-                                Value = 1.0
-                            },
-                            new Setter
-                            {
-                                Property = Visual.RenderTransformProperty,
-                                Value = new ScaleTransform(1.0, 1.0)
                             }
                         }
                     },
@@ -825,16 +886,6 @@ public partial class ProfileListView : UserControl
                             {
                                 Property = Avalonia.Layout.Layoutable.MarginProperty,
                                 Value = targetMargin
-                            },
-                            new Setter
-                            {
-                                Property = Avalonia.Controls.Border.OpacityProperty,
-                                Value = 0.0
-                            },
-                            new Setter
-                            {
-                                Property = Visual.RenderTransformProperty,
-                                Value = new ScaleTransform(0.5, 0.5)
                             }
                         }
                     }
@@ -846,17 +897,15 @@ public partial class ProfileListView : UserControl
             if (!cts.Token.IsCancellationRequested)
             {
                 profiles[profileIndex].Margin = targetMargin;
-                profiles[profileIndex].Opacity = 0.0;
-                profiles[profileIndex].RenderTransform = new ScaleTransform(0.5, 0.5);
             }
         }
         catch (OperationCanceledException)
         {
-            Debug.WriteLine($"[ANIMATION] Unfocus animation for profile {profileIndex} was canceled");
+            Debug.WriteLine($"[ANIMATION] Collapse animation for profile {profileIndex} was canceled");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[ANIMATION] Error in unfocus animation for profile {profileIndex}: {ex.Message}");
+            Debug.WriteLine($"[ANIMATION] Error in collapse animation for profile {profileIndex}: {ex.Message}");
         }
         finally
         {
