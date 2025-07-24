@@ -39,61 +39,6 @@ public class ProfileListAnimationHelper : IDisposable
     // Performance counters
     private volatile int activeAnimationCount = 0;
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Animation GetOrCreateAnimation(string templateKey, Thickness targetMargin)
-    {
-        if (animationTemplateCache.TryGetValue(templateKey, out var cachedAnimation))
-        {
-            // Clone the animation with new target values
-            var animation = animationPool.Get();
-            animation.Duration = TimeSpan.FromMilliseconds(300);
-            animation.FillMode = FillMode.Forward;
-            animation.Easing = Easing.Parse("0.25,0.1,0.25,1");
-            animation.Children.Clear();
-            animation.Children.Add(new KeyFrame
-            {
-                Cue = new Cue(0d),
-                Setters = { new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 } }
-            });
-            animation.Children.Add(new KeyFrame
-            {
-                Cue = new Cue(1d),
-                Setters = {
-                    new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin },
-                    new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 }
-                }
-            });
-            return animation;
-        }
-        
-        // Create and cache new animation template
-        var newAnimation = new Animation
-        {
-            Duration = TimeSpan.FromMilliseconds(300),
-            FillMode = FillMode.Forward,
-            Easing = Easing.Parse("0.25,0.1,0.25,1"),
-            Children =
-            {
-                new KeyFrame
-                {
-                    Cue = new Cue(0d),
-                    Setters = { new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 } }
-                },
-                new KeyFrame
-                {
-                    Cue = new Cue(1d),
-                    Setters = {
-                        new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin },
-                        new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 }
-                    }
-                }
-            }
-        };
-        
-        animationTemplateCache[templateKey] = newAnimation;
-        return newAnimation;
-    }
-    
     public static double ProfileHeight => 38.0;
     public static double ProfileSpacing => 4.0;
     public static int StaggerDelayMs => 20;
