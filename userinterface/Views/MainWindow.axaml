@@ -383,11 +383,7 @@
 									Name="ProfilesButton"
 									Tag="Profiles"
 									Content="{ext:Localized MainWindowProfilesButton}"/>
-							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
-								<StackPanel>
-									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
-								</StackPanel>
-							</ContentControl>
+							<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
 						</StackPanel>
 					</StackPanel>
 				</ScrollViewer>

@@ -22,7 +22,7 @@ namespace userinterface.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private NavigationPage selectedPageValue = NavigationPage.Devices;
-    private bool IsProfilesExpandedValue = false;
+    private bool isProfilesExpandedValue = false;
 
     // Lazy-loaded ViewModels
     private DevicesPageViewModel? devicesPage;
@@ -87,18 +87,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    public bool IsProfilesExpanded
-    {
-        get => IsProfilesExpandedValue;
-        set
-        {
-            if (IsProfilesExpandedValue != value)
-            {
-                IsProfilesExpandedValue = value;
-                OnPropertyChanged();
-            }
-        }
-    }
 
     public object? CurrentPageContent =>
         SelectedPage switch
@@ -113,7 +101,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public void SelectPage(NavigationPage page)
     {
         SelectedPage = page;
-        IsProfilesExpanded = page == NavigationPage.Profiles;
     }
 
     public async Task SelectPageAsync(NavigationPage page)
@@ -133,7 +120,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
 
         SelectedPage = page;
-        IsProfilesExpanded = page == NavigationPage.Profiles;
     }
 
 
