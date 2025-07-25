@@ -61,7 +61,7 @@ public partial class SettingsPageView : UserControl
         languageComboBox.Bind(ComboBox.SelectedItemProperty, new Binding("SelectedLanguage"));
         languageComboBox.DisplayMemberBinding = new Binding("DisplayName");
 
-        SettingsFieldViewModel.AddField("Language", languageComboBox);
+        SettingsFieldViewModel.AddField("SettingsLanguage", languageComboBox);
 
         var toastCheckBox = new CheckBox
         {
@@ -72,7 +72,7 @@ public partial class SettingsPageView : UserControl
 
         toastCheckBox.Bind(CheckBox.IsCheckedProperty, new Binding("ShowToastNotifications"));
 
-        SettingsFieldViewModel.AddField("Show Toast Notifications", toastCheckBox);
+        SettingsFieldViewModel.AddField("SettingsShowToastNotifications", toastCheckBox);
     }
 
     private void AddControlToStackPanel()

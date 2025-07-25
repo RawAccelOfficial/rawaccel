@@ -77,7 +77,7 @@ public partial class AccelerationFormulaSettingsView : UserControl
         }
 
         FormulaFieldViewModel = new DualColumnLabelFieldViewModel();
-        FormulaFieldViewModel.AddField("Formula Type", FormulaTypeCombo);
+        FormulaFieldViewModel.AddField("AccelFormulaType", FormulaTypeCombo);
         FormulaField = new DualColumnLabelFieldView(FormulaFieldViewModel);
     }
 
@@ -161,47 +161,47 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
     private void AddSynchronousFields(AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        FormulaFieldViewModel!.AddField("Sync Speed", CreateInputControl(formulaSettings.SynchronousSettings.SyncSpeed));
-        FormulaFieldViewModel.AddField("Motivity", CreateInputControl(formulaSettings.SynchronousSettings.Motivity));
-        FormulaFieldViewModel.AddField("Gamma", CreateInputControl(formulaSettings.SynchronousSettings.Gamma));
-        FormulaFieldViewModel.AddField("Smoothness", CreateInputControl(formulaSettings.SynchronousSettings.Smoothness));
+        FormulaFieldViewModel!.AddField("AccelSynchronousSyncSpeed", CreateInputControl(formulaSettings.SynchronousSettings.SyncSpeed));
+        FormulaFieldViewModel.AddField("AccelSynchronousMotivity", CreateInputControl(formulaSettings.SynchronousSettings.Motivity));
+        FormulaFieldViewModel.AddField("AccelSynchronousGamma", CreateInputControl(formulaSettings.SynchronousSettings.Gamma));
+        FormulaFieldViewModel.AddField("AccelSynchronousSmoothness", CreateInputControl(formulaSettings.SynchronousSettings.Smoothness));
     }
 
     private void AddLinearFields(AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        FormulaFieldViewModel!.AddField("Acceleration", CreateInputControl(formulaSettings.LinearSettings.Acceleration));
-        FormulaFieldViewModel.AddField("Offset", CreateInputControl(formulaSettings.LinearSettings.Offset));
-        FormulaFieldViewModel.AddField("Cap", CreateInputControl(formulaSettings.LinearSettings.Cap));
+        FormulaFieldViewModel!.AddField("AccelLinearAcceleration", CreateInputControl(formulaSettings.LinearSettings.Acceleration));
+        FormulaFieldViewModel.AddField("AccelLinearOffset", CreateInputControl(formulaSettings.LinearSettings.Offset));
+        FormulaFieldViewModel.AddField("AccelLinearCap", CreateInputControl(formulaSettings.LinearSettings.Cap));
     }
 
     private void AddClassicFields(AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        FormulaFieldViewModel!.AddField("Acceleration", CreateInputControl(formulaSettings.ClassicSettings.Acceleration));
-        FormulaFieldViewModel.AddField("Exponent", CreateInputControl(formulaSettings.ClassicSettings.Exponent));
-        FormulaFieldViewModel.AddField("Offset", CreateInputControl(formulaSettings.ClassicSettings.Offset));
-        FormulaFieldViewModel.AddField("Cap", CreateInputControl(formulaSettings.ClassicSettings.Cap));
+        FormulaFieldViewModel!.AddField("AccelClassicAcceleration", CreateInputControl(formulaSettings.ClassicSettings.Acceleration));
+        FormulaFieldViewModel.AddField("AccelClassicExponent", CreateInputControl(formulaSettings.ClassicSettings.Exponent));
+        FormulaFieldViewModel.AddField("AccelClassicOffset", CreateInputControl(formulaSettings.ClassicSettings.Offset));
+        FormulaFieldViewModel.AddField("AccelClassicCap", CreateInputControl(formulaSettings.ClassicSettings.Cap));
     }
 
     private void AddPowerFields(AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        FormulaFieldViewModel!.AddField("Scale", CreateInputControl(formulaSettings.PowerSettings.Scale));
-        FormulaFieldViewModel.AddField("Exponent", CreateInputControl(formulaSettings.PowerSettings.Exponent));
-        FormulaFieldViewModel.AddField("Output Offset", CreateInputControl(formulaSettings.PowerSettings.OutputOffset));
-        FormulaFieldViewModel.AddField("Cap", CreateInputControl(formulaSettings.PowerSettings.Cap));
+        FormulaFieldViewModel!.AddField("AccelPowerScale", CreateInputControl(formulaSettings.PowerSettings.Scale));
+        FormulaFieldViewModel.AddField("AccelPowerExponent", CreateInputControl(formulaSettings.PowerSettings.Exponent));
+        FormulaFieldViewModel.AddField("AccelPowerOutputOffset", CreateInputControl(formulaSettings.PowerSettings.OutputOffset));
+        FormulaFieldViewModel.AddField("AccelPowerCap", CreateInputControl(formulaSettings.PowerSettings.Cap));
     }
 
     private void AddNaturalFields(AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        FormulaFieldViewModel!.AddField("Decay Rate", CreateInputControl(formulaSettings.NaturalSettings.DecayRate));
-        FormulaFieldViewModel.AddField("Input Offset", CreateInputControl(formulaSettings.NaturalSettings.InputOffset));
-        FormulaFieldViewModel.AddField("Limit", CreateInputControl(formulaSettings.NaturalSettings.Limit));
+        FormulaFieldViewModel!.AddField("AccelNaturalDecayRate", CreateInputControl(formulaSettings.NaturalSettings.DecayRate));
+        FormulaFieldViewModel.AddField("AccelNaturalInputOffset", CreateInputControl(formulaSettings.NaturalSettings.InputOffset));
+        FormulaFieldViewModel.AddField("AccelNaturalLimit", CreateInputControl(formulaSettings.NaturalSettings.Limit));
     }
 
     private void AddJumpFields(AccelerationFormulaSettingsViewModel formulaSettings)
     {
-        FormulaFieldViewModel!.AddField("Smooth", CreateInputControl(formulaSettings.JumpSettings.Smooth));
-        FormulaFieldViewModel.AddField("Input", CreateInputControl(formulaSettings.JumpSettings.Input));
-        FormulaFieldViewModel.AddField("Output", CreateInputControl(formulaSettings.JumpSettings.Output));
+        FormulaFieldViewModel!.AddField("AccelJumpSmooth", CreateInputControl(formulaSettings.JumpSettings.Smooth));
+        FormulaFieldViewModel.AddField("AccelJumpInput", CreateInputControl(formulaSettings.JumpSettings.Input));
+        FormulaFieldViewModel.AddField("AccelJumpOutput", CreateInputControl(formulaSettings.JumpSettings.Output));
     }
 
     private static Control CreateInputControl(object bindingSource)

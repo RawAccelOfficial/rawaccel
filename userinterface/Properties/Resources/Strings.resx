@@ -375,6 +375,14 @@
     <value>Ignore</value>
   </data>
 
+  <!-- Settings Resources -->
+  <data name="SettingsLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="SettingsShowToastNotifications" xml:space="preserve">
+    <value>Show Toast Notifications</value>
+  </data>
+
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
     <value>Alpha Build Warning</value>

@@ -76,7 +76,7 @@ public partial class AccelerationProfileSettingsView : UserControl
             return;
 
         var fieldViewModel = new DualColumnLabelFieldViewModel();
-        fieldViewModel.AddField("Acceleration", AccelerationComboBox);
+        fieldViewModel.AddField("AccelDefinitionType", AccelerationComboBox);
         AccelerationField = new DualColumnLabelFieldView(fieldViewModel);
     }
 

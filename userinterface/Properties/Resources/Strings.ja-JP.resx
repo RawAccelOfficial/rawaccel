@@ -375,6 +375,14 @@
     <value>無視</value>
   </data>
 
+  <!-- Settings Resources -->
+  <data name="SettingsLanguage" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="SettingsShowToastNotifications" xml:space="preserve">
+    <value>トースト通知を表示</value>
+  </data>
+
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
     <value>アルファビルド警告</value>
