@@ -453,4 +453,35 @@
   <data name="AlphaBuildWarningUnderstand" xml:space="preserve">
     <value>理解しました</value>
   </data>
+
+  <!-- Acceleration Definition Type Options -->
+  <data name="AccelDefinitionNone" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="AccelDefinitionFormula" xml:space="preserve">
+    <value>数式</value>
+  </data>
+  <data name="AccelDefinitionLookupTable" xml:space="preserve">
+    <value>ルックアップテーブル</value>
+  </data>
+
+  <!-- Acceleration Formula Type Options -->
+  <data name="AccelFormulaSynchronous" xml:space="preserve">
+    <value>同期</value>
+  </data>
+  <data name="AccelFormulaLinear" xml:space="preserve">
+    <value>リニア</value>
+  </data>
+  <data name="AccelFormulaClassic" xml:space="preserve">
+    <value>クラシック</value>
+  </data>
+  <data name="AccelFormulaPower" xml:space="preserve">
+    <value>パワー</value>
+  </data>
+  <data name="AccelFormulaNatural" xml:space="preserve">
+    <value>ナチュラル</value>
+  </data>
+  <data name="AccelFormulaJump" xml:space="preserve">
+    <value>ジャンプ</value>
+  </data>
 </root>

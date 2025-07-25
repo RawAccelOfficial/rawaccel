@@ -7,6 +7,7 @@ using System;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
+using userinterface.Controls;
 using BEData = userspace_backend.Data.Profiles.Accel.FormulaAccel;
 
 namespace userinterface.Views.Profile;
@@ -18,7 +19,7 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
     private DualColumnLabelFieldView? FormulaField;
     private DualColumnLabelFieldViewModel? FormulaFieldViewModel;
-    private ComboBox? FormulaTypeCombo;
+    private LocalizedComboBox? FormulaTypeCombo;
 
     public AccelerationFormulaSettingsView()
     {
@@ -56,17 +57,25 @@ public partial class AccelerationFormulaSettingsView : UserControl
 
     private void CreateFormulaTypeComboBox()
     {
-        FormulaTypeCombo = new ComboBox
+        FormulaTypeCombo = new LocalizedComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
-            DataContext = DataContext,
-            ItemTemplate = this.FindResource("FormulaTypeItemTemplate") as IDataTemplate
+            LocalizationKeys = AccelerationFormulaSettingsViewModel.FormulaTypeKeysLocal,
+            EnumValues = AccelerationFormulaSettingsViewModel.FormulaTypesLocal
         };
 
-        FormulaTypeCombo.Bind(ComboBox.ItemsSourceProperty, new Binding("FormulaTypesLocal"));
-        FormulaTypeCombo.Bind(ComboBox.SelectedItemProperty, new Binding("FormulaAccelBE.FormulaType.InterfaceValue"));
-        FormulaTypeCombo.SelectionChanged += OnFormulaTypeSelectionChanged;
+        FormulaTypeCombo.SelectionChanged += (s, e) =>
+        {
+            if (DataContext is AccelerationFormulaSettingsViewModel viewModel && FormulaTypeCombo.SelectedEnumValue != null)
+            {
+                viewModel.FormulaAccelBE.FormulaType.InterfaceValue = FormulaTypeCombo.SelectedEnumValue;
+                viewModel.FormulaAccelBE.FormulaType.TryUpdateFromInterface();
+                OnFormulaTypeSelectionChanged();
+            }
+        };
+        
+        FormulaTypeCombo.RefreshItems();
     }
 
     private void CreateFormulaFieldViewModel()
@@ -92,14 +101,13 @@ public partial class AccelerationFormulaSettingsView : UserControl
         AcceStackPanel?.Children.Add(FormulaField);
     }
 
-    private void OnFormulaTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void OnFormulaTypeSelectionChanged()
     {
         if (DataContext is not AccelerationFormulaSettingsViewModel viewModel || FormulaFieldViewModel == null)
         {
             return;
         }
 
-        viewModel.FormulaAccelBE.FormulaType.TryUpdateFromInterface();
         RemoveFormulaSpecificFields();
         var currentFormulaType = GetCurrentFormulaType(viewModel.FormulaAccelBE.FormulaType.InterfaceValue);
         AddFormulaSpecificFields(currentFormulaType, viewModel);

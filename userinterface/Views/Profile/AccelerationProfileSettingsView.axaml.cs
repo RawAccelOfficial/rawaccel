@@ -5,6 +5,8 @@ using Avalonia.Layout;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
+using userinterface.Controls;
+using System.Linq;
 
 namespace userinterface.Views.Profile;
 
@@ -21,7 +23,7 @@ public partial class AccelerationProfileSettingsView : UserControl
     private DualColumnLabelFieldView? AccelerationField;
     private ContentControl? FormulaViewContainer;
     private ContentControl? LUTViewContainer;
-    private ComboBox? AccelerationComboBox;
+    private LocalizedComboBox? AccelerationComboBox;
     private AnisotropyProfileSettingsView? AnisotropyView;
     private CoalescionProfileSettingsView? CoalescionView;
 
@@ -53,21 +55,37 @@ public partial class AccelerationProfileSettingsView : UserControl
 
     private void CreateAccelerationComboBox(AccelerationProfileSettingsViewModel viewModel)
     {
-        AccelerationComboBox = new ComboBox
+        AccelerationComboBox = new LocalizedComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
-            DataContext = viewModel,
-            ItemsSource = AccelerationProfileSettingsViewModel.DefinitionTypesLocal,
+            LocalizationKeys = AccelerationProfileSettingsViewModel.DefinitionTypeKeysLocal,
+            EnumValues = AccelerationProfileSettingsViewModel.DefinitionTypesLocal
         };
 
-        AccelerationComboBox.Bind(ComboBox.SelectedItemProperty,
-            new Avalonia.Data.Binding("AccelerationBE.DefinitionType.InterfaceValue")
+        // Set up custom binding to sync enum values
+        AccelerationComboBox.SelectionChanged += (s, e) =>
+        {
+            if (AccelerationComboBox.SelectedEnumValue != null)
             {
-                Mode = Avalonia.Data.BindingMode.TwoWay
-            });
+                viewModel.AccelerationBE.DefinitionType.InterfaceValue = AccelerationComboBox.SelectedEnumValue;
+                viewModel.AccelerationBE.DefinitionType.TryUpdateFromInterface();
+                UpdateViewBasedOnSelection();
+            }
+        };
 
-        AccelerationComboBox.SelectionChanged += OnAccelerationTypeSelectionChanged;
+        // Set initial selection based on backend value
+        var currentValue = viewModel.AccelerationBE.DefinitionType.InterfaceValue;
+        if (!string.IsNullOrEmpty(currentValue))
+        {
+            var matchingItem = AccelerationComboBox.localizedItems.FirstOrDefault(item => item.EnumValue == currentValue);
+            if (matchingItem != null)
+            {
+                AccelerationComboBox.SelectedItem = matchingItem;
+            }
+        }
+        
+        AccelerationComboBox.RefreshItems();
     }
 
     private void CreateAccelerationField()
@@ -128,17 +146,14 @@ public partial class AccelerationProfileSettingsView : UserControl
         mainStackPanel.Children.Add(CoalescionView);
     }
 
-    private void OnAccelerationTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        UpdateViewBasedOnSelection();
-    }
 
     private void UpdateViewBasedOnSelection()
     {
         if (DataContext is not AccelerationProfileSettingsViewModel viewModel || AccelerationComboBox == null)
             return;
 
-        var selectedIndex = AccelerationComboBox.SelectedIndex;
+        var selectedValue = AccelerationComboBox.SelectedEnumValue;
+        var selectedIndex = AccelerationProfileSettingsViewModel.DefinitionTypesLocal.ToList().IndexOf(selectedValue ?? "");
         var isNotNone = selectedIndex != NoneAccelerationIndex;
 
         HideAllViews();

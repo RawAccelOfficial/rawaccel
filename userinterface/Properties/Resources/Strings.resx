@@ -453,4 +453,35 @@
   <data name="AlphaBuildWarningUnderstand" xml:space="preserve">
     <value>I Understand</value>
   </data>
+
+  <!-- Acceleration Definition Type Options -->
+  <data name="AccelDefinitionNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="AccelDefinitionFormula" xml:space="preserve">
+    <value>Formula</value>
+  </data>
+  <data name="AccelDefinitionLookupTable" xml:space="preserve">
+    <value>Lookup Table</value>
+  </data>
+
+  <!-- Acceleration Formula Type Options -->
+  <data name="AccelFormulaSynchronous" xml:space="preserve">
+    <value>Synchronous</value>
+  </data>
+  <data name="AccelFormulaLinear" xml:space="preserve">
+    <value>Linear</value>
+  </data>
+  <data name="AccelFormulaClassic" xml:space="preserve">
+    <value>Classic</value>
+  </data>
+  <data name="AccelFormulaPower" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="AccelFormulaNatural" xml:space="preserve">
+    <value>Natural</value>
+  </data>
+  <data name="AccelFormulaJump" xml:space="preserve">
+    <value>Jump</value>
+  </data>
 </root>

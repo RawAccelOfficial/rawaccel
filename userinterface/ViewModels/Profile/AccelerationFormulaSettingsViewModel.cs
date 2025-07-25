@@ -17,6 +17,11 @@ namespace userinterface.ViewModels.Profile
                 .Cast<BEData.AccelerationFormulaType>()
                 .Select(formulaType => formulaType.ToString()));
 
+        public static ObservableCollection<string> FormulaTypeKeys { get; } =
+            new(Enum.GetValues(typeof(BEData.AccelerationFormulaType))
+                .Cast<BEData.AccelerationFormulaType>()
+                .Select(formulaType => $"AccelFormula{formulaType}"));
+
         public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel, INotificationService notificationService)
         {
             this.notificationService = notificationService;
@@ -46,6 +51,8 @@ namespace userinterface.ViewModels.Profile
         public BE.FormulaAccelModel FormulaAccelBE { get; }
 
         public static ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
+
+        public static ObservableCollection<string> FormulaTypeKeysLocal => FormulaTypeKeys;
 
         public SynchronousSettings SynchronousSettings { get; }
 
