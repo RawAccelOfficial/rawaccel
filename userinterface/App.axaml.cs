@@ -76,9 +76,6 @@ public partial class App : Application
 
             // Show alpha build warning modal
             _ = ShowAlphaBuildWarningAsync();
-            
-            // Warm up GPU pipeline for animations
-            _ = WarmUpAnimationPipelineAsync();
 
 #if DEBUG
             desktop.MainWindow.AttachDevTools();

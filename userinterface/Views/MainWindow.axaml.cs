@@ -71,6 +71,10 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainWindowViewModel viewModel)
         {
+            // Test animation instead of applying settings
+            viewModel.IsProfilesExpanded = !viewModel.IsProfilesExpanded;
+            
+            /* Original apply logic commented out for animation testing
             if (ApplyButtonControl != null)
             {
                 ApplyButtonControl.IsEnabled = false;
@@ -98,6 +102,7 @@ public partial class MainWindow : Window
             {
                 ApplyButtonControl.IsEnabled = true;
             }
+            */
         }
     }
 
@@ -165,6 +170,7 @@ public partial class MainWindow : Window
                 break;
         }
     }
+
 
     private void UpdateThemeToggleButton()
     {

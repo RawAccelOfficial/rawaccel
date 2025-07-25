@@ -123,7 +123,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public void SelectPage(NavigationPage page)
     {
         SelectedPage = page;
-        IsProfilesExpanded = page == NavigationPage.Profiles;
+        // IsProfilesExpanded = page == NavigationPage.Profiles; // Commented out to isolate animation
     }
 
     public async Task SelectPageAsync(NavigationPage page)
@@ -143,7 +143,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
 
         SelectedPage = page;
-        IsProfilesExpanded = page == NavigationPage.Profiles;
+        // IsProfilesExpanded = page == NavigationPage.Profiles; // Commented out to isolate animation
     }
 
     private async void ExpandProfiles()
