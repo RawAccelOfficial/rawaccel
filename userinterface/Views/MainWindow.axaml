@@ -383,7 +383,7 @@
 									Name="ProfilesButton"
 									Tag="Profiles"
 									Content="{ext:Localized MainWindowProfilesButton}"
-									ZIndex="1000"/>
+									ZIndex="1"/>
 							<vp:ProfileListView Name="ProfileListView" DataContext="{Binding ProfilesPage.ProfileListView}"/>
 						</StackPanel>
 					</StackPanel>

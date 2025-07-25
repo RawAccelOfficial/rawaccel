@@ -218,6 +218,19 @@
     <value>Delete</value>
   </data>
 
+  <data name="AccelClassicAcceleration" xml:space="preserve">
+    <value>Acceleration</value>
+  </data>
+  <data name="AccelClassicExponent" xml:space="preserve">
+    <value>Exponent</value>
+  </data>
+  <data name="AccelClassicOffset" xml:space="preserve">
+    <value>Offset</value>
+  </data>
+  <data name="AccelClassicCap" xml:space="preserve">
+    <value>Cap</value>
+  </data>
+
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
     <value>Alpha Build Warning</value>

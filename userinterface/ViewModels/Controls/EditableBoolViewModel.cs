@@ -14,7 +14,7 @@ namespace userinterface.ViewModels.Controls
             ResetValueFromBackEnd();
         }
 
-        public string Name => SettingBE.DisplayName;
+        public string Name => SettingBE.DisplayText;
 
         public bool Value => ValueInDisplay;
 

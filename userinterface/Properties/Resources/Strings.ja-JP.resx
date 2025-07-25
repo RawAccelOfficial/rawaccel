@@ -218,6 +218,19 @@
     <value>削除</value>
   </data>
 
+  <data name="AccelClassicAcceleration" xml:space="preserve">
+    <value>加速度</value>
+  </data>
+  <data name="AccelClassicExponent" xml:space="preserve">
+    <value>指数</value>
+  </data>
+  <data name="AccelClassicOffset" xml:space="preserve">
+    <value>オフセット</value>
+  </data>
+  <data name="AccelClassicCap" xml:space="preserve">
+    <value>上限</value>
+  </data>
+
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
     <value>アルファビルド警告</value>

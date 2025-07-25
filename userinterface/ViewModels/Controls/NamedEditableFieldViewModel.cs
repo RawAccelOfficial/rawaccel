@@ -12,7 +12,7 @@ namespace userinterface.ViewModels.Controls
 
         public EditableFieldViewModel Field { get; }
 
-        public string Name => SettingBE.DisplayName;
+        public string Name => SettingBE.DisplayText;
 
         protected BE.IEditableSetting SettingBE { get; }
     }
