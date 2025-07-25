@@ -1,8 +1,10 @@
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
@@ -74,6 +76,9 @@ public partial class App : Application
 
             // Show alpha build warning modal
             _ = ShowAlphaBuildWarningAsync();
+            
+            // Warm up GPU pipeline for animations
+            _ = WarmUpAnimationPipelineAsync();
 
 #if DEBUG
             desktop.MainWindow.AttachDevTools();
@@ -214,7 +219,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
+            Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
         }
     }
 
@@ -230,7 +235,101 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to open Discord URL: {ex.Message}");
+            Debug.WriteLine($"Failed to open Discord URL: {ex.Message}");
+        }
+    }
+
+    private async Task WarmUpAnimationPipelineAsync()
+    {
+        try
+        {
+            Debug.WriteLine("[GPU-WARMUP] Starting warmup...");
+            
+            // Wait longer for the UI to fully initialize and load profile elements
+            await Task.Delay(500);
+            
+            var desktop = Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+            var mainWindow = desktop?.MainWindow;
+            
+            if (mainWindow == null)
+            {
+                Debug.WriteLine("[GPU-WARMUP] No main window found");
+                return;
+            }
+
+            // Find the ProfileListView and wait for it to be fully loaded
+            var profileListView = mainWindow.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView");
+            if (profileListView == null)
+            {
+                Debug.WriteLine("[GPU-WARMUP] ProfileListView not found");
+                return;
+            }
+
+            // Wait for the view to be fully loaded with elements
+            int retries = 0;
+            while (retries < 10)
+            {
+                if (profileListView.IsLoaded && !profileListView.AreAnimationsActive)
+                {
+                    break;
+                }
+                await Task.Delay(100);
+                retries++;
+            }
+
+            Debug.WriteLine($"[GPU-WARMUP] Found ProfileListView after {retries} retries, running invisible animation warmup");
+            
+            // Make the entire view invisible during warmup
+            var originalOpacity = profileListView.Opacity;
+            profileListView.Opacity = 0;
+            
+            // Run a quick collapse then expand to warm up the GPU pipeline
+            Debug.WriteLine("[GPU-WARMUP] Running collapse warmup");
+            await profileListView.CollapseElements();
+            
+            Debug.WriteLine("[GPU-WARMUP] Running expand warmup"); 
+            await profileListView.ExpandElements();
+            
+            // Return to collapsed state (default)
+            Debug.WriteLine("[GPU-WARMUP] Returning to collapsed state");
+            await profileListView.CollapseElements();
+            
+            // Restore visibility
+            profileListView.Opacity = originalOpacity;
+            
+            // Pre-load SkiaSharp and LiveCharts libraries that cause first-frame stutter
+            Debug.WriteLine("[GPU-WARMUP] Pre-loading graphics libraries");
+            try
+            {
+                _ = typeof(LiveChartsCore.SkiaSharpView.Avalonia.CartesianChart).Assembly;
+                _ = typeof(SkiaSharp.SKCanvas).Assembly;
+                
+                // Force load the specific library that causes the 83ms stutter
+                try
+                {
+                    _ = typeof(SkiaSharp.HarfBuzz.SKShaper).Assembly;
+                    Debug.WriteLine("[GPU-WARMUP] SkiaSharp.HarfBuzz loaded");
+                }
+                catch 
+                {
+                    // Try alternative way to load HarfBuzz
+                    System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyName(
+                        new System.Reflection.AssemblyName("SkiaSharp.HarfBuzz"));
+                    Debug.WriteLine("[GPU-WARMUP] SkiaSharp.HarfBuzz loaded via AssemblyLoadContext");
+                }
+                
+                Debug.WriteLine("[GPU-WARMUP] All graphics libraries loaded");
+            }
+            catch (Exception libEx)
+            {
+                Debug.WriteLine($"[GPU-WARMUP] Library preload failed: {libEx.Message}");
+            }
+            
+            Debug.WriteLine("[GPU-WARMUP] ProfileListView animation pipeline warmed up successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[GPU-WARMUP] Failed to warm up: {ex.Message}");
         }
     }
 }

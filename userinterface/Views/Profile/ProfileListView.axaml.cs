@@ -18,6 +18,8 @@ using Avalonia;
 using Avalonia.Input;
 using System.Diagnostics;
 using userinterface.Services;
+using Avalonia.Rendering;
+using Avalonia.Threading;
 
 namespace userinterface.Views.Profile;
 
@@ -40,15 +42,28 @@ public partial class ProfileListView : UserControl
     private const int StaggerDelayMs = 20;
     private const double ProfileSpawnPosition = 0.0;
     private const double FirstIndexOffset = 6;
+    
+    private static int frameCount = 0;
+    private static DateTime lastFrameTime = DateTime.Now;
+    private static readonly List<double> frameTimings = new();
 
     public ProfileListView()
     {
+        var sw = Stopwatch.StartNew();
+        
         var backEnd = App.Services?.GetRequiredService<BackEnd>() ?? throw new InvalidOperationException("BackEnd service not available");
         profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
         modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
         
+        sw.Stop();
+        Debug.WriteLine($"[JIT-PERF] ProfileListView constructor (DI setup): {sw.ElapsedMilliseconds}ms");
+        
+        sw.Restart();
         InitializeComponent();
+        sw.Stop();
+        Debug.WriteLine($"[JIT-PERF] ProfileListView.InitializeComponent(): {sw.ElapsedMilliseconds}ms");
+        
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
     }
@@ -61,13 +76,21 @@ public partial class ProfileListView : UserControl
 
     private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        var sw = Stopwatch.StartNew();
+        
         profileContainer = this.FindControl<Panel>("ProfileContainer");
         
         var addButton = CreateAddProfileButton();
         allItems.Add(addButton);
         profileContainer.Children.Add(addButton);
         
+        sw.Stop();
+        Debug.WriteLine($"[JIT-PERF] ProfileListView.OnLoaded (UI setup): {sw.ElapsedMilliseconds}ms");
+        
+        sw.Restart();
         _ = CreateProfilesWithStagger();
+        sw.Stop();
+        Debug.WriteLine($"[JIT-PERF] ProfileListView.CreateProfilesWithStagger(): {sw.ElapsedMilliseconds}ms");
         
         var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
         if (defaultProfile != null)
@@ -376,7 +399,8 @@ public partial class ProfileListView : UserControl
             Margin = new Thickness(8, ProfileSpawnPosition, 8, 0), // Start at spawn position for animation
             Child = grid,
             Opacity = 1.0,
-            ZIndex = targetIndex 
+            ZIndex = targetIndex,
+            Transitions = null // Disable transitions during programmatic animations
         };
         
         // Make the entire border clickable
@@ -575,7 +599,7 @@ public partial class ProfileListView : UserControl
             {
                 Duration = TimeSpan.FromMilliseconds(300),
                 FillMode = FillMode.Forward,
-                Easing = Easing.Parse("0.25,0.1,0.25,1"),
+                Easing = Easing.Parse("CubicEaseOut"),
                 Children =
                 {
                     new KeyFrame
@@ -780,11 +804,51 @@ public partial class ProfileListView : UserControl
     
     public async Task ExpandElements()
     {
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[EXPAND-PERF] ExpandElements started at: {DateTime.Now:HH:mm:ss.fff}");
+        
+        // Start frame timing monitoring for expand
+        frameCount = 0;
+        frameTimings.Clear();
+        lastFrameTime = DateTime.Now;
+        var frameTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(8) }; // Higher frequency for better timing
+        frameTimer.Tick += (s, e) => {
+            var now = DateTime.Now;
+            var deltaMs = (now - lastFrameTime).TotalMilliseconds;
+            frameTimings.Add(deltaMs);
+            lastFrameTime = now;
+            frameCount++;
+        };
+        frameTimer.Start();
+        
         await AnimateAllElementsToPositions(-1);
+        
+        frameTimer.Stop();
+        
+        sw.Stop();
+        Debug.WriteLine($"[EXPAND-PERF] ExpandElements completed in: {sw.ElapsedMilliseconds}ms, Total frames: {frameCount}");
+        
+        // Log frame timings - first 10 and last 10 frames
+        if (frameTimings.Count > 0)
+        {
+            var firstFrames = frameTimings.Take(Math.Min(10, frameTimings.Count));
+            var lastFrames = frameTimings.Skip(Math.Max(0, frameTimings.Count - 10));
+            
+            Debug.WriteLine($"[EXPAND-PERF] First frames (ms): {string.Join(", ", firstFrames.Select(f => f.ToString("F1")))}");
+            Debug.WriteLine($"[EXPAND-PERF] Last frames (ms): {string.Join(", ", lastFrames.Select(f => f.ToString("F1")))}");
+            
+            var avgFrameTime = frameTimings.Average();
+            var maxFrameTime = frameTimings.Max();
+            var minFrameTime = frameTimings.Min();
+            Debug.WriteLine($"[EXPAND-PERF] Frame timing - Avg: {avgFrameTime:F1}ms, Min: {minFrameTime:F1}ms, Max: {maxFrameTime:F1}ms");
+        }
     }
     
     public async Task CollapseElements()
     {
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[COLLAPSE-PERF] CollapseElements started at: {DateTime.Now:HH:mm:ss.fff}");
+        
         if (allItems.Count == 0) return;
         
         var animationTasks = new List<Task>();
@@ -814,6 +878,9 @@ public partial class ProfileListView : UserControl
             }
             UpdateDeleteButtonStates();
         }
+        
+        sw.Stop();
+        Debug.WriteLine($"[COLLAPSE-PERF] CollapseElements completed in: {sw.ElapsedMilliseconds}ms");
     }
     
     
@@ -821,6 +888,7 @@ public partial class ProfileListView : UserControl
     {
         if (elementIndex >= allItems.Count) return;
 
+        var sw = Stopwatch.StartNew();
         var cts = new CancellationTokenSource();
         activeAnimations[elementIndex] = cts;
 
@@ -839,7 +907,7 @@ public partial class ProfileListView : UserControl
             {
                 Duration = TimeSpan.FromMilliseconds(300),
                 FillMode = FillMode.Forward,
-                Easing = Easing.Parse("0.25,0.1,0.25,1"),
+                Easing = Easing.Parse("CubicEaseOut"),
                 Children =
                 {
                     new KeyFrame
@@ -869,7 +937,9 @@ public partial class ProfileListView : UserControl
                 }
             };
             
+            Debug.WriteLine($"[COLLAPSE-PERF] Starting collapse animation for element {elementIndex}");
             await animation.RunAsync(allItems[elementIndex], cts.Token);
+            Debug.WriteLine($"[COLLAPSE-PERF] Collapse animation completed for element {elementIndex} in {sw.ElapsedMilliseconds}ms");
             
             if (!cts.Token.IsCancellationRequested)
             {
