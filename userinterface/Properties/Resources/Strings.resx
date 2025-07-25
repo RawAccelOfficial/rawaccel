@@ -317,6 +317,12 @@
   </data>
 
   <!-- Anisotropy Resources -->
+  <data name="AnisotropyDomain" xml:space="preserve">
+    <value>Domain</value>
+  </data>
+  <data name="AnisotropyRange" xml:space="preserve">
+    <value>Range</value>
+  </data>
   <data name="AnisotropyDomainX" xml:space="preserve">
     <value>Domain X</value>
   </data>
@@ -381,6 +387,39 @@
   </data>
   <data name="SettingsShowToastNotifications" xml:space="preserve">
     <value>Show Toast Notifications</value>
+  </data>
+
+  <!-- Device Field Resources -->
+  <data name="DeviceName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="DeviceHardwareID" xml:space="preserve">
+    <value>Hardware ID</value>
+  </data>
+  <data name="DeviceGroupName" xml:space="preserve">
+    <value>Device Group</value>
+  </data>
+
+  <!-- Chart Axis Labels -->
+  <data name="ChartAxisMouseSpeed" xml:space="preserve">
+    <value>Mouse Speed</value>
+  </data>
+  <data name="ChartAxisOutput" xml:space="preserve">
+    <value>Output</value>
+  </data>
+
+  <!-- Profile Section Headers -->
+  <data name="ProfileSectionAcceleration" xml:space="preserve">
+    <value>Acceleration</value>
+  </data>
+  <data name="ProfileSectionHidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
+  <data name="ProfileSectionCoalescion" xml:space="preserve">
+    <value>Coalescion</value>
+  </data>
+  <data name="ProfileSectionAnisotropy" xml:space="preserve">
+    <value>Anisotropy</value>
   </data>
 
   <!-- Alpha Build Warning Dialog Resources -->

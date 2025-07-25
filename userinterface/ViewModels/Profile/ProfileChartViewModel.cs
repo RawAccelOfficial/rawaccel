@@ -55,21 +55,20 @@ namespace userinterface.ViewModels.Profile
         private static readonly string AxisSeparatorsBrush = "BorderBrush";
         private static readonly string TooltipBackgroundBrush = "CardBackgroundBrush";
 
-        // Axis labeling and text
-        private const string XAxisName = "Mouse Speed";
-
-        private const string YAxisName = "Output";
+        // Axis labeling and text - will be set by localization service
         private const int AxisNameTextSize = 14;
         private const int AxisTextSize = 12;
 
         public static readonly TimeSpan AnimationsTime = new(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: AnimationMilliseconds);
 
         private readonly IThemeService themeService;
+        private readonly LocalizationService localizationService;
         private BE.ProfileModel currentProfileModel = null!;
 
-        public ProfileChartViewModel(IThemeService themeService)
+        public ProfileChartViewModel(IThemeService themeService, LocalizationService localizationService)
         {
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
+            this.localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
             
             RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
             FitToDataCommand = new RelayCommand(() => FitToData());
@@ -104,8 +103,9 @@ namespace userinterface.ViewModels.Profile
             TooltipTextPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush));
             TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
 
-            // Subscribe to theme changes
+            // Subscribe to theme and language changes
             this.themeService.ThemeChanged += OnThemeChanged;
+            this.localizationService.PropertyChanged += OnLocalizationChanged;
 
             IsInitialized = true;
         }
@@ -124,8 +124,9 @@ namespace userinterface.ViewModels.Profile
             TooltipTextPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush));
             TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
 
-            // Subscribe to theme changes
+            // Subscribe to theme and language changes
             this.themeService.ThemeChanged += OnThemeChanged;
+            this.localizationService.PropertyChanged += OnLocalizationChanged;
 
             IsInitializing = false;
             IsInitialized = true;
@@ -204,6 +205,7 @@ namespace userinterface.ViewModels.Profile
         public void Dispose()
         {
             themeService.ThemeChanged -= OnThemeChanged;
+            localizationService.PropertyChanged -= OnLocalizationChanged;
             YXRatio.PropertyChanged -= OnYXRatioChanged;
         }
 
@@ -286,11 +288,11 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        private static Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
+        private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null) =>
         [
             new Axis()
             {
-                Name = XAxisName,
+                Name = localizationService?.GetText("ChartAxisMouseSpeed") ?? "Mouse Speed",
                 NameTextSize = AxisNameTextSize,
                 NamePaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)),
                 LabelsPaint = new SolidColorPaint(RetrieveThemeColor(AxisLabelsBrush)),
@@ -304,11 +306,11 @@ namespace userinterface.ViewModels.Profile
             }
         ];
 
-        private static Axis[] CreateYAxes(double? minLimit = null, double? maxLimit = null) =>
+        private Axis[] CreateYAxes(double? minLimit = null, double? maxLimit = null) =>
         [
             new Axis()
             {
-                Name = YAxisName,
+                Name = localizationService?.GetText("ChartAxisOutput") ?? "Output",
                 NameTextSize = AxisNameTextSize,
                 NamePaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)),
                 LabelsPaint = new SolidColorPaint(RetrieveThemeColor(AxisLabelsBrush)),
@@ -376,6 +378,17 @@ namespace userinterface.ViewModels.Profile
             // Notify tooltip property changes
             OnPropertyChanged(nameof(TooltipTextPaint));
             OnPropertyChanged(nameof(TooltipBackgroundPaint));
+        }
+
+        private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Recreate axes with current limits but updated localized names
+            var currentXMin = XAxes?[0]?.MinLimit;
+            var currentXMax = XAxes?[0]?.MaxLimit;
+            var currentYMin = YAxes?[0]?.MinLimit;
+            var currentYMax = YAxes?[0]?.MaxLimit;
+
+            RecreateAxes(currentXMin, currentXMax, currentYMin, currentYMax);
         }
     }
 }

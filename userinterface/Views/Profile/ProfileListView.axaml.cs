@@ -15,11 +15,8 @@ using System.Linq;
 using Avalonia.Styling;
 using Avalonia.Layout;
 using Avalonia;
-using Avalonia.Input;
 using System.Diagnostics;
 using userinterface.Services;
-using Avalonia.Rendering;
-using Avalonia.Threading;
 
 namespace userinterface.Views.Profile;
 
@@ -36,6 +33,8 @@ public partial class ProfileListView : UserControl
     private volatile bool areAnimationsActive = false;
     private readonly object animationLock = new();
     private readonly IModalService modalService;
+    private readonly LocalizationService localizationService;
+    private TextBlock addProfileTextBlock;
     
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
@@ -49,6 +48,8 @@ public partial class ProfileListView : UserControl
         var backEnd = App.Services?.GetRequiredService<BackEnd>() ?? throw new InvalidOperationException("BackEnd service not available");
         profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
         modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
+        localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        localizationService.PropertyChanged += OnLocalizationPropertyChanged;
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
         
         InitializeComponent();
@@ -61,6 +62,10 @@ public partial class ProfileListView : UserControl
     {
         CancelAllAnimations();
         operationSemaphore?.Dispose();
+        if (localizationService != null)
+        {
+            localizationService.PropertyChanged -= OnLocalizationPropertyChanged;
+        }
     }
 
     private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -81,6 +86,14 @@ public partial class ProfileListView : UserControl
         else if (profilesModel.Profiles.Count > 0)
         {
             SetSelectedProfile(profilesModel.Profiles[0]);
+        }
+    }
+
+    private void OnLocalizationPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (addProfileTextBlock != null)
+        {
+            addProfileTextBlock.Text = localizationService?.GetText("ProfileAddNewProfile") ?? "Add New Profile";
         }
     }
 
@@ -298,9 +311,9 @@ public partial class ProfileListView : UserControl
     private Border CreateAddProfileButton()
     {
         // Create the add profile text
-        var addText = new TextBlock
+        addProfileTextBlock = new TextBlock
         {
-            Text = "Add Profile",
+            Text = localizationService?.GetText("ProfileAddNewProfile") ?? "Add New Profile",
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Center,
             FontWeight = FontWeight.Medium
@@ -314,7 +327,7 @@ public partial class ProfileListView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(8, 0, 8, 0),
-            Child = addText
+            Child = addProfileTextBlock
         };
         
         border.PointerPressed += (s, e) => OnAddProfileClicked(s, e);

@@ -317,6 +317,12 @@
   </data>
 
   <!-- Anisotropy Resources -->
+  <data name="AnisotropyDomain" xml:space="preserve">
+    <value>ドメイン</value>
+  </data>
+  <data name="AnisotropyRange" xml:space="preserve">
+    <value>範囲</value>
+  </data>
   <data name="AnisotropyDomainX" xml:space="preserve">
     <value>ドメインX</value>
   </data>
@@ -381,6 +387,39 @@
   </data>
   <data name="SettingsShowToastNotifications" xml:space="preserve">
     <value>トースト通知を表示</value>
+  </data>
+
+  <!-- Device Field Resources -->
+  <data name="DeviceName" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="DeviceHardwareID" xml:space="preserve">
+    <value>ハードウェアID</value>
+  </data>
+  <data name="DeviceGroupName" xml:space="preserve">
+    <value>デバイスグループ</value>
+  </data>
+
+  <!-- Chart Axis Labels -->
+  <data name="ChartAxisMouseSpeed" xml:space="preserve">
+    <value>マウス速度</value>
+  </data>
+  <data name="ChartAxisOutput" xml:space="preserve">
+    <value>出力</value>
+  </data>
+
+  <!-- Profile Section Headers -->
+  <data name="ProfileSectionAcceleration" xml:space="preserve">
+    <value>加速</value>
+  </data>
+  <data name="ProfileSectionHidden" xml:space="preserve">
+    <value>隠し設定</value>
+  </data>
+  <data name="ProfileSectionCoalescion" xml:space="preserve">
+    <value>統合</value>
+  </data>
+  <data name="ProfileSectionAnisotropy" xml:space="preserve">
+    <value>異方性</value>
   </data>
 
   <!-- Alpha Build Warning Dialog Resources -->

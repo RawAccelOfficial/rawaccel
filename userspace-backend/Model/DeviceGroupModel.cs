@@ -11,7 +11,7 @@ namespace userspace_backend.Model
     public class DeviceGroupModel : EditableSetting<string>, IComparable
     {
         public DeviceGroupModel(string dataObject, IModelValueValidator<string> validator)
-            : base("Device Group", dataObject, UserInputParsers.StringParser, validator)
+            : base("Device Group", dataObject, UserInputParsers.StringParser, validator, localizationKey: "DeviceGroupName")
         {
         }
 
