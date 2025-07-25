@@ -21,15 +21,8 @@ namespace userinterface.Services
 
         public ProfileViewModel CreateProfileViewModel(BE.ProfileModel profileModel)
         {
-            var sw = Stopwatch.StartNew();
             var viewModel = ServiceProvider.GetRequiredService<ProfileViewModel>();
-            sw.Stop();
-            Debug.WriteLine($"[JIT-PERF] ProfileViewModel creation: {sw.ElapsedMilliseconds}ms");
-            
-            sw.Restart();
             viewModel.Initialize(profileModel);
-            sw.Stop();
-            Debug.WriteLine($"[JIT-PERF] ProfileViewModel.Initialize: {sw.ElapsedMilliseconds}ms");
             return viewModel;
         }
 
