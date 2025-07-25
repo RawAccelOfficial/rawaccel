@@ -8,6 +8,7 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
@@ -15,6 +16,7 @@ using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Settings;
 using userinterface.Views;
 using userspace_backend;
+using Windows.System;
 using DATA = userspace_backend.Data;
 
 namespace userinterface;
@@ -251,20 +253,18 @@ public partial class App : Application
                 {
                     // Force load LiveChartsCore.SkiaSharpView.Avalonia.dll
                     _ = typeof(LiveChartsCore.SkiaSharpView.Avalonia.CartesianChart).Assembly;
-                    Debug.WriteLine("[PRELOAD] LiveChartsCore.SkiaSharpView.Avalonia loaded");
                     
                     // Force load SkiaSharp.HarfBuzz.dll  
                     _ = typeof(SkiaSharp.HarfBuzz.SKShaper).Assembly;
-                    Debug.WriteLine("[PRELOAD] SkiaSharp.HarfBuzz loaded");
                     
                     // Force load other SkiaSharp dependencies
                     _ = typeof(SkiaSharp.SKCanvas).Assembly;
-                    Debug.WriteLine("[PRELOAD] SkiaSharp loaded");
                     
                     // Force load LiveChartsCore base
                     _ = typeof(LiveChartsCore.CartesianChart<>).Assembly;
-                    Debug.WriteLine("[PRELOAD] LiveChartsCore loaded");
-                    
+
+                    // Force load items repeater for Avalonia
+                    _ = typeof(Avalonia.Controls.ItemsRepeater).Assembly;
                 }
                 catch (Exception ex)
                 {
