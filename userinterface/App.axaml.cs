@@ -39,7 +39,6 @@ public partial class App : Application
         services.AddSingleton<IModalService, ModalService>();
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        services.AddSingleton<SettingsService>();
         services.AddSingleton<LocalizationService>();
 
         // Register backend services
@@ -52,9 +51,15 @@ public partial class App : Application
             return backEnd;
         });
 
+        // Register settings service that depends on backend
+        services.AddSingleton<ISettingsService, SettingsService>();
+
         RegisterViewModels(services);
 
         Services = services.BuildServiceProvider();
+
+        // Apply settings from backend after services are built
+        ApplyStartupSettings();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -288,6 +293,25 @@ public partial class App : Application
         catch (Exception ex)
         {
             Debug.WriteLine($"[PRELOAD] Preload task failed: {ex.Message}");
+        }
+    }
+
+    private void ApplyStartupSettings()
+    {
+        try
+        {
+            var settingsService = Services?.GetService<ISettingsService>();
+            var localizationService = Services?.GetService<LocalizationService>();
+            
+            if (settingsService != null && localizationService != null)
+            {
+                // Apply language setting from backend
+                localizationService.ChangeLanguage(settingsService.Language);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[STARTUP] Failed to apply startup settings: {ex.Message}");
         }
     }
 }

@@ -25,8 +25,8 @@ public class SettingsPageViewModel : ViewModelBase
         BugReportCommand = new RelayCommand(() => App.OpenBugReportUrl());
     }
 
-    private SettingsService SettingsService =>
-        App.Services!.GetRequiredService<SettingsService>();
+    private ISettingsService SettingsService =>
+        App.Services!.GetRequiredService<ISettingsService>();
 
     private LocalizationService LocalizationService =>
         App.Services!.GetRequiredService<LocalizationService>();
@@ -48,11 +48,11 @@ public class SettingsPageViewModel : ViewModelBase
 
 public class GeneralSettings : ViewModelBase
 {
-    private readonly SettingsService settingsService;
+    private readonly ISettingsService settingsService;
     private readonly LocalizationService localizationService;
     private LanguageItem selectedLanguage;
 
-    public GeneralSettings(SettingsService settingsService, LocalizationService localizationService)
+    public GeneralSettings(ISettingsService settingsService, LocalizationService localizationService)
     {
         this.settingsService = settingsService;
         this.localizationService = localizationService;
@@ -95,9 +95,9 @@ public class GeneralSettings : ViewModelBase
 
 public class NotificationSettings : ViewModelBase
 {
-    private readonly SettingsService settingsService;
+    private readonly ISettingsService settingsService;
 
-    public NotificationSettings(SettingsService settingsService)
+    public NotificationSettings(ISettingsService settingsService)
     {
         this.settingsService = settingsService;
     }
