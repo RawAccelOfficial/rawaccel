@@ -217,4 +217,36 @@
   <data name="ProfileDeleteConfirm" xml:space="preserve">
     <value>Delete</value>
   </data>
+
+  <!-- Alpha Build Warning Dialog Resources -->
+  <data name="AlphaBuildWarningTitle" xml:space="preserve">
+    <value>Alpha Build Warning</value>
+  </data>
+  <data name="AlphaBuildWarningMainMessage" xml:space="preserve">
+    <value>This is an alpha build of RawAccel. Before reporting issues, please:</value>
+  </data>
+  <data name="AlphaBuildWarningStep1" xml:space="preserve">
+    <value>1. Check existing issues</value>
+  </data>
+  <data name="AlphaBuildWarningHere" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="AlphaBuildWarningStep1Continue" xml:space="preserve">
+    <value>to see if your problem has already been reported</value>
+  </data>
+  <data name="AlphaBuildWarningStep2" xml:space="preserve">
+    <value>2. Search through closed issues for similar problems that may have been resolved</value>
+  </data>
+  <data name="AlphaBuildWarningStep3" xml:space="preserve">
+    <value>3. For questions or help, join our Discord</value>
+  </data>
+  <data name="AlphaBuildWarningStep3Continue" xml:space="preserve">
+    <value>and ask in English</value>
+  </data>
+  <data name="AlphaBuildWarningFooter" xml:space="preserve">
+    <value>Only create new issue reports for genuine bugs that haven't been reported yet.</value>
+  </data>
+  <data name="AlphaBuildWarningUnderstand" xml:space="preserve">
+    <value>I Understand</value>
+  </data>
 </root>

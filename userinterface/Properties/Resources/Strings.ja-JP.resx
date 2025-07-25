@@ -217,4 +217,36 @@
   <data name="ProfileDeleteConfirm" xml:space="preserve">
     <value>削除</value>
   </data>
+
+  <!-- Alpha Build Warning Dialog Resources -->
+  <data name="AlphaBuildWarningTitle" xml:space="preserve">
+    <value>アルファビルド警告</value>
+  </data>
+  <data name="AlphaBuildWarningMainMessage" xml:space="preserve">
+    <value>これはRawAccelのアルファビルドです。問題を報告する前に、以下をお願いします：</value>
+  </data>
+  <data name="AlphaBuildWarningStep1" xml:space="preserve">
+    <value>1. 既存の問題を確認</value>
+  </data>
+  <data name="AlphaBuildWarningHere" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="AlphaBuildWarningStep1Continue" xml:space="preserve">
+    <value>で同じ問題が既に報告されていないか確認してください</value>
+  </data>
+  <data name="AlphaBuildWarningStep2" xml:space="preserve">
+    <value>2. クローズされた問題から、解決済みの類似問題を検索してください</value>
+  </data>
+  <data name="AlphaBuildWarningStep3" xml:space="preserve">
+    <value>3. 質問やヘルプが必要な場合は、Discordに参加</value>
+  </data>
+  <data name="AlphaBuildWarningStep3Continue" xml:space="preserve">
+    <value>して英語で質問してください</value>
+  </data>
+  <data name="AlphaBuildWarningFooter" xml:space="preserve">
+    <value>まだ報告されていない真の不具合についてのみ、新しい問題報告を作成してください。</value>
+  </data>
+  <data name="AlphaBuildWarningUnderstand" xml:space="preserve">
+    <value>理解しました</value>
+  </data>
 </root>
