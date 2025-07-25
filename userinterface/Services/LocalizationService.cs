@@ -37,6 +37,11 @@ public class LocalizationService : INotifyPropertyChanged
         TryChangeLanguage(cultureCode, out _);
     }
 
+    public string GetText(string key)
+    {
+        return Properties.Resources.Strings.ResourceManager.GetString(key) ?? key;
+    }
+
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

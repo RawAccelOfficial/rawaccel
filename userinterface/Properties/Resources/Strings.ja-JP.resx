@@ -181,4 +181,40 @@
   <data name="ProfileResetZoom" xml:space="preserve">
     <value>ズームをリセット</value>
   </data>
+
+  <!-- Language Names (Native) -->
+  <data name="LanguageEN-US" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageJA-JP" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+
+  <!-- Toast Notification Resources -->
+  <data name="MainWindowSettingsAppliedSuccess" xml:space="preserve">
+    <value>設定が正常に適用されました！</value>
+  </data>
+  <data name="SettingsLanguageChangedTo" xml:space="preserve">
+    <value>言語が{0}に変更されました</value>
+  </data>
+  <data name="ProfileClassicLinearEquivalent" xml:space="preserve">
+    <value>指数が2のクラシックはリニアと同じです</value>
+  </data>
+
+  <!-- Modal Dialog Resources -->
+  <data name="ModalOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ModalCancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="ProfileDeleteTitle" xml:space="preserve">
+    <value>プロファイルを削除</value>
+  </data>
+  <data name="ProfileDeleteMessage" xml:space="preserve">
+    <value>このプロファイルを削除してもよろしいですか？</value>
+  </data>
+  <data name="ProfileDeleteConfirm" xml:space="preserve">
+    <value>削除</value>
+  </data>
 </root>

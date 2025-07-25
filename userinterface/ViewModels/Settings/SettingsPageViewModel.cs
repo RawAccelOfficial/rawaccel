@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using userinterface.Commands;
@@ -39,10 +40,7 @@ public class SettingsPageViewModel : ViewModelBase
 
     private void OnGeneralSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(GeneralSettings.SelectedLanguage) && notificationService != null)
-        {
-            notificationService.ShowInfoToast($"Language changed to {GeneralSettings.SelectedLanguage.DisplayName}");
-        }
+        // Language change notification is now handled in ChangeLanguage method
     }
 }
 
@@ -59,11 +57,13 @@ public class GeneralSettings : ViewModelBase
 
         AvailableLanguages = new ObservableCollection<LanguageItem>
         {
-            new LanguageItem("English", "en-US"),
-            new LanguageItem("Japanese", "ja-JP"),
+            new LanguageItem(localizationService.GetText("LanguageEN-US"), "en-US"),
+            new LanguageItem(localizationService.GetText("LanguageJA-JP"), "ja-JP"),
         };
 
-        selectedLanguage = AvailableLanguages[0];
+        // Set initial selected language based on current settings
+        var currentLanguage = settingsService.Language;
+        selectedLanguage = AvailableLanguages.FirstOrDefault(l => l.CultureCode == currentLanguage) ?? AvailableLanguages[0];
     }
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; }
@@ -84,7 +84,19 @@ public class GeneralSettings : ViewModelBase
     {
         try
         {
+            // Get the native language name before changing the language
+            var languageName = selectedLanguage.DisplayName;
+            
+            // Change the language first
             localizationService.ChangeLanguage(cultureCode);
+            settingsService.Language = cultureCode;
+            
+            // Now show the notification in the new language
+            var notificationService = App.Services?.GetService<INotificationService>();
+            if (notificationService != null)
+            {
+                notificationService.ShowInfoToast("SettingsLanguageChangedTo", 4000, languageName);
+            }
         }
         catch (CultureNotFoundException ex)
         {

@@ -67,7 +67,7 @@ namespace userinterface.ViewModels.Profile
                 if (double.TryParse(ClassicSettings.Exponent.ValueText, out double exponentValue) &&
                     Math.Abs(exponentValue - 2.0) < 0.001)
                 {
-                    notificationService.ShowInfoToast("Classic with a power of 2 is equal to linear");
+                    notificationService.ShowInfoToast("ProfileClassicLinearEquivalent");
                 }
             }
         }

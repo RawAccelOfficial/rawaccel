@@ -96,7 +96,7 @@ public partial class MainWindow : Window
                 LoadingProgressBar.IsVisible = false;
             }
 
-            NotificationService.ShowSuccessToast("Settings applied successfully!");
+            NotificationService.ShowSuccessToast("MainWindowSettingsAppliedSuccess");
 
             if (ApplyButtonControl != null)
             {

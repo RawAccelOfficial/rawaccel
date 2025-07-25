@@ -12,6 +12,12 @@ namespace userinterface.Services
         private Control? currentModalContent;
         private TaskCompletionSource<bool>? currentConfirmationTask;
         private TaskCompletionSource<object?>? currentDialogTask;
+        private readonly LocalizationService localizationService;
+
+        public ModalService(LocalizationService localizationService)
+        {
+            this.localizationService = localizationService;
+        }
 
         private bool TryGetModalOverlay(out ModalOverlay modalOverlay)
         {
@@ -30,7 +36,7 @@ namespace userinterface.Services
             return false;
         }
 
-        public async Task<bool> ShowConfirmationAsync(string title, string message, string confirmText = "OK", string cancelText = "Cancel")
+        public async Task<bool> ShowConfirmationAsync(string titleKey, string messageKey, string confirmTextKey = "ModalOK", string cancelTextKey = "ModalCancel")
         {
             if (!TryGetModalOverlay(out var modalOverlay)) return false;
 
@@ -45,10 +51,10 @@ namespace userinterface.Services
             {
                 var confirmationDialog = new ConfirmationModalView
                 {
-                    Title = title,
-                    Message = message,
-                    ConfirmText = confirmText,
-                    CancelText = cancelText
+                    Title = localizationService.GetText(titleKey),
+                    Message = localizationService.GetText(messageKey),
+                    ConfirmText = localizationService.GetText(confirmTextKey),
+                    CancelText = localizationService.GetText(cancelTextKey)
                 };
 
                 confirmationDialog.ConfirmClicked += () =>
@@ -79,7 +85,7 @@ namespace userinterface.Services
             return await currentConfirmationTask.Task;
         }
 
-        public async Task ShowMessageAsync(string title, string message, string okText = "OK")
+        public async Task ShowMessageAsync(string titleKey, string messageKey, string okTextKey = "ModalOK")
         {
             if (!TryGetModalOverlay(out var modalOverlay)) return;
 
@@ -94,9 +100,9 @@ namespace userinterface.Services
             {
                 var messageDialog = new MessageModalView
                 {
-                    Title = title,
-                    Message = message,
-                    OkText = okText
+                    Title = localizationService.GetText(titleKey),
+                    Message = localizationService.GetText(messageKey),
+                    OkText = localizationService.GetText(okTextKey)
                 };
 
                 messageDialog.OkClicked += () =>
@@ -121,7 +127,7 @@ namespace userinterface.Services
             await messageTask.Task;
         }
 
-        public async Task<T?> ShowDialogAsync<T>(UserControl dialogContent, string title = "")
+        public async Task<T?> ShowDialogAsync<T>(UserControl dialogContent, string titleKey = "")
         {
             if (!TryGetModalOverlay(out var modalOverlay)) return default(T);
 

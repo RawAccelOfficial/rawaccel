@@ -181,4 +181,40 @@
   <data name="ProfileResetZoom" xml:space="preserve">
     <value>Reset Zoom</value>
   </data>
+
+  <!-- Language Names (Native) -->
+  <data name="LanguageEN-US" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageJA-JP" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+
+  <!-- Toast Notification Resources -->
+  <data name="MainWindowSettingsAppliedSuccess" xml:space="preserve">
+    <value>Settings applied successfully!</value>
+  </data>
+  <data name="SettingsLanguageChangedTo" xml:space="preserve">
+    <value>Language changed to {0}</value>
+  </data>
+  <data name="ProfileClassicLinearEquivalent" xml:space="preserve">
+    <value>Classic with a power of 2 is equal to linear</value>
+  </data>
+
+  <!-- Modal Dialog Resources -->
+  <data name="ModalOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ModalCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ProfileDeleteTitle" xml:space="preserve">
+    <value>Delete Profile</value>
+  </data>
+  <data name="ProfileDeleteMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this profile?</value>
+  </data>
+  <data name="ProfileDeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
 </root>

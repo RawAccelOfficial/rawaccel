@@ -35,8 +35,10 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Register services
-        services.AddSingleton<INotificationService, NotificationService>();
-        services.AddSingleton<IModalService, ModalService>();
+        services.AddSingleton<INotificationService>(provider => 
+            new NotificationService(provider.GetRequiredService<LocalizationService>()));
+        services.AddSingleton<IModalService>(provider => 
+            new ModalService(provider.GetRequiredService<LocalizationService>()));
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<LocalizationService>();

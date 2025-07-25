@@ -453,10 +453,10 @@ public partial class ProfileListView : UserControl
                 
                 // Show confirmation modal
                 var confirmed = await modalService.ShowConfirmationAsync(
-                    "Delete Profile",
-                    $"Are you sure you want to delete '{profileToDelete.CurrentNameForDisplay}'?",
-                    "Delete",
-                    "Cancel");
+                    "ProfileDeleteTitle",
+                    "ProfileDeleteMessage",
+                    "ProfileDeleteConfirm",
+                    "ModalCancel");
                 
                 if (confirmed)
                 {
