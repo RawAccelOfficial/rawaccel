@@ -9,6 +9,7 @@
     <ApplicationIcon>Assets\mouse.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <BaseOutputPath>..\x64\</BaseOutputPath>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
