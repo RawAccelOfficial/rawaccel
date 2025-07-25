@@ -67,17 +67,20 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 displayName: "Smooth",
                 initialValue: dataObject.Smooth,
                 parser: UserInputParsers.DoubleParser, 
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelJumpSmooth");
             Input = new EditableSetting<double>(
                 displayName: "Input",
                 initialValue: dataObject.Input,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelJumpInput");
             Output = new EditableSetting<double>(
                 displayName: "Output",
                 initialValue: dataObject.Output,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelJumpOutput");
         }
     }
 }

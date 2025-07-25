@@ -231,6 +231,150 @@
     <value>Cap</value>
   </data>
 
+  <!-- Jump Acceleration Resources -->
+  <data name="AccelJumpSmooth" xml:space="preserve">
+    <value>Smooth</value>
+  </data>
+  <data name="AccelJumpInput" xml:space="preserve">
+    <value>Input</value>
+  </data>
+  <data name="AccelJumpOutput" xml:space="preserve">
+    <value>Output</value>
+  </data>
+
+  <!-- Linear Acceleration Resources -->
+  <data name="AccelLinearAcceleration" xml:space="preserve">
+    <value>Acceleration</value>
+  </data>
+  <data name="AccelLinearOffset" xml:space="preserve">
+    <value>Offset</value>
+  </data>
+  <data name="AccelLinearCap" xml:space="preserve">
+    <value>Cap</value>
+  </data>
+
+  <!-- Power Acceleration Resources -->
+  <data name="AccelPowerScale" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="AccelPowerExponent" xml:space="preserve">
+    <value>Exponent</value>
+  </data>
+  <data name="AccelPowerOutputOffset" xml:space="preserve">
+    <value>Output Offset</value>
+  </data>
+  <data name="AccelPowerCap" xml:space="preserve">
+    <value>Cap</value>
+  </data>
+
+  <!-- Natural Acceleration Resources -->
+  <data name="AccelNaturalDecayRate" xml:space="preserve">
+    <value>Decay Rate</value>
+  </data>
+  <data name="AccelNaturalInputOffset" xml:space="preserve">
+    <value>Input Offset</value>
+  </data>
+  <data name="AccelNaturalLimit" xml:space="preserve">
+    <value>Limit</value>
+  </data>
+
+  <!-- Synchronous Acceleration Resources -->
+  <data name="AccelSynchronousGamma" xml:space="preserve">
+    <value>Gamma</value>
+  </data>
+  <data name="AccelSynchronousMotivity" xml:space="preserve">
+    <value>Motivity</value>
+  </data>
+  <data name="AccelSynchronousSyncSpeed" xml:space="preserve">
+    <value>Sync Speed</value>
+  </data>
+  <data name="AccelSynchronousSmoothness" xml:space="preserve">
+    <value>Smoothness</value>
+  </data>
+
+  <!-- General Acceleration Resources -->
+  <data name="AccelDefinitionType" xml:space="preserve">
+    <value>Definition Type</value>
+  </data>
+  <data name="AccelFormulaType" xml:space="preserve">
+    <value>Formula Type</value>
+  </data>
+
+  <!-- Lookup Table Resources -->
+  <data name="LookupTableApplyAs" xml:space="preserve">
+    <value>Apply as</value>
+  </data>
+  <data name="LookupTableData" xml:space="preserve">
+    <value>Data</value>
+  </data>
+
+  <!-- Profile Component Resources -->
+  <data name="ProfileOutputDPI" xml:space="preserve">
+    <value>Output DPI</value>
+  </data>
+  <data name="ProfileYXRatio" xml:space="preserve">
+    <value>Y/X Ratio</value>
+  </data>
+
+  <!-- Anisotropy Resources -->
+  <data name="AnisotropyDomainX" xml:space="preserve">
+    <value>Domain X</value>
+  </data>
+  <data name="AnisotropyDomainY" xml:space="preserve">
+    <value>Domain Y</value>
+  </data>
+  <data name="AnisotropyRangeX" xml:space="preserve">
+    <value>Range X</value>
+  </data>
+  <data name="AnisotropyRangeY" xml:space="preserve">
+    <value>Range Y</value>
+  </data>
+  <data name="AnisotropyLPNorm" xml:space="preserve">
+    <value>LP Norm</value>
+  </data>
+  <data name="AnisotropyCombineXY" xml:space="preserve">
+    <value>Combine X and Y Components</value>
+  </data>
+
+  <!-- Hidden Model Resources -->
+  <data name="HiddenRotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="HiddenAngleSnapping" xml:space="preserve">
+    <value>Angle Snapping</value>
+  </data>
+  <data name="HiddenLRRatio" xml:space="preserve">
+    <value>L/R Ratio</value>
+  </data>
+  <data name="HiddenUDRatio" xml:space="preserve">
+    <value>U/D Ratio</value>
+  </data>
+  <data name="HiddenSpeedCap" xml:space="preserve">
+    <value>Speed Cap</value>
+  </data>
+  <data name="HiddenOutputSmoothingHalfLife" xml:space="preserve">
+    <value>Output Smoothing Half-Life</value>
+  </data>
+
+  <!-- Coalescion Resources -->
+  <data name="CoalescionInputSmoothingHalfLife" xml:space="preserve">
+    <value>Input Smoothing Half-Life</value>
+  </data>
+  <data name="CoalescionScaleSmoothingHalfLife" xml:space="preserve">
+    <value>Scale Smoothing Half-Life</value>
+  </data>
+
+  <!-- Device Resources -->
+  <data name="DeviceDPI" xml:space="preserve">
+    <value>DPI</value>
+  </data>
+  <data name="DevicePollingRate" xml:space="preserve">
+    <value>Polling Rate</value>
+  </data>
+  <data name="DeviceIgnore" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
     <value>Alpha Build Warning</value>

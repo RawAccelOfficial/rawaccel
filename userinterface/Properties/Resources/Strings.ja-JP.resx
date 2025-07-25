@@ -231,6 +231,150 @@
     <value>上限</value>
   </data>
 
+  <!-- Jump Acceleration Resources -->
+  <data name="AccelJumpSmooth" xml:space="preserve">
+    <value>滑らか</value>
+  </data>
+  <data name="AccelJumpInput" xml:space="preserve">
+    <value>入力</value>
+  </data>
+  <data name="AccelJumpOutput" xml:space="preserve">
+    <value>出力</value>
+  </data>
+
+  <!-- Linear Acceleration Resources -->
+  <data name="AccelLinearAcceleration" xml:space="preserve">
+    <value>加速度</value>
+  </data>
+  <data name="AccelLinearOffset" xml:space="preserve">
+    <value>オフセット</value>
+  </data>
+  <data name="AccelLinearCap" xml:space="preserve">
+    <value>上限</value>
+  </data>
+
+  <!-- Power Acceleration Resources -->
+  <data name="AccelPowerScale" xml:space="preserve">
+    <value>スケール</value>
+  </data>
+  <data name="AccelPowerExponent" xml:space="preserve">
+    <value>指数</value>
+  </data>
+  <data name="AccelPowerOutputOffset" xml:space="preserve">
+    <value>出力オフセット</value>
+  </data>
+  <data name="AccelPowerCap" xml:space="preserve">
+    <value>上限</value>
+  </data>
+
+  <!-- Natural Acceleration Resources -->
+  <data name="AccelNaturalDecayRate" xml:space="preserve">
+    <value>減衰率</value>
+  </data>
+  <data name="AccelNaturalInputOffset" xml:space="preserve">
+    <value>入力オフセット</value>
+  </data>
+  <data name="AccelNaturalLimit" xml:space="preserve">
+    <value>制限</value>
+  </data>
+
+  <!-- Synchronous Acceleration Resources -->
+  <data name="AccelSynchronousGamma" xml:space="preserve">
+    <value>ガンマ</value>
+  </data>
+  <data name="AccelSynchronousMotivity" xml:space="preserve">
+    <value>感度</value>
+  </data>
+  <data name="AccelSynchronousSyncSpeed" xml:space="preserve">
+    <value>同期速度</value>
+  </data>
+  <data name="AccelSynchronousSmoothness" xml:space="preserve">
+    <value>滑らかさ</value>
+  </data>
+
+  <!-- General Acceleration Resources -->
+  <data name="AccelDefinitionType" xml:space="preserve">
+    <value>定義タイプ</value>
+  </data>
+  <data name="AccelFormulaType" xml:space="preserve">
+    <value>数式タイプ</value>
+  </data>
+
+  <!-- Lookup Table Resources -->
+  <data name="LookupTableApplyAs" xml:space="preserve">
+    <value>適用として</value>
+  </data>
+  <data name="LookupTableData" xml:space="preserve">
+    <value>データ</value>
+  </data>
+
+  <!-- Profile Component Resources -->
+  <data name="ProfileOutputDPI" xml:space="preserve">
+    <value>出力DPI</value>
+  </data>
+  <data name="ProfileYXRatio" xml:space="preserve">
+    <value>Y/X比</value>
+  </data>
+
+  <!-- Anisotropy Resources -->
+  <data name="AnisotropyDomainX" xml:space="preserve">
+    <value>ドメインX</value>
+  </data>
+  <data name="AnisotropyDomainY" xml:space="preserve">
+    <value>ドメインY</value>
+  </data>
+  <data name="AnisotropyRangeX" xml:space="preserve">
+    <value>範囲X</value>
+  </data>
+  <data name="AnisotropyRangeY" xml:space="preserve">
+    <value>範囲Y</value>
+  </data>
+  <data name="AnisotropyLPNorm" xml:space="preserve">
+    <value>LPノルム</value>
+  </data>
+  <data name="AnisotropyCombineXY" xml:space="preserve">
+    <value>XとYコンポーネントを結合</value>
+  </data>
+
+  <!-- Hidden Model Resources -->
+  <data name="HiddenRotation" xml:space="preserve">
+    <value>回転</value>
+  </data>
+  <data name="HiddenAngleSnapping" xml:space="preserve">
+    <value>角度スナップ</value>
+  </data>
+  <data name="HiddenLRRatio" xml:space="preserve">
+    <value>左右比</value>
+  </data>
+  <data name="HiddenUDRatio" xml:space="preserve">
+    <value>上下比</value>
+  </data>
+  <data name="HiddenSpeedCap" xml:space="preserve">
+    <value>速度上限</value>
+  </data>
+  <data name="HiddenOutputSmoothingHalfLife" xml:space="preserve">
+    <value>出力スムージング半減期</value>
+  </data>
+
+  <!-- Coalescion Resources -->
+  <data name="CoalescionInputSmoothingHalfLife" xml:space="preserve">
+    <value>入力スムージング半減期</value>
+  </data>
+  <data name="CoalescionScaleSmoothingHalfLife" xml:space="preserve">
+    <value>スケールスムージング半減期</value>
+  </data>
+
+  <!-- Device Resources -->
+  <data name="DeviceDPI" xml:space="preserve">
+    <value>DPI</value>
+  </data>
+  <data name="DevicePollingRate" xml:space="preserve">
+    <value>ポーリングレート</value>
+  </data>
+  <data name="DeviceIgnore" xml:space="preserve">
+    <value>無視</value>
+  </data>
+
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
     <value>アルファビルド警告</value>

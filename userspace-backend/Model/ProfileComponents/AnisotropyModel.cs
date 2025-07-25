@@ -52,32 +52,38 @@ namespace userspace_backend.Model.ProfileComponents
                 displayName: "Domain X",
                 initialValue: dataObject?.Domain?.X ?? 1,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AnisotropyDomainX");
             DomainY = new EditableSetting<double>(
                 displayName: "Domain Y",
                 initialValue: dataObject?.Domain?.Y ?? 1,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AnisotropyDomainY");
             RangeX = new EditableSetting<double>(
                 displayName: "Range X",
                 initialValue: dataObject?.Range?.X ?? 1,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AnisotropyRangeX");
             RangeY = new EditableSetting<double>(
                 displayName: "Range Y",
                 initialValue: dataObject?.Range?.Y ?? 1,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AnisotropyRangeY");
             LPNorm = new EditableSetting<double>(
                 displayName: "LP Norm",
                 initialValue: dataObject?.LPNorm ?? 2,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AnisotropyLPNorm");
             CombineXYComponents = new EditableSetting<bool>(
                 displayName: "Combine X and Y Components",
                 initialValue: dataObject?.CombineXYComponents ?? false,
                 parser: UserInputParsers.BoolParser,
-                validator: ModelValueValidators.DefaultBoolValidator);
+                validator: ModelValueValidators.DefaultBoolValidator,
+                localizationKey: "AnisotropyCombineXY");
         }
     }
 }

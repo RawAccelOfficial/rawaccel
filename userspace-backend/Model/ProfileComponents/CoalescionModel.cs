@@ -43,12 +43,14 @@ namespace userspace_backend.Model.ProfileComponents
                 displayName: "Input Smoothing Half-Life",
                 initialValue: dataObject?.InputSmoothingHalfLife ?? 0,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "CoalescionInputSmoothingHalfLife");
             ScaleSmoothingHalfLife = new EditableSetting<double>(
                 displayName: "Scale Smoothing Half-Life",
                 initialValue: dataObject?.ScaleSmoothingHalfLife ?? 0,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "CoalescionScaleSmoothingHalfLife");
         }
     }
 }
