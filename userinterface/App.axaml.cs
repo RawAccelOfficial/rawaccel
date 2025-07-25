@@ -196,6 +196,17 @@ public partial class App : Application
                     },
                 ],
             },
+            SettingsToLoad = new DATA.Settings()
+            {
+                ShowToastNotifications = true,
+                Theme = "Dark",
+                AutoSaveProfiles = true,
+                SaveIntervalMinutes = 5,
+                EnableLogging = false,
+                LogLevel = "Info",
+                CheckForUpdates = true,
+                Language = "ja-JP"
+            },
         };
     }
 
