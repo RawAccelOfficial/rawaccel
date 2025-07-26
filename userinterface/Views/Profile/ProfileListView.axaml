@@ -178,7 +178,6 @@
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 
-		<!-- Simple delete button with only icon foreground styling -->
 		<Style Selector="Button.SimpleDeleteButton">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>

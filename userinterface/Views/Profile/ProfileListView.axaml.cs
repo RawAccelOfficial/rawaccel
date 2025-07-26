@@ -72,11 +72,17 @@ public partial class ProfileListView : UserControl
     {
         profileContainer = this.FindControl<Panel>("ProfileContainer");
         
+        // Set the view reference in the ViewModel
+        if (DataContext is ProfileListViewModel viewModel)
+        {
+            viewModel.SetView(this);
+        }
+        
         var addButton = CreateAddProfileButton();
         allItems.Add(addButton);
         profileContainer.Children.Add(addButton);
         
-        _ = CreateProfilesWithStagger();
+        CreateProfilesWithStagger();
         
         var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
         if (defaultProfile != null)
@@ -105,7 +111,7 @@ public partial class ProfileListView : UserControl
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    await HandleProfilesAdded(e);
+                    HandleProfilesAdded(e);
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     await HandleProfilesRemoved(e);
@@ -127,22 +133,21 @@ public partial class ProfileListView : UserControl
         }
     }
 
-    private async Task HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
+    private void HandleProfilesAdded(NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems == null) return;
-        
+
         // Add profiles at their actual positions in the backend collection
         int startIndex = e.NewStartingIndex >= 0 ? e.NewStartingIndex : profilesModel.Profiles.Count - e.NewItems.Count;
-        
+
         for (int i = 0; i < e.NewItems.Count; i++)
         {
             int profileIndex = startIndex + i;
             AddProfileAtPosition(profileIndex);
         }
-        
-        // Refresh all profile names to ensure they display correctly
+
         RefreshAllProfileNames();
-        
+
         // Auto-select the newly added profile (the last one added)
         if (e.NewItems.Count > 0)
         {
@@ -490,8 +495,8 @@ public partial class ProfileListView : UserControl
             allItems[i].ZIndex = i;
         }
     }
-    
-    private async Task CreateProfilesWithStagger()
+
+    private void CreateProfilesWithStagger()
     {
         for (int i = 0; i < profilesModel.Profiles.Count; i++)
         {
@@ -499,18 +504,18 @@ public partial class ProfileListView : UserControl
             profileBorder.ZIndex = 1000;
             profileBorder.Opacity = 1.0;
             profileBorder.Margin = new Thickness(8, CalculatePositionForIndex(0), 8, 0);
-            
+
             int itemIndex = i + 1; // +1 for add button
             allItems.Insert(itemIndex, profileBorder);
             profileContainer?.Children.Insert(itemIndex, profileBorder);
-            
+
         }
-        
+
         UpdateAllZIndexes();
         RefreshAllProfileNames();
         UpdateDeleteButtonStates();
     }
-    
+
     private void CancelAllAnimations()
     {
         lock (animationLock)
@@ -683,7 +688,7 @@ public partial class ProfileListView : UserControl
                 continue;
             }
             
-            // Calculate stagger based on focus index (convert from profile index to element index if needed)
+            // Calculate stagger based on focus index
             int staggerIndex = 0;
             if (focusIndex >= 0)
             {

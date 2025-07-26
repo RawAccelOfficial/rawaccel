@@ -20,6 +20,7 @@ namespace userinterface.ViewModels.Profile
         private readonly SemaphoreSlim operationQueue = new(1, 1);
         private readonly ConcurrentQueue<Func<Task>> pendingOperations = new();
         private volatile bool isProcessingQueue = false;
+        private Views.Profile.ProfileListView profileListView;
         
         [ObservableProperty]
         private BE.ProfileModel selectedProfile;
@@ -34,6 +35,11 @@ namespace userinterface.ViewModels.Profile
 
         public ObservableCollection<BE.ProfileModel> Profiles => profilesModel.Profiles;
         public ICommand AddProfileCommand { get; }
+        
+        public void SetView(Views.Profile.ProfileListView view)
+        {
+            profileListView = view;
+        }
 
         public void TryAddProfile()
         {
@@ -45,25 +51,20 @@ namespace userinterface.ViewModels.Profile
         private async Task TryAddProfileAsync()
         {
             var startTime = DateTime.Now;
-            Debug.WriteLine($"[PROFILE_QUEUE] Starting profile add operation at: {startTime:HH:mm:ss.fff}");
             
             var profileName = GenerateProfileName();
             if (TryAddProfileWithName(profileName))
             {
-                var backendAddTime = DateTime.Now;
-                Debug.WriteLine($"[PROFILE_QUEUE] Profile added to backend at: {backendAddTime:HH:mm:ss.fff}");
+                var backendAddTime = DateTime.Now;        
                 
-                // Move the newly added profile to the optimal position
                 MoveNewProfileToOptimalPosition(profileName);
                 
                 var reorderTime = DateTime.Now;
-                Debug.WriteLine($"[PROFILE_QUEUE] Profile reordered at: {reorderTime:HH:mm:ss.fff}");
                 
                 // Wait for any animations to complete before allowing next operation
                 await WaitForAnimationsToComplete();
                 
                 var completionTime = DateTime.Now;
-                Debug.WriteLine($"[PROFILE_QUEUE] Profile add operation completed at: {completionTime:HH:mm:ss.fff}");
             }
         }
         
@@ -98,7 +99,6 @@ namespace userinterface.ViewModels.Profile
                 }
             }
             
-            // If no auto-generated profiles found, insert at the end
             return Profiles.Count;
         }
         
@@ -170,21 +170,19 @@ namespace userinterface.ViewModels.Profile
         
         private async Task WaitForAnimationsToComplete()
         {
-            // Wait for the UI update and animations to complete
-            // Based on the View's animation settings:
-            // - Animation duration: 300ms 
-            // - Stagger delay: up to 3 * 20ms = 60ms
-            // - Safety margin: 100ms
-            // Total conservative wait: 460ms
-            
-            int baseAnimationTime = 300;  // Animation duration from View
-            int maxStaggerDelay = 60;      // Max stagger delay (3 profiles * 20ms)
-            int safetyMargin = 100;        // Safety margin for UI updates
-            int totalWaitTime = baseAnimationTime + maxStaggerDelay + safetyMargin;
-            
-            Debug.WriteLine($"[PROFILE_QUEUE] Waiting {totalWaitTime}ms for animations to complete");
-            await Task.Delay(totalWaitTime);
-            Debug.WriteLine($"[PROFILE_QUEUE] Animation wait completed");
+            if (profileListView != null)
+            {
+                while (profileListView.AreAnimationsActive)
+                {
+                    await Task.Delay(50); // Check every 50ms
+                }
+                
+                await Task.Delay(50);
+            }
+            else
+            {
+                await Task.Delay(400);
+            }
         }
         
 
