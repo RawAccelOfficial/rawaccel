@@ -1,7 +1,7 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Windows.Input;
 using userinterface.Commands;
@@ -20,7 +20,7 @@ namespace userinterface.ViewModels.Mapping
         {
             mappingsModel = backEnd?.Mappings ?? throw new ArgumentNullException(nameof(backEnd));
             this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
-            
+
             MappingViews = [];
             UpdateMappingViews();
             mappingsModel.Mappings.CollectionChanged += MappingsCollectionChanged;

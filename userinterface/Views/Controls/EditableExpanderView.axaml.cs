@@ -175,19 +175,19 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
             {
                 contentButton.IsVisible = true;
                 headerButton.Classes.Add(ExpandedClass);
-                
+
                 var chevronTask = AnimateChevron(expandIcon, ExpandedChevronAngle);
                 var heightTask = AnimateHeightExpand(contentButton);
-                
+
                 await Task.WhenAll(chevronTask, heightTask);
             }
             else
             {
                 var chevronTask = AnimateChevron(expandIcon, CollapsedChevronAngle);
                 var heightTask = AnimateHeightCollapse(contentButton);
-                
+
                 await Task.WhenAll(chevronTask, heightTask);
-                
+
                 headerButton.Classes.Remove(ExpandedClass);
                 contentButton.IsVisible = false;
             }
@@ -277,7 +277,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         };
 
         await animation.RunAsync(contentControl, CancellationToken.None);
-        
+
         // Ensure final state
         contentControl.Opacity = 1.0;
         if (contentControl.RenderTransform is ScaleTransform scaleTransform)
@@ -290,7 +290,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
     {
         // Ensure transform origin is set for consistent scaling direction
         contentControl.RenderTransformOrigin = new RelativePoint(0.5, 0.0, RelativeUnit.Relative); // Scale from top
-        
+
         var animation = new Animation
         {
             Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
@@ -328,11 +328,11 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         contentControl.Opacity = 1.0;
         contentControl.RenderTransform = null;
         contentControl.ClearValue(Control.HeightProperty);
-        
+
         // Measure the natural height of the content
         contentControl.Measure(Size.Infinity);
         var targetHeight = contentControl.DesiredSize.Height;
-        
+
         // Start with height 0 and animate to target height
         var animation = new Animation
         {
@@ -363,7 +363,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         };
 
         await animation.RunAsync(contentControl, CancellationToken.None);
-        
+
         // Clear explicit height to allow natural responsive sizing
         contentControl.ClearValue(Control.HeightProperty);
     }
@@ -378,9 +378,9 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
             contentControl.Measure(Size.Infinity);
             currentHeight = contentControl.DesiredSize.Height;
         }
-        
+
         contentControl.Height = currentHeight;
-        
+
         var animation = new Animation
         {
             Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),

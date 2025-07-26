@@ -1,10 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using userinterface.Services;
-using Microsoft.Extensions.DependencyInjection;
 using BE = userspace_backend.Model.EditableSettings;
 
 namespace userinterface.ViewModels.Controls;
@@ -29,7 +29,7 @@ public class DualColumnLabelFieldViewModel : INotifyPropertyChanged
     {
         Fields = [];
         localizationService = App.Services?.GetRequiredService<LocalizationService>()!;
-        
+
         // Subscribe to language changes to update field labels
         if (localizationService != null)
         {
@@ -158,7 +158,7 @@ public class FieldItemViewModel : INotifyPropertyChanged
         {
             return localizationService?.GetText(setting.LocalizationKey) ?? setting.DisplayText;
         }
-        
+
         // Otherwise, use the display name directly (for user input settings)
         return setting?.DisplayText ?? string.Empty;
     }

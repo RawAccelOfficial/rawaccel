@@ -1,10 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 using userinterface.Services;
-using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
+using userinterface.ViewModels.Profile;
 using BE = userspace_backend.Model;
 
 namespace userinterface.Services

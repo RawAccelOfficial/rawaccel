@@ -76,10 +76,10 @@ namespace userinterface.Commands
         public async void Execute(object? parameter)
         {
             if (!CanExecute(parameter)) return;
-            
+
             isExecuting = true;
             RaiseCanExecuteChanged();
-            
+
             try
             {
                 await executeAsync();

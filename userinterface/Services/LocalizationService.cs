@@ -7,7 +7,7 @@ namespace userinterface.Services;
 public class LocalizationService : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
-    
+
     // Specific property name for language changes
     public const string LanguageChangedPropertyName = "CurrentLanguage";
 

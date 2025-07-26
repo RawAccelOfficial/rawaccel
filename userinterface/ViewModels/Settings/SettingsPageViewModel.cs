@@ -32,4 +32,3 @@ public class SettingsPageViewModel : ViewModelBase
         // Language change notification is now handled in ChangeLanguage method
     }
 }
-

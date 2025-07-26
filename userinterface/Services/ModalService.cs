@@ -2,8 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using System;
 using System.Threading.Tasks;
-using userinterface.Views.Controls;
 using userinterface.Views;
+using userinterface.Views.Controls;
 
 namespace userinterface.Services
 {
@@ -22,7 +22,7 @@ namespace userinterface.Services
         private bool TryGetModalOverlay(out ModalOverlay modalOverlay)
         {
             modalOverlay = null!;
-            
+
             if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var mainWindow = desktop.MainWindow as MainWindow;

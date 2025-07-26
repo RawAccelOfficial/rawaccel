@@ -12,7 +12,7 @@ public class SettingsService : ISettingsService
     public SettingsService(BackEnd backEnd)
     {
         this.backEnd = backEnd;
-        
+
         // Subscribe to backend settings property changes
         if (this.backEnd.Settings != null)
         {

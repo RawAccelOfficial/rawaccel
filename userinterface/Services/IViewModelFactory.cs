@@ -1,7 +1,7 @@
 using System;
-using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
+using userinterface.ViewModels.Profile;
 using BE = userspace_backend.Model;
 
 namespace userinterface.Services

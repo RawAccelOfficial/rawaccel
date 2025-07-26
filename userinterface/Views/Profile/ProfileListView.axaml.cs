@@ -1,23 +1,23 @@
+using Avalonia;
 using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Media;
-using userinterface.ViewModels.Profile;
+using Avalonia.Styling;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
-using Avalonia.Animation.Easings;
+using System.Threading.Tasks;
+using userinterface.Services;
+using userinterface.ViewModels.Profile;
 using userspace_backend;
 using BE = userspace_backend.Model;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Specialized;
-using System.Threading.Tasks;
-using System.Linq;
-using Avalonia.Styling;
-using Avalonia.Layout;
-using Avalonia;
-using System.Diagnostics;
-using userinterface.Services;
-using System.ComponentModel;
 
 namespace userinterface.Views.Profile;
 
@@ -29,22 +29,22 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private BE.ProfileModel selectedProfile;
-    
+
     private int GetProfileCount() => allItems.Count - 1; // Subtract 1 for add button
     private volatile bool areAnimationsActive = false;
     private readonly object animationLock = new();
-    
+
     public event PropertyChangedEventHandler PropertyChanged;
     private readonly IModalService modalService;
     private readonly LocalizationService localizationService;
     private TextBlock addProfileTextBlock;
-    
+
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
     private const int StaggerDelayMs = 20;
     private const double ProfileSpawnPosition = 0.0;
     private const double FirstIndexOffset = 6;
-    
+
 
     public ProfileListView()
     {
@@ -54,13 +54,13 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
         localizationService.PropertyChanged += OnLocalizationPropertyChanged;
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
-        
+
         InitializeComponent();
-        
+
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
     }
-    
+
     private void OnUnloaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         CancelAllAnimations();
@@ -74,19 +74,19 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         profileContainer = this.FindControl<Panel>("ProfileContainer");
-        
+
         // Set the view reference in the ViewModel
         if (DataContext is ProfileListViewModel viewModel)
         {
             viewModel.SetView(this);
         }
-        
+
         var addButton = CreateAddProfileButton();
         allItems.Add(addButton);
         profileContainer.Children.Add(addButton);
-        
+
         CreateProfilesWithStagger();
-        
+
         var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
         if (defaultProfile != null)
         {
@@ -110,7 +110,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     {
         await operationSemaphore.WaitAsync();
         try
-        {   
+        {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -165,10 +165,10 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private async Task HandleProfilesRemoved(NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems == null) return;
-        
+
         int removeIndex = e.OldStartingIndex >= 0 ? e.OldStartingIndex : GetProfileCount() - 1;
         int removeCount = e.OldItems.Count;
-        
+
         // Cancel animations for removed profiles
         for (int i = 0; i < removeCount && removeIndex + i < GetProfileCount(); i++)
         {
@@ -178,17 +178,17 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                 activeAnimations.Remove(removeIndex + i);
             }
         }
-        
+
         // Remove UI elements
         for (int i = 0; i < removeCount && removeIndex >= 0 && removeIndex < GetProfileCount(); i++)
         {
             RemoveProfileAt(removeIndex);
         }
-        
+
         UpdateAllZIndexes();
-        
+
         await AnimateAllElementsToPositions(removeIndex);
-        
+
         if (selectedProfile != null && !profilesModel.Profiles.Contains(selectedProfile))
         {
             var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
@@ -210,10 +210,10 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private async Task HandleProfilesReplaced(NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems == null || e.NewItems == null || e.OldStartingIndex < 0) return;
-        
+
         int replaceIndex = e.OldStartingIndex;
         int itemCount = Math.Min(e.OldItems.Count, e.NewItems.Count);
-        
+
         for (int i = 0; i < itemCount && replaceIndex + i < GetProfileCount(); i++)
         {
             int itemIndex = replaceIndex + i + 1; // +1 for add button
@@ -226,20 +226,20 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                 }
             }
         }
-        
+
         UpdateAllZIndexes();
-        
+
         await AnimateAllElementsToPositions(replaceIndex);
     }
 
     private async Task HandleProfilesMoved(NotifyCollectionChangedEventArgs e)
     {
         if (e.OldStartingIndex < 0 || e.NewStartingIndex < 0) return;
-        
+
         MoveProfile(e.OldStartingIndex, e.NewStartingIndex);
-        
+
         UpdateAllZIndexes();
-        
+
         await AnimateAllElementsToPositions(Math.Min(e.OldStartingIndex, e.NewStartingIndex));
     }
 
@@ -250,20 +250,20 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         var addButton = allItems.Count > 0 ? allItems[0] : null;
         allItems.Clear();
         profileContainer?.Children.Clear();
-        
+
         if (addButton != null)
         {
             allItems.Add(addButton);
             profileContainer?.Children.Add(addButton);
         }
-        
+
         for (int i = 0; i < profilesModel.Profiles.Count; i++)
         {
             AddProfileAtPosition(i);
         }
-        
+
         UpdateAllZIndexes();
-        
+
         return Task.CompletedTask;
     }
 
@@ -272,7 +272,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         // Adjust index to account for add button at position 0
         int itemIndex = index + 1;
         if (itemIndex < 0 || itemIndex >= allItems.Count) return;
-        
+
         var item = allItems[itemIndex];
         allItems.RemoveAt(itemIndex);
         profileContainer?.Children.Remove(item);
@@ -283,15 +283,15 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         // Adjust indices to account for add button at position 0
         int fromItemIndex = fromIndex + 1;
         int toItemIndex = toIndex + 1;
-        
-        if (fromItemIndex < 1 || fromItemIndex >= allItems.Count || 
-            toItemIndex < 1 || toItemIndex >= allItems.Count || 
+
+        if (fromItemIndex < 1 || fromItemIndex >= allItems.Count ||
+            toItemIndex < 1 || toItemIndex >= allItems.Count ||
             fromItemIndex == toItemIndex) return;
 
         var item = allItems[fromItemIndex];
         allItems.RemoveAt(fromItemIndex);
         allItems.Insert(toItemIndex, item);
-        
+
         profileContainer?.Children.RemoveAt(fromItemIndex);
         profileContainer?.Children.Insert(toItemIndex, item);
     }
@@ -301,21 +301,21 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         if (targetIndex < 0 || targetIndex > GetProfileCount()) return;
 
         var profileBorder = CreateProfileBorder(null, targetIndex);
-        
+
         // Set higher z-index for the new profile so it's visible during animation
         profileBorder.ZIndex = 1000;
         profileBorder.Opacity = 1.0; // Ensure full visibility
-        
+
         // Insert into allItems at correct position (add button is at index 0)
         int itemIndex = targetIndex + 1;
         allItems.Insert(itemIndex, profileBorder);
         profileContainer?.Children.Insert(itemIndex, profileBorder);
-        
+
         UpdateAllZIndexes();
-        
+
         _ = AnimateAllElementsToPositions(targetIndex);
     }
-    
+
     private Border CreateAddProfileButton()
     {
         // Create the add profile text
@@ -326,7 +326,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             HorizontalAlignment = HorizontalAlignment.Center,
             FontWeight = FontWeight.Medium
         };
-        
+
         // Create a button-like border that responds to clicks
         var border = new Border
         {
@@ -337,9 +337,9 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             Margin = new Thickness(8, 0, 8, 0),
             Child = addProfileTextBlock
         };
-        
+
         border.PointerPressed += (s, e) => OnAddProfileClicked(s, e);
-        
+
         return border;
     }
 
@@ -347,21 +347,21 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     {
         var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].CurrentNameForDisplay : $"Profile {targetIndex + 1}";
         var isDefaultProfile = targetIndex < profilesModel.Profiles.Count && profilesModel.Profiles[targetIndex] == BE.ProfilesModel.DefaultProfile;
-        
+
         // Create the profile name text
         var profileText = new TextBlock
         {
             Text = profileName,
             VerticalAlignment = VerticalAlignment.Center
         };
-        
+
         // Create a grid to hold the text and button
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-        
+
         Grid.SetColumn(profileText, 0);
         grid.Children.Add(profileText);
-        
+
         // Only add delete button for non-default profiles
         if (!isDefaultProfile)
         {
@@ -378,13 +378,13 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                 }
             };
             deleteButton.Click += OnDeleteButtonClicked;
-            
+
             // Add second column for delete button
             grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
             Grid.SetColumn(deleteButton, 1);
             grid.Children.Add(deleteButton);
         }
-        
+
         var border = new Border
         {
             Classes = { "ProfileItem" },
@@ -396,13 +396,13 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             Opacity = 1.0,
             ZIndex = targetIndex
         };
-        
+
         // Make the entire border clickable
         border.PointerPressed += OnProfileBorderClicked;
-        
+
         return border;
     }
-    
+
     private void UpdateDeleteButtonStates()
     {
         // Update delete buttons for all profile items (skip add and default profile)
@@ -431,7 +431,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             }
         }
     }
-    
+
     private void OnAddProfileClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Prevent rapid clicking during active operations
@@ -440,19 +440,19 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         {
             animationsActive = areAnimationsActive;
         }
-        
+
         if (animationsActive)
         {
             return;
         }
-        
+
         // Use the ViewModel's TryAddProfile method
         if (DataContext is ProfileListViewModel viewModel)
         {
             viewModel.TryAddProfile();
         }
     }
-    
+
     private async void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Prevent deletion during animations to avoid bugs
@@ -460,24 +460,24 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         {
             return;
         }
-        
+
         // Find which profile this delete button belongs to
-        if (sender is Button deleteButton && 
-            deleteButton.Parent is Grid grid && 
+        if (sender is Button deleteButton &&
+            deleteButton.Parent is Grid grid &&
             grid.Parent is Border border)
         {
             var profileIndex = allItems.IndexOf(border) - 1; // Subtract 1 for add button
             if (profileIndex >= 0 && profileIndex < profilesModel.Profiles.Count)
             {
                 var profileToDelete = profilesModel.Profiles[profileIndex];
-                
+
                 // Show confirmation modal
                 var confirmed = await modalService.ShowConfirmationAsync(
                     "ProfileDeleteTitle",
                     "ProfileDeleteMessage",
                     "ProfileDeleteConfirm",
                     "ModalCancel");
-                
+
                 if (confirmed)
                 {
                     profilesModel.RemoveProfile(profileToDelete);
@@ -490,7 +490,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     {
         return itemIndex == 0 ? 0 : (itemIndex * (ProfileHeight + ProfileSpacing)) + FirstIndexOffset;
     }
-    
+
     private void UpdateAllZIndexes()
     {
         for (int i = 0; i < allItems.Count; i++)
@@ -529,7 +529,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
         UpdateDeleteButtonStates();
     }
-    
+
     private void CancelAllAnimationsInternal()
     {
         foreach (var cts in activeAnimations.Values)
@@ -627,9 +627,9 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                     }
                 }
             };
-            
+
             await animation.RunAsync(allItems[elementIndex], cts.Token);
-            
+
             if (!cts.Token.IsCancellationRequested)
             {
                 allItems[elementIndex].Margin = targetMargin;
@@ -651,11 +651,11 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             {
                 allItems[elementIndex].Transitions = originalTransitions;
             }
-            
+
             lock (animationLock)
             {
                 activeAnimations.Remove(elementIndex);
-                
+
                 // Check if this was the last animation
                 if (activeAnimations.Count == 0 && areAnimationsActive)
                 {
@@ -674,25 +674,25 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private async Task AnimateAllElementsToPositions(int focusIndex = -1)
     {
         var animationTasks = new List<Task>();
-        
+
         lock (animationLock)
         {
             // Cancel any existing animations before starting new ones
             CancelAllAnimationsInternal();
         }
-        
+
         // Animate all elements to their correct positions
         // Element 0 (add button) goes to position 1, elements 1+ go to positions 2+
         for (int i = 0; i < allItems.Count; i++)
         {
             int targetPosition = i + 1;
             var targetMargin = new Thickness(8, CalculatePositionForIndex(targetPosition), 8, 0);
-            if (allItems[i].Margin == targetMargin) 
+            if (allItems[i].Margin == targetMargin)
             {
                 allItems[i].ZIndex = targetPosition;
                 continue;
             }
-            
+
             // Calculate stagger based on focus index
             int staggerIndex = 0;
             if (focusIndex >= 0)
@@ -704,10 +704,10 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             {
                 staggerIndex = i;
             }
-            
+
             animationTasks.Add(AnimateElementToPosition(i, targetPosition, staggerIndex));
         }
-        
+
         if (animationTasks.Count > 0)
         {
             lock (animationLock)
@@ -716,7 +716,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
             }
             UpdateDeleteButtonStates();
-            
+
             try
             {
                 await Task.WhenAll(animationTasks);
@@ -772,7 +772,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     {
         return selectedProfile;
     }
-    
+
     public bool AreAnimationsActive
     {
         get
@@ -791,7 +791,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             int itemIndex = i + 1; // Convert to item index
             var border = allItems[itemIndex];
             var profile = profilesModel.Profiles[i];
-            
+
             if (border.Child is Grid grid)
             {
                 var textBlock = grid.Children.OfType<TextBlock>().FirstOrDefault();
@@ -802,18 +802,18 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             }
         }
     }
-    
+
     public async Task ExpandElements()
     {
         await AnimateAllElementsToPositions(-1);
     }
-    
+
     public async Task CollapseElements()
     {
         if (allItems.Count == 0) return;
-        
+
         var animationTasks = new List<Task>();
-        
+
         lock (animationLock)
         {
             CancelAllAnimationsInternal();
@@ -821,13 +821,13 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         }
         UpdateDeleteButtonStates();
-        
+
         // Animate all elements to position 0 (hidden)
         for (int i = 0; i < allItems.Count; i++)
         {
             animationTasks.Add(CollapseElementToPosition(i, i));
         }
-        
+
         try
         {
             await Task.WhenAll(animationTasks);
@@ -842,8 +842,8 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             UpdateDeleteButtonStates();
         }
     }
-    
-    
+
+
     private async Task CollapseElementToPosition(int elementIndex, int staggerIndex = 0)
     {
         if (elementIndex >= allItems.Count) return;
@@ -899,9 +899,9 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                     }
                 }
             };
-            
+
             await animation.RunAsync(allItems[elementIndex], cts.Token);
-            
+
             if (!cts.Token.IsCancellationRequested)
             {
                 allItems[elementIndex].Margin = targetMargin;
@@ -923,7 +923,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             {
                 allItems[elementIndex].Transitions = originalTransitions;
             }
-            
+
             lock (animationLock)
             {
                 activeAnimations.Remove(elementIndex);

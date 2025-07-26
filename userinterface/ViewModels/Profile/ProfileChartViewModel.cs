@@ -69,7 +69,7 @@ namespace userinterface.ViewModels.Profile
         {
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
             this.localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
-            
+
             RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
             FitToDataCommand = new RelayCommand(() => FitToData());
         }

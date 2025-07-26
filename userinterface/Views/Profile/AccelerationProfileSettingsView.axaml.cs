@@ -2,11 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using System.Linq;
+using userinterface.Controls;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
-using userinterface.Controls;
-using System.Linq;
 
 namespace userinterface.Views.Profile;
 
@@ -84,7 +84,7 @@ public partial class AccelerationProfileSettingsView : UserControl
                 AccelerationComboBox.SelectedItem = matchingItem;
             }
         }
-        
+
         AccelerationComboBox.RefreshItems();
     }
 

@@ -7,7 +7,7 @@ namespace userinterface.ViewModels.Profile
     {
         private readonly INotificationService notificationService;
         private readonly IViewModelFactory viewModelFactory;
-        
+
         public ProfileViewModel(INotificationService notificationService, IViewModelFactory viewModelFactory)
         {
             this.notificationService = notificationService;

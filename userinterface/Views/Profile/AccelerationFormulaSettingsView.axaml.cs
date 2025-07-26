@@ -4,10 +4,10 @@ using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using System;
+using userinterface.Controls;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
-using userinterface.Controls;
 using BEData = userspace_backend.Data.Profiles.Accel.FormulaAccel;
 
 namespace userinterface.Views.Profile;
@@ -74,7 +74,7 @@ public partial class AccelerationFormulaSettingsView : UserControl
                 OnFormulaTypeSelectionChanged();
             }
         };
-        
+
         FormulaTypeCombo.RefreshItems();
     }
 

@@ -1,11 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using userinterface.Services;
 
 namespace userinterface.Controls
@@ -27,7 +27,7 @@ namespace userinterface.Controls
             localizationService = App.Services.GetRequiredService<LocalizationService>();
             localizationService.PropertyChanged += OnLocalizationChanged;
             localizedItems = new ObservableCollection<LocalizedComboItem>();
-            
+
             // Set up the internal ComboBox
             InternalComboBox.ItemsSource = localizedItems;
         }
@@ -86,7 +86,7 @@ namespace userinterface.Controls
         {
             var keys = LocalizationKeys?.ToList() ?? new List<string>();
             var values = EnumValues?.ToList() ?? new List<string>();
-            
+
             localizedItems.Clear();
 
             if (keys.Count == 0 || values.Count == 0 || keys.Count != values.Count)

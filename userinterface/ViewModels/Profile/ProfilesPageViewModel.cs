@@ -34,9 +34,9 @@ namespace userinterface.ViewModels.Profile
 
             ProfileViewModels = [];
             UpdateProfileViewModels();
-            
+
             profileListView.SelectedProfileChanged += OnProfileSelectionChanged;
-            
+
             // Set initial selected profile view based on default profile
             var defaultProfile = ProfilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
             UpdateSelectedProfileView(defaultProfile ?? ProfilesModel.Profiles.FirstOrDefault());
@@ -100,7 +100,7 @@ namespace userinterface.ViewModels.Profile
                 ProfileViewModels.Add(viewModelFactory.CreateProfileViewModel(profileModelBE));
             }
         }
-        
+
         private void OnProfileSelectionChanged(BE.ProfileModel selectedProfile)
         {
             UpdateSelectedProfileView(selectedProfile);

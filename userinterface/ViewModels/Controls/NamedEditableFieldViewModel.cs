@@ -1,6 +1,6 @@
-﻿using userinterface.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
+using userinterface.Services;
 using BE = userspace_backend.Model.EditableSettings;
 
 namespace userinterface.ViewModels.Controls
@@ -14,7 +14,7 @@ namespace userinterface.ViewModels.Controls
             SettingBE = settingBE;
             Field = new EditableFieldViewModel(settingBE);
             localizationService = App.Services?.GetRequiredService<LocalizationService>()!;
-            
+
             // Subscribe to language changes to update the Name property
             if (localizationService != null)
             {
@@ -31,13 +31,13 @@ namespace userinterface.ViewModels.Controls
         private string GetLocalizedName()
         {
             var displayText = SettingBE.DisplayText;
-            
+
             // If there's a localization key, use the localization service to resolve it
             if (!string.IsNullOrEmpty(SettingBE.LocalizationKey))
             {
                 return localizationService?.GetText(SettingBE.LocalizationKey) ?? displayText;
             }
-            
+
             // Otherwise, use the display name directly (for user input settings)
             return displayText;
         }

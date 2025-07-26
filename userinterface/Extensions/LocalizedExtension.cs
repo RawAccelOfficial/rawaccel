@@ -1,10 +1,10 @@
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 using System.Resources;
 using userinterface.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace userinterface.Extensions;
 
@@ -58,4 +58,4 @@ public class LocalizedExtension : MarkupExtension, INotifyPropertyChanged
     {
         return key;
     }
-} 
+}

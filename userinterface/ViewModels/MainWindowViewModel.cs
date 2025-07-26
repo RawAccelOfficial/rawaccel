@@ -97,7 +97,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             {
                 isProfilesExpandedValue = value;
                 OnPropertyChanged();
-                
+
                 if (value)
                 {
                     ExpandProfiles();
@@ -148,10 +148,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private async void ExpandProfiles()
     {
-        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop 
+        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
             ? desktop.MainWindow?.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView")
             : null;
-        
+
         if (view != null)
         {
             await view.ExpandElements();
@@ -160,10 +160,10 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private async void CollapseProfiles()
     {
-        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop 
+        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
             ? desktop.MainWindow?.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView")
             : null;
-        
+
         if (view != null)
         {
             await view.CollapseElements();
@@ -189,7 +189,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void PreloadAllPages()
     {
         _ = DevicesPage;
-        _ = ProfilesPage; 
+        _ = ProfilesPage;
         _ = MappingsPage;
         _ = SettingsPage;
         _ = ProfileListView;

@@ -35,9 +35,9 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Register services
-        services.AddSingleton<INotificationService>(provider => 
+        services.AddSingleton<INotificationService>(provider =>
             new NotificationService(provider.GetRequiredService<LocalizationService>()));
-        services.AddSingleton<IModalService>(provider => 
+        services.AddSingleton<IModalService>(provider =>
             new ModalService(provider.GetRequiredService<LocalizationService>()));
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
@@ -85,7 +85,7 @@ public partial class App : Application
 
             // Preload libraries that cause first-page stutter
             _ = PreloadLibrariesAsync();
-            
+
             // Show alpha build warning modal
             _ = ShowAlphaBuildWarningAsync();
 
@@ -277,17 +277,17 @@ public partial class App : Application
         try
         {
             Debug.WriteLine("[PRELOAD] Starting library preload...");
-            
+
             await Task.Run(() =>
             {
                 try
                 {
                     _ = typeof(LiveChartsCore.SkiaSharpView.Avalonia.CartesianChart).Assembly;
-                    
+
                     _ = typeof(SkiaSharp.HarfBuzz.SKShaper).Assembly;
-                    
+
                     _ = typeof(SkiaSharp.SKCanvas).Assembly;
-                    
+
                     _ = typeof(LiveChartsCore.CartesianChart<>).Assembly;
 
                     _ = typeof(Avalonia.Controls.ItemsRepeater).Assembly;
@@ -297,7 +297,7 @@ public partial class App : Application
                     Debug.WriteLine($"[PRELOAD] Library loading failed: {ex.Message}");
                 }
             });
-            
+
             Debug.WriteLine("[PRELOAD] All libraries preloaded successfully");
         }
         catch (Exception ex)
@@ -312,7 +312,7 @@ public partial class App : Application
         {
             var settingsService = Services?.GetService<ISettingsService>();
             var localizationService = Services?.GetService<LocalizationService>();
-            
+
             if (settingsService != null && localizationService != null)
             {
                 // Apply language setting from backend

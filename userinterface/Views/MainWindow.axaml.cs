@@ -6,11 +6,11 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using userinterface.Extensions;
 using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.Views.Controls;
-using userinterface.Extensions;
 
 namespace userinterface.Views;
 
@@ -73,7 +73,7 @@ public partial class MainWindow : Window
         {
             // Test animation instead of applying settings
             viewModel.IsProfilesExpanded = !viewModel.IsProfilesExpanded;
-            
+
             /* Original apply logic commented out for animation testing
             if (ApplyButtonControl != null)
             {
@@ -108,8 +108,8 @@ public partial class MainWindow : Window
 
     public async void OnNavigationClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button button && 
-            button.Tag is string pageNameString && 
+        if (sender is Button button &&
+            button.Tag is string pageNameString &&
             Enum.TryParse<NavigationPage>(pageNameString, out var page) &&
             DataContext is MainWindowViewModel viewModel)
         {
@@ -174,7 +174,7 @@ public partial class MainWindow : Window
 
     private void UpdateThemeToggleButton()
     {
-        if (this.TryFindControl<PathIcon>("ThemeIcon", out var themeIcon) && 
+        if (this.TryFindControl<PathIcon>("ThemeIcon", out var themeIcon) &&
             this.TryFindControl<ToggleButton>("ThemeToggleButton", out var toggleButton))
         {
             var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;

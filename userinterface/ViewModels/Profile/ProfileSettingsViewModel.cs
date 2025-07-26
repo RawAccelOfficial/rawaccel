@@ -7,7 +7,7 @@ namespace userinterface.ViewModels.Profile
     public partial class ProfileSettingsViewModel : ViewModelBase
     {
         private readonly INotificationService notificationService;
-        
+
         public ProfileSettingsViewModel(INotificationService notificationService)
         {
             this.notificationService = notificationService;

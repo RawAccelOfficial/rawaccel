@@ -76,7 +76,7 @@ namespace userinterface.ViewModels.Controls
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 animationCancellation?.Cancel();
-                
+
                 Message = e.Message;
                 Type = e.Type;
                 IsVisible = true;
@@ -100,17 +100,17 @@ namespace userinterface.ViewModels.Controls
         {
             animationCancellation = new CancellationTokenSource();
             var token = animationCancellation.Token;
-            
+
             try
             {
                 var startTime = DateTime.UtcNow;
                 var totalMilliseconds = duration.TotalMilliseconds;
-                
+
                 while (!token.IsCancellationRequested)
                 {
                     var elapsed = DateTime.UtcNow - startTime;
                     var progressRatio = elapsed.TotalMilliseconds / totalMilliseconds;
-                    
+
                     if (progressRatio >= 1.0)
                     {
                         if (!token.IsCancellationRequested)
@@ -126,10 +126,10 @@ namespace userinterface.ViewModels.Controls
                         }
                         break;
                     }
-                    
+
                     var newProgress = 100 * (1.0 - progressRatio);
                     await Dispatcher.UIThread.InvokeAsync(() => Progress = newProgress);
-                    
+
                     await Task.Delay(8, token);
                 }
             }
@@ -154,7 +154,7 @@ namespace userinterface.ViewModels.Controls
         {
             animationCancellation?.Cancel();
             animationCancellation?.Dispose();
-            
+
             if (notificationService != null)
             {
                 notificationService.ToastRequested -= OnToastRequested;

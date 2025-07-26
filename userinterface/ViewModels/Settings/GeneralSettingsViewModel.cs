@@ -1,7 +1,7 @@
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using userinterface.Services;
 
 namespace userinterface.ViewModels.Settings;
@@ -52,11 +52,11 @@ public class GeneralSettingsViewModel : ViewModelBase
         {
             // Get the native language name before changing the language
             var languageName = selectedLanguage.DisplayName;
-            
+
             // Change the language first
             localizationService.ChangeLanguage(cultureCode);
             settingsService.Language = cultureCode;
-            
+
             // Now show the notification in the new language
             var notificationService = App.Services?.GetService<INotificationService>();
             if (notificationService != null)
