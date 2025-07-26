@@ -386,8 +386,7 @@ public partial class ProfileListView : UserControl
             Margin = new Thickness(8, ProfileSpawnPosition, 8, 0), // Start at spawn position for animation
             Child = grid,
             Opacity = 1.0,
-            ZIndex = targetIndex,
-            Transitions = null // Disable transitions during programmatic animations
+            ZIndex = targetIndex
         };
         
         // Make the entire border clickable
@@ -566,6 +565,10 @@ public partial class ProfileListView : UserControl
         var cts = new CancellationTokenSource();
         activeAnimations[elementIndex] = cts;
 
+        // Temporarily disable CSS transitions for this element during programmatic animation
+        var originalTransitions = allItems[elementIndex].Transitions;
+        allItems[elementIndex].Transitions = null;
+
         try
         {
             // Apply stagger delay only if not canceled
@@ -634,6 +637,12 @@ public partial class ProfileListView : UserControl
         }
         finally
         {
+            // Restore CSS transitions after programmatic animation completes
+            if (elementIndex < allItems.Count)
+            {
+                allItems[elementIndex].Transitions = originalTransitions;
+            }
+            
             lock (animationLock)
             {
                 activeAnimations.Remove(elementIndex);
@@ -828,6 +837,10 @@ public partial class ProfileListView : UserControl
         var cts = new CancellationTokenSource();
         activeAnimations[elementIndex] = cts;
 
+        // Temporarily disable CSS transitions for this element during programmatic animation
+        var originalTransitions = allItems[elementIndex].Transitions;
+        allItems[elementIndex].Transitions = null;
+
         try
         {
             if (staggerIndex > 0 && !cts.Token.IsCancellationRequested)
@@ -891,6 +904,12 @@ public partial class ProfileListView : UserControl
         }
         finally
         {
+            // Restore CSS transitions after programmatic animation completes
+            if (elementIndex < allItems.Count)
+            {
+                allItems[elementIndex].Transitions = originalTransitions;
+            }
+            
             lock (animationLock)
             {
                 activeAnimations.Remove(elementIndex);

@@ -98,6 +98,19 @@
 			<Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Border.ProfileItem TextBlock">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.AddButton">
@@ -114,6 +127,12 @@
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.AddButton:pointerover">
@@ -129,6 +148,11 @@
 			<Setter Property="Width" Value="24"/>
 			<Setter Property="Height" Value="24"/>
 			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.DeleteButton:pointerover">
@@ -137,6 +161,11 @@
 
 		<Style Selector="Button.DeleteButton PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.DeleteButton:pointerover PathIcon">
@@ -158,10 +187,20 @@
 			<Setter Property="Width" Value="24"/>
 			<Setter Property="Height" Value="24"/>
 			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.SimpleDeleteButton PathIcon">
 			<Setter Property="Foreground" Value="{DynamicResource DangerButtonBrush}"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="Button.SimpleDeleteButton:pointerover PathIcon">
