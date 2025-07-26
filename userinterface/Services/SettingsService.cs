@@ -119,9 +119,16 @@ public class SettingsService : ISettingsService
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+    public event EventHandler? ThemeChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        
+        // Fire specific event for theme changes
+        if (propertyName == nameof(Theme))
+        {
+            ThemeChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

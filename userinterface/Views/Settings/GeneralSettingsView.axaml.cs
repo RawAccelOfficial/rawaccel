@@ -67,13 +67,15 @@ public partial class GeneralSettingsView : UserControl
         // Set initial selection after the LocalizedComboBox is loaded
         themeComboBox.Loaded += (sender, e) =>
         {
-            if (!string.IsNullOrEmpty(generalSettingsViewModel.SelectedThemeValue))
+            UpdateThemeSelection(themeComboBox, generalSettingsViewModel);
+        };
+
+        // Listen for property changes to update the combo box selection
+        generalSettingsViewModel.PropertyChanged += (sender, e) =>
+        {
+            if (e.PropertyName == nameof(GeneralSettingsViewModel.SelectedThemeValue))
             {
-                var targetItem = themeComboBox.localizedItems.FirstOrDefault(item => item.EnumValue == generalSettingsViewModel.SelectedThemeValue);
-                if (targetItem != null)
-                {
-                    themeComboBox.SelectedItem = targetItem;
-                }
+                UpdateThemeSelection(themeComboBox, generalSettingsViewModel);
             }
         };
 
@@ -102,5 +104,17 @@ public partial class GeneralSettingsView : UserControl
         settingsFieldViewModel.AddField("SettingsShowConfirmModals", confirmModalsCheckBox);
 
         SettingsStackPanel.Children.Add(settingsField);
+    }
+
+    private void UpdateThemeSelection(LocalizedComboBox themeComboBox, GeneralSettingsViewModel viewModel)
+    {
+        if (!string.IsNullOrEmpty(viewModel.SelectedThemeValue) && themeComboBox.localizedItems?.Any() == true)
+        {
+            var targetItem = themeComboBox.localizedItems.FirstOrDefault(item => item.EnumValue == viewModel.SelectedThemeValue);
+            if (targetItem != null && themeComboBox.SelectedItem != targetItem)
+            {
+                themeComboBox.SelectedItem = targetItem;
+            }
+        }
     }
 }

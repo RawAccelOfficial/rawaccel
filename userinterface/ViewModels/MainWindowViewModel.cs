@@ -197,7 +197,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         
         settingsService.Theme = newTheme;
-        themeService.ApplyTheme(newTheme);
     }
 
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace userinterface.Services;
 
@@ -8,6 +9,8 @@ public interface ISettingsService : INotifyPropertyChanged
     string Theme { get; set; }
     bool ShowConfirmModals { get; set; }
     string Language { get; set; }
+
+    event EventHandler? ThemeChanged;
 
     bool TrySave(out string? errorMessage);
     bool TryLoad(out string? errorMessage);

@@ -40,6 +40,9 @@ public class GeneralSettingsViewModel : ViewModelBase
 
         NotificationSettings = new NotificationSettings(settingsService);
 
+        // Listen for theme changes from other sources (like the toggle button)
+        settingsService.ThemeChanged += OnSettingsThemeChanged;
+
     }
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; }
@@ -103,11 +106,21 @@ public class GeneralSettingsViewModel : ViewModelBase
         try
         {
             settingsService.Theme = themeCode;
-            themeService.ApplyTheme(themeCode);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to change theme: {themeCode} - {ex.Message}");
+        }
+    }
+
+    private void OnSettingsThemeChanged(object? sender, EventArgs e)
+    {
+        // Update the selected theme value when the settings service notifies of changes
+        var currentTheme = settingsService.Theme;
+        if (selectedThemeValue != currentTheme)
+        {
+            selectedThemeValue = currentTheme;
+            OnPropertyChanged(nameof(SelectedThemeValue));
         }
     }
 

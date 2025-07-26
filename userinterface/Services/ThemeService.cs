@@ -11,6 +11,12 @@ namespace userinterface.Services
         public ThemeService(ISettingsService settingsService)
         {
             this.settingsService = settingsService;
+            
+            // Listen for theme changes from settings service
+            this.settingsService.ThemeChanged += OnSettingsThemeChanged;
+            
+            // Apply initial theme
+            ApplyThemeFromSettings();
         }
 
         public event EventHandler? ThemeChanged;
@@ -39,6 +45,11 @@ namespace userinterface.Services
         {
             var themeName = settingsService.Theme;
             ApplyTheme(themeName);
+        }
+
+        private void OnSettingsThemeChanged(object? sender, EventArgs e)
+        {
+            ApplyThemeFromSettings();
         }
     }
 }
