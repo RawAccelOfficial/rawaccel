@@ -51,13 +51,11 @@ public class LocalizedExtension : MarkupExtension, INotifyPropertyChanged
 
     private ResourceManager GetResourceManagerForKey(string key)
     {
-        // Always use the consolidated Strings resource manager
         return Properties.Resources.Strings.ResourceManager;
     }
 
     private string GetActualKey(string key)
     {
-        // No longer need to strip prefixes - use the key as-is
         return key;
     }
 } 

@@ -17,10 +17,11 @@ using Avalonia.Layout;
 using Avalonia;
 using System.Diagnostics;
 using userinterface.Services;
+using System.ComponentModel;
 
 namespace userinterface.Views.Profile;
 
-public partial class ProfileListView : UserControl
+public partial class ProfileListView : UserControl, INotifyPropertyChanged
 {
     private readonly List<Border> allItems = [];
     private Panel profileContainer;
@@ -32,6 +33,8 @@ public partial class ProfileListView : UserControl
     private int GetProfileCount() => allItems.Count - 1; // Subtract 1 for add button
     private volatile bool areAnimationsActive = false;
     private readonly object animationLock = new();
+    
+    public event PropertyChangedEventHandler PropertyChanged;
     private readonly IModalService modalService;
     private readonly LocalizationService localizationService;
     private TextBlock addProfileTextBlock;
@@ -522,6 +525,7 @@ public partial class ProfileListView : UserControl
         {
             CancelAllAnimationsInternal();
             areAnimationsActive = false;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         }
         UpdateDeleteButtonStates();
     }
@@ -656,6 +660,7 @@ public partial class ProfileListView : UserControl
                 if (activeAnimations.Count == 0 && areAnimationsActive)
                 {
                     areAnimationsActive = false;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
                 }
             }
             try
@@ -708,6 +713,7 @@ public partial class ProfileListView : UserControl
             lock (animationLock)
             {
                 areAnimationsActive = true;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
             }
             UpdateDeleteButtonStates();
             
@@ -724,6 +730,7 @@ public partial class ProfileListView : UserControl
                 lock (animationLock)
                 {
                     areAnimationsActive = false;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
                 }
                 UpdateDeleteButtonStates();
             }
@@ -811,6 +818,7 @@ public partial class ProfileListView : UserControl
         {
             CancelAllAnimationsInternal();
             areAnimationsActive = true;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         }
         UpdateDeleteButtonStates();
         
@@ -829,6 +837,7 @@ public partial class ProfileListView : UserControl
             lock (animationLock)
             {
                 areAnimationsActive = false;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
             }
             UpdateDeleteButtonStates();
         }
