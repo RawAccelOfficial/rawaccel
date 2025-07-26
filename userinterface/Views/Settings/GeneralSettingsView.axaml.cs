@@ -17,13 +17,13 @@ public partial class GeneralSettingsView : UserControl
 
     private void OnDataContextChanged(object? sender, System.EventArgs e)
     {
-        if (DataContext is SettingsPageViewModel settingsPageViewModel)
+        if (DataContext is GeneralSettingsViewModel generalSettingsViewModel)
         {
-            SetupSettings(settingsPageViewModel);
+            SetupSettings(generalSettingsViewModel);
         }
     }
 
-    private void SetupSettings(SettingsPageViewModel settingsPageViewModel)
+    private void SetupSettings(GeneralSettingsViewModel generalSettingsViewModel)
     {
         SettingsStackPanel.Children.Clear();
 
@@ -34,7 +34,7 @@ public partial class GeneralSettingsView : UserControl
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
-            DataContext = settingsPageViewModel.GeneralSettings
+            DataContext = generalSettingsViewModel
         };
 
         languageComboBox.Bind(ComboBox.ItemsSourceProperty, new Binding("AvailableLanguages"));
@@ -47,7 +47,7 @@ public partial class GeneralSettingsView : UserControl
         {
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center,
-            DataContext = settingsPageViewModel.NotificationSettings
+            DataContext = generalSettingsViewModel.NotificationSettings
         };
 
         toastCheckBox.Bind(CheckBox.IsCheckedProperty, new Binding("ShowToastNotifications"));

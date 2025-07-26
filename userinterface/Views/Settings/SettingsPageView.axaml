@@ -85,7 +85,7 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>
 
-					<settings:GeneralSettingsView DataContext="{Binding}" />
+					<settings:GeneralSettingsView DataContext="{Binding GeneralSettingsViewModel}" />
 				</StackPanel>
 			</Border>
 
