@@ -8,10 +8,12 @@ namespace userinterface.Services
     {
         private Timer? timer;
         private readonly LocalizationService localizationService;
+        private readonly ISettingsService settingsService;
 
-        public NotificationService(LocalizationService localizationService)
+        public NotificationService(LocalizationService localizationService, ISettingsService settingsService)
         {
             this.localizationService = localizationService;
+            this.settingsService = settingsService;
         }
 
         public event EventHandler<ToastNotificationEventArgs>? ToastRequested;
@@ -25,6 +27,11 @@ namespace userinterface.Services
 
         public void ShowToast(string messageKey, ToastType type, int durationMs = 5000, params object[] formatArgs)
         {
+            if (!settingsService.ShowToastNotifications)
+            {
+                return;
+            }
+
             timer?.Dispose();
 
             var localizedMessage = localizationService.GetText(messageKey);

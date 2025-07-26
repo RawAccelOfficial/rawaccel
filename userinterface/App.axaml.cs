@@ -36,9 +36,9 @@ public partial class App : Application
 
         // Register services
         services.AddSingleton<INotificationService>(provider =>
-            new NotificationService(provider.GetRequiredService<LocalizationService>()));
+            new NotificationService(provider.GetRequiredService<LocalizationService>(), provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IModalService>(provider =>
-            new ModalService(provider.GetRequiredService<LocalizationService>()));
+            new ModalService(provider.GetRequiredService<LocalizationService>(), provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<LocalizationService>();

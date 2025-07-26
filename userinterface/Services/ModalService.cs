@@ -13,10 +13,12 @@ namespace userinterface.Services
         private TaskCompletionSource<bool>? currentConfirmationTask;
         private TaskCompletionSource<object?>? currentDialogTask;
         private readonly LocalizationService localizationService;
+        private readonly ISettingsService settingsService;
 
-        public ModalService(LocalizationService localizationService)
+        public ModalService(LocalizationService localizationService, ISettingsService settingsService)
         {
             this.localizationService = localizationService;
+            this.settingsService = settingsService;
         }
 
         private bool TryGetModalOverlay(out ModalOverlay modalOverlay)
@@ -38,6 +40,11 @@ namespace userinterface.Services
 
         public async Task<bool> ShowConfirmationAsync(string titleKey, string messageKey, string confirmTextKey = "ModalOK", string cancelTextKey = "ModalCancel")
         {
+            if (!settingsService.ShowConfirmModals)
+            {
+                return true;
+            }
+
             if (!TryGetModalOverlay(out var modalOverlay)) return false;
 
             if (currentModalContent != null)
