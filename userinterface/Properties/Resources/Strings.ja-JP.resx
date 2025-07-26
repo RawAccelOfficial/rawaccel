@@ -389,6 +389,20 @@
     <value>トースト通知を表示</value>
   </data>
 
+  <!-- Support & Bug Reports Resources -->
+  <data name="SupportSectionTitle" xml:space="preserve">
+    <value>サポート &amp; バグ報告</value>
+  </data>
+  <data name="SupportBugReportInstructions" xml:space="preserve">
+    <value>バグを報告する前に、重複を避けるため既存の問題を検索してください。</value>
+  </data>
+  <data name="SupportSearchExistingIssues" xml:space="preserve">
+    <value>既存の問題を検索</value>
+  </data>
+  <data name="SupportCheckClosedIssues" xml:space="preserve">
+    <value>クローズされた問題もチェックしてください - あなたの問題は既に解決されているかもしれません</value>
+  </data>
+
   <!-- Device Field Resources -->
   <data name="DeviceName" xml:space="preserve">
     <value>名前</value>

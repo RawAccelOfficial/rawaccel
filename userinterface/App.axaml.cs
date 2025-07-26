@@ -261,6 +261,17 @@ public partial class App : Application
         }
     }
 
+    /* 
+     * This was originally intended to preload libraries that cause stutter 
+     * but it seems to not have much effect. Will leave it here for now.
+     * 
+     * Could also do these
+     * System.Runtime.Intrinsics
+     * System.Text.Json
+     * System.Text.Encodings.Web
+     * System.Text.Encoding.Extensions
+     * System.IO.Pipelines
+    */
     private async Task PreloadLibrariesAsync()
     {
         try
@@ -271,19 +282,14 @@ public partial class App : Application
             {
                 try
                 {
-                    // Force load LiveChartsCore.SkiaSharpView.Avalonia.dll
                     _ = typeof(LiveChartsCore.SkiaSharpView.Avalonia.CartesianChart).Assembly;
                     
-                    // Force load SkiaSharp.HarfBuzz.dll  
                     _ = typeof(SkiaSharp.HarfBuzz.SKShaper).Assembly;
                     
-                    // Force load other SkiaSharp dependencies
                     _ = typeof(SkiaSharp.SKCanvas).Assembly;
                     
-                    // Force load LiveChartsCore base
                     _ = typeof(LiveChartsCore.CartesianChart<>).Assembly;
 
-                    // Force load items repeater for Avalonia
                     _ = typeof(Avalonia.Controls.ItemsRepeater).Assembly;
                 }
                 catch (Exception ex)

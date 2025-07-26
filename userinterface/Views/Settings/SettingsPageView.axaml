@@ -96,7 +96,7 @@
                     CornerRadius="8"
                     Padding="20">
 				<StackPanel Spacing="16">
-					<TextBlock Text="Support &amp; Bug Reports"
+					<TextBlock Text="{ext:Localized SupportSectionTitle}"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>

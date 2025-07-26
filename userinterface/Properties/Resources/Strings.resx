@@ -389,6 +389,20 @@
     <value>Show Toast Notifications</value>
   </data>
 
+  <!-- Support & Bug Reports Resources -->
+  <data name="SupportSectionTitle" xml:space="preserve">
+    <value>Support &amp; Bug Reports</value>
+  </data>
+  <data name="SupportBugReportInstructions" xml:space="preserve">
+    <value>Before reporting a bug, please search through existing issues first to avoid duplicates.</value>
+  </data>
+  <data name="SupportSearchExistingIssues" xml:space="preserve">
+    <value>Search Existing Issues</value>
+  </data>
+  <data name="SupportCheckClosedIssues" xml:space="preserve">
+    <value>Check closed issues too - your problem may already be resolved</value>
+  </data>
+
   <!-- Device Field Resources -->
   <data name="DeviceName" xml:space="preserve">
     <value>Name</value>
