@@ -5,10 +5,9 @@
              xmlns:vm="using:userinterface.ViewModels.Settings"
              xmlns:controls="using:userinterface.Views.Controls"
              xmlns:ext="using:userinterface.Extensions"
-             xmlns:settings="using:userinterface.Views.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="userinterface.Views.Settings.SettingsPageView"
-             x:DataType="vm:SettingsPageViewModel">
+             x:Class="userinterface.Views.Settings.GeneralSettingsView"
+             x:DataType="vm:GeneralSettings">
 
 	<UserControl.Styles>
 		<Style Selector="ComboBox">
@@ -67,43 +66,7 @@
 		</Style>
 	</UserControl.Styles>
 
-	<ScrollViewer>
-		<StackPanel Spacing="24" Margin="24">
-			<TextBlock Text="{ext:Localized SettingsPageTitle}"
-                       FontSize="32"
-                       FontWeight="Bold"
-                       Margin="0,0,0,16"/>
-
-			<Border Background="{DynamicResource CardBackgroundBrush}"
-                    BorderBrush="{DynamicResource CardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20">
-				<StackPanel Spacing="16">
-					<TextBlock Text="{ext:Localized SettingsGeneralSettingsTitle}"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,8"/>
-
-					<settings:GeneralSettingsView DataContext="{Binding}" />
-				</StackPanel>
-			</Border>
-
-			<!-- Bug Report Section -->
-			<Border Background="{DynamicResource CardBackgroundBrush}"
-                    BorderBrush="{DynamicResource CardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20">
-				<StackPanel Spacing="16">
-					<TextBlock Text="Support &amp; Bug Reports"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,8"/>
-
-					<settings:SupportView DataContext="{Binding SupportViewModel}" />
-				</StackPanel>
-			</Border>
-		</StackPanel>
-	</ScrollViewer>
+	<StackPanel Spacing="12" x:Name="SettingsStackPanel">
+		<!-- The DualColumnLabelFieldView will be added in code-behind -->
+	</StackPanel>
 </UserControl>

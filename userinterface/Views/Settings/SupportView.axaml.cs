@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace userinterface.Views.Settings;
 
-public partial class SettingsPageView : UserControl
+public partial class SupportView : UserControl
 {
-    public SettingsPageView()
+    public SupportView()
     {
         InitializeComponent();
     }

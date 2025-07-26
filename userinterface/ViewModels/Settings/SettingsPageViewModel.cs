@@ -20,10 +20,9 @@ public class SettingsPageViewModel : ViewModelBase
 
         GeneralSettings = new GeneralSettings(SettingsService, LocalizationService);
         NotificationSettings = new NotificationSettings(SettingsService);
+        SupportViewModel = new SupportViewModel();
 
         GeneralSettings.PropertyChanged += OnGeneralSettingsChanged;
-
-        BugReportCommand = new RelayCommand(() => App.OpenBugReportUrl());
     }
 
     private ISettingsService SettingsService =>
@@ -36,7 +35,7 @@ public class SettingsPageViewModel : ViewModelBase
 
     public NotificationSettings NotificationSettings { get; }
 
-    public ICommand BugReportCommand { get; }
+    public SupportViewModel SupportViewModel { get; }
 
     private void OnGeneralSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -123,6 +122,16 @@ public class NotificationSettings : ViewModelBase
             OnPropertyChanged();
         }
     }
+}
+
+public class SupportViewModel : ViewModelBase
+{
+    public SupportViewModel()
+    {
+        BugReportCommand = new RelayCommand(() => App.OpenBugReportUrl());
+    }
+
+    public ICommand BugReportCommand { get; }
 }
 
 public class LanguageItem
