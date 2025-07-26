@@ -54,6 +54,17 @@ public partial class GeneralSettingsView : UserControl
 
         settingsFieldViewModel.AddField("SettingsShowToastNotifications", toastCheckBox);
 
+        var confirmModalsCheckBox = new CheckBox
+        {
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center,
+            DataContext = generalSettingsViewModel.NotificationSettings
+        };
+
+        confirmModalsCheckBox.Bind(CheckBox.IsCheckedProperty, new Binding("ShowConfirmModals"));
+
+        settingsFieldViewModel.AddField("SettingsShowConfirmModals", confirmModalsCheckBox);
+
         SettingsStackPanel.Children.Add(settingsField);
     }
 }

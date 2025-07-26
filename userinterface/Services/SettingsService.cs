@@ -52,66 +52,14 @@ public class SettingsService : ISettingsService
         }
     }
 
-    public bool AutoSaveProfiles
+    public bool ShowConfirmModals
     {
-        get => backEnd.Settings?.AutoSaveProfiles ?? true;
+        get => backEnd.Settings?.ShowConfirmModals ?? true;
         set
         {
-            if (backEnd.Settings != null && backEnd.Settings.AutoSaveProfiles != value)
+            if (backEnd.Settings != null && backEnd.Settings.ShowConfirmModals != value)
             {
-                backEnd.Settings.AutoSaveProfiles = value;
-                Save();
-            }
-        }
-    }
-
-    public int SaveIntervalMinutes
-    {
-        get => backEnd.Settings?.SaveIntervalMinutes ?? 5;
-        set
-        {
-            if (backEnd.Settings != null && backEnd.Settings.SaveIntervalMinutes != value)
-            {
-                backEnd.Settings.SaveIntervalMinutes = value;
-                Save();
-            }
-        }
-    }
-
-    public bool EnableLogging
-    {
-        get => backEnd.Settings?.EnableLogging ?? false;
-        set
-        {
-            if (backEnd.Settings != null && backEnd.Settings.EnableLogging != value)
-            {
-                backEnd.Settings.EnableLogging = value;
-                Save();
-            }
-        }
-    }
-
-    public string LogLevel
-    {
-        get => backEnd.Settings?.LogLevel ?? "Info";
-        set
-        {
-            if (backEnd.Settings != null && backEnd.Settings.LogLevel != value)
-            {
-                backEnd.Settings.LogLevel = value;
-                Save();
-            }
-        }
-    }
-
-    public bool CheckForUpdates
-    {
-        get => backEnd.Settings?.CheckForUpdates ?? true;
-        set
-        {
-            if (backEnd.Settings != null && backEnd.Settings.CheckForUpdates != value)
-            {
-                backEnd.Settings.CheckForUpdates = value;
+                backEnd.Settings.ShowConfirmModals = value;
                 Save();
             }
         }

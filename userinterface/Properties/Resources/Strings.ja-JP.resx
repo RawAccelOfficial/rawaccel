@@ -388,6 +388,9 @@
   <data name="SettingsShowToastNotifications" xml:space="preserve">
     <value>トースト通知を表示</value>
   </data>
+  <data name="SettingsShowConfirmModals" xml:space="preserve">
+    <value>確認ダイアログを表示</value>
+  </data>
 
   <!-- Support & Bug Reports Resources -->
   <data name="SupportSectionTitle" xml:space="preserve">

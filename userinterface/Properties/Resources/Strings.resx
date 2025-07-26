@@ -388,6 +388,9 @@
   <data name="SettingsShowToastNotifications" xml:space="preserve">
     <value>Show Toast Notifications</value>
   </data>
+  <data name="SettingsShowConfirmModals" xml:space="preserve">
+    <value>Show Confirmation Dialogs</value>
+  </data>
 
   <!-- Support & Bug Reports Resources -->
   <data name="SupportSectionTitle" xml:space="preserve">

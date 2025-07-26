@@ -6,12 +6,8 @@ namespace userspace_backend.Data
     public class Settings : INotifyPropertyChanged
     {
         private bool showToastNotifications = true;
+        private bool showConfirmModals = true;
         private string theme = "System";
-        private bool autoSaveProfiles = true;
-        private int saveIntervalMinutes = 5;
-        private bool enableLogging = false;
-        private string logLevel = "Info";
-        private bool checkForUpdates = true;
         private string language = "en-US";
 
         public bool ShowToastNotifications
@@ -40,66 +36,14 @@ namespace userspace_backend.Data
             }
         }
 
-        public bool AutoSaveProfiles
+        public bool ShowConfirmModals
         {
-            get => autoSaveProfiles;
+            get => showConfirmModals;
             set
             {
-                if (autoSaveProfiles != value)
+                if (showConfirmModals != value)
                 {
-                    autoSaveProfiles = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public int SaveIntervalMinutes
-        {
-            get => saveIntervalMinutes;
-            set
-            {
-                if (saveIntervalMinutes != value)
-                {
-                    saveIntervalMinutes = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool EnableLogging
-        {
-            get => enableLogging;
-            set
-            {
-                if (enableLogging != value)
-                {
-                    enableLogging = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string LogLevel
-        {
-            get => logLevel;
-            set
-            {
-                if (logLevel != value)
-                {
-                    logLevel = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool CheckForUpdates
-        {
-            get => checkForUpdates;
-            set
-            {
-                if (checkForUpdates != value)
-                {
-                    checkForUpdates = value;
+                    showConfirmModals = value;
                     OnPropertyChanged();
                 }
             }

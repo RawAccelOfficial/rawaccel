@@ -89,6 +89,16 @@ public class NotificationSettings : ViewModelBase
             OnPropertyChanged();
         }
     }
+
+    public bool ShowConfirmModals
+    {
+        get => settingsService.ShowConfirmModals;
+        set
+        {
+            settingsService.ShowConfirmModals = value;
+            OnPropertyChanged();
+        }
+    }
 }
 
 public class LanguageItem

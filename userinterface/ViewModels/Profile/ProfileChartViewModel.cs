@@ -50,7 +50,6 @@ namespace userinterface.ViewModels.Profile
 
         // Theme color resource keys
         private static readonly string AxisTitleBrush = "PrimaryTextBrush";
-
         private static readonly string AxisLabelsBrush = "SecondaryTextBrush";
         private static readonly string AxisSeparatorsBrush = "BorderBrush";
         private static readonly string TooltipBackgroundBrush = "CardBackgroundBrush";
