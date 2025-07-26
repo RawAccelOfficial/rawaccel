@@ -2,7 +2,6 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
 using System.Linq;
-using userinterface.Controls;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Settings;
 using userinterface.Views.Controls;

@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using userinterface.Services;
 
-namespace userinterface.Controls
+namespace userinterface.Views.Controls
 {
     public partial class LocalizedComboBox : UserControl
     {
