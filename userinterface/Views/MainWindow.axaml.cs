@@ -6,6 +6,7 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using userinterface.Converters;
 using userinterface.Extensions;
 using userinterface.Models;
 using userinterface.Services;
@@ -26,10 +27,19 @@ public partial class MainWindow : Window
         InitializeControls();
         UpdateThemeToggleButton();
         UpdateSelectedButton(NavigationPage.Devices);
+        
+        // Subscribe to theme changes
+        ThemeService.ThemeChanged += OnThemeChanged;
     }
 
     private INotificationService NotificationService =>
         App.Services!.GetRequiredService<INotificationService>();
+    
+    private ISettingsService SettingsService =>
+        App.Services!.GetRequiredService<ISettingsService>();
+    
+    private IThemeService ThemeService =>
+        App.Services!.GetRequiredService<IThemeService>();
 
     private void InitializeControls()
     {
@@ -177,16 +187,25 @@ public partial class MainWindow : Window
         if (this.TryFindControl<PathIcon>("ThemeIcon", out var themeIcon) &&
             this.TryFindControl<ToggleButton>("ThemeToggleButton", out var toggleButton))
         {
-            var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
-            if (isDark)
+            var currentTheme = SettingsService.Theme;
+            var actualTheme = ThemeVariantConverter.GetActualTheme(currentTheme);
+            
+            if (actualTheme == ThemeVariant.Dark)
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_moon_regular");
+                toggleButton.IsChecked = true;
             }
             else
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_sunny_regular");
+                toggleButton.IsChecked = false;
             }
-            toggleButton.IsChecked = !isDark;
         }
+    }
+
+
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        UpdateThemeToggleButton();
     }
 }

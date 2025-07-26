@@ -6,5 +6,7 @@ namespace userinterface.Services
     {
         event EventHandler? ThemeChanged;
         void NotifyThemeChanged();
+        void ApplyTheme(string themeName);
+        void ApplyThemeFromSettings();
     }
 }

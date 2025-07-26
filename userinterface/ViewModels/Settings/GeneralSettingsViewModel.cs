@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -10,12 +12,15 @@ public class GeneralSettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService settingsService;
     private readonly LocalizationService localizationService;
+    private readonly IThemeService themeService;
     private LanguageItem selectedLanguage;
+    private string selectedThemeValue;
 
     public GeneralSettingsViewModel()
     {
         settingsService = App.Services!.GetRequiredService<ISettingsService>();
         localizationService = App.Services!.GetRequiredService<LocalizationService>();
+        themeService = App.Services!.GetRequiredService<IThemeService>();
 
         AvailableLanguages = new ObservableCollection<LanguageItem>
         {
@@ -23,14 +28,25 @@ public class GeneralSettingsViewModel : ViewModelBase
             new LanguageItem(localizationService.GetText("LanguageJA-JP"), "ja-JP"),
         };
 
+        ThemeLocalizationKeys = new List<string> { "ThemeSystem", "ThemeLight", "ThemeDark" };
+        ThemeEnumValues = new List<string> { "System", "Light", "Dark" };
+
         // Set initial selected language based on current settings
         var currentLanguage = settingsService.Language;
         selectedLanguage = AvailableLanguages.FirstOrDefault(l => l.CultureCode == currentLanguage) ?? AvailableLanguages[0];
 
+        // Set initial selected theme based on current settings
+        selectedThemeValue = settingsService.Theme;
+
         NotificationSettings = new NotificationSettings(settingsService);
+
     }
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; }
+
+    public IEnumerable<string> ThemeLocalizationKeys { get; }
+    
+    public IEnumerable<string> ThemeEnumValues { get; }
 
     public NotificationSettings NotificationSettings { get; }
 
@@ -42,6 +58,18 @@ public class GeneralSettingsViewModel : ViewModelBase
             if (SetProperty(ref selectedLanguage, value))
             {
                 ChangeLanguage(value.CultureCode);
+            }
+        }
+    }
+
+    public string SelectedThemeValue
+    {
+        get => selectedThemeValue;
+        set
+        {
+            if (SetProperty(ref selectedThemeValue, value) && !string.IsNullOrEmpty(value))
+            {
+                ChangeTheme(value);
             }
         }
     }
@@ -69,6 +97,20 @@ public class GeneralSettingsViewModel : ViewModelBase
             System.Diagnostics.Debug.WriteLine($"Culture not found: {cultureCode} - {ex.Message}");
         }
     }
+
+    private void ChangeTheme(string themeCode)
+    {
+        try
+        {
+            settingsService.Theme = themeCode;
+            themeService.ApplyTheme(themeCode);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to change theme: {themeCode} - {ex.Message}");
+        }
+    }
+
 }
 
 public class NotificationSettings : ViewModelBase

@@ -39,7 +39,8 @@ public partial class App : Application
             new NotificationService(provider.GetRequiredService<LocalizationService>(), provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IModalService>(provider =>
             new ModalService(provider.GetRequiredService<LocalizationService>(), provider.GetRequiredService<ISettingsService>()));
-        services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<IThemeService>(provider =>
+            new ThemeService(provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<LocalizationService>();
 
@@ -100,7 +101,11 @@ public partial class App : Application
     private void RegisterViewModels(IServiceCollection services)
     {
         // Main ViewModels
-        services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<MainWindowViewModel>(provider =>
+            new MainWindowViewModel(
+                provider.GetRequiredService<BackEnd>(),
+                provider.GetRequiredService<IThemeService>(),
+                provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<ToastViewModel>();
 
         // Device ViewModels
@@ -308,11 +313,18 @@ public partial class App : Application
         {
             var settingsService = Services?.GetService<ISettingsService>();
             var localizationService = Services?.GetService<LocalizationService>();
+            var themeService = Services?.GetService<IThemeService>();
 
             if (settingsService != null && localizationService != null)
             {
                 // Apply language setting from backend
                 localizationService.ChangeLanguage(settingsService.Language);
+            }
+
+            if (themeService != null)
+            {
+                // Apply theme setting from backend
+                themeService.ApplyThemeFromSettings();
             }
         }
         catch (Exception ex)

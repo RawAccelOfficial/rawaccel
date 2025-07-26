@@ -391,6 +391,18 @@
   <data name="SettingsShowConfirmModals" xml:space="preserve">
     <value>Show Confirmation Dialogs</value>
   </data>
+  <data name="SettingsTheme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
 
   <!-- Support & Bug Reports Resources -->
   <data name="SupportSectionTitle" xml:space="preserve">

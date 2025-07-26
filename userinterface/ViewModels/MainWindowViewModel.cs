@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Converters;
 using userinterface.Interfaces;
 using userinterface.Models;
 using userinterface.Services;
@@ -35,11 +36,13 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private readonly BE.BackEnd backEnd;
     private readonly IThemeService themeService;
+    private readonly ISettingsService settingsService;
 
-    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService)
+    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService, ISettingsService settingsService)
     {
         this.backEnd = backEnd ?? throw new ArgumentNullException(nameof(backEnd));
         this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
+        this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
@@ -177,14 +180,26 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void ToggleTheme()
     {
-        var currentTheme = Application.Current?.ActualThemeVariant;
-        var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-        if (Application.Current != null)
+        var currentTheme = settingsService.Theme.ToLower();
+        string newTheme;
+        
+        if (currentTheme == "system")
         {
-            Application.Current.RequestedThemeVariant = newTheme;
+            // If we're on system theme, check what the actual system theme is
+            var actualSystemTheme = ThemeVariantConverter.GetSystemThemeVariant();
+            // Toggle to the opposite of what the system currently is
+            newTheme = actualSystemTheme == ThemeVariant.Dark ? "Light" : "Dark";
         }
-        themeService.NotifyThemeChanged();
+        else
+        {
+            // Normal toggle between Light and Dark
+            newTheme = currentTheme == "light" ? "Dark" : "Light";
+        }
+        
+        settingsService.Theme = newTheme;
+        themeService.ApplyTheme(newTheme);
     }
+
 
     private void PreloadAllPages()
     {
