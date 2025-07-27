@@ -258,7 +258,6 @@ namespace grapher
                 LutApplyActiveXLabel,
                 LutApplyActiveYLabel);
 
-            ResizeAndCenter();
         }
 
         #endregion Constructor
@@ -380,16 +379,36 @@ namespace grapher
 
         private void RawAcceleration_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Properties.Settings.Default.Location = Location;
             Properties.Settings.Default.Size = Size;
-
+            Properties.Settings.Default.Location = Location;
             Properties.Settings.Default.Save();
         }
 
-        private void RawAcceleration_Load(object sender, EventArgs e)
+        private void RawAcceleration_Shown(object sender, EventArgs e)
         {
-            Location = Properties.Settings.Default.Location;
-            Size = Properties.Settings.Default.Size;
+            var sizeDirect = chartsPanel.GetPreferredSize(Constants.MaxSize);
+            Console.WriteLine($"[BeginInvoke] Direct size: {sizeDirect}");
+            if (Properties.Settings.Default.HasRunBefore)
+            {
+                var rect = new Rectangle(Properties.Settings.Default.Location, Properties.Settings.Default.Size);
+                bool isVisible = Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(rect));
+                if (isVisible)
+                {
+                    this.Location = Properties.Settings.Default.Location;
+                    this.Size = Properties.Settings.Default.Size;
+                }
+            }
+
+            else
+            {
+                Properties.Settings.Default.HasRunBefore = true;
+                Properties.Settings.Default.Save();
+                this.BeginInvoke(new MethodInvoker(() =>
+                {
+                    ResizeAndCenter();
+                }));
+            }
+            
         }
     }
 }
