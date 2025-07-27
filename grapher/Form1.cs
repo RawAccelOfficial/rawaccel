@@ -388,27 +388,31 @@ namespace grapher
         {
             var sizeDirect = chartsPanel.GetPreferredSize(Constants.MaxSize);
             Console.WriteLine($"[BeginInvoke] Direct size: {sizeDirect}");
+
             if (Properties.Settings.Default.HasRunBefore)
             {
-                var rect = new Rectangle(Properties.Settings.Default.Location, Properties.Settings.Default.Size);
-                bool isVisible = Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(rect));
-                if (isVisible)
+                var savedSettingsRect = new Rectangle(Properties.Settings.Default.Location, Properties.Settings.Default.Size);
+                bool isSavedSettingsVisible = Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(savedSettingsRect));
+                if (isSavedSettingsVisible)
                 {
-                    this.Location = Properties.Settings.Default.Location;
-                    this.Size = Properties.Settings.Default.Size;
+                    //this.Location = Properties.Settings.Default.Location;
+                    //this.Size = Properties.Settings.Default.Size;
+                }
+                else
+                {
+                    ResizeAndCenter();
                 }
             }
-
             else
             {
                 Properties.Settings.Default.HasRunBefore = true;
                 Properties.Settings.Default.Save();
-                this.BeginInvoke(new MethodInvoker(() =>
+                IAsyncResult result = this.BeginInvoke(new MethodInvoker(() =>
                 {
                     ResizeAndCenter();
                 }));
+                this.EndInvoke(result);
             }
-            
         }
     }
 }
