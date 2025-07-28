@@ -9,11 +9,21 @@ Visit the [Releases page](https://github.com/a1xd/rawaccel/releases) and navigat
   * Visual C++ 2019 runtime, [download here](https://aka.ms/vs/16/release/vc_redist.x64.exe)
   * .NET Framework 4.7.2+ runtime, [download here](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 
+We recommend extracting the release directory into `%PROGRAMFILES%\Raw Accel`.
+
 - Run `installer.exe` in the release directory to install the Raw Accel driver. Restart your computer for the installation to take effect.
 
-- Run `uninstaller.exe` in the release directory to uninstall the driver. Restart for the uninstallation to take effect.
+- Run `install-autorun.ps1` in the release directory to enable user specific settings on sign in for each user. The settings are stored in `%LOCALAPPDATA%\Raw Accel`.
+
+- Run `install-shortcut.ps1` in the release directory to add a user specific shortcut to the Raw Accel GUI. The settings are stored in `%LOCALAPPDATA%\Raw Accel`. Sign out and back in for the installation to take effect.
 
 - Run `rawaccel.exe` when the driver is installed in order to run the Raw Accel GUI.
+
+## Uninstallation
+
+- Run `uninstall-autorun.ps1` in the release directory to disable user specific settings.
+
+- Run `uninstaller.exe` in the release directory to uninstall the driver. Restart for the uninstallation to take effect.
 
 ## Philosophy
 The Raw Accel driver and GUI's workings and exposed parameters are based on our understanding of mouse acceleration. Our understanding includes the concepts of "[gain](#gain-switch)", "[whole vs by component](#horizontal-and-vertical)", and "[anisotropy](#anisotropy)." For clarity, we will outline this understanding here. Those uninterested can skip to [Features](#features) below.
