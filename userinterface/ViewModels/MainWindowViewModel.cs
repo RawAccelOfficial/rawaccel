@@ -47,8 +47,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
-
-        PreloadAllPages();
     }
 
     public DevicesPageViewModel DevicesPage =>
@@ -197,16 +195,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         
         settingsService.Theme = newTheme;
-    }
-
-
-    private void PreloadAllPages()
-    {
-        _ = DevicesPage;
-        _ = ProfilesPage;
-        _ = MappingsPage;
-        _ = SettingsPage;
-        _ = ProfileListView;
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;

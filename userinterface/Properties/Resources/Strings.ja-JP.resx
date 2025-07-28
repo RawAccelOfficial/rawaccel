@@ -120,16 +120,16 @@
   
   <!-- MainWindow Resources -->
   <data name="MainWindowApplySettingsButton" xml:space="preserve">
-    <value>設定を適用</value>
+    <value>設定を反映</value>
   </data>
   <data name="MainWindowDevicesButton" xml:space="preserve">
     <value>デバイス</value>
   </data>
   <data name="MainWindowMappingsButton" xml:space="preserve">
-    <value>マッピング</value>
+    <value>割り当て</value>
   </data>
   <data name="MainWindowNavigationTitle" xml:space="preserve">
-    <value>ナビゲーション</value>
+    <value>メニュー</value>
   </data>
   <data name="MainWindowProfilesButton" xml:space="preserve">
     <value>プロファイル</value>
@@ -145,10 +145,10 @@
   
   <!-- Device Resources -->
   <data name="DeviceAddDevice" xml:space="preserve">
-    <value>デバイスを追加</value>
+    <value>デバイス追加</value>
   </data>
   <data name="DeviceAddDeviceGroup" xml:space="preserve">
-    <value>デバイスグループを追加</value>
+    <value>デバイスグループ追加</value>
   </data>
   <data name="DeviceDeviceGroups" xml:space="preserve">
     <value>デバイスグループ</value>
@@ -159,27 +159,27 @@
   
   <!-- Mapping Resources -->
   <data name="MappingAddEntry" xml:space="preserve">
-    <value>エントリを追加</value>
+    <value>項目追加</value>
   </data>
   <data name="MappingAddMapping" xml:space="preserve">
-    <value>マッピングを追加</value>
+    <value>割り当て追加</value>
   </data>
   
   <!-- Profile Resources -->
   <data name="ProfileAddNewProfile" xml:space="preserve">
-    <value>新しいプロファイルを追加</value>
+    <value>プロファイル追加</value>
   </data>
   <data name="ProfileExpertsOnlyWarning" xml:space="preserve">
-    <value>この機能は上級者専用です。</value>
+    <value>この機能は上級者向けです。</value>
   </data>
   <data name="ProfileFitToData" xml:space="preserve">
-    <value>データに合わせる</value>
+    <value>データフィット</value>
   </data>
   <data name="ProfileLUTFormatInstructions" xml:space="preserve">
     <value>形式: x1,y1,x2,y2,...xn,yn;</value>
   </data>
   <data name="ProfileResetZoom" xml:space="preserve">
-    <value>ズームをリセット</value>
+    <value>拡大リセット</value>
   </data>
 
   <!-- Language Names (Native) -->
@@ -192,13 +192,13 @@
 
   <!-- Toast Notification Resources -->
   <data name="MainWindowSettingsAppliedSuccess" xml:space="preserve">
-    <value>設定が正常に適用されました！</value>
+    <value>設定を反映しました！</value>
   </data>
   <data name="SettingsLanguageChangedTo" xml:space="preserve">
-    <value>言語が{0}に変更されました</value>
+    <value>言語を{0}に変更しました</value>
   </data>
   <data name="ProfileClassicLinearEquivalent" xml:space="preserve">
-    <value>指数が2のクラシックはリニアと同じです</value>
+    <value>クラシック（指数2）はリニアと同等です</value>
   </data>
 
   <!-- Modal Dialog Resources -->
@@ -212,7 +212,7 @@
     <value>プロファイルを削除</value>
   </data>
   <data name="ProfileDeleteMessage" xml:space="preserve">
-    <value>このプロファイルを削除してもよろしいですか？</value>
+    <value>このプロファイルを削除しますか？</value>
   </data>
   <data name="ProfileDeleteConfirm" xml:space="preserve">
     <value>削除</value>
@@ -233,7 +233,7 @@
 
   <!-- Jump Acceleration Resources -->
   <data name="AccelJumpSmooth" xml:space="preserve">
-    <value>滑らか</value>
+    <value>スムーズ</value>
   </data>
   <data name="AccelJumpInput" xml:space="preserve">
     <value>入力</value>
@@ -283,26 +283,26 @@
     <value>ガンマ</value>
   </data>
   <data name="AccelSynchronousMotivity" xml:space="preserve">
-    <value>感度</value>
+    <value>反応性</value>
   </data>
   <data name="AccelSynchronousSyncSpeed" xml:space="preserve">
     <value>同期速度</value>
   </data>
   <data name="AccelSynchronousSmoothness" xml:space="preserve">
-    <value>滑らかさ</value>
+    <value>スムーズさ</value>
   </data>
 
   <!-- General Acceleration Resources -->
   <data name="AccelDefinitionType" xml:space="preserve">
-    <value>定義タイプ</value>
+    <value>設定方式</value>
   </data>
   <data name="AccelFormulaType" xml:space="preserve">
-    <value>数式タイプ</value>
+    <value>計算方式</value>
   </data>
 
   <!-- Lookup Table Resources -->
   <data name="LookupTableApplyAs" xml:space="preserve">
-    <value>適用として</value>
+    <value>適用方法</value>
   </data>
   <data name="LookupTableData" xml:space="preserve">
     <value>データ</value>
@@ -318,28 +318,28 @@
 
   <!-- Anisotropy Resources -->
   <data name="AnisotropyDomain" xml:space="preserve">
-    <value>ドメイン</value>
+    <value>入力範囲</value>
   </data>
   <data name="AnisotropyRange" xml:space="preserve">
-    <value>範囲</value>
+    <value>出力範囲</value>
   </data>
   <data name="AnisotropyDomainX" xml:space="preserve">
-    <value>ドメインX</value>
+    <value>X入力範囲</value>
   </data>
   <data name="AnisotropyDomainY" xml:space="preserve">
-    <value>ドメインY</value>
+    <value>Y入力範囲</value>
   </data>
   <data name="AnisotropyRangeX" xml:space="preserve">
-    <value>範囲X</value>
+    <value>X出力範囲</value>
   </data>
   <data name="AnisotropyRangeY" xml:space="preserve">
-    <value>範囲Y</value>
+    <value>Y出力範囲</value>
   </data>
   <data name="AnisotropyLPNorm" xml:space="preserve">
     <value>LPノルム</value>
   </data>
   <data name="AnisotropyCombineXY" xml:space="preserve">
-    <value>XとYコンポーネントを結合</value>
+    <value>X軸とY軸を連動</value>
   </data>
 
   <!-- Hidden Model Resources -->
@@ -347,27 +347,27 @@
     <value>回転</value>
   </data>
   <data name="HiddenAngleSnapping" xml:space="preserve">
-    <value>角度スナップ</value>
+    <value>角度補正</value>
   </data>
   <data name="HiddenLRRatio" xml:space="preserve">
-    <value>左右比</value>
+    <value>左右感度比</value>
   </data>
   <data name="HiddenUDRatio" xml:space="preserve">
-    <value>上下比</value>
+    <value>上下感度比</value>
   </data>
   <data name="HiddenSpeedCap" xml:space="preserve">
-    <value>速度上限</value>
+    <value>最大速度</value>
   </data>
   <data name="HiddenOutputSmoothingHalfLife" xml:space="preserve">
-    <value>出力スムージング半減期</value>
+    <value>出力平滑化時定数</value>
   </data>
 
   <!-- Coalescion Resources -->
   <data name="CoalescionInputSmoothingHalfLife" xml:space="preserve">
-    <value>入力スムージング半減期</value>
+    <value>入力平滑化時定数</value>
   </data>
   <data name="CoalescionScaleSmoothingHalfLife" xml:space="preserve">
-    <value>スケールスムージング半減期</value>
+    <value>スケール平滑化時定数</value>
   </data>
 
   <!-- Device Resources -->
@@ -375,7 +375,7 @@
     <value>DPI</value>
   </data>
   <data name="DevicePollingRate" xml:space="preserve">
-    <value>ポーリングレート</value>
+    <value>レポートレート</value>
   </data>
   <data name="DeviceIgnore" xml:space="preserve">
     <value>無視</value>
@@ -386,10 +386,10 @@
     <value>言語</value>
   </data>
   <data name="SettingsShowToastNotifications" xml:space="preserve">
-    <value>トースト通知を表示</value>
+    <value>通知を表示</value>
   </data>
   <data name="SettingsShowConfirmModals" xml:space="preserve">
-    <value>確認ダイアログを表示</value>
+    <value>確認画面を表示</value>
   </data>
   <data name="SettingsTheme" xml:space="preserve">
     <value>テーマ</value>
@@ -406,16 +406,16 @@
 
   <!-- Support & Bug Reports Resources -->
   <data name="SupportSectionTitle" xml:space="preserve">
-    <value>サポート &amp; バグ報告</value>
+    <value>サポート・バグ報告</value>
   </data>
   <data name="SupportBugReportInstructions" xml:space="preserve">
-    <value>バグを報告する前に、重複を避けるため既存の問題を検索してください。</value>
+    <value>バグ報告前に、重複回避のため既存の問題をご確認ください。</value>
   </data>
   <data name="SupportSearchExistingIssues" xml:space="preserve">
-    <value>既存の問題を検索</value>
+    <value>既存問題を検索</value>
   </data>
   <data name="SupportCheckClosedIssues" xml:space="preserve">
-    <value>クローズされた問題もチェックしてください - あなたの問題は既に解決されているかもしれません</value>
+    <value>解決済み問題もご確認ください。お探しの問題が既に解決されている場合があります。</value>
   </data>
 
   <!-- Device Field Resources -->
@@ -431,7 +431,7 @@
 
   <!-- Chart Axis Labels -->
   <data name="ChartAxisMouseSpeed" xml:space="preserve">
-    <value>マウス速度</value>
+    <value>マウス移動速度</value>
   </data>
   <data name="ChartAxisOutput" xml:space="preserve">
     <value>出力</value>
@@ -439,48 +439,48 @@
 
   <!-- Profile Section Headers -->
   <data name="ProfileSectionAcceleration" xml:space="preserve">
-    <value>加速</value>
+    <value>加速設定</value>
   </data>
   <data name="ProfileSectionHidden" xml:space="preserve">
-    <value>隠し設定</value>
+    <value>詳細設定</value>
   </data>
   <data name="ProfileSectionCoalescion" xml:space="preserve">
-    <value>統合</value>
+    <value>入力統合</value>
   </data>
   <data name="ProfileSectionAnisotropy" xml:space="preserve">
-    <value>異方性</value>
+    <value>方向性調整</value>
   </data>
 
   <!-- Alpha Build Warning Dialog Resources -->
   <data name="AlphaBuildWarningTitle" xml:space="preserve">
-    <value>アルファビルド警告</value>
+    <value>アルファ版警告</value>
   </data>
   <data name="AlphaBuildWarningMainMessage" xml:space="preserve">
-    <value>これはRawAccelのアルファビルドです。問題を報告する前に、以下をお願いします：</value>
+    <value>これはRawAccelのアルファ版です。問題報告前に以下をご確認ください：</value>
   </data>
   <data name="AlphaBuildWarningStep1" xml:space="preserve">
-    <value>1. 既存の問題を確認</value>
+    <value>1. 既存問題の確認</value>
   </data>
   <data name="AlphaBuildWarningHere" xml:space="preserve">
     <value>こちら</value>
   </data>
   <data name="AlphaBuildWarningStep1Continue" xml:space="preserve">
-    <value>で同じ問題が既に報告されていないか確認してください</value>
+    <value>で同様の問題が報告済みでないかご確認ください</value>
   </data>
   <data name="AlphaBuildWarningStep2" xml:space="preserve">
-    <value>2. クローズされた問題から、解決済みの類似問題を検索してください</value>
+    <value>2. 解決済み問題から、類似する問題をお探しください</value>
   </data>
   <data name="AlphaBuildWarningStep3" xml:space="preserve">
-    <value>3. 質問やヘルプが必要な場合は、Discordに参加</value>
+    <value>3. 質問やサポートが必要な場合は、Discordへ参加</value>
   </data>
   <data name="AlphaBuildWarningStep3Continue" xml:space="preserve">
-    <value>して英語で質問してください</value>
+    <value>して英語でお尋ねください</value>
   </data>
   <data name="AlphaBuildWarningFooter" xml:space="preserve">
-    <value>まだ報告されていない真の不具合についてのみ、新しい問題報告を作成してください。</value>
+    <value>未報告の実際のバグについてのみ、新規問題報告を作成してください。</value>
   </data>
   <data name="AlphaBuildWarningUnderstand" xml:space="preserve">
-    <value>理解しました</value>
+    <value>承知しました</value>
   </data>
 
   <!-- Acceleration Definition Type Options -->
@@ -488,15 +488,15 @@
     <value>なし</value>
   </data>
   <data name="AccelDefinitionFormula" xml:space="preserve">
-    <value>数式</value>
+    <value>計算式</value>
   </data>
   <data name="AccelDefinitionLookupTable" xml:space="preserve">
-    <value>ルックアップテーブル</value>
+    <value>参照テーブル</value>
   </data>
 
   <!-- Acceleration Formula Type Options -->
   <data name="AccelFormulaSynchronous" xml:space="preserve">
-    <value>同期</value>
+    <value>同期式</value>
   </data>
   <data name="AccelFormulaLinear" xml:space="preserve">
     <value>リニア</value>
@@ -508,9 +508,9 @@
     <value>パワー</value>
   </data>
   <data name="AccelFormulaNatural" xml:space="preserve">
-    <value>ナチュラル</value>
+    <value>自然式</value>
   </data>
   <data name="AccelFormulaJump" xml:space="preserve">
-    <value>ジャンプ</value>
+    <value>段階式</value>
   </data>
 </root>
