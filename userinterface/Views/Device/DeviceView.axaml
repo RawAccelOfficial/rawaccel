@@ -17,9 +17,27 @@
 			<Setter Property="CornerRadius" Value="6" />
 			<Setter Property="Padding" Value="8" />
 			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
-		<Style Selector="Button.DeleteButton:pointerover, Button.DeleteButton:pressed, Button.DeleteButton:focus">
+		<Style Selector="Button.DeleteButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="RenderTransform" Value="scale(1.05)" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}" />
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			<Setter Property="RenderTransform" Value="scale(0.95)" />
+		</Style>
+
+		<Style Selector="Button.DeleteButton:focus">
 			<Setter Property="Background" Value="{DynamicResource DangerButtonBrush}" />
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
 		</Style>
@@ -36,10 +54,20 @@
 
 		<Style Selector="controls|EditableExpanderView">
 			<Setter Property="Margin" Value="0,0,0,8" />
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
 		<Style Selector="controls|EditableExpanderView.DisabledExpander">
 			<Setter Property="Opacity" Value="0.8" />
+		</Style>
+
+		<Style Selector="controls|EditableExpanderView:pointerover">
+			<Setter Property="RenderTransform" Value="scale(1.01)" />
 		</Style>
 	</UserControl.Styles>
 
