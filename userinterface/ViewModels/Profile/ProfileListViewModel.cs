@@ -27,6 +27,16 @@ namespace userinterface.ViewModels.Profile
 
         public event Action<BE.ProfileModel> SelectedProfileChanged;
 
+        partial void OnSelectedProfileChanged(BE.ProfileModel value)
+        {
+            SelectedProfileChanged?.Invoke(value);
+            
+            if (profileListView != null)
+            {
+                profileListView.SetSelectedProfile(value, false);
+            }
+        }
+
         public ProfileListViewModel(BackEnd backEnd)
         {
             profilesModel = backEnd?.Profiles ?? throw new System.ArgumentNullException(nameof(backEnd));
@@ -213,10 +223,6 @@ namespace userinterface.ViewModels.Profile
 
         public bool RemoveProfile(BE.ProfileModel profile) => profile != null && profilesModel.RemoveProfile(profile);
 
-        partial void OnSelectedProfileChanged(BE.ProfileModel value)
-        {
-            SelectedProfileChanged?.Invoke(value);
-        }
 
         public void Dispose()
         {

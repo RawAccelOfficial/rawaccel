@@ -4,6 +4,7 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -132,6 +133,19 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SelectedPage = page;
         IsProfilesExpanded = page == NavigationPage.Profiles;
         
+        if (page == NavigationPage.Profiles && profileListView.SelectedProfile == null)
+        {
+            var defaultProfile = backEnd.Profiles.Profiles.FirstOrDefault(p => p == BE.Model.ProfilesModel.DefaultProfile);
+            if (defaultProfile != null)
+            {
+                profileListView.SelectedProfile = defaultProfile;
+            }
+            else if (backEnd.Profiles.Profiles.Count > 0)
+            {
+                profileListView.SelectedProfile = backEnd.Profiles.Profiles[0];
+            }
+        }
+        
         UpdateNavigationButtonSelection(page);
     }
     
@@ -162,6 +176,19 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         SelectedPage = page;
         IsProfilesExpanded = page == NavigationPage.Profiles;
+        
+        if (page == NavigationPage.Profiles && profileListView.SelectedProfile == null)
+        {
+            var defaultProfile = backEnd.Profiles.Profiles.FirstOrDefault(p => p == BE.Model.ProfilesModel.DefaultProfile);
+            if (defaultProfile != null)
+            {
+                profileListView.SelectedProfile = defaultProfile;
+            }
+            else if (backEnd.Profiles.Profiles.Count > 0)
+            {
+                profileListView.SelectedProfile = backEnd.Profiles.Profiles[0];
+            }
+        }
     }
 
     private async void ExpandProfiles()

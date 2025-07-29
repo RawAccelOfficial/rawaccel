@@ -572,7 +572,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         UpdateDeleteButtonStates();
     }
 
-    private void SetSelectedProfile(BE.ProfileModel? profile)
+    public void SetSelectedProfile(BE.ProfileModel? profile, bool updateViewModel = true)
     {
         if (selectedProfile == profile) return;
 
@@ -586,7 +586,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         selectedProfile = profile;
 
-        if (DataContext is ProfileListViewModel viewModel)
+        if (updateViewModel && DataContext is ProfileListViewModel viewModel)
         {
             viewModel.SelectedProfile = selectedProfile;
         }
