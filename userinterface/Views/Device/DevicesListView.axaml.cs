@@ -49,7 +49,7 @@ public partial class DevicesListView : UserControl
             // This will trigger the CollectionChanged event but we'll ignore it since animation is done
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                // deviceViewModel.DeleteSelf();
+                deviceViewModel.DeleteSelf();
             });
         }
         else

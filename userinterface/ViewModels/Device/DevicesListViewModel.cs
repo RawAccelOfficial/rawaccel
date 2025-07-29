@@ -1,5 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using userinterface.Views.Device;
@@ -33,6 +36,11 @@ namespace userinterface.ViewModels.Device
         public void SetView(DevicesListView view)
         {
             devicesListView = view;
+            Debug.WriteLine($"[DevicesListViewModel] SetView called, view is {(view != null ? "not null" : "null")}");
+            
+            // Refresh existing DeviceViewModels to include the animation callback
+            Debug.WriteLine($"[DevicesListViewModel] Refreshing {DeviceViews.Count} existing DeviceViewModels with animation callback");
+            UpdateDeviceViews();
         }
 
         private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -46,7 +54,9 @@ namespace userinterface.ViewModels.Device
                         {
                             int index = DevicesBE.Devices.IndexOf(device);
                             bool isDefault = index == 0;
-                            var deviceViewModel = new DeviceViewModel(device, DevicesBE, isDefault, devicesListView != null ? devicesListView.AnimateDeviceDelete : null);
+                            var animateCallback = devicesListView != null ? (Func<DeviceViewModel, Task>)devicesListView.AnimateDeviceDelete : null;
+                            Debug.WriteLine($"[DevicesListViewModel] Creating DeviceViewModel with callback: {(animateCallback != null ? "not null" : "null")}");
+                            var deviceViewModel = new DeviceViewModel(device, DevicesBE, isDefault, animateCallback);
                             DeviceViews.Insert(index, deviceViewModel);
                         }
                     }
@@ -78,7 +88,9 @@ namespace userinterface.ViewModels.Device
             {
                 var device = DevicesBE.Devices[i];
                 bool isDefault = i == 0;
-                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, isDefault, devicesListView != null ? devicesListView.AnimateDeviceDelete : null));
+                var animateCallback = devicesListView != null ? (Func<DeviceViewModel, Task>)devicesListView.AnimateDeviceDelete : null;
+                Debug.WriteLine($"[DevicesListViewModel] UpdateDeviceViews - Creating DeviceViewModel with callback: {(animateCallback != null ? "not null" : "null")}");
+                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, isDefault, animateCallback));
             }
         }
 

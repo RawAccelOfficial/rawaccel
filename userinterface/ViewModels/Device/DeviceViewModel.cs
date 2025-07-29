@@ -16,6 +16,8 @@ namespace userinterface.ViewModels.Device
             DevicesBE = devicesBE;
             IsDefaultDevice = isDefault;
             AnimatedDeleteCallback = animatedDeleteCallback;
+            
+            Debug.WriteLine($"[DeviceViewModel] Constructor called for device '{deviceBE.Name}', AnimatedDeleteCallback is {(animatedDeleteCallback != null ? "not null" : "null")}");
 
             NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
 
@@ -31,7 +33,11 @@ namespace userinterface.ViewModels.Device
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
 
             DeleteCommand = new RelayCommand(
-                async () => await DeleteWithAnimation());
+                async () => 
+                {
+                    Debug.WriteLine($"[DeviceViewModel] Delete button pressed for device '{DeviceBE.Name}'");
+                    await DeleteWithAnimation();
+                });
         }
 
         internal BE.DeviceModel DeviceBE { get; }
@@ -68,11 +74,18 @@ namespace userinterface.ViewModels.Device
 
         private async Task DeleteWithAnimation()
         {
+            Debug.WriteLine($"[DeviceViewModel] DeleteWithAnimation called, AnimatedDeleteCallback is {(AnimatedDeleteCallback != null ? "not null" : "null")}");
+            
             if (AnimatedDeleteCallback != null)
             {
+                Debug.WriteLine($"[DeviceViewModel] Calling AnimatedDeleteCallback");
                 await AnimatedDeleteCallback(this);
+                Debug.WriteLine($"[DeviceViewModel] AnimatedDeleteCallback completed");
             }
-            // No fallback - deletion should only happen through animation callback
+            else
+            {
+                Debug.WriteLine($"[DeviceViewModel] No AnimatedDeleteCallback available - delete ignored");
+            }
         }
 
         public void DeleteSelf()
