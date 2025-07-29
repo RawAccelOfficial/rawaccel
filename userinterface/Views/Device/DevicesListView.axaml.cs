@@ -91,17 +91,40 @@ public partial class DevicesListView : UserControl
 
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null && e.NewItems.Count > 0)
         {
-            Debug.WriteLine($"[DevicesListView] Device added, keeping known count at {lastKnownItemCount} for container detection");
+            Debug.WriteLine($"[DevicesListView] Device added at index {e.NewStartingIndex}, count was {lastKnownItemCount}");
             
+            // Try to animate the new container directly
             _ = Task.Run(async () =>
             {
-                await Task.Delay(200);
-                await Dispatcher.UIThread.InvokeAsync(() =>
+                await Task.Delay(100); // Wait for container to be prepared
+                await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
+                    var newIndex = e.NewStartingIndex;
+                    if (newIndex >= 0)
+                    {
+                        var container = DevicesListInView.ContainerFromIndex(newIndex) as Control;
+                        if (container != null)
+                        {
+                            Debug.WriteLine($"[DevicesListView] Found container for new item at index {newIndex}, starting animation");
+                            
+                            // Set initial state
+                            container.Opacity = 0;
+                            container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
+                            
+                            // Start animation
+                            await AnimateDeviceIn(container, newIndex);
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[DevicesListView] Could not find container for new item at index {newIndex}");
+                        }
+                    }
+                    
+                    // Update known count
                     if (viewModel != null)
                     {
                         lastKnownItemCount = viewModel.DeviceViews.Count;
-                        Debug.WriteLine($"[DevicesListView] Updated known count to {lastKnownItemCount} after delay");
+                        Debug.WriteLine($"[DevicesListView] Updated known count to {lastKnownItemCount}");
                     }
                 });
             });
@@ -136,6 +159,8 @@ public partial class DevicesListView : UserControl
 
     private async Task AnimateDeviceIn(Control container, int index)
     {
+        Debug.WriteLine($"[DevicesListView] AnimateDeviceIn called for index {index}, container type: {container.GetType().Name}");
+        
         await operationSemaphore.WaitAsync();
         
         try
@@ -146,6 +171,7 @@ public partial class DevicesListView : UserControl
             {
                 if (activeAnimations.TryGetValue(index, out var existingCts))
                 {
+                    Debug.WriteLine($"[DevicesListView] Cancelling existing animation for index {index}");
                     existingCts.Cancel();
                     existingCts.Dispose();
                 }
@@ -158,13 +184,22 @@ public partial class DevicesListView : UserControl
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 Debug.WriteLine($"[DevicesListView] Starting slide-up + fade-in animation for container at index {index}");
+                Debug.WriteLine($"[DevicesListView] Container initial opacity: {container.Opacity}, RenderTransform: {container.RenderTransform}");
 
                 var originalTransitions = container.Transitions;
                 container.Transitions = null;
 
                 try
                 {
-                    var animation = new Animation
+                    // Ensure we have a TranslateTransform to animate
+                    var transform = container.RenderTransform as TranslateTransform;
+                    if (transform == null)
+                    {
+                        transform = new TranslateTransform(0, SlideUpDistance);
+                        container.RenderTransform = transform;
+                    }
+
+                    var opacityAnimation = new Animation
                     {
                         Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
                         FillMode = FillMode.Forward,
@@ -180,11 +215,6 @@ public partial class DevicesListView : UserControl
                                     {
                                         Property = OpacityProperty,
                                         Value = 0.0
-                                    },
-                                    new Setter
-                                    {
-                                        Property = RenderTransformProperty,
-                                        Value = new TranslateTransform(0, SlideUpDistance)
                                     }
                                 }
                             },
@@ -197,23 +227,136 @@ public partial class DevicesListView : UserControl
                                     {
                                         Property = OpacityProperty,
                                         Value = 1.0
-                                    },
-                                    new Setter
-                                    {
-                                        Property = RenderTransformProperty,
-                                        Value = new TranslateTransform(0, 0)
                                     }
                                 }
                             }
                         }
                     };
 
-                    await animation.RunAsync(container);
+                    var translateAnimation = new Animation
+                    {
+                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        FillMode = FillMode.Forward,
+                        Easing = Easing.Parse("CubicEaseOut"),
+                        Children =
+                        {
+                            new KeyFrame
+                            {
+                                Cue = new Cue(0d),
+                                Setters =
+                                {
+                                    new Setter
+                                    {
+                                        Property = TranslateTransform.YProperty,
+                                        Value = SlideUpDistance
+                                    }
+                                }
+                            },
+                            new KeyFrame
+                            {
+                                Cue = new Cue(1d),
+                                Setters =
+                                {
+                                    new Setter
+                                    {
+                                        Property = TranslateTransform.YProperty,
+                                        Value = 0.0
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    Debug.WriteLine($"[DevicesListView] Running animations...");
+                    
+                    // Run opacity animation on container
+                    var opacityTask = opacityAnimation.RunAsync(container);
+                    
+                    // For transform animation, we need to animate the transform properties through the container
+                    // by creating a composite animation that targets the transform through the container
+                    var compositeAnimation = new Animation
+                    {
+                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        FillMode = FillMode.Forward,
+                        Easing = Easing.Parse("CubicEaseOut"),
+                        Children =
+                        {
+                            new KeyFrame
+                            {
+                                Cue = new Cue(0d),
+                                Setters =
+                                {
+                                    new Setter
+                                    {
+                                        Property = OpacityProperty,
+                                        Value = 0.0
+                                    }
+                                }
+                            },
+                            new KeyFrame
+                            {
+                                Cue = new Cue(1d),
+                                Setters =
+                                {
+                                    new Setter
+                                    {
+                                        Property = OpacityProperty,
+                                        Value = 1.0
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    
+                    // Manually animate the transform Y property
+                    var startY = SlideUpDistance;
+                    var endY = 0.0;
+                    var startTime = DateTime.Now;
+                    var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+                    
+                    var transformTask = Task.Run(async () =>
+                    {
+                        while (DateTime.Now - startTime < duration)
+                        {
+                            var elapsed = DateTime.Now - startTime;
+                            var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+                            
+                            // Apply easing (simplified cubic ease out)
+                            var easedProgress = 1 - Math.Pow(1 - progress, 3);
+                            var currentY = startY + (endY - startY) * easedProgress;
+                            
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                if (container.RenderTransform is TranslateTransform t)
+                                {
+                                    t.Y = currentY;
+                                }
+                            });
+                            
+                            await Task.Delay(16); // ~60fps
+                        }
+                        
+                        // Ensure final position
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            if (container.RenderTransform is TranslateTransform t)
+                            {
+                                t.Y = endY;
+                            }
+                        });
+                    });
+                    
+                    await Task.WhenAll(opacityTask, transformTask);
                     Debug.WriteLine($"[DevicesListView] Animation completed for container at index {index}");
+                    Debug.WriteLine($"[DevicesListView] Container final opacity: {container.Opacity}, RenderTransform: {container.RenderTransform}");
                 }
                 catch (OperationCanceledException)
                 {
                     Debug.WriteLine($"[DevicesListView] Animation cancelled for container at index {index}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[DevicesListView] Animation error for container at index {index}: {ex.Message}");
                 }
                 finally
                 {
@@ -223,6 +366,10 @@ public partial class DevicesListView : UserControl
         }
         catch (OperationCanceledException)
         {
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DevicesListView] AnimateDeviceIn error for index {index}: {ex.Message}");
         }
         finally
         {
@@ -273,7 +420,15 @@ public partial class DevicesListView : UserControl
 
                 try
                 {
-                    var animation = new Animation
+                    // Ensure we have a TranslateTransform to animate
+                    var transform = container.RenderTransform as TranslateTransform;
+                    if (transform == null)
+                    {
+                        transform = new TranslateTransform(0, 0);
+                        container.RenderTransform = transform;
+                    }
+
+                    var opacityAnimation = new Animation
                     {
                         Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
                         FillMode = FillMode.Forward,
@@ -289,11 +444,6 @@ public partial class DevicesListView : UserControl
                                     {
                                         Property = OpacityProperty,
                                         Value = 1.0
-                                    },
-                                    new Setter
-                                    {
-                                        Property = RenderTransformProperty,
-                                        Value = new TranslateTransform(0, 0)
                                     }
                                 }
                             },
@@ -306,18 +456,90 @@ public partial class DevicesListView : UserControl
                                     {
                                         Property = OpacityProperty,
                                         Value = 0.0
-                                    },
-                                    new Setter
-                                    {
-                                        Property = RenderTransformProperty,
-                                        Value = new TranslateTransform(-SlideLeftDistance, 0)
                                     }
                                 }
                             }
                         }
                     };
 
-                    await animation.RunAsync(container);
+                    var translateAnimation = new Animation
+                    {
+                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        FillMode = FillMode.Forward,
+                        Easing = Easing.Parse("CubicEaseOut"),
+                        Children =
+                        {
+                            new KeyFrame
+                            {
+                                Cue = new Cue(0d),
+                                Setters =
+                                {
+                                    new Setter
+                                    {
+                                        Property = TranslateTransform.XProperty,
+                                        Value = 0.0
+                                    }
+                                }
+                            },
+                            new KeyFrame
+                            {
+                                Cue = new Cue(1d),
+                                Setters =
+                                {
+                                    new Setter
+                                    {
+                                        Property = TranslateTransform.XProperty,
+                                        Value = -SlideLeftDistance
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    Debug.WriteLine($"[DevicesListView] Running slide-left animations...");
+                    
+                    // Run opacity animation on container
+                    var opacityTask = opacityAnimation.RunAsync(container);
+                    
+                    // Manually animate the transform X property
+                    var startX = 0.0;
+                    var endX = -SlideLeftDistance;
+                    var startTime = DateTime.Now;
+                    var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+                    
+                    var transformTask = Task.Run(async () =>
+                    {
+                        while (DateTime.Now - startTime < duration)
+                        {
+                            var elapsed = DateTime.Now - startTime;
+                            var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+                            
+                            // Apply easing (simplified cubic ease out)
+                            var easedProgress = 1 - Math.Pow(1 - progress, 3);
+                            var currentX = startX + (endX - startX) * easedProgress;
+                            
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                if (container.RenderTransform is TranslateTransform t)
+                                {
+                                    t.X = currentX;
+                                }
+                            });
+                            
+                            await Task.Delay(16); // ~60fps
+                        }
+                        
+                        // Ensure final position
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            if (container.RenderTransform is TranslateTransform t)
+                            {
+                                t.X = endX;
+                            }
+                        });
+                    });
+                    
+                    await Task.WhenAll(opacityTask, transformTask);
                     Debug.WriteLine($"[DevicesListView] Slide-left animation completed for container at index {index}");
                 }
                 catch (OperationCanceledException)
