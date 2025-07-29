@@ -27,13 +27,11 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private readonly List<Border> allItems = [];
     private Panel profileContainer;
     private readonly BE.ProfilesModel profilesModel;
-    private readonly Dictionary<int, CancellationTokenSource> activeAnimations = [];
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private BE.ProfileModel selectedProfile;
 
     private int GetProfileCount() => allItems.Count - 1; // Subtract 1 for add button
     private volatile bool areAnimationsActive = false;
-    private readonly object animationLock = new();
 
     public new event PropertyChangedEventHandler? PropertyChanged;
     private readonly IModalService modalService;
@@ -66,7 +64,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private void OnUnloaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        CancelAllAnimations();
         operationSemaphore?.Dispose();
         if (localizationService != null)
         {
@@ -89,6 +86,9 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         profileContainer.Children.Add(addButton);
 
         CreateProfilesWithStagger();
+
+        // Start the startup animation to expand profiles from collapsed state
+        _ = ExpandElements();
 
         var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
         if (defaultProfile != null)
@@ -172,15 +172,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         int removeIndex = e.OldStartingIndex >= 0 ? e.OldStartingIndex : GetProfileCount() - 1;
         int removeCount = e.OldItems.Count;
 
-        // Cancel animations for removed profiles
-        for (int i = 0; i < removeCount && removeIndex + i < GetProfileCount(); i++)
-        {
-            if (activeAnimations.TryGetValue(removeIndex + i, out var cts))
-            {
-                cts.Cancel();
-                activeAnimations.Remove(removeIndex + i);
-            }
-        }
 
         // Remove UI elements
         for (int i = 0; i < removeCount && removeIndex >= 0 && removeIndex < GetProfileCount(); i++)
@@ -248,7 +239,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private Task HandleProfilesReset()
     {
-        CancelAllAnimations();
         // Keep add button, clear everything else
         var addButton = allItems.Count > 0 ? allItems[0] : null;
         allItems.Clear();
@@ -337,7 +327,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             Height = ProfileHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(8, 0, 8, 0),
+            Margin = new Thickness(8, 0, 8, ProfileSpacing), // Start at collapsed position (Y=0)
             Child = addProfileTextBlock
         };
 
@@ -394,7 +384,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             Height = ProfileHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(8, ProfileSpawnPosition, 8, 0), // Start at spawn position for animation
+            Margin = new Thickness(8, 0, 8, ProfileSpacing), // Start at collapsed position (Y=0)
             Child = grid,
             Opacity = 1.0,
             ZIndex = targetIndex
@@ -438,13 +428,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private void OnAddProfileClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Prevent rapid clicking during active operations
-        bool animationsActive;
-        lock (animationLock)
-        {
-            animationsActive = areAnimationsActive;
-        }
-
-        if (animationsActive)
+        if (areAnimationsActive)
         {
             return;
         }
@@ -509,12 +493,11 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             var profileBorder = CreateProfileBorder(null, i);
             profileBorder.ZIndex = 1000;
             profileBorder.Opacity = 1.0;
-            profileBorder.Margin = new Thickness(8, CalculatePositionForIndex(0), 8, 0);
+            // Elements start in collapsed state with Y=0 margin (already set in CreateProfileBorder)
 
             int itemIndex = i + 1; // +1 for add button
             allItems.Insert(itemIndex, profileBorder);
             profileContainer?.Children.Insert(itemIndex, profileBorder);
-
         }
 
         UpdateAllZIndexes();
@@ -522,156 +505,39 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         UpdateDeleteButtonStates();
     }
 
-    private void CancelAllAnimations()
-    {
-        lock (animationLock)
-        {
-            CancelAllAnimationsInternal();
-            areAnimationsActive = false;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
-        }
-        UpdateDeleteButtonStates();
-    }
 
-    private void CancelAllAnimationsInternal()
-    {
-        foreach (var cts in activeAnimations.Values)
-        {
-            try
-            {
-                cts.Cancel();
-                cts.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                // Token was already disposed, ignore
-            }
-        }
-        activeAnimations.Clear();
-    }
-
-    private async Task AnimateElementToPosition(int elementIndex, int position, int staggerIndex = 0)
+    private async Task AnimateElementToMarginPosition(int elementIndex, int position, int staggerIndex = 0)
     {
         if (elementIndex >= allItems.Count) return;
 
-        // Cancel existing animation for this element
-        if (activeAnimations.TryGetValue(elementIndex, out var existingCts))
+        var element = allItems[elementIndex];
+        var targetY = CalculatePositionForIndex(position);
+        var targetMargin = new Thickness(8, targetY, 8, ProfileSpacing);
+        
+        // Get current margin to ensure we're changing from a different state
+        var currentY = element.Margin.Top;
+        
+        // Skip animation if already at target position
+        if (Math.Abs(currentY - targetY) < 0.1)
         {
-            try
-            {
-                existingCts.Cancel();
-                existingCts.Dispose();
-            }
-            catch (ObjectDisposedException) { }
-            activeAnimations.Remove(elementIndex);
-        }
-
-        // Check if element is already at correct position - skip animation if so
-        var targetMargin = new Thickness(8, CalculatePositionForIndex(position), 8, 0);
-        if (allItems[elementIndex].Margin == targetMargin)
-        {
-            allItems[elementIndex].ZIndex = position;
+            element.ZIndex = position;
             return;
         }
-
-        var cts = new CancellationTokenSource();
-        activeAnimations[elementIndex] = cts;
-
-        // Temporarily disable CSS transitions for this element during programmatic animation
-        var originalTransitions = allItems[elementIndex].Transitions;
-        allItems[elementIndex].Transitions = null;
-
-        try
+        
+        // Add animation class to enable CSS transitions
+        element.Classes.Add("animate-position");
+        
+        // Apply stagger delay if needed
+        if (staggerIndex > 0)
         {
-            // Apply stagger delay only if not canceled
-            if (staggerIndex > 0 && !cts.Token.IsCancellationRequested)
-            {
-                await Task.Delay(staggerIndex * StaggerDelayMs, cts.Token);
-            }
-
-            // Double-check cancellation after delay
-            if (cts.Token.IsCancellationRequested) return;
-
-            var animation = new Animation
-            {
-                Duration = TimeSpan.FromMilliseconds(300),
-                FillMode = FillMode.Forward,
-                Easing = Easing.Parse("CubicEaseOut"),
-                Children =
-                {
-                    new KeyFrame
-                    {
-                        Cue = new Cue(0d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = OpacityProperty,
-                                Value = 1.0
-                            }
-                        }
-                    },
-                    new KeyFrame
-                    {
-                        Cue = new Cue(1d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = MarginProperty,
-                                Value = targetMargin
-                            },
-                            new Setter
-                            {
-                                Property = OpacityProperty,
-                                Value = 1.0
-                            }
-                        }
-                    }
-                }
-            };
-
-            await animation.RunAsync(allItems[elementIndex], cts.Token);
-
-            if (!cts.Token.IsCancellationRequested)
-            {
-                allItems[elementIndex].Margin = targetMargin;
-                allItems[elementIndex].ZIndex = position;
-            }
+            await Task.Delay(staggerIndex * 20); // Stagger for smooth effect
         }
-        catch (OperationCanceledException)
-        {
-            // Silently handle cancellation - this is expected behavior
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Unexpected error in animation for element {elementIndex}: {ex.Message}");
-        }
-        finally
-        {
-            // Restore CSS transitions after programmatic animation completes
-            if (elementIndex < allItems.Count)
-            {
-                allItems[elementIndex].Transitions = originalTransitions;
-            }
 
-            lock (animationLock)
-            {
-                activeAnimations.Remove(elementIndex);
-
-                // Check if this was the last animation
-                if (activeAnimations.Count == 0 && areAnimationsActive)
-                {
-                    areAnimationsActive = false;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
-                }
-            }
-            try
-            {
-                cts?.Dispose();
-            }
-            catch (ObjectDisposedException) { }
-        }
+        // Set the target margin - CSS transitions will animate the change
+        element.Margin = targetMargin;
+        element.ZIndex = position;
+        
+        Debug.WriteLine($"[ANIMATION] Element {elementIndex} animating from Y={currentY} to Y={targetY}");
     }
 
     private async Task AnimateAllElementsToPositions(int focusIndex = -1)
@@ -679,27 +545,22 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions started with focusIndex={focusIndex}");
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         
+        // Set animation state
+        areAnimationsActive = true;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
+        UpdateDeleteButtonStates();
+
         var animationTasks = new List<Task>();
 
-        // Yield before canceling animations
-        await Task.Yield();
-
-        lock (animationLock)
-        {
-            // Cancel any existing animations before starting new ones
-            CancelAllAnimationsInternal();
-        }
-
-        // Yield before starting position calculations
-        await Task.Yield();
-
-        // Animate all elements to their correct positions
-        // Element 0 (add button) goes to position 1, elements 1+ go to positions 2+
+        // Animate all elements to their correct positions using Transform
         for (int i = 0; i < allItems.Count; i++)
         {
             int targetPosition = i + 1;
-            var targetMargin = new Thickness(8, CalculatePositionForIndex(targetPosition), 8, 0);
-            if (allItems[i].Margin == targetMargin)
+            var targetY = CalculatePositionForIndex(targetPosition);
+            
+            // Check if already at target position
+            var currentY = allItems[i].Margin.Top;
+            if (Math.Abs(currentY - targetY) < 0.1)
             {
                 allItems[i].ZIndex = targetPosition;
                 continue;
@@ -709,54 +570,38 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             int staggerIndex = 0;
             if (focusIndex >= 0)
             {
-                int focusElementIndex = focusIndex + 1; // Convert profile index to element index
-                staggerIndex = (i != focusElementIndex) ? Math.Min(Math.Abs(i - focusElementIndex), 3) : 0;
+                int focusElementIndex = focusIndex + 1;
+                staggerIndex = (i != focusElementIndex) ? Math.Min(Math.Abs(i - focusElementIndex), 2) : 0;
             }
             else
             {
-                staggerIndex = i;
+                staggerIndex = Math.Min(i, 3);
             }
 
-            animationTasks.Add(AnimateElementToPosition(i, targetPosition, staggerIndex));
-            
-            // Yield every few animation tasks to prevent blocking
-            if (i % 2 == 1)
-            {
-                await Task.Yield();
-            }
+            animationTasks.Add(AnimateElementToMarginPosition(i, targetPosition, staggerIndex));
         }
 
         if (animationTasks.Count > 0)
         {
-            // Yield before setting animation state
-            await Task.Yield();
-            
-            lock (animationLock)
-            {
-                areAnimationsActive = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
-            }
-            UpdateDeleteButtonStates();
-
             try
             {
                 await Task.WhenAll(animationTasks);
+                
+                // Small delay to let CSS animations complete
+                await Task.Delay(200);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in AnimateAllProfilesToCorrectPositions: {ex.Message}");
-            }
-            finally
-            {
-                lock (animationLock)
-                {
-                    areAnimationsActive = false;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
-                }
-                UpdateDeleteButtonStates();
-                Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions completed in {stopwatch.ElapsedMilliseconds}ms");
+                Debug.WriteLine($"Error in AnimateAllElementsToPositions: {ex.Message}");
             }
         }
+
+        // Clean up animation state
+        areAnimationsActive = false;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
+        UpdateDeleteButtonStates();
+        
+        Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions completed in {stopwatch.ElapsedMilliseconds}ms");
     }
 
     private void SetSelectedProfile(BE.ProfileModel? profile)
@@ -795,16 +640,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         return selectedProfile;
     }
 
-    public bool AreAnimationsActive
-    {
-        get
-        {
-            lock (animationLock)
-            {
-                return areAnimationsActive;
-            }
-        }
-    }
 
     private void RefreshAllProfileNames()
     {
@@ -827,13 +662,13 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     public async Task ExpandElements()
     {
-        Debug.WriteLine("[PROFILE ANIMATION] ExpandElements started");
+        Debug.WriteLine($"[PROFILE ANIMATION] ExpandElements started with {allItems.Count} items");
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         
         frameTimer.StartMonitoring("ProfileListView ExpandElements");
         
-        // Yield before starting animation
-        await Task.Yield();
+        // Small delay to ensure elements are rendered before animating
+        await Task.Delay(50);
         
         await AnimateAllElementsToPositions(-1);
         
@@ -850,146 +685,52 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         
         frameTimer.StartMonitoring("ProfileListView CollapseElements");
 
-        var animationTasks = new List<Task>();
-
-        // Yield to allow other UI operations
-        await Task.Yield();
-
-        lock (animationLock)
-        {
-            CancelAllAnimationsInternal();
-            areAnimationsActive = true;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
-        }
-        
-        // Yield after state change
-        await Task.Yield();
-        
+        areAnimationsActive = true;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         UpdateDeleteButtonStates();
 
-        // Yield before starting animations
-        await Task.Yield();
+        var animationTasks = new List<Task>();
 
-        // Animate all elements to position 0 (hidden)
+        // Animate all elements to position 0 (collapsed/hidden)
         for (int i = 0; i < allItems.Count; i++)
         {
-            animationTasks.Add(CollapseElementToPosition(i, i));
-            
-            // Yield every few animation tasks to prevent blocking
-            if (i % 2 == 1)
-            {
-                await Task.Yield();
-            }
+            animationTasks.Add(CollapseElementToMarginPosition(i, i * 15)); // 15ms stagger delay
         }
 
         try
         {
             await Task.WhenAll(animationTasks);
+            await Task.Delay(200); // Wait for CSS animations to complete
         }
         finally
         {
             frameTimer.StopMonitoring("ProfileListView CollapseElements");
-            lock (animationLock)
-            {
-                areAnimationsActive = false;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
-            }
+            areAnimationsActive = false;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
             UpdateDeleteButtonStates();
             Debug.WriteLine($"[PROFILE ANIMATION] CollapseElements completed in {stopwatch.ElapsedMilliseconds}ms");
         }
     }
 
-
-    private async Task CollapseElementToPosition(int elementIndex, int staggerIndex = 0)
+    private async Task CollapseElementToMarginPosition(int elementIndex, int delayMs = 0)
     {
         if (elementIndex >= allItems.Count) return;
 
-        var cts = new CancellationTokenSource();
-        activeAnimations[elementIndex] = cts;
-
-        // Temporarily disable CSS transitions for this element during programmatic animation
-        var originalTransitions = allItems[elementIndex].Transitions;
-        allItems[elementIndex].Transitions = null;
-
-        try
+        var element = allItems[elementIndex];
+        
+        // Add animation class to enable CSS transitions
+        element.Classes.Add("animate-position");
+        
+        // Apply stagger delay if needed
+        if (delayMs > 0)
         {
-            if (staggerIndex > 0 && !cts.Token.IsCancellationRequested)
-            {
-                await Task.Delay(staggerIndex * StaggerDelayMs, cts.Token);
-            }
-
-            if (cts.Token.IsCancellationRequested) return;
-
-            var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(0), 8, 0);
-
-            var animation = new Animation
-            {
-                Duration = TimeSpan.FromMilliseconds(300),
-                FillMode = FillMode.Forward,
-                Easing = Easing.Parse("CubicEaseOut"),
-                Children =
-                {
-                    new KeyFrame
-                    {
-                        Cue = new Cue(0d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = allItems[elementIndex].Margin
-                            }
-                        }
-                    },
-                    new KeyFrame
-                    {
-                        Cue = new Cue(1d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = targetMargin
-                            }
-                        }
-                    }
-                }
-            };
-
-            await animation.RunAsync(allItems[elementIndex], cts.Token);
-
-            if (!cts.Token.IsCancellationRequested)
-            {
-                allItems[elementIndex].Margin = targetMargin;
-            }
+            await Task.Delay(delayMs);
         }
-        catch (OperationCanceledException)
-        {
-            // Silently handle cancellation - this is expected behavior
-        }
-        catch (Exception ex)
-        {
-            // Log unexpected errors without performance tags
-            Debug.WriteLine($"Error in collapse animation for item {elementIndex}: {ex.Message}");
-        }
-        finally
-        {
-            // Restore CSS transitions after programmatic animation completes
-            if (elementIndex < allItems.Count)
-            {
-                allItems[elementIndex].Transitions = originalTransitions;
-            }
 
-            lock (animationLock)
-            {
-                activeAnimations.Remove(elementIndex);
-            }
-            try
-            {
-                cts?.Dispose();
-            }
-            catch (ObjectDisposedException) { }
-        }
+        // Collapse to position 0 (at the top, hidden/stacked)
+        element.Margin = new Thickness(8, 0, 8, ProfileSpacing);
     }
+
+    public bool AreAnimationsActive => areAnimationsActive;
 
 }

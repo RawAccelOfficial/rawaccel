@@ -23,7 +23,18 @@
 				<Transitions>
 					<BrushTransition Property="Background" Duration="0:0:0.2"/>
 					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
-					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="QuadraticEaseOut"/>
+				</Transitions>
+			</Setter>
+		</Style>
+		
+		<!-- Animation-specific styles for smooth positioning -->
+		<Style Selector="Border.ProfileItem.animate-position">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<ThicknessTransition Property="Margin" Duration="0:0:0.3" Easing="CubicEaseOut"/>
 				</Transitions>
 			</Setter>
 		</Style>
@@ -79,7 +90,18 @@
 				<Transitions>
 					<BrushTransition Property="Background" Duration="0:0:0.2"/>
 					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
-					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="QuadraticEaseOut"/>
+				</Transitions>
+			</Setter>
+		</Style>
+		
+		<!-- Animation-specific styles for add button positioning -->
+		<Style Selector="Border.AddProfileButton.animate-position">
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<ThicknessTransition Property="Margin" Duration="0:0:0.3" Easing="CubicEaseOut"/>
 				</Transitions>
 			</Setter>
 		</Style>
