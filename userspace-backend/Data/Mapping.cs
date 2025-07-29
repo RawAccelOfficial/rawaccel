@@ -71,7 +71,7 @@ namespace userspace_backend.Data
     public class MappingSet
     {
         [JsonRequired]
-        public Mapping[] Mappings { get; set; }
+        public Mapping[] Mappings { get; set; } = null!;
 
         public override bool Equals(object? obj)
         {

@@ -37,9 +37,9 @@ namespace userspace_backend.Model
 
         public EditableSetting<string> Name { get; set; }
 
-        public ObservableCollection<MappingGroup> IndividualMappings { get; protected set; }
+        public ObservableCollection<MappingGroup> IndividualMappings { get; protected set; } = null!;
 
-        public ObservableCollection<DeviceGroupModel> DeviceGroupsStillUnmapped { get; protected set; }
+        public ObservableCollection<DeviceGroupModel> DeviceGroupsStillUnmapped { get; protected set; } = null!;
         
         protected IModelValueValidator<string> NameValidator { get; }
 

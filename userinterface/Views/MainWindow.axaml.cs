@@ -77,7 +77,7 @@ public partial class MainWindow : Window
         }
     }
 
-    public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
+    public void ApplyButtonHandler(object? sender, RoutedEventArgs args)
     {
         // TODO: Revert this to the original apply logic after fixing the graph initialization issue
         if (DataContext is MainWindowViewModel viewModel)
@@ -138,7 +138,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ToggleTheme(object sender, RoutedEventArgs e)
+    private void ToggleTheme(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel)
         {

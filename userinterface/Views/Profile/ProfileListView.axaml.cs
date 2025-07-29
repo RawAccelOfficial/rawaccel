@@ -34,7 +34,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private volatile bool areAnimationsActive = false;
     private readonly object animationLock = new();
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public new event PropertyChangedEventHandler? PropertyChanged;
     private readonly IModalService modalService;
     private readonly LocalizationService localizationService;
     private TextBlock addProfileTextBlock;
