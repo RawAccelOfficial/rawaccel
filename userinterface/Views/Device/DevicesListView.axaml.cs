@@ -24,9 +24,12 @@ public partial class DevicesListView : UserControl
     private readonly object animationLock = new();
     private volatile bool areAnimationsActive = false;
     
-    private const int AnimationDurationMs = 300;
-    private const double SlideUpDistance = 20.0;
-    private const double SlideLeftDistance = 100.0;
+    private const int AnimationDurationMs = 400;
+    private const int DeleteAnimationDurationMs = 180;
+    private const double SlideUpDistance = 30.0;
+    private const double SlideLeftDistance = 120.0;
+    private const int TargetFps = 120;
+    private const int FrameDelayMs = 1000 / TargetFps;
     
     public bool AreAnimationsActive => areAnimationsActive;
 
@@ -201,7 +204,7 @@ public partial class DevicesListView : UserControl
                     {
                         Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
                         FillMode = FillMode.Forward,
-                        Easing = Easing.Parse("CubicEaseOut"),
+                        Easing = new QuadraticEaseOut(),
                         Children =
                         {
                             new KeyFrame
@@ -235,7 +238,7 @@ public partial class DevicesListView : UserControl
                     {
                         Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
                         FillMode = FillMode.Forward,
-                        Easing = Easing.Parse("CubicEaseOut"),
+                        Easing = new QuadraticEaseOut(),
                         Children =
                         {
                             new KeyFrame
@@ -276,7 +279,7 @@ public partial class DevicesListView : UserControl
                     {
                         Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
                         FillMode = FillMode.Forward,
-                        Easing = Easing.Parse("CubicEaseOut"),
+                        Easing = new QuadraticEaseOut(),
                         Children =
                         {
                             new KeyFrame
@@ -319,8 +322,8 @@ public partial class DevicesListView : UserControl
                             var elapsed = DateTime.Now - startTime;
                             var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
                             
-                            // Apply easing (simplified cubic ease out)
-                            var easedProgress = 1 - Math.Pow(1 - progress, 3);
+                            // Apply smooth ease out with back effect
+                            var easedProgress = EaseOutBack(progress);
                             var currentY = startY + (endY - startY) * easedProgress;
                             
                             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -331,7 +334,7 @@ public partial class DevicesListView : UserControl
                                 }
                             });
                             
-                            await Task.Delay(16); // ~60fps
+                            await Task.Delay(FrameDelayMs); // 120fps
                         }
                         
                         // Ensure final position
@@ -428,9 +431,9 @@ public partial class DevicesListView : UserControl
 
                     var opacityAnimation = new Animation
                     {
-                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        Duration = TimeSpan.FromMilliseconds(DeleteAnimationDurationMs),
                         FillMode = FillMode.Forward,
-                        Easing = Easing.Parse("CubicEaseOut"),
+                        Easing = new QuadraticEaseIn(),
                         Children =
                         {
                             new KeyFrame
@@ -462,9 +465,9 @@ public partial class DevicesListView : UserControl
 
                     var translateAnimation = new Animation
                     {
-                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        Duration = TimeSpan.FromMilliseconds(DeleteAnimationDurationMs),
                         FillMode = FillMode.Forward,
-                        Easing = Easing.Parse("CubicEaseOut"),
+                        Easing = new QuadraticEaseIn(),
                         Children =
                         {
                             new KeyFrame
@@ -503,7 +506,7 @@ public partial class DevicesListView : UserControl
                     var startX = 0.0;
                     var endX = -SlideLeftDistance;
                     var startTime = DateTime.Now;
-                    var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+                    var duration = TimeSpan.FromMilliseconds(DeleteAnimationDurationMs);
                     
                     var transformTask = Task.Run(async () =>
                     {
@@ -512,8 +515,8 @@ public partial class DevicesListView : UserControl
                             var elapsed = DateTime.Now - startTime;
                             var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
                             
-                            // Apply easing (simplified cubic ease out)
-                            var easedProgress = 1 - Math.Pow(1 - progress, 3);
+                            // Accelerating easing for fast deletion that speeds up
+                            var easedProgress = EaseInQuad(progress);
                             var currentX = startX + (endX - startX) * easedProgress;
                             
                             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -524,7 +527,7 @@ public partial class DevicesListView : UserControl
                                 }
                             });
                             
-                            await Task.Delay(16); // ~60fps
+                            await Task.Delay(FrameDelayMs); // 120fps
                         }
                         
                         // Ensure final position
@@ -570,5 +573,22 @@ public partial class DevicesListView : UserControl
             
             operationSemaphore.Release();
         }
+    }
+    
+    private static double EaseOutBack(double t)
+    {
+        const double c1 = 1.70158;
+        const double c3 = c1 + 1;
+        return 1 + c3 * Math.Pow(t - 1, 3) + c1 * Math.Pow(t - 1, 2);
+    }
+    
+    private static double EaseInQuad(double t)
+    {
+        return t * t;
+    }
+    
+    private static double EaseOutQuint(double t)
+    {
+        return 1 - Math.Pow(1 - t, 5);
     }
 }
