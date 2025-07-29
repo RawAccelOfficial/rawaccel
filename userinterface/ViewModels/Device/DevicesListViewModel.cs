@@ -27,8 +27,41 @@ namespace userinterface.ViewModels.Device
 
         public ICommand AddDeviceCommand { get; }
 
-        private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
-            UpdateDeviceViews();
+        private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    if (e.NewItems != null)
+                    {
+                        foreach (BE.DeviceModel device in e.NewItems)
+                        {
+                            int index = DevicesBE.Devices.IndexOf(device);
+                            bool isDefault = index == 0;
+                            var deviceViewModel = new DeviceViewModel(device, DevicesBE, isDefault);
+                            DeviceViews.Insert(index, deviceViewModel);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null && e.OldStartingIndex >= 0)
+                    {
+                        for (int i = 0; i < e.OldItems.Count; i++)
+                        {
+                            DeviceViews.RemoveAt(e.OldStartingIndex);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Replace:
+                case NotifyCollectionChangedAction.Move:
+                default:
+                    UpdateDeviceViews();
+                    break;
+            }
+        }
 
         public void UpdateDeviceViews()
         {

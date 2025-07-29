@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
@@ -453,7 +454,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    private async void OnDeleteButtonClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private async void OnDeleteButtonClicked(object sender, RoutedEventArgs e)
     {
         // Prevent deletion during animations to avoid bugs
         if (areAnimationsActive)
@@ -603,7 +604,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                         {
                             new Setter
                             {
-                                Property = Avalonia.Controls.Border.OpacityProperty,
+                                Property = OpacityProperty,
                                 Value = 1.0
                             }
                         }
@@ -615,12 +616,12 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                         {
                             new Setter
                             {
-                                Property = Avalonia.Layout.Layoutable.MarginProperty,
+                                Property = MarginProperty,
                                 Value = targetMargin
                             },
                             new Setter
                             {
-                                Property = Avalonia.Controls.Border.OpacityProperty,
+                                Property = OpacityProperty,
                                 Value = 1.0
                             }
                         }
@@ -737,7 +738,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    private void SetSelectedProfile(BE.ProfileModel profile)
+    private void SetSelectedProfile(BE.ProfileModel? profile)
     {
         if (selectedProfile == profile) return;
 
