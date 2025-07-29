@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading;
@@ -23,9 +24,12 @@ public partial class DevicesListView : UserControl
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private readonly object animationLock = new();
     private volatile bool areAnimationsActive = false;
+    private volatile bool isCustomDeleteInProgress = false;
     
     private const int AnimationDurationMs = 400;
     private const int DeleteAnimationDurationMs = 180;
+    private const int HideOthersAnimationDurationMs = 100;
+    private const int StaggerDelayMs = 50;
     private const double SlideUpDistance = 30.0;
     private const double SlideLeftDistance = 120.0;
     private const int TargetFps = 120;
@@ -45,15 +49,30 @@ public partial class DevicesListView : UserControl
         var container = DevicesListInView.ContainerFromIndex(index) as Control;
         if (container != null)
         {
-            // First animate the container out
-            await AnimateDeviceOut(container, index);
+            // Set flag to prevent normal collection change animations
+            isCustomDeleteInProgress = true;
             
-            // After animation completes, remove from the backend collection
-            // This will trigger the CollectionChanged event but we'll ignore it since animation is done
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            try
             {
-                deviceViewModel.DeleteSelf();
-            });
+                // First, hide all other items
+                await HideAllOtherDevices(index);
+                
+                // Then animate the target container out
+                await AnimateDeviceOut(container, index);
+                
+                // After animation completes, remove from the backend collection
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    deviceViewModel.DeleteSelf();
+                });
+                
+                // Finally, show all remaining devices with stagger
+                await AnimateAllDevicesIn();
+            }
+            finally
+            {
+                isCustomDeleteInProgress = false;
+            }
         }
         else
         {
@@ -120,7 +139,7 @@ public partial class DevicesListView : UserControl
 
     private async void OnDevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        Debug.WriteLine($"[DevicesListView] Collection changed: {e.Action}");
+        Debug.WriteLine($"[DevicesListView] Collection changed: {e.Action}, isCustomDeleteInProgress: {isCustomDeleteInProgress}");
 
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null && e.NewItems.Count > 0)
         {
@@ -142,7 +161,14 @@ public partial class DevicesListView : UserControl
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null && e.OldStartingIndex >= 0)
         {
-            Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex} - animation already handled by delete button");
+            if (isCustomDeleteInProgress)
+            {
+                Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex} - part of custom delete sequence, ignoring");
+            }
+            else
+            {
+                Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex} - animation already handled by delete button");
+            }
             
             if (viewModel != null)
             {
@@ -573,6 +599,219 @@ public partial class DevicesListView : UserControl
             
             operationSemaphore.Release();
         }
+    }
+    
+    private async Task HideAllOtherDevices(int excludeIndex)
+    {
+        if (viewModel == null) return;
+        
+        Debug.WriteLine($"[DevicesListView] Hiding all devices except index {excludeIndex}");
+        
+        var hideTasks = new List<Task>();
+        
+        for (int i = 0; i < viewModel.DeviceViews.Count; i++)
+        {
+            if (i == excludeIndex) continue; // Skip the item being deleted
+            
+            var container = DevicesListInView.ContainerFromIndex(i) as Control;
+            if (container != null)
+            {
+                hideTasks.Add(HideDevice(container, i));
+            }
+        }
+        
+        await Task.WhenAll(hideTasks);
+        Debug.WriteLine($"[DevicesListView] All other devices hidden");
+    }
+    
+    private async Task HideDevice(Control container, int index)
+    {
+        await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            Debug.WriteLine($"[DevicesListView] Hiding device at index {index}");
+            
+            var originalTransitions = container.Transitions;
+            container.Transitions = null;
+            
+            try
+            {
+                var hideAnimation = new Animation
+                {
+                    Duration = TimeSpan.FromMilliseconds(HideOthersAnimationDurationMs),
+                    FillMode = FillMode.Forward,
+                    Easing = new LinearEasing(),
+                    Children =
+                    {
+                        new KeyFrame
+                        {
+                            Cue = new Cue(0d),
+                            Setters =
+                            {
+                                new Setter
+                                {
+                                    Property = OpacityProperty,
+                                    Value = container.Opacity
+                                }
+                            }
+                        },
+                        new KeyFrame
+                        {
+                            Cue = new Cue(1d),
+                            Setters =
+                            {
+                                new Setter
+                                {
+                                    Property = OpacityProperty,
+                                    Value = 0.0
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                await hideAnimation.RunAsync(container);
+                Debug.WriteLine($"[DevicesListView] Device at index {index} hidden");
+            }
+            finally
+            {
+                container.Transitions = originalTransitions;
+            }
+        });
+    }
+    
+    private async Task AnimateAllDevicesIn()
+    {
+        if (viewModel == null) return;
+        
+        Debug.WriteLine($"[DevicesListView] Starting staggered fade-in for {viewModel.DeviceViews.Count} devices");
+        
+        var showTasks = new List<Task>();
+        
+        for (int i = 0; i < viewModel.DeviceViews.Count; i++)
+        {
+            var container = DevicesListInView.ContainerFromIndex(i) as Control;
+            if (container != null)
+            {
+                int delay = i * StaggerDelayMs;
+                showTasks.Add(ShowDeviceWithDelay(container, i, delay));
+            }
+        }
+        
+        await Task.WhenAll(showTasks);
+        Debug.WriteLine($"[DevicesListView] All devices shown with stagger");
+    }
+    
+    private async Task ShowDeviceWithDelay(Control container, int index, int delayMs)
+    {
+        await Task.Delay(delayMs);
+        await ShowDevice(container, index);
+    }
+    
+    private async Task ShowDevice(Control container, int index)
+    {
+        await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            Debug.WriteLine($"[DevicesListView] Showing device at index {index}");
+            
+            var originalTransitions = container.Transitions;
+            container.Transitions = null;
+            
+            try
+            {
+                // Ensure we have a TranslateTransform for the slide effect
+                var transform = container.RenderTransform as TranslateTransform;
+                if (transform == null)
+                {
+                    transform = new TranslateTransform(0, SlideUpDistance);
+                    container.RenderTransform = transform;
+                }
+                else
+                {
+                    transform.Y = SlideUpDistance;
+                }
+                
+                container.Opacity = 0;
+                
+                var showAnimation = new Animation
+                {
+                    Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                    FillMode = FillMode.Forward,
+                    Easing = new QuadraticEaseOut(),
+                    Children =
+                    {
+                        new KeyFrame
+                        {
+                            Cue = new Cue(0d),
+                            Setters =
+                            {
+                                new Setter
+                                {
+                                    Property = OpacityProperty,
+                                    Value = 0.0
+                                }
+                            }
+                        },
+                        new KeyFrame
+                        {
+                            Cue = new Cue(1d),
+                            Setters =
+                            {
+                                new Setter
+                                {
+                                    Property = OpacityProperty,
+                                    Value = 1.0
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                // Manual Y transform animation with EaseOutBack
+                var startY = SlideUpDistance;
+                var endY = 0.0;
+                var startTime = DateTime.Now;
+                var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+                
+                var opacityTask = showAnimation.RunAsync(container);
+                var transformTask = Task.Run(async () =>
+                {
+                    while (DateTime.Now - startTime < duration)
+                    {
+                        var elapsed = DateTime.Now - startTime;
+                        var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+                        
+                        var easedProgress = EaseOutBack(progress);
+                        var currentY = startY + (endY - startY) * easedProgress;
+                        
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            if (container.RenderTransform is TranslateTransform t)
+                            {
+                                t.Y = currentY;
+                            }
+                        });
+                        
+                        await Task.Delay(FrameDelayMs);
+                    }
+                    
+                    // Ensure final position
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (container.RenderTransform is TranslateTransform t)
+                        {
+                            t.Y = endY;
+                        }
+                    });
+                });
+                
+                await Task.WhenAll(opacityTask, transformTask);
+                Debug.WriteLine($"[DevicesListView] Device at index {index} shown");
+            }
+            finally
+            {
+                container.Transitions = originalTransitions;
+            }
+        });
     }
     
     private static double EaseOutBack(double t)
