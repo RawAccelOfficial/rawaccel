@@ -19,7 +19,7 @@ namespace userspace_backend.Model
             InitMappings(dataObject);
         }
 
-        public ObservableCollection<MappingModel> Mappings { get; protected set; }
+        public ObservableCollection<MappingModel> Mappings { get; protected set; } = null!;
 
         protected DeviceGroups DeviceGroups { get; }
 

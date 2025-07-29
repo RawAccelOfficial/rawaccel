@@ -24,7 +24,7 @@ namespace userspace_backend
 
         public DevicesModel Devices { get; set; }
 
-        public MappingsModel Mappings { get; set; }
+        public MappingsModel Mappings { get; set; } = null!;
 
         public ProfilesModel Profiles { get; set; }
 
@@ -68,7 +68,7 @@ namespace userspace_backend
             {
                 // WriteToDriver();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return;
             }
@@ -94,7 +94,7 @@ namespace userspace_backend
             {
                 config.Activate();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log this once logging is added
             }
