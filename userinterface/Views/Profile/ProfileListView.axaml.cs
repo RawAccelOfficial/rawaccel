@@ -38,6 +38,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     public new event PropertyChangedEventHandler? PropertyChanged;
     private readonly IModalService modalService;
     private readonly LocalizationService localizationService;
+    private readonly FrameTimerService frameTimer;
     private TextBlock addProfileTextBlock;
 
     private const double ProfileHeight = 38.0;
@@ -53,6 +54,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
         modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
         localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        frameTimer = App.Services?.GetRequiredService<FrameTimerService>() ?? throw new InvalidOperationException("FrameTimerService not available");
         localizationService.PropertyChanged += OnLocalizationPropertyChanged;
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
 
@@ -674,13 +676,22 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private async Task AnimateAllElementsToPositions(int focusIndex = -1)
     {
+        Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions started with focusIndex={focusIndex}");
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
         var animationTasks = new List<Task>();
+
+        // Yield before canceling animations
+        await Task.Yield();
 
         lock (animationLock)
         {
             // Cancel any existing animations before starting new ones
             CancelAllAnimationsInternal();
         }
+
+        // Yield before starting position calculations
+        await Task.Yield();
 
         // Animate all elements to their correct positions
         // Element 0 (add button) goes to position 1, elements 1+ go to positions 2+
@@ -707,10 +718,19 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             }
 
             animationTasks.Add(AnimateElementToPosition(i, targetPosition, staggerIndex));
+            
+            // Yield every few animation tasks to prevent blocking
+            if (i % 2 == 1)
+            {
+                await Task.Yield();
+            }
         }
 
         if (animationTasks.Count > 0)
         {
+            // Yield before setting animation state
+            await Task.Yield();
+            
             lock (animationLock)
             {
                 areAnimationsActive = true;
@@ -734,6 +754,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
                 }
                 UpdateDeleteButtonStates();
+                Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions completed in {stopwatch.ElapsedMilliseconds}ms");
             }
         }
     }
@@ -806,14 +827,33 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     public async Task ExpandElements()
     {
+        Debug.WriteLine("[PROFILE ANIMATION] ExpandElements started");
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        frameTimer.StartMonitoring("ProfileListView ExpandElements");
+        
+        // Yield before starting animation
+        await Task.Yield();
+        
         await AnimateAllElementsToPositions(-1);
+        
+        frameTimer.StopMonitoring("ProfileListView ExpandElements");
+        Debug.WriteLine($"[PROFILE ANIMATION] ExpandElements completed in {stopwatch.ElapsedMilliseconds}ms");
     }
 
     public async Task CollapseElements()
     {
         if (allItems.Count == 0) return;
 
+        Debug.WriteLine("[PROFILE ANIMATION] CollapseElements started");
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        frameTimer.StartMonitoring("ProfileListView CollapseElements");
+
         var animationTasks = new List<Task>();
+
+        // Yield to allow other UI operations
+        await Task.Yield();
 
         lock (animationLock)
         {
@@ -821,12 +861,25 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             areAnimationsActive = true;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         }
+        
+        // Yield after state change
+        await Task.Yield();
+        
         UpdateDeleteButtonStates();
+
+        // Yield before starting animations
+        await Task.Yield();
 
         // Animate all elements to position 0 (hidden)
         for (int i = 0; i < allItems.Count; i++)
         {
             animationTasks.Add(CollapseElementToPosition(i, i));
+            
+            // Yield every few animation tasks to prevent blocking
+            if (i % 2 == 1)
+            {
+                await Task.Yield();
+            }
         }
 
         try
@@ -835,12 +888,14 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
         finally
         {
+            frameTimer.StopMonitoring("ProfileListView CollapseElements");
             lock (animationLock)
             {
                 areAnimationsActive = false;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
             }
             UpdateDeleteButtonStates();
+            Debug.WriteLine($"[PROFILE ANIMATION] CollapseElements completed in {stopwatch.ElapsedMilliseconds}ms");
         }
     }
 

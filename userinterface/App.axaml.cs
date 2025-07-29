@@ -43,6 +43,7 @@ public partial class App : Application
             new ThemeService(provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<LocalizationService>();
+        services.AddSingleton<FrameTimerService>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
@@ -105,7 +106,8 @@ public partial class App : Application
             new MainWindowViewModel(
                 provider.GetRequiredService<BackEnd>(),
                 provider.GetRequiredService<IThemeService>(),
-                provider.GetRequiredService<ISettingsService>()));
+                provider.GetRequiredService<ISettingsService>(),
+                provider.GetRequiredService<FrameTimerService>()));
         services.AddSingleton<ToastViewModel>();
 
         // Device ViewModels

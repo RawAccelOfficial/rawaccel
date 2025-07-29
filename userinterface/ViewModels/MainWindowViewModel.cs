@@ -4,6 +4,7 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -37,20 +38,40 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly BE.BackEnd backEnd;
     private readonly IThemeService themeService;
     private readonly ISettingsService settingsService;
+    private readonly FrameTimerService frameTimer;
 
-    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService, ISettingsService settingsService)
+    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService, ISettingsService settingsService, FrameTimerService frameTimer)
     {
         this.backEnd = backEnd ?? throw new ArgumentNullException(nameof(backEnd));
         this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
         this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+        this.frameTimer = frameTimer ?? throw new ArgumentNullException(nameof(frameTimer));
 
         // Pre-create all ViewModels to avoid lazy loading delays
+        var stopwatch = Stopwatch.StartNew();
+        
         devicesPage = App.Services!.GetRequiredService<DevicesPageViewModel>();
+        Debug.WriteLine($"DevicesPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
+        
+        stopwatch.Restart();
         profilesPage = App.Services!.GetRequiredService<ProfilesPageViewModel>();
+        Debug.WriteLine($"ProfilesPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
+        
+        stopwatch.Restart();
         mappingsPage = App.Services!.GetRequiredService<MappingsPageViewModel>();
+        Debug.WriteLine($"MappingsPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
+        
+        stopwatch.Restart();
         settingsPage = App.Services!.GetRequiredService<SettingsPageViewModel>();
+        Debug.WriteLine($"SettingsPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
+        
+        stopwatch.Restart();
         profileListView = App.Services!.GetRequiredService<ProfileListViewModel>();
+        Debug.WriteLine($"ProfileListViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
+        
+        stopwatch.Restart();
         toastViewModel = App.Services!.GetRequiredService<ToastViewModel>();
+        Debug.WriteLine($"ToastViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
@@ -84,9 +105,17 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             if (selectedPageValue != value)
             {
+                var stopwatch = Stopwatch.StartNew();
                 selectedPageValue = value;
+                Debug.WriteLine($"SelectedPage value set: {stopwatch.ElapsedMilliseconds}ms");
+                
+                stopwatch.Restart();
                 OnPropertyChanged();
+                Debug.WriteLine($"SelectedPage PropertyChanged: {stopwatch.ElapsedMilliseconds}ms");
+                
+                stopwatch.Restart();
                 OnPropertyChanged(nameof(CurrentPageContent));
+                Debug.WriteLine($"CurrentPageContent PropertyChanged: {stopwatch.ElapsedMilliseconds}ms");
             }
         }
     }
@@ -125,8 +154,28 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void SelectPage(NavigationPage page)
     {
+        var stopwatch = Stopwatch.StartNew();
+        Debug.WriteLine($"SelectPage called for {page}");
+        
+        // Start frame timing to detect UI thread blocking
+        frameTimer.StartMonitoring($"Page switch to {page}");
+        frameTimer.StartRenderMonitoring($"Page switch to {page} rendering");
+        
         SelectedPage = page;
+        Debug.WriteLine($"SelectedPage set: {stopwatch.ElapsedMilliseconds}ms");
+        
+        stopwatch.Restart();
         IsProfilesExpanded = page == NavigationPage.Profiles;
+        Debug.WriteLine($"IsProfilesExpanded set: {stopwatch.ElapsedMilliseconds}ms");
+        
+        Debug.WriteLine($"Total SelectPage time: {stopwatch.ElapsedMilliseconds}ms");
+        
+        // Stop frame timing after a longer delay to capture the full animation cycle
+        _ = Task.Delay(500).ContinueWith(_ => 
+        {
+            frameTimer.StopRenderMonitoring($"Page switch to {page} rendering completed");
+            frameTimer.StopMonitoring($"Page switch to {page} completed");
+        });
     }
 
     public async Task SelectPageAsync(NavigationPage page)

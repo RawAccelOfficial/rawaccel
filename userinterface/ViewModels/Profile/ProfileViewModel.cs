@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using userinterface.Services;
 using BE = userspace_backend.Model;
 
@@ -24,9 +25,21 @@ namespace userinterface.ViewModels.Profile
 
         public void Initialize(BE.ProfileModel profileModel)
         {
+            var stopwatch = Stopwatch.StartNew();
+            Debug.WriteLine($"ProfileViewModel.Initialize started for '{profileModel.Name.CurrentValidatedValue}'");
+            
             ProfileModelBE = profileModel;
+            Debug.WriteLine($"ProfileModelBE set: {stopwatch.ElapsedMilliseconds}ms");
+            
+            stopwatch.Restart();
             Settings = viewModelFactory.CreateProfileSettingsViewModel(profileModel);
+            Debug.WriteLine($"Settings created: {stopwatch.ElapsedMilliseconds}ms");
+            
+            stopwatch.Restart();
             Chart = viewModelFactory.CreateProfileChartViewModel(profileModel);
+            Debug.WriteLine($"Chart created: {stopwatch.ElapsedMilliseconds}ms");
+            
+            Debug.WriteLine($"ProfileViewModel.Initialize completed for '{profileModel.Name.CurrentValidatedValue}': {stopwatch.ElapsedMilliseconds}ms total");
         }
     }
 }
