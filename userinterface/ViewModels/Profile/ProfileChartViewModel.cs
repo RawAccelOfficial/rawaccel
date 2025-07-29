@@ -168,13 +168,13 @@ namespace userinterface.ViewModels.Profile
 
         public ObservableCollection<ISeries> Series { get; set; } = new ObservableCollection<ISeries>();
 
-        public Axis[] XAxes { get; set; }
+        public Axis[] XAxes { get; set; } = Array.Empty<Axis>();
 
-        public Axis[] YAxes { get; set; }
+        public Axis[] YAxes { get; set; } = Array.Empty<Axis>();
 
-        public SolidColorPaint TooltipTextPaint { get; set; }
+        public SolidColorPaint TooltipTextPaint { get; set; } = new SolidColorPaint(SKColors.Black);
 
-        public SolidColorPaint TooltipBackgroundPaint { get; set; }
+        public SolidColorPaint TooltipBackgroundPaint { get; set; } = new SolidColorPaint(SKColors.White);
 
         public ICommand RecreateAxesCommand { get; }
 
@@ -247,7 +247,7 @@ namespace userinterface.ViewModels.Profile
         // CHART DATA MANAGEMENT
         // ================================================================================================
 
-        private ISeries[] CreateSeriesAsync()
+        private ISeries[] CreateSeriesData()
         {
             // Pre-calculate and cache data points
             var xPoints = XCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
@@ -294,7 +294,7 @@ namespace userinterface.ViewModels.Profile
 
         private void CreateSeries()
         {
-            var series = CreateSeriesAsync();
+            var series = CreateSeriesData();
             Series.Clear();
             foreach (var s in series)
             {

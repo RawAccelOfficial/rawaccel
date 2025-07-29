@@ -143,7 +143,7 @@ public partial class DevicesListView : UserControl
         }
     }
 
-    private async void OnDevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void OnDevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null && e.NewItems.Count > 0)
         {
