@@ -27,6 +27,7 @@ public partial class DevicesListView : UserControl
     private volatile bool isCustomDeleteInProgress = false;
     
     private const int AnimationDurationMs = 400;
+    private const int InitialLoadAnimationDurationMs = 200;
     private const int DeleteAnimationDurationMs = 180;
     private const int HideOthersAnimationDurationMs = 100;
     private const int StaggerDelayMs = 50;
@@ -228,7 +229,7 @@ public partial class DevicesListView : UserControl
 
                     var opacityAnimation = new Animation
                     {
-                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        Duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs),
                         FillMode = FillMode.Forward,
                         Easing = new QuadraticEaseOut(),
                         Children =
@@ -262,7 +263,7 @@ public partial class DevicesListView : UserControl
 
                     var translateAnimation = new Animation
                     {
-                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        Duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs),
                         FillMode = FillMode.Forward,
                         Easing = new QuadraticEaseOut(),
                         Children =
@@ -303,7 +304,7 @@ public partial class DevicesListView : UserControl
                     // by creating a composite animation that targets the transform through the container
                     var compositeAnimation = new Animation
                     {
-                        Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
+                        Duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs),
                         FillMode = FillMode.Forward,
                         Easing = new QuadraticEaseOut(),
                         Children =
@@ -339,7 +340,7 @@ public partial class DevicesListView : UserControl
                     var startY = SlideUpDistance;
                     var endY = 0.0;
                     var startTime = DateTime.Now;
-                    var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+                    var duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs);
                     
                     var transformTask = Task.Run(async () =>
                     {
