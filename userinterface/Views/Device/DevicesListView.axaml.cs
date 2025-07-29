@@ -19,6 +19,7 @@ public partial class DevicesListView : UserControl
 {
     private DevicesListViewModel? viewModel;
     private int lastKnownItemCount = 0;
+    private bool isInitialLoad = true;
     
     private readonly ConcurrentDictionary<int, CancellationTokenSource> activeAnimations = new();
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
@@ -105,6 +106,16 @@ public partial class DevicesListView : UserControl
             Debug.WriteLine($"[DevicesListView] Subscribing to DeviceViews.CollectionChanged. Current count: {vm.DeviceViews.Count}");
             vm.DeviceViews.CollectionChanged += OnDevicesCollectionChanged;
             vm.SetView(this);
+            
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(vm.DeviceViews.Count * StaggerDelayMs + AnimationDurationMs);
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    isInitialLoad = false;
+                    Debug.WriteLine($"[DevicesListView] Initial load complete, isInitialLoad set to false");
+                });
+            });
         }
     }
 
@@ -112,11 +123,25 @@ public partial class DevicesListView : UserControl
     {
         if (e.Container is Control container && viewModel != null)
         {
-            bool isNewItem = e.Index >= lastKnownItemCount;
+            bool isNewItem = e.Index >= lastKnownItemCount && !isInitialLoad;
             
-            Debug.WriteLine($"[DevicesListView] Container prepared at index {e.Index}, lastKnownItemCount: {lastKnownItemCount}, isNewItem: {isNewItem}");
+            Debug.WriteLine($"[DevicesListView] Container prepared at index {e.Index}, lastKnownItemCount: {lastKnownItemCount}, isNewItem: {isNewItem}, isInitialLoad: {isInitialLoad}");
             
-            if (isNewItem)
+            if (isInitialLoad)
+            {
+                Debug.WriteLine($"[DevicesListView] Initial load container prepared at index {e.Index}, setting up for staggered animation");
+                
+                container.Opacity = 0;
+                container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
+                
+                _ = Task.Run(async () =>
+                {
+                    int delay = e.Index * StaggerDelayMs;
+                    await Task.Delay(delay);
+                    await ShowDevice(container, e.Index);
+                });
+            }
+            else if (isNewItem)
             {
                 Debug.WriteLine($"[DevicesListView] New container prepared at index {e.Index}, setting up for slide-up animation");
                 
