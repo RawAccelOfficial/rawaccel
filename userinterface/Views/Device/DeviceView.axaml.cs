@@ -1,7 +1,8 @@
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using userinterface.ViewModels.Device;
 
 namespace userinterface.Views.Device;
 
@@ -12,15 +13,29 @@ public partial class DeviceView : UserControl
         InitializeComponent();
     }
 
-    private async void OnDeleteButtonClick(object? sender, RoutedEventArgs e)
+    private void OnDeleteButtonClick(object? sender, RoutedEventArgs e)
     {
         Debug.WriteLine("[DeviceView] OnDeleteButtonClick called");
         
-        // Let the command execute first, then handle propagation
-        // The Command binding will execute automatically, we just need to prevent bubbling
-        
-        // Delay slightly to ensure command executes, then stop propagation
-        await Task.Delay(1);
+        // Stop the event from propagating first
         e.Handled = true;
+        
+        // Manually execute the delete command
+        if (DataContext is DeviceViewModel deviceViewModel)
+        {
+            Debug.WriteLine("[DeviceView] Executing DeleteCommand manually");
+            if (deviceViewModel.DeleteCommand.CanExecute(null))
+            {
+                deviceViewModel.DeleteCommand.Execute(null);
+            }
+            else
+            {
+                Debug.WriteLine("[DeviceView] DeleteCommand cannot execute");
+            }
+        }
+        else
+        {
+            Debug.WriteLine("[DeviceView] DataContext is not DeviceViewModel");
+        }
     }
 }

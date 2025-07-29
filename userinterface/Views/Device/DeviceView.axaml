@@ -101,7 +101,6 @@
 
 				<Button Grid.Column="4"
                         Classes="DeleteButton"
-                        Command="{Binding DeleteCommand}"
                         Margin="8,0,0,0"
                         IsEnabled="{Binding !IsDefaultDevice}"
                         Click="OnDeleteButtonClick">
