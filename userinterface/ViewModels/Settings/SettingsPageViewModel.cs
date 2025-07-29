@@ -17,18 +17,12 @@ public class SettingsPageViewModel : ViewModelBase
         GeneralSettingsViewModel.PropertyChanged += OnGeneralSettingsChanged;
     }
 
-    private ISettingsService SettingsService =>
-        App.Services!.GetRequiredService<ISettingsService>();
-
-    private LocalizationService LocalizationService =>
-        App.Services!.GetRequiredService<LocalizationService>();
-
     public GeneralSettingsViewModel GeneralSettingsViewModel { get; }
 
     public SupportViewModel SupportViewModel { get; }
 
     private void OnGeneralSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        // Language change notification is now handled in ChangeLanguage method
+        // Language change notification is now handled in ChangeLanguage method (leave this here for future usage)
     }
 }
