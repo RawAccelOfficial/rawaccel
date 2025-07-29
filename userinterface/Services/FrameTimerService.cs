@@ -1,23 +1,28 @@
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using System;
 using System.Diagnostics;
 
 namespace userinterface.Services
 {
+    // Service for monitoring UI thread blocking during performance-critical operations.
+    // Usage:
+    // - Call StartMonitoring("context") before performance-critical operations  
+    // - Call StopMonitoring("context") after completion
+    // - Use MonitorOperation("name", action) for automatic monitoring
+    // 
+    // To re-enable debug logging, uncomment Debug.WriteLine calls and add using System.Diagnostics;
     public class FrameTimerService
     {
         private readonly Stopwatch frameStopwatch = new();
         private readonly DispatcherTimer frameTimer;
-        private const double THRESHOLD_MS = 8.33; // Target 120fps, flag anything over ~8.5ms
+        private const double THRESHOLD_MS = 8.33;
         private bool isMonitoring = false;
 
         public FrameTimerService()
         {
             frameTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromTicks(83333) // ~8.33ms (120fps) for high refresh rate detection
+                Interval = TimeSpan.FromTicks(83333)
             };
             frameTimer.Tick += OnFrameTick;
         }
@@ -29,7 +34,7 @@ namespace userinterface.Services
             isMonitoring = true;
             frameStopwatch.Restart();
             frameTimer.Start();
-            Debug.WriteLine($"[FRAME TIMER] Started monitoring: {context}");
+            // Debug.WriteLine($"[FRAME TIMER] Started monitoring: {context}");
         }
 
         public void StopMonitoring(string context = "")
@@ -38,7 +43,7 @@ namespace userinterface.Services
             
             frameTimer.Stop();
             isMonitoring = false;
-            Debug.WriteLine($"[FRAME TIMER] Stopped monitoring: {context}");
+            // Debug.WriteLine($"[FRAME TIMER] Stopped monitoring: {context}");
         }
 
 
@@ -49,18 +54,18 @@ namespace userinterface.Services
             var elapsed = frameStopwatch.ElapsedMilliseconds;
             if (elapsed >= THRESHOLD_MS)
             {
-                Debug.WriteLine($"[FRAME TIMER] ⚠️ UI Thread blocked for {elapsed}ms - potential frame drop!");
+                // Debug.WriteLine($"[FRAME TIMER] ⚠️ UI Thread blocked for {elapsed}ms - potential frame drop!");
             }
             
             frameStopwatch.Restart();
         }
 
 
-        // Add a method to detect blocking during specific operations
+        // Monitors operation execution time and detects UI thread blocking
         public void MonitorOperation(string operationName, Action operation)
         {
             var stopwatch = Stopwatch.StartNew();
-            Debug.WriteLine($"[OPERATION MONITOR] Starting: {operationName}");
+            // Debug.WriteLine($"[OPERATION MONITOR] Starting: {operationName}");
             
             StartMonitoring($"Operation: {operationName}");
             
@@ -72,7 +77,7 @@ namespace userinterface.Services
             {
                 stopwatch.Stop();
                 StopMonitoring($"Operation: {operationName}");
-                Debug.WriteLine($"[OPERATION MONITOR] Completed: {operationName} in {stopwatch.ElapsedMilliseconds}ms");
+                // Debug.WriteLine($"[OPERATION MONITOR] Completed: {operationName} in {stopwatch.ElapsedMilliseconds}ms");
             }
         }
     }

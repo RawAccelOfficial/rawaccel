@@ -77,15 +77,10 @@ public partial class MainWindow : Window
         }
     }
 
-    public void ApplyButtonHandler(object? sender, RoutedEventArgs args)
+    public async void ApplyButtonHandler(object? sender, RoutedEventArgs args)
     {
-        // TODO: Revert this to the original apply logic after fixing the graph initialization issue
         if (DataContext is MainWindowViewModel viewModel)
         {
-            // Test animation instead of applying settings
-            viewModel.IsProfilesExpanded = !viewModel.IsProfilesExpanded;
-
-            /* Original apply logic commented out for animation testing
             if (ApplyButtonControl != null)
             {
                 ApplyButtonControl.IsEnabled = false;
@@ -113,7 +108,6 @@ public partial class MainWindow : Window
             {
                 ApplyButtonControl.IsEnabled = true;
             }
-            */
         }
     }
 

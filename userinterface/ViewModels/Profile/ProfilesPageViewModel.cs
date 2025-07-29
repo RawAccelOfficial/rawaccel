@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using userinterface.Interfaces;
@@ -28,28 +27,15 @@ namespace userinterface.ViewModels.Profile
             ProfileListViewModel profileListView,
             IViewModelFactory viewModelFactory)
         {
-            var stopwatch = Stopwatch.StartNew();
-            Debug.WriteLine("ProfilesPageViewModel constructor started");
-            
             this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
             this.profilesModel = backEnd?.Profiles ?? throw new ArgumentNullException(nameof(backEnd));
             this.profileListView = profileListView ?? throw new ArgumentNullException(nameof(profileListView));
             this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
-            Debug.WriteLine($"Dependencies set: {stopwatch.ElapsedMilliseconds}ms");
 
-            stopwatch.Restart();
             ProfileViewModels = [];
             UpdateProfileViewModels();
-            Debug.WriteLine($"UpdateProfileViewModels: {stopwatch.ElapsedMilliseconds}ms");
-
-            stopwatch.Restart();
-            profileListView.SelectedProfileChanged += OnProfileSelectionChanged;
-            Debug.WriteLine($"Event subscription: {stopwatch.ElapsedMilliseconds}ms");
-
-            // Don't select any profile by default to avoid auto-navigation on startup
-            // UpdateSelectedProfileView(null);
             
-            Debug.WriteLine($"ProfilesPageViewModel constructor completed in total: {stopwatch.ElapsedMilliseconds}ms");
+            profileListView.SelectedProfileChanged += OnProfileSelectionChanged;
         }
 
         private INotificationService NotificationService => notificationService;
@@ -72,8 +58,6 @@ namespace userinterface.ViewModels.Profile
             IsInitializing = true;
 
             UpdateProfileViewModels();
-            // Don't select any profile by default
-            // UpdateSelectedProfileView(null);
 
             IsInitializing = false;
             IsInitialized = true;
@@ -104,29 +88,13 @@ namespace userinterface.ViewModels.Profile
 
         protected void UpdateProfileViewModels()
         {
-            var stopwatch = Stopwatch.StartNew();
-            Debug.WriteLine("UpdateProfileViewModels started");
-            
             ProfileViewModels.Clear();
-            Debug.WriteLine($"ProfileViewModels cleared: {stopwatch.ElapsedMilliseconds}ms");
             
-            stopwatch.Restart();
-            var profileCount = ProfileModels.Count();
-            Debug.WriteLine($"Profile count: {profileCount}, enumeration took: {stopwatch.ElapsedMilliseconds}ms");
-            
-            var totalCreationTime = 0L;
             foreach (var profileModelBE in ProfileModels)
             {
-                stopwatch.Restart();
                 var profileViewModel = viewModelFactory.CreateProfileViewModel(profileModelBE);
-                var creationTime = stopwatch.ElapsedMilliseconds;
-                totalCreationTime += creationTime;
-                
                 ProfileViewModels.Add(profileViewModel);
-                Debug.WriteLine($"Created ProfileViewModel for '{profileModelBE.Name.CurrentValidatedValue}': {creationTime}ms");
             }
-            
-            Debug.WriteLine($"UpdateProfileViewModels completed. Total creation time: {totalCreationTime}ms for {profileCount} profiles");
         }
 
         private void OnProfileSelectionChanged(BE.ProfileModel selectedProfile)

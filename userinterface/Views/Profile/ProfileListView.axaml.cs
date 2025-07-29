@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,20 +29,21 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private BE.ProfileModel selectedProfile;
 
-    private int GetProfileCount() => allItems.Count - 1; // Subtract 1 for add button
+    private int GetProfileCount() => allItems.Count - 1;
     private volatile bool areAnimationsActive = false;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
     private readonly IModalService modalService;
     private readonly LocalizationService localizationService;
-    private readonly FrameTimerService frameTimer;
     private TextBlock addProfileTextBlock;
 
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
-    private const int StaggerDelayMs = 20;
-    private const double ProfileSpawnPosition = 0.0;
     private const double FirstIndexOffset = 6;
+    private const int StaggerDelayMs = 20;
+    private const int CollapseStaggerDelayMs = 15;
+    private const int ElementRenderDelayMs = 50;
+    private const int AnimationCompleteDelayMs = 200;
 
 
     public ProfileListView()
@@ -52,7 +52,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
         modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
         localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
-        frameTimer = App.Services?.GetRequiredService<FrameTimerService>() ?? throw new InvalidOperationException("FrameTimerService not available");
         localizationService.PropertyChanged += OnLocalizationPropertyChanged;
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
 
@@ -87,10 +86,8 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         CreateProfilesWithStagger();
 
-        // Start the startup animation to expand profiles from collapsed state
         _ = ExpandElements();
 
-        // Don't select any profile by default to avoid auto-navigation
         // SetSelectedProfile(null);
     }
 
@@ -147,7 +144,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         RefreshAllProfileNames();
 
-        // Auto-select the newly added profile (the last one added)
         if (e.NewItems.Count > 0)
         {
             int lastAddedIndex = startIndex + e.NewItems.Count - 1;
@@ -166,7 +162,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         int removeCount = e.OldItems.Count;
 
 
-        // Remove UI elements
         for (int i = 0; i < removeCount && removeIndex >= 0 && removeIndex < GetProfileCount(); i++)
         {
             RemoveProfileAt(removeIndex);
@@ -232,7 +227,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private Task HandleProfilesReset()
     {
-        // Keep add button, clear everything else
         var addButton = allItems.Count > 0 ? allItems[0] : null;
         allItems.Clear();
         profileContainer?.Children.Clear();
@@ -255,7 +249,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private void RemoveProfileAt(int index)
     {
-        // Adjust index to account for add button at position 0
         int itemIndex = index + 1;
         if (itemIndex < 0 || itemIndex >= allItems.Count) return;
 
@@ -266,7 +259,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private void MoveProfile(int fromIndex, int toIndex)
     {
-        // Adjust indices to account for add button at position 0
         int fromItemIndex = fromIndex + 1;
         int toItemIndex = toIndex + 1;
 
@@ -288,11 +280,9 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         var profileBorder = CreateProfileBorder(null, targetIndex);
 
-        // Set higher z-index for the new profile so it's visible during animation
         profileBorder.ZIndex = 1000;
         profileBorder.Opacity = 1.0; // Ensure full visibility
 
-        // Insert into allItems at correct position (add button is at index 0)
         int itemIndex = targetIndex + 1;
         allItems.Insert(itemIndex, profileBorder);
         profileContainer?.Children.Insert(itemIndex, profileBorder);
@@ -313,7 +303,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             FontWeight = FontWeight.Medium
         };
 
-        // Create a button-like border that responds to clicks
         var border = new Border
         {
             Classes = { "AddProfileButton" },
@@ -334,21 +323,18 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         var profileName = targetIndex < profilesModel.Profiles.Count ? profilesModel.Profiles[targetIndex].CurrentNameForDisplay : $"Profile {targetIndex + 1}";
         var isDefaultProfile = targetIndex < profilesModel.Profiles.Count && profilesModel.Profiles[targetIndex] == BE.ProfilesModel.DefaultProfile;
 
-        // Create the profile name text
         var profileText = new TextBlock
         {
             Text = profileName,
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        // Create a grid to hold the text and button
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
 
         Grid.SetColumn(profileText, 0);
         grid.Children.Add(profileText);
 
-        // Only add delete button for non-default profiles
         if (!isDefaultProfile)
         {
             // Create the delete button with icon using SimpleDeleteButton
@@ -365,8 +351,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             };
             deleteButton.Click += OnDeleteButtonClicked;
 
-            // Add second column for delete button
-            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+                grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
             Grid.SetColumn(deleteButton, 1);
             grid.Children.Add(deleteButton);
         }
@@ -383,7 +368,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             ZIndex = targetIndex
         };
 
-        // Make the entire border clickable
         border.PointerPressed += OnProfileBorderClicked;
 
         return border;
@@ -391,7 +375,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private void UpdateDeleteButtonStates()
     {
-        // Update delete buttons for all profile items (skip add and default profile)
         for (int i = 2; i < allItems.Count; i++)
         {
             if (allItems[i].Child is Grid grid)
@@ -473,10 +456,9 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private void UpdateAllZIndexes()
     {
-        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        var itemCount = allItems.Count;
         for (int i = 0; i < itemCount; i++)
         {
-            // Double-check bounds in case collection was modified
             if (i >= allItems.Count) break;
             
             allItems[i].ZIndex = i;
@@ -524,36 +506,26 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         // Add animation class to enable CSS transitions
         element.Classes.Add("animate-position");
         
-        // Apply stagger delay if needed
         if (staggerIndex > 0)
         {
-            await Task.Delay(staggerIndex * 20); // Stagger for smooth effect
+            await Task.Delay(staggerIndex * StaggerDelayMs);
         }
 
-        // Set the target margin - CSS transitions will animate the change
         element.Margin = targetMargin;
         element.ZIndex = position;
-        
-        Debug.WriteLine($"[ANIMATION] Element {elementIndex} animating from Y={currentY} to Y={targetY}");
     }
 
     private async Task AnimateAllElementsToPositions(int focusIndex = -1)
     {
-        Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions started with focusIndex={focusIndex}");
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        
-        // Set animation state
         areAnimationsActive = true;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         UpdateDeleteButtonStates();
 
         var animationTasks = new List<Task>();
 
-        // Animate all elements to their correct positions using Transform
-        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        var itemCount = allItems.Count;
         for (int i = 0; i < itemCount; i++)
         {
-            // Double-check bounds in case collection was modified
             if (i >= allItems.Count) break;
             
             int targetPosition = i + 1;
@@ -588,47 +560,37 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             {
                 await Task.WhenAll(animationTasks);
                 
-                // Small delay to let CSS animations complete
-                await Task.Delay(200);
+                await Task.Delay(AnimationCompleteDelayMs);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in AnimateAllElementsToPositions: {ex.Message}");
             }
         }
 
-        // Clean up animation state
         areAnimationsActive = false;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
         UpdateDeleteButtonStates();
-        
-        Debug.WriteLine($"[PROFILE ANIMATION] AnimateAllElementsToPositions completed in {stopwatch.ElapsedMilliseconds}ms");
     }
 
     private void SetSelectedProfile(BE.ProfileModel? profile)
     {
         if (selectedProfile == profile) return;
 
-        // Clear selected class from all profile items (skip add button at index 0)
-        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        var itemCount = allItems.Count;
         for (int i = 1; i < itemCount; i++)
         {
-            // Double-check bounds in case collection was modified
             if (i >= allItems.Count) break;
             
             allItems[i].Classes.Remove("Selected");
         }
 
-        // Set new selected profile
         selectedProfile = profile;
 
-        // Update the ViewModel's selected profile
         if (DataContext is ProfileListViewModel viewModel)
         {
             viewModel.SelectedProfile = selectedProfile;
         }
 
-        // Add selected class to newly selected profile
         if (selectedProfile != null)
         {
             var currentIndex = profilesModel.Profiles.IndexOf(selectedProfile);
@@ -676,28 +638,15 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     public async Task ExpandElements()
     {
-        Debug.WriteLine($"[PROFILE ANIMATION] ExpandElements started with {allItems.Count} items");
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        
-        frameTimer.StartMonitoring("ProfileListView ExpandElements");
-        
         // Small delay to ensure elements are rendered before animating
-        await Task.Delay(50);
+        await Task.Delay(ElementRenderDelayMs);
         
         await AnimateAllElementsToPositions(-1);
-        
-        frameTimer.StopMonitoring("ProfileListView ExpandElements");
-        Debug.WriteLine($"[PROFILE ANIMATION] ExpandElements completed in {stopwatch.ElapsedMilliseconds}ms");
     }
 
     public async Task CollapseElements()
     {
         if (allItems.Count == 0) return;
-
-        Debug.WriteLine("[PROFILE ANIMATION] CollapseElements started");
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        
-        frameTimer.StartMonitoring("ProfileListView CollapseElements");
 
         areAnimationsActive = true;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
@@ -705,28 +654,24 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         var animationTasks = new List<Task>();
 
-        // Animate all elements to position 0 (collapsed/hidden)
-        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        var itemCount = allItems.Count;
         for (int i = 0; i < itemCount; i++)
         {
-            // Double-check bounds in case collection was modified
             if (i >= allItems.Count) break;
             
-            animationTasks.Add(CollapseElementToMarginPosition(i, i * 15)); // 15ms stagger delay
+            animationTasks.Add(CollapseElementToMarginPosition(i, i * CollapseStaggerDelayMs));
         }
 
         try
         {
             await Task.WhenAll(animationTasks);
-            await Task.Delay(200); // Wait for CSS animations to complete
+            await Task.Delay(AnimationCompleteDelayMs);
         }
         finally
         {
-            frameTimer.StopMonitoring("ProfileListView CollapseElements");
             areAnimationsActive = false;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AreAnimationsActive)));
             UpdateDeleteButtonStates();
-            Debug.WriteLine($"[PROFILE ANIMATION] CollapseElements completed in {stopwatch.ElapsedMilliseconds}ms");
         }
     }
 
@@ -739,13 +684,11 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         // Add animation class to enable CSS transitions
         element.Classes.Add("animate-position");
         
-        // Apply stagger delay if needed
         if (delayMs > 0)
         {
             await Task.Delay(delayMs);
         }
 
-        // Collapse to position 0 (at the top, hidden/stacked)
         element.Margin = new Thickness(8, 0, 8, ProfileSpacing);
     }
 

@@ -4,7 +4,6 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -48,37 +47,17 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
         this.frameTimer = frameTimer ?? throw new ArgumentNullException(nameof(frameTimer));
 
-        // Pre-create all ViewModels to avoid lazy loading delays
-        var stopwatch = Stopwatch.StartNew();
-        
         devicesPage = App.Services!.GetRequiredService<DevicesPageViewModel>();
-        Debug.WriteLine($"DevicesPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
-        
-        stopwatch.Restart();
         profilesPage = App.Services!.GetRequiredService<ProfilesPageViewModel>();
-        Debug.WriteLine($"ProfilesPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
-        
-        stopwatch.Restart();
         mappingsPage = App.Services!.GetRequiredService<MappingsPageViewModel>();
-        Debug.WriteLine($"MappingsPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
-        
-        stopwatch.Restart();
         settingsPage = App.Services!.GetRequiredService<SettingsPageViewModel>();
-        Debug.WriteLine($"SettingsPageViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
-        
-        stopwatch.Restart();
         profileListView = App.Services!.GetRequiredService<ProfileListViewModel>();
-        Debug.WriteLine($"ProfileListViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
-        
-        stopwatch.Restart();
         toastViewModel = App.Services!.GetRequiredService<ToastViewModel>();
-        Debug.WriteLine($"ToastViewModel creation: {stopwatch.ElapsedMilliseconds}ms");
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
         
-        // Subscribe to profile selection changes
         profileListView.SelectedProfileChanged += OnProfileSelected;
     }
 
@@ -109,17 +88,9 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             if (selectedPageValue != value)
             {
-                var stopwatch = Stopwatch.StartNew();
                 selectedPageValue = value;
-                Debug.WriteLine($"SelectedPage value set: {stopwatch.ElapsedMilliseconds}ms");
-                
-                stopwatch.Restart();
                 OnPropertyChanged();
-                Debug.WriteLine($"SelectedPage PropertyChanged: {stopwatch.ElapsedMilliseconds}ms");
-                
-                stopwatch.Restart();
                 OnPropertyChanged(nameof(CurrentPageContent));
-                Debug.WriteLine($"CurrentPageContent PropertyChanged: {stopwatch.ElapsedMilliseconds}ms");
             }
         }
     }
@@ -158,34 +129,14 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void SelectPage(NavigationPage page)
     {
-        var stopwatch = Stopwatch.StartNew();
-        Debug.WriteLine($"SelectPage called for {page}");
-        
-        // Start frame timing to detect UI thread blocking
-        frameTimer.StartMonitoring($"Page switch to {page}");
-        
         SelectedPage = page;
-        Debug.WriteLine($"SelectedPage set: {stopwatch.ElapsedMilliseconds}ms");
-        
-        stopwatch.Restart();
         IsProfilesExpanded = page == NavigationPage.Profiles;
-        Debug.WriteLine($"IsProfilesExpanded set: {stopwatch.ElapsedMilliseconds}ms");
         
-        // Update the navigation button selection state
         UpdateNavigationButtonSelection(page);
-        
-        Debug.WriteLine($"Total SelectPage time: {stopwatch.ElapsedMilliseconds}ms");
-        
-        // Stop frame timing after a longer delay to capture the full animation cycle
-        _ = Task.Delay(500).ContinueWith(_ => 
-        {
-            frameTimer.StopMonitoring($"Page switch to {page} completed");
-        });
     }
     
     private void UpdateNavigationButtonSelection(NavigationPage page)
     {
-        // Get the main window and update button selection
         if (App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && 
             desktop.MainWindow is MainWindow mainWindow)
         {
@@ -249,14 +200,11 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         
         if (currentTheme == "system")
         {
-            // If we're on system theme, check what the actual system theme is
             var actualSystemTheme = ThemeVariantConverter.GetSystemThemeVariant();
-            // Toggle to the opposite of what the system currently is
             newTheme = actualSystemTheme == ThemeVariant.Dark ? "Light" : "Dark";
         }
         else
         {
-            // Normal toggle between Light and Dark
             newTheme = currentTheme == "light" ? "Dark" : "Light";
         }
         
@@ -267,7 +215,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (selectedProfile != null && SelectedPage != NavigationPage.Profiles)
         {
-            // Only navigate to Profiles page if we're not already there
             SelectPage(NavigationPage.Profiles);
         }
     }
