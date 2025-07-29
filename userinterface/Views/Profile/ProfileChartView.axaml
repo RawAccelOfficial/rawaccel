@@ -35,6 +35,7 @@
 	        CornerRadius="8">
 		<Grid>
 			<lvc:CartesianChart x:Name="Chart"
+			                    SyncContext="{Binding Sync}"
 			                    Series="{Binding Series}"
 			                    XAxes="{Binding XAxes}"
 			                    YAxes="{Binding YAxes}"

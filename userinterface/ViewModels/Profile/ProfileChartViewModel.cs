@@ -7,6 +7,7 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -63,6 +64,13 @@ namespace userinterface.ViewModels.Profile
         private readonly IThemeService themeService;
         private readonly LocalizationService localizationService;
         private BE.ProfileModel currentProfileModel = null!;
+        
+        // Cached paint objects to avoid recreation
+        private SolidColorPaint? cachedXStroke;
+        private SolidColorPaint? cachedYStroke;
+        
+        // Sync object for thread safety - single allocation
+        private readonly object syncObject = new object();
 
         public ProfileChartViewModel(IThemeService themeService, LocalizationService localizationService)
         {
@@ -76,6 +84,8 @@ namespace userinterface.ViewModels.Profile
         public bool IsInitialized { get; private set; }
 
         public bool IsInitializing { get; private set; }
+
+        public object Sync => syncObject;
 
         private ICurvePreview XCurvePreview { get; set; } = null!;
 
@@ -96,60 +106,44 @@ namespace userinterface.ViewModels.Profile
             YXRatio.PropertyChanged += OnYXRatioChanged;
         }
 
+
+        // ================================================================================================
+        // INITIALIZATION & SETUP
+        // ================================================================================================
+
         public Task InitializeAsync()
         {
             if (IsInitializing || IsInitialized || currentProfileModel == null)
                 return Task.CompletedTask;
 
-            var totalStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] Starting ProfileChartViewModel.InitializeAsync() on thread {System.Threading.Thread.CurrentThread.ManagedThreadId}");
-
             IsInitializing = true;
 
-            // Step 1: Create Series
-            var stepStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            CreateSeries();
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] CreateSeries() completed in {stepStopwatch.ElapsedMilliseconds}ms");
-
-            // Step 2: Create X Axes
-            stepStopwatch.Restart();
-            XAxes = CreateXAxes();
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] CreateXAxes() completed in {stepStopwatch.ElapsedMilliseconds}ms");
-
-            // Step 3: Create Y Axes  
-            stepStopwatch.Restart();
-            YAxes = CreateYAxes();
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] CreateYAxes() completed in {stepStopwatch.ElapsedMilliseconds}ms");
-
-            // Step 4: Create Tooltip Paints
-            stepStopwatch.Restart();
-            TooltipTextPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush));
-            TooltipBackgroundPaint = new SolidColorPaint(themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] Tooltip paints created in {stepStopwatch.ElapsedMilliseconds}ms");
-
-            // Step 5: Subscribe to events
-            stepStopwatch.Restart();
-            this.themeService.ThemeChanged += OnThemeChanged;
-            this.localizationService.PropertyChanged += OnLocalizationChanged;
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] Event subscriptions completed in {stepStopwatch.ElapsedMilliseconds}ms");
-
-            IsInitializing = false;
-            IsInitialized = true;
-
-            // Step 6: Property change notifications
-            stepStopwatch.Restart();
-            OnPropertyChanged(nameof(Series));
-            OnPropertyChanged(nameof(XAxes));
-            OnPropertyChanged(nameof(YAxes));
-            OnPropertyChanged(nameof(TooltipTextPaint));
-            OnPropertyChanged(nameof(TooltipBackgroundPaint));
-            
-            if (stepStopwatch.ElapsedMilliseconds >= 10)
+            try
             {
-                System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] SLOW: Property change notifications took {stepStopwatch.ElapsedMilliseconds}ms");
-            }
+                // Create optimized chart components
+                Series.Clear();
+                CreateSeries();
+                XAxes = CreateXAxes();
+                YAxes = CreateYAxes();
+                TooltipTextPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush));
+                TooltipBackgroundPaint = new SolidColorPaint(themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+                
+                // Subscribe to events
+                this.themeService.ThemeChanged += OnThemeChanged;
+                this.localizationService.PropertyChanged += OnLocalizationChanged;
 
-            System.Diagnostics.Debug.WriteLine($"[CHART INIT DETAIL] Total ProfileChartViewModel.InitializeAsync() completed in {totalStopwatch.ElapsedMilliseconds}ms on thread {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+                // Notify UI of changes
+                OnPropertyChanged(nameof(XAxes));
+                OnPropertyChanged(nameof(YAxes));
+                OnPropertyChanged(nameof(TooltipTextPaint));
+                OnPropertyChanged(nameof(TooltipBackgroundPaint));
+
+                IsInitialized = true;
+            }
+            finally
+            {
+                IsInitializing = false;
+            }
 
             return Task.CompletedTask;
         }
@@ -172,7 +166,7 @@ namespace userinterface.ViewModels.Profile
             return Task.CompletedTask;
         }
 
-        public ISeries[] Series { get; set; }
+        public ObservableCollection<ISeries> Series { get; set; } = new ObservableCollection<ISeries>();
 
         public Axis[] XAxes { get; set; }
 
@@ -185,6 +179,10 @@ namespace userinterface.ViewModels.Profile
         public ICommand RecreateAxesCommand { get; }
 
         public ICommand FitToDataCommand { get; }
+
+        // ================================================================================================
+        // PUBLIC METHODS
+        // ================================================================================================
 
         public void FitToData()
         {
@@ -217,69 +215,96 @@ namespace userinterface.ViewModels.Profile
             XAxes = CreateXAxes(xMinLimit, xMaxLimit);
             YAxes = CreateYAxes(yMinLimit, yMaxLimit);
 
-            // Notify property changes
             OnPropertyChanged(nameof(XAxes));
             OnPropertyChanged(nameof(YAxes));
         }
+
+        // ================================================================================================
+        // CLEANUP & DISPOSAL
+        // ================================================================================================
 
         public void Dispose()
         {
             themeService.ThemeChanged -= OnThemeChanged;
             localizationService.PropertyChanged -= OnLocalizationChanged;
-            YXRatio.PropertyChanged -= OnYXRatioChanged;
+            if (YXRatio != null)
+                YXRatio.PropertyChanged -= OnYXRatioChanged;
+            
+            // Dispose cached paint objects
+            if (cachedXStroke != null)
+            {
+                cachedXStroke.Dispose();
+                cachedXStroke = null;
+            }
+            if (cachedYStroke != null)
+            {
+                cachedYStroke.Dispose();
+                cachedYStroke = null;
+            }
         }
 
+        // ================================================================================================
+        // CHART DATA MANAGEMENT
+        // ================================================================================================
+
+        private ISeries[] CreateSeriesAsync()
+        {
+            // Pre-calculate and cache data points
+            var xPoints = XCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
+            var yPoints = YCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
+
+            // Initialize cached stroke objects
+            if (cachedXStroke == null)
+                cachedXStroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness };
+            if (cachedYStroke == null)
+                cachedYStroke = new SolidColorPaint(SKColors.OrangeRed) { StrokeThickness = MainStrokeThickness };
+            
+            // Optimize array allocation based on YX ratio
+            var hasYCurve = Math.Abs(YXRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold;
+            var seriesArray = hasYCurve ? new ISeries[2] : new ISeries[1];
+            
+            seriesArray[0] = CreateOptimizedLineSeries(xPoints, cachedXStroke, "X Curve Profile", "X Output");
+            
+            if (hasYCurve)
+            {
+                seriesArray[1] = CreateOptimizedLineSeries(yPoints, cachedYStroke, "Y Curve Profile", "Y Output");
+            }
+
+            return seriesArray;
+        }
+
+        private LineSeries<CurvePoint> CreateOptimizedLineSeries(CurvePoint[] points, SolidColorPaint stroke, string name, string outputLabel)
+        {
+            return new LineSeries<CurvePoint>
+            {
+                Values = points,
+                Fill = null,
+                Stroke = stroke,
+                Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
+                GeometrySize = 0,
+                GeometryStroke = null,
+                GeometryFill = null,
+                AnimationsSpeed = TimeSpan.FromMilliseconds(100), // Reduced animations for performance
+                Name = name,
+                LineSmoothness = 0, // Disable smoothing for better performance
+                XToolTipLabelFormatter = (chartPoint) => $"Speed: {chartPoint.Coordinate.SecondaryValue:F2}",
+                YToolTipLabelFormatter = (chartPoint) => $"{outputLabel}: {chartPoint.Coordinate.PrimaryValue:F2}"
+            };
+        }
 
         private void CreateSeries()
         {
-            var createSeriesStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            
-            var seriesList = new List<ISeries>
+            var series = CreateSeriesAsync();
+            Series.Clear();
+            foreach (var s in series)
             {
-                new LineSeries<CurvePoint>
-                {
-                    Values = XCurvePreview.Points,
-                    Fill = null,
-                    Stroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness },
-                    Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
-                    GeometrySize = 0,
-                    GeometryStroke = null,
-                    GeometryFill = null,
-                    AnimationsSpeed = AnimationsTime,
-                    Name = "X Curve Profile",
-                    LineSmoothness = 0.2,
-                    XToolTipLabelFormatter = (chartPoint) => $"Speed: {chartPoint.Coordinate.SecondaryValue:F2}",
-                    YToolTipLabelFormatter = (chartPoint) => $"X Output: {chartPoint.Coordinate.PrimaryValue:F2}"
-                }
-            };
-
-            // Add Y curve only if YX ratio is not 1
-            if (Math.Abs(YXRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold)
-            {
-                seriesList.Add(new LineSeries<CurvePoint>
-                {
-                    Values = YCurvePreview.Points,
-                    Fill = null,
-                    Stroke = new SolidColorPaint(SKColors.OrangeRed) { StrokeThickness = MainStrokeThickness },
-                    Mapping = (curvePoint, index) => new LiveChartsCore.Kernel.Coordinate(x: curvePoint.MouseSpeed, y: curvePoint.Output),
-                    GeometrySize = 0,
-                    GeometryStroke = null,
-                    GeometryFill = null,
-                    AnimationsSpeed = AnimationsTime,
-                    Name = "Y Curve Profile",
-                    LineSmoothness = 0.2,
-                    XToolTipLabelFormatter = (chartPoint) => $"Speed: {chartPoint.Coordinate.SecondaryValue:F2}",
-                    YToolTipLabelFormatter = (chartPoint) => $"Y Output: {chartPoint.Coordinate.PrimaryValue:F2}"
-                });
-            }
-
-            Series = [.. seriesList];
-            
-            if (createSeriesStopwatch.ElapsedMilliseconds >= 10)
-            {
-                System.Diagnostics.Debug.WriteLine($"[CHART SERIES] SLOW: CreateSeries() took {createSeriesStopwatch.ElapsedMilliseconds}ms - X points: {XCurvePreview?.Points?.Count() ?? 0}, Y points: {YCurvePreview?.Points?.Count() ?? 0}");
+                Series.Add(s);
             }
         }
+
+        // ================================================================================================
+        // EVENT HANDLERS
+        // ================================================================================================
 
         private void OnYXRatioChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -290,16 +315,18 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
+        // ================================================================================================
+        // CHART AXES CREATION
+        // ================================================================================================
+
         private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null)
         {
-            var axesStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            
             var axisName = localizationService?.GetText("ChartAxisMouseSpeed") ?? "Mouse Speed";
             var titleColor = themeService.GetCachedColor(AxisTitleBrush);
             var labelColor = themeService.GetCachedColor(AxisLabelsBrush);
             var separatorColor = themeService.GetCachedColor(AxisSeparatorsBrush);
 
-            var result = new Axis[]
+            return new Axis[]
             {
                 new Axis()
                 {
@@ -311,30 +338,21 @@ namespace userinterface.ViewModels.Profile
                     SeparatorsPaint = new SolidColorPaint(separatorColor) { StrokeThickness = StandardStrokeThickness },
                     TicksPaint = new SolidColorPaint(titleColor) { StrokeThickness = StandardStrokeThickness },
                     SubseparatorsPaint = new SolidColorPaint(separatorColor.WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
-                    AnimationsSpeed = AnimationsTime,
+                    AnimationsSpeed = TimeSpan.FromMilliseconds(100),
                     MinLimit = minLimit ?? 0,
                     MaxLimit = maxLimit
                 }
             };
-            
-            if (axesStopwatch.ElapsedMilliseconds >= 10)
-            {
-                System.Diagnostics.Debug.WriteLine($"[CHART AXES] SLOW: CreateXAxes() took {axesStopwatch.ElapsedMilliseconds}ms");
-            }
-            
-            return result;
         }
 
         private Axis[] CreateYAxes(double? minLimit = null, double? maxLimit = null)
         {
-            var axesStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            
             var axisName = localizationService?.GetText("ChartAxisOutput") ?? "Output";
             var titleColor = themeService.GetCachedColor(AxisTitleBrush);
             var labelColor = themeService.GetCachedColor(AxisLabelsBrush);
             var separatorColor = themeService.GetCachedColor(AxisSeparatorsBrush);
 
-            var result = new Axis[]
+            return new Axis[]
             {
                 new Axis()
                 {
@@ -346,19 +364,17 @@ namespace userinterface.ViewModels.Profile
                     SeparatorsPaint = new SolidColorPaint(separatorColor) { StrokeThickness = StandardStrokeThickness },
                     TicksPaint = new SolidColorPaint(titleColor) { StrokeThickness = StandardStrokeThickness },
                     SubseparatorsPaint = new SolidColorPaint(separatorColor.WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
-                    AnimationsSpeed = AnimationsTime,
+                    AnimationsSpeed = TimeSpan.FromMilliseconds(100),
                     MinLimit = minLimit ?? 0,
                     MaxLimit = maxLimit
                 }
             };
-            
-            if (axesStopwatch.ElapsedMilliseconds >= 10)
-            {
-                System.Diagnostics.Debug.WriteLine($"[CHART AXES] SLOW: CreateYAxes() took {axesStopwatch.ElapsedMilliseconds}ms");
-            }
-            
-            return result;
         }
+
+
+        // ================================================================================================
+        // AXIS LIMITS MANAGEMENT
+        // ================================================================================================
 
         private void SetDefaultLimits()
         {
