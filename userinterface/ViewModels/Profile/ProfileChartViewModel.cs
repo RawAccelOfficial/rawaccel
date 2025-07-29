@@ -144,16 +144,15 @@ namespace userinterface.ViewModels.Profile
 
             try
             {
-                // Phase 1: Disable preview generation temporarily to test frame drops  
-                // _ = GeneratePreviewImageAsync();
+                // Phase 1: Generate preview on background thread for fast initial display
+                _ = GeneratePreviewImageAsync();
                 
-                // Phase 2: Disable interactive chart loading temporarily to test frame drops
-                /*
+                // Phase 2: Initialize full interactive chart
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        // Small delay to ensure preview is visible
+                        // Small delay to ensure preview is visible first
                         await Task.Delay(50);
                         
                         // Show loading state
@@ -211,9 +210,8 @@ namespace userinterface.ViewModels.Profile
                         });
                     }
                 });
-                */
                 
-                // Minimal initialization - no chart loading at all
+                // Mark as initialized immediately (background chart loading continues)
                 IsInitialized = true;
             }
             finally
@@ -384,9 +382,9 @@ namespace userinterface.ViewModels.Profile
 
         public ObservableCollection<ISeries> Series { get; set; } = new ObservableCollection<ISeries>();
 
-        public Axis[] XAxes { get; set; } = Array.Empty<Axis>();
+        public Axis[] XAxes { get; set; } = new Axis[] { new Axis { Name = "Loading...", MinLimit = 0, MaxLimit = 1 } };
 
-        public Axis[] YAxes { get; set; } = Array.Empty<Axis>();
+        public Axis[] YAxes { get; set; } = new Axis[] { new Axis { Name = "Loading...", MinLimit = 0, MaxLimit = 1 } };
 
         public SolidColorPaint TooltipTextPaint { get; set; } = new SolidColorPaint(SKColors.Black);
 

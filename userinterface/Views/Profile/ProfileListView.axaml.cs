@@ -480,8 +480,12 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private void UpdateAllZIndexes()
     {
-        for (int i = 0; i < allItems.Count; i++)
+        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        for (int i = 0; i < itemCount; i++)
         {
+            // Double-check bounds in case collection was modified
+            if (i >= allItems.Count) break;
+            
             allItems[i].ZIndex = i;
         }
     }
@@ -553,8 +557,12 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         var animationTasks = new List<Task>();
 
         // Animate all elements to their correct positions using Transform
-        for (int i = 0; i < allItems.Count; i++)
+        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        for (int i = 0; i < itemCount; i++)
         {
+            // Double-check bounds in case collection was modified
+            if (i >= allItems.Count) break;
+            
             int targetPosition = i + 1;
             var targetY = CalculatePositionForIndex(targetPosition);
             
@@ -609,8 +617,12 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         if (selectedProfile == profile) return;
 
         // Clear selected class from all profile items (skip add button at index 0)
-        for (int i = 1; i < allItems.Count; i++)
+        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        for (int i = 1; i < itemCount; i++)
         {
+            // Double-check bounds in case collection was modified
+            if (i >= allItems.Count) break;
+            
             allItems[i].Classes.Remove("Selected");
         }
 
@@ -630,7 +642,12 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             if (currentIndex >= 0 && currentIndex < GetProfileCount())
             {
                 int itemIndex = currentIndex + 1; // Convert to item index
-                allItems[itemIndex].Classes.Add("Selected");
+                
+                // Bounds check to prevent IndexOutOfRangeException
+                if (itemIndex < allItems.Count)
+                {
+                    allItems[itemIndex].Classes.Add("Selected");
+                }
             }
         }
     }
@@ -646,6 +663,10 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         for (int i = 0; i < GetProfileCount() && i < profilesModel.Profiles.Count; i++)
         {
             int itemIndex = i + 1; // Convert to item index
+            
+            // Bounds check to prevent IndexOutOfRangeException
+            if (itemIndex >= allItems.Count) break;
+            
             var border = allItems[itemIndex];
             var profile = profilesModel.Profiles[i];
 
@@ -692,8 +713,12 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         var animationTasks = new List<Task>();
 
         // Animate all elements to position 0 (collapsed/hidden)
-        for (int i = 0; i < allItems.Count; i++)
+        var itemCount = allItems.Count; // Capture count to prevent race conditions
+        for (int i = 0; i < itemCount; i++)
         {
+            // Double-check bounds in case collection was modified
+            if (i >= allItems.Count) break;
+            
             animationTasks.Add(CollapseElementToMarginPosition(i, i * 15)); // 15ms stagger delay
         }
 
