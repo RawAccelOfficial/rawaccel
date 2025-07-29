@@ -181,6 +181,11 @@ public partial class MainWindow : Window
                 break;
         }
     }
+    
+    public void UpdateNavigationSelection(NavigationPage page)
+    {
+        UpdateSelectedButton(page);
+    }
 
 
     private void UpdateThemeToggleButton()

@@ -18,6 +18,7 @@ using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Settings;
+using userinterface.Views;
 using BE = userspace_backend;
 
 namespace userinterface.ViewModels;
@@ -76,6 +77,9 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
+        
+        // Subscribe to profile selection changes
+        profileListView.SelectedProfileChanged += OnProfileSelected;
     }
 
     public DevicesPageViewModel DevicesPage => devicesPage;
@@ -167,6 +171,9 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         IsProfilesExpanded = page == NavigationPage.Profiles;
         Debug.WriteLine($"IsProfilesExpanded set: {stopwatch.ElapsedMilliseconds}ms");
         
+        // Update the navigation button selection state
+        UpdateNavigationButtonSelection(page);
+        
         Debug.WriteLine($"Total SelectPage time: {stopwatch.ElapsedMilliseconds}ms");
         
         // Stop frame timing after a longer delay to capture the full animation cycle
@@ -174,6 +181,16 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             frameTimer.StopMonitoring($"Page switch to {page} completed");
         });
+    }
+    
+    private void UpdateNavigationButtonSelection(NavigationPage page)
+    {
+        // Get the main window and update button selection
+        if (App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && 
+            desktop.MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.UpdateNavigationSelection(page);
+        }
     }
 
     public async Task SelectPageAsync(NavigationPage page)
@@ -244,6 +261,15 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         
         settingsService.Theme = newTheme;
+    }
+    
+    private void OnProfileSelected(BE.Model.ProfileModel selectedProfile)
+    {
+        if (selectedProfile != null && SelectedPage != NavigationPage.Profiles)
+        {
+            // Only navigate to Profiles page if we're not already there
+            SelectPage(NavigationPage.Profiles);
+        }
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
