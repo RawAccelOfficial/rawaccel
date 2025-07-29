@@ -30,14 +30,6 @@
 		</Style>
 		
 		<!-- Animations for smooth transitions -->
-		<Style Selector="Image.preview-image">
-			<Setter Property="Transitions">
-				<Transitions>
-					<DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
-				</Transitions>
-			</Setter>
-		</Style>
-		
 		<Style Selector="lvc|CartesianChart.interactive-chart">
 			<Setter Property="Transitions">
 				<Transitions>
@@ -51,30 +43,39 @@
 	        BorderThickness="1"
 	        CornerRadius="8">
 		<Grid>
-			<!-- Static Preview Image (shown first for fast loading) -->
-			<Image x:Name="PreviewImage"
-			       Classes="preview-image"
-			       Source="{Binding PreviewImageSource}"
-			       IsVisible="{Binding IsPreviewMode}"
-			       Stretch="Uniform"
-			       StretchDirection="Both"
-			       HorizontalAlignment="Stretch"
-			       VerticalAlignment="Stretch"/>
-			
-			<!-- Loading indicator -->
-			<Grid IsVisible="{Binding IsLoadingChart}" 
-			      Background="#80000000"
+			<!-- Skeleton Loader (shown while chart is initializing) -->
+			<Grid IsVisible="{Binding IsLoadingChart}"
+			      Background="{DynamicResource ControlBackgroundBrush}"
 			      HorizontalAlignment="Stretch"
 			      VerticalAlignment="Stretch">
-				<StackPanel Orientation="Vertical" 
-				           HorizontalAlignment="Center" 
-				           VerticalAlignment="Center">
-					<TextBlock Text="Loading interactive chart..." 
-					          Foreground="White" 
-					          FontSize="12" 
-					          HorizontalAlignment="Center"/>
-				</StackPanel>
+				
+				<!-- Chart outline -->
+				<Border BorderBrush="{DynamicResource BorderBrush}" 
+				        BorderThickness="1" 
+				        CornerRadius="4"
+				        Margin="20"
+				        Opacity="0.3">
+					
+					<!-- Loading dots -->
+					<StackPanel Orientation="Horizontal" 
+					           HorizontalAlignment="Center" 
+					           VerticalAlignment="Center">
+						<Ellipse Width="8" Height="8" 
+						        Fill="{DynamicResource AccentBrush}" 
+						        Margin="2" 
+						        Opacity="0.7"/>
+						<Ellipse Width="8" Height="8" 
+						        Fill="{DynamicResource AccentBrush}" 
+						        Margin="2" 
+						        Opacity="0.5"/>
+						<Ellipse Width="8" Height="8" 
+						        Fill="{DynamicResource AccentBrush}" 
+						        Margin="2" 
+						        Opacity="0.3"/>
+					</StackPanel>
+				</Border>
 			</Grid>
+			
 			
 			<!-- Interactive Chart (shown after loading) -->
 			<lvc:CartesianChart x:Name="Chart"

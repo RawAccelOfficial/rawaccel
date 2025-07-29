@@ -97,15 +97,11 @@ namespace userinterface.ViewModels.Profile
 
         public bool IsInitializing { get; private set; }
         
-        public bool IsPreviewMode { get; private set; } = true;
-        
         public bool IsInteractiveMode { get; private set; } = false;
         
         public bool IsLoadingChart { get; private set; } = false;
         
         public double ChartOpacity { get; private set; } = 0.0;
-        
-        public Bitmap? PreviewImageSource { get; private set; }
         
         private bool hasUserInteracted = false;
 
@@ -144,20 +140,17 @@ namespace userinterface.ViewModels.Profile
 
             try
             {
-                // Phase 1: Generate preview on background thread for fast initial display
-                _ = GeneratePreviewImageAsync();
+                // Show skeleton loader immediately
+                IsLoadingChart = true;
+                OnPropertyChanged(nameof(IsLoadingChart));
                 
-                // Phase 2: Initialize full interactive chart
+                // Initialize interactive chart
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        // Small delay to ensure preview is visible first
-                        await Task.Delay(50);
-                        
-                        // Show loading state
-                        IsLoadingChart = true;
-                        OnPropertyChanged(nameof(IsLoadingChart));
+                        // Small delay to show skeleton loader
+                        await Task.Delay(100);
                         
                         // Initialize chart components on background thread
                         await Task.Run(() =>
@@ -195,6 +188,10 @@ namespace userinterface.ViewModels.Profile
                             catch (Exception ex)
                             {
                                 System.Diagnostics.Debug.WriteLine($"[CHART INIT] Error in UI thread: {ex.Message}");
+                                
+                                // Hide skeleton loader on error
+                                IsLoadingChart = false;
+                                OnPropertyChanged(nameof(IsLoadingChart));
                             }
                         });
                     }
@@ -202,7 +199,7 @@ namespace userinterface.ViewModels.Profile
                     {
                         System.Diagnostics.Debug.WriteLine($"[CHART INIT] Error in background initialization: {ex.Message}");
                         
-                        // Fallback to preview mode on error
+                        // Hide skeleton loader on error
                         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                         {
                             IsLoadingChart = false;
@@ -220,61 +217,6 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        private async Task GeneratePreviewImageAsync()
-        {
-            try
-            {
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        var xPoints = XCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
-                        var yPoints = YCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
-                        
-                        // Reduce points for preview
-                        var reducedXPoints = ReducePointsForPreview(xPoints, 32);
-                        var reducedYPoints = ReducePointsForPreview(yPoints, 32);
-                        
-                        var xAxisName = localizationService?.GetText("ChartAxisMouseSpeed") ?? "Mouse Speed";
-                        var yAxisName = localizationService?.GetText("ChartAxisOutput") ?? "Output";
-                        
-                        var bitmapBytes = await previewRenderer.GenerateChartPreviewAsync(
-                            reducedXPoints, 
-                            reducedYPoints, 
-                            YXRatio.CurrentValidatedValue,
-                            xAxisName,
-                            yAxisName
-                        );
-                        
-                        if (bitmapBytes.Length > 0)
-                        {
-                            // Update UI on UI thread
-                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                            {
-                                try
-                                {
-                                    using var stream = new MemoryStream(bitmapBytes);
-                                    PreviewImageSource = new Bitmap(stream);
-                                    OnPropertyChanged(nameof(PreviewImageSource));
-                                }
-                                catch (Exception ex)
-                                {
-                                    System.Diagnostics.Debug.WriteLine($"[CHART PREVIEW] Error creating bitmap: {ex.Message}");
-                                }
-                            });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[CHART PREVIEW] Error in background thread: {ex.Message}");
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[CHART PREVIEW] Error generating preview: {ex.Message}");
-            }
-        }
 
         private void EnsureInteractiveChartLoaded()
         {
@@ -339,7 +281,7 @@ namespace userinterface.ViewModels.Profile
 
         private async void TransitionToInteractiveMode()
         {
-            // Phase 1: Hide loading indicator and show interactive chart at 0 opacity
+            // Hide skeleton loader and show interactive chart at 0 opacity
             IsLoadingChart = false;
             IsInteractiveMode = true;
             ChartOpacity = 0.0;
@@ -351,15 +293,9 @@ namespace userinterface.ViewModels.Profile
             // Small delay to ensure chart is rendered
             await Task.Delay(100);
             
-            // Phase 2: Fade in interactive chart and fade out preview
+            // Fade in interactive chart
             ChartOpacity = 1.0;
             OnPropertyChanged(nameof(ChartOpacity));
-            
-            // Wait for transition to complete, then hide preview
-            await Task.Delay(200);
-            
-            IsPreviewMode = false;
-            OnPropertyChanged(nameof(IsPreviewMode));
         }
 
         public Task SwitchToProfileAsync(BE.ProfileModel profileModel)
@@ -454,13 +390,6 @@ namespace userinterface.ViewModels.Profile
             {
                 cachedYStroke.Dispose();
                 cachedYStroke = null;
-            }
-            
-            // Dispose preview image
-            if (PreviewImageSource != null)
-            {
-                PreviewImageSource.Dispose();
-                PreviewImageSource = null;
             }
             
             // Clear preview renderer cache for memory cleanup
