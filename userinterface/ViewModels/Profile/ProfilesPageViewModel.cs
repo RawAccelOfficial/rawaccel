@@ -46,11 +46,8 @@ namespace userinterface.ViewModels.Profile
             profileListView.SelectedProfileChanged += OnProfileSelectionChanged;
             Debug.WriteLine($"Event subscription: {stopwatch.ElapsedMilliseconds}ms");
 
-            stopwatch.Restart();
-            // Set initial selected profile view based on default profile
-            var defaultProfile = ProfilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
-            UpdateSelectedProfileView(defaultProfile ?? ProfilesModel.Profiles.FirstOrDefault());
-            Debug.WriteLine($"Initial profile selection: {stopwatch.ElapsedMilliseconds}ms");
+            // Don't select any profile by default to avoid auto-navigation on startup
+            // UpdateSelectedProfileView(null);
             
             Debug.WriteLine($"ProfilesPageViewModel constructor completed in total: {stopwatch.ElapsedMilliseconds}ms");
         }
@@ -75,8 +72,8 @@ namespace userinterface.ViewModels.Profile
             IsInitializing = true;
 
             UpdateProfileViewModels();
-            var defaultProfile = ProfilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
-            UpdateSelectedProfileView(defaultProfile ?? ProfilesModel.Profiles.FirstOrDefault());
+            // Don't select any profile by default
+            // UpdateSelectedProfileView(null);
 
             IsInitializing = false;
             IsInitialized = true;

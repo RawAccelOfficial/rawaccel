@@ -90,15 +90,8 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         // Start the startup animation to expand profiles from collapsed state
         _ = ExpandElements();
 
-        var defaultProfile = profilesModel.Profiles.FirstOrDefault(p => p == BE.ProfilesModel.DefaultProfile);
-        if (defaultProfile != null)
-        {
-            SetSelectedProfile(defaultProfile);
-        }
-        else if (profilesModel.Profiles.Count > 0)
-        {
-            SetSelectedProfile(profilesModel.Profiles[0]);
-        }
+        // Don't select any profile by default to avoid auto-navigation
+        // SetSelectedProfile(null);
     }
 
     private void OnLocalizationPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
