@@ -30,6 +30,35 @@ public partial class DevicesListView : UserControl
     
     public bool AreAnimationsActive => areAnimationsActive;
 
+    public async Task AnimateDeviceDelete(DeviceViewModel deviceViewModel)
+    {
+        if (viewModel == null) return;
+        
+        int index = viewModel.DeviceViews.IndexOf(deviceViewModel);
+        if (index < 0) return;
+        
+        Debug.WriteLine($"[DevicesListView] AnimateDeviceDelete called for device at index {index}");
+        
+        var container = DevicesListInView.ContainerFromIndex(index) as Control;
+        if (container != null)
+        {
+            // First animate the container out
+            await AnimateDeviceOut(container, index);
+            
+            // After animation completes, remove from the backend collection
+            // This will trigger the CollectionChanged event but we'll ignore it since animation is done
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                // deviceViewModel.DeleteSelf();
+            });
+        }
+        else
+        {
+            Debug.WriteLine($"[DevicesListView] Could not find container for device at index {index}, performing direct delete");
+            deviceViewModel.DeleteSelf();
+        }
+    }
+
     public DevicesListView()
     {
         InitializeComponent();
@@ -52,6 +81,7 @@ public partial class DevicesListView : UserControl
             lastKnownItemCount = vm.DeviceViews.Count;
             Debug.WriteLine($"[DevicesListView] Subscribing to DeviceViews.CollectionChanged. Current count: {vm.DeviceViews.Count}");
             vm.DeviceViews.CollectionChanged += OnDevicesCollectionChanged;
+            vm.SetView(this);
         }
     }
 
@@ -109,17 +139,7 @@ public partial class DevicesListView : UserControl
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null && e.OldStartingIndex >= 0)
         {
-            Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex}, starting slide-left animation");
-            
-            var container = DevicesListInView.ContainerFromIndex(e.OldStartingIndex) as Control;
-            if (container != null)
-            {
-                _ = Task.Run(async () => await AnimateDeviceOut(container, e.OldStartingIndex));
-            }
-            else
-            {
-                Debug.WriteLine($"[DevicesListView] Could not find container for removed device at index {e.OldStartingIndex}");
-            }
+            Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex} - animation already handled by delete button");
             
             if (viewModel != null)
             {

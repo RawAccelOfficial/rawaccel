@@ -103,7 +103,8 @@
                         Classes="DeleteButton"
                         Command="{Binding DeleteCommand}"
                         Margin="8,0,0,0"
-                        IsEnabled="{Binding !IsDefaultDevice}">
+                        IsEnabled="{Binding !IsDefaultDevice}"
+                        Click="OnDeleteButtonClick">
 					<PathIcon Data="{StaticResource delete_regular}" Width="16" Height="16" />
 				</Button>
 			</Grid>

@@ -2,12 +2,15 @@
 using System.Collections.Specialized;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Views.Device;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Device
 {
     public partial class DevicesListViewModel : ViewModelBase
     {
+        private DevicesListView? devicesListView;
+
         public DevicesListViewModel(BE.DevicesModel devicesBE)
         {
             DevicesBE = devicesBE;
@@ -27,6 +30,11 @@ namespace userinterface.ViewModels.Device
 
         public ICommand AddDeviceCommand { get; }
 
+        public void SetView(DevicesListView view)
+        {
+            devicesListView = view;
+        }
+
         private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
@@ -38,7 +46,7 @@ namespace userinterface.ViewModels.Device
                         {
                             int index = DevicesBE.Devices.IndexOf(device);
                             bool isDefault = index == 0;
-                            var deviceViewModel = new DeviceViewModel(device, DevicesBE, isDefault);
+                            var deviceViewModel = new DeviceViewModel(device, DevicesBE, isDefault, devicesListView != null ? devicesListView.AnimateDeviceDelete : null);
                             DeviceViews.Insert(index, deviceViewModel);
                         }
                     }
@@ -70,7 +78,7 @@ namespace userinterface.ViewModels.Device
             {
                 var device = DevicesBE.Devices[i];
                 bool isDefault = i == 0;
-                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, isDefault));
+                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, isDefault, devicesListView != null ? devicesListView.AnimateDeviceDelete : null));
             }
         }
 

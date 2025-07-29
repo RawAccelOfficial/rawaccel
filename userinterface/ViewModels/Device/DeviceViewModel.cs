@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using userinterface.ViewModels.Controls;
@@ -8,11 +10,12 @@ namespace userinterface.ViewModels.Device
 {
     public partial class DeviceViewModel : ViewModelBase
     {
-        public DeviceViewModel(BE.DeviceModel deviceBE, BE.DevicesModel devicesBE, bool isDefault = false)
+        public DeviceViewModel(BE.DeviceModel deviceBE, BE.DevicesModel devicesBE, bool isDefault = false, Func<DeviceViewModel, Task>? animatedDeleteCallback = null)
         {
             DeviceBE = deviceBE;
             DevicesBE = devicesBE;
             IsDefaultDevice = isDefault;
+            AnimatedDeleteCallback = animatedDeleteCallback;
 
             NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
 
@@ -28,14 +31,16 @@ namespace userinterface.ViewModels.Device
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
 
             DeleteCommand = new RelayCommand(
-                () => DeleteSelf());
+                async () => await DeleteWithAnimation());
         }
 
-        protected BE.DeviceModel DeviceBE { get; }
+        internal BE.DeviceModel DeviceBE { get; }
 
-        protected BE.DevicesModel DevicesBE { get; }
+        internal BE.DevicesModel DevicesBE { get; }
 
         public bool IsDefaultDevice { get; }
+
+        private Func<DeviceViewModel, Task>? AnimatedDeleteCallback { get; }
 
         public NamedEditableFieldViewModel NameField { get; set; }
 
@@ -59,6 +64,15 @@ namespace userinterface.ViewModels.Device
             {
                 OnPropertyChanged(nameof(IsExpanderEnabled));
             }
+        }
+
+        private async Task DeleteWithAnimation()
+        {
+            if (AnimatedDeleteCallback != null)
+            {
+                await AnimatedDeleteCallback(this);
+            }
+            // No fallback - deletion should only happen through animation callback
         }
 
         public void DeleteSelf()
