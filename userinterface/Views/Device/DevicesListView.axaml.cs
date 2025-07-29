@@ -39,6 +39,13 @@ public partial class DevicesListView : UserControl
     
     public bool AreAnimationsActive => areAnimationsActive;
 
+    public DevicesListView()
+    {
+        InitializeComponent();
+        DataContextChanged += OnDataContextChanged;
+        DevicesListInView.ContainerPrepared += OnContainerPrepared;
+    }
+
     public async Task AnimateDeviceDelete(DeviceViewModel deviceViewModel)
     {
         if (viewModel == null) return;
@@ -46,29 +53,21 @@ public partial class DevicesListView : UserControl
         int index = viewModel.DeviceViews.IndexOf(deviceViewModel);
         if (index < 0) return;
         
-        Debug.WriteLine($"[DevicesListView] AnimateDeviceDelete called for device at index {index}");
-        
         var container = DevicesListInView.ContainerFromIndex(index) as Control;
         if (container != null)
         {
-            // Set flag to prevent normal collection change animations
             isCustomDeleteInProgress = true;
             
             try
             {
-                // First, hide all other items
                 await HideAllOtherDevices(index);
-                
-                // Then animate the target container out
                 await AnimateDeviceOut(container, index);
                 
-                // After animation completes, remove from the backend collection
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     deviceViewModel.DeleteSelf();
                 });
                 
-                // Finally, show all remaining devices with stagger
                 await AnimateAllDevicesIn();
             }
             finally
@@ -78,22 +77,12 @@ public partial class DevicesListView : UserControl
         }
         else
         {
-            Debug.WriteLine($"[DevicesListView] Could not find container for device at index {index}, performing direct delete");
             deviceViewModel.DeleteSelf();
         }
     }
 
-    public DevicesListView()
-    {
-        InitializeComponent();
-        DataContextChanged += OnDataContextChanged;
-        DevicesListInView.ContainerPrepared += OnContainerPrepared;
-    }
-
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        Debug.WriteLine($"[DevicesListView] DataContext changed to: {DataContext?.GetType().Name}");
-        
         if (viewModel != null)
         {
             viewModel.DeviceViews.CollectionChanged -= OnDevicesCollectionChanged;
@@ -103,7 +92,6 @@ public partial class DevicesListView : UserControl
         {
             viewModel = vm;
             lastKnownItemCount = vm.DeviceViews.Count;
-            Debug.WriteLine($"[DevicesListView] Subscribing to DeviceViews.CollectionChanged. Current count: {vm.DeviceViews.Count}");
             vm.DeviceViews.CollectionChanged += OnDevicesCollectionChanged;
             vm.SetView(this);
             
@@ -113,7 +101,6 @@ public partial class DevicesListView : UserControl
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     isInitialLoad = false;
-                    Debug.WriteLine($"[DevicesListView] Initial load complete, isInitialLoad set to false");
                 });
             });
         }
@@ -125,12 +112,8 @@ public partial class DevicesListView : UserControl
         {
             bool isNewItem = e.Index >= lastKnownItemCount && !isInitialLoad;
             
-            Debug.WriteLine($"[DevicesListView] Container prepared at index {e.Index}, lastKnownItemCount: {lastKnownItemCount}, isNewItem: {isNewItem}, isInitialLoad: {isInitialLoad}");
-            
             if (isInitialLoad)
             {
-                Debug.WriteLine($"[DevicesListView] Initial load container prepared at index {e.Index}, setting up for staggered animation");
-                
                 container.Opacity = 0;
                 container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
                 
@@ -143,8 +126,6 @@ public partial class DevicesListView : UserControl
             }
             else if (isNewItem)
             {
-                Debug.WriteLine($"[DevicesListView] New container prepared at index {e.Index}, setting up for slide-up animation");
-                
                 container.Opacity = 0;
                 container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
                 
@@ -156,7 +137,6 @@ public partial class DevicesListView : UserControl
             }
             else
             {
-                Debug.WriteLine($"[DevicesListView] Existing container prepared at index {e.Index}, keeping visible");
                 container.Opacity = 1;
                 container.RenderTransform = new TranslateTransform(0, 0);
             }
@@ -165,13 +145,8 @@ public partial class DevicesListView : UserControl
 
     private async void OnDevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        Debug.WriteLine($"[DevicesListView] Collection changed: {e.Action}, isCustomDeleteInProgress: {isCustomDeleteInProgress}");
-
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null && e.NewItems.Count > 0)
         {
-            Debug.WriteLine($"[DevicesListView] Device added at index {e.NewStartingIndex}, count was {lastKnownItemCount}");
-            
-            // Update known count after a delay to allow ContainerPrepared to handle the animation
             _ = Task.Run(async () =>
             {
                 await Task.Delay(200);
@@ -180,40 +155,18 @@ public partial class DevicesListView : UserControl
                     if (viewModel != null)
                     {
                         lastKnownItemCount = viewModel.DeviceViews.Count;
-                        Debug.WriteLine($"[DevicesListView] Updated known count to {lastKnownItemCount}");
                     }
                 });
             });
         }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null && e.OldStartingIndex >= 0)
+        else if (viewModel != null)
         {
-            if (isCustomDeleteInProgress)
-            {
-                Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex} - part of custom delete sequence, ignoring");
-            }
-            else
-            {
-                Debug.WriteLine($"[DevicesListView] Device removed at index {e.OldStartingIndex} - animation already handled by delete button");
-            }
-            
-            if (viewModel != null)
-            {
-                lastKnownItemCount = viewModel.DeviceViews.Count;
-            }
-        }
-        else
-        {
-            if (viewModel != null)
-            {
-                lastKnownItemCount = viewModel.DeviceViews.Count;
-            }
+            lastKnownItemCount = viewModel.DeviceViews.Count;
         }
     }
 
     private async Task AnimateDeviceIn(Control container, int index)
     {
-        Debug.WriteLine($"[DevicesListView] AnimateDeviceIn called for index {index}, container type: {container.GetType().Name}");
-        
         await operationSemaphore.WaitAsync();
         
         try
@@ -224,7 +177,6 @@ public partial class DevicesListView : UserControl
             {
                 if (activeAnimations.TryGetValue(index, out var existingCts))
                 {
-                    Debug.WriteLine($"[DevicesListView] Cancelling existing animation for index {index}");
                     existingCts.Cancel();
                     existingCts.Dispose();
                 }
@@ -236,180 +188,22 @@ public partial class DevicesListView : UserControl
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                Debug.WriteLine($"[DevicesListView] Starting slide-up + fade-in animation for container at index {index}");
-                Debug.WriteLine($"[DevicesListView] Container initial opacity: {container.Opacity}, RenderTransform: {container.RenderTransform}");
-
                 var originalTransitions = container.Transitions;
                 container.Transitions = null;
 
                 try
                 {
-                    // Ensure we have a TranslateTransform to animate
-                    var transform = container.RenderTransform as TranslateTransform;
-                    if (transform == null)
-                    {
-                        transform = new TranslateTransform(0, SlideUpDistance);
-                        container.RenderTransform = transform;
-                    }
+                    var transform = EnsureTranslateTransform(container, 0, SlideUpDistance);
 
-                    var opacityAnimation = new Animation
-                    {
-                        Duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs),
-                        FillMode = FillMode.Forward,
-                        Easing = new QuadraticEaseOut(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = OpacityProperty,
-                                        Value = 0.0
-                                    }
-                                }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = OpacityProperty,
-                                        Value = 1.0
-                                    }
-                                }
-                            }
-                        }
-                    };
-
-                    var translateAnimation = new Animation
-                    {
-                        Duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs),
-                        FillMode = FillMode.Forward,
-                        Easing = new QuadraticEaseOut(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = TranslateTransform.YProperty,
-                                        Value = SlideUpDistance
-                                    }
-                                }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = TranslateTransform.YProperty,
-                                        Value = 0.0
-                                    }
-                                }
-                            }
-                        }
-                    };
-
-                    Debug.WriteLine($"[DevicesListView] Running animations...");
+                    var opacityAnimation = CreateOpacityAnimation(0.0, 1.0, InitialLoadAnimationDurationMs, new QuadraticEaseOut());
                     
-                    // Run opacity animation on container
-                    var opacityTask = opacityAnimation.RunAsync(container);
-                    
-                    // For transform animation, we need to animate the transform properties through the container
-                    // by creating a composite animation that targets the transform through the container
-                    var compositeAnimation = new Animation
-                    {
-                        Duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs),
-                        FillMode = FillMode.Forward,
-                        Easing = new QuadraticEaseOut(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = OpacityProperty,
-                                        Value = 0.0
-                                    }
-                                }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = OpacityProperty,
-                                        Value = 1.0
-                                    }
-                                }
-                            }
-                        }
-                    };
-                    
-                    // Manually animate the transform Y property
-                    var startY = SlideUpDistance;
-                    var endY = 0.0;
-                    var startTime = DateTime.Now;
-                    var duration = TimeSpan.FromMilliseconds(InitialLoadAnimationDurationMs);
-                    
-                    var transformTask = Task.Run(async () =>
-                    {
-                        while (DateTime.Now - startTime < duration)
-                        {
-                            var elapsed = DateTime.Now - startTime;
-                            var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
-                            
-                            // Apply smooth ease out with back effect
-                            var easedProgress = EaseOutBack(progress);
-                            var currentY = startY + (endY - startY) * easedProgress;
-                            
-                            await Dispatcher.UIThread.InvokeAsync(() =>
-                            {
-                                if (container.RenderTransform is TranslateTransform t)
-                                {
-                                    t.Y = currentY;
-                                }
-                            });
-                            
-                            await Task.Delay(FrameDelayMs); // 120fps
-                        }
-                        
-                        // Ensure final position
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            if (container.RenderTransform is TranslateTransform t)
-                            {
-                                t.Y = endY;
-                            }
-                        });
-                    });
+                    var opacityTask = opacityAnimation.RunAsync(container, cts.Token);
+                    var transformTask = AnimateTransformAsync(transform, Axis.Y, SlideUpDistance, 0.0, InitialLoadAnimationDurationMs, EaseOutBack, cts.Token);
                     
                     await Task.WhenAll(opacityTask, transformTask);
-                    Debug.WriteLine($"[DevicesListView] Animation completed for container at index {index}");
-                    Debug.WriteLine($"[DevicesListView] Container final opacity: {container.Opacity}, RenderTransform: {container.RenderTransform}");
                 }
                 catch (OperationCanceledException)
                 {
-                    Debug.WriteLine($"[DevicesListView] Animation cancelled for container at index {index}");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[DevicesListView] Animation error for container at index {index}: {ex.Message}");
                 }
                 finally
                 {
@@ -417,28 +211,9 @@ public partial class DevicesListView : UserControl
                 }
             });
         }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[DevicesListView] AnimateDeviceIn error for index {index}: {ex.Message}");
-        }
         finally
         {
-            lock (animationLock)
-            {
-                if (activeAnimations.TryRemove(index, out var cts))
-                {
-                    cts?.Dispose();
-                }
-                
-                if (activeAnimations.IsEmpty)
-                {
-                    areAnimationsActive = false;
-                }
-            }
-            
+            CleanupAnimation(index);
             operationSemaphore.Release();
         }
     }
@@ -466,138 +241,22 @@ public partial class DevicesListView : UserControl
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                Debug.WriteLine($"[DevicesListView] Starting slide-left + fade-out animation for container at index {index}");
-
                 var originalTransitions = container.Transitions;
                 container.Transitions = null;
 
                 try
                 {
-                    // Ensure we have a TranslateTransform to animate
-                    var transform = container.RenderTransform as TranslateTransform;
-                    if (transform == null)
-                    {
-                        transform = new TranslateTransform(0, 0);
-                        container.RenderTransform = transform;
-                    }
+                    var transform = EnsureTranslateTransform(container, 0, 0);
 
-                    var opacityAnimation = new Animation
-                    {
-                        Duration = TimeSpan.FromMilliseconds(DeleteAnimationDurationMs),
-                        FillMode = FillMode.Forward,
-                        Easing = new QuadraticEaseIn(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = OpacityProperty,
-                                        Value = 1.0
-                                    }
-                                }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = OpacityProperty,
-                                        Value = 0.0
-                                    }
-                                }
-                            }
-                        }
-                    };
-
-                    var translateAnimation = new Animation
-                    {
-                        Duration = TimeSpan.FromMilliseconds(DeleteAnimationDurationMs),
-                        FillMode = FillMode.Forward,
-                        Easing = new QuadraticEaseIn(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = TranslateTransform.XProperty,
-                                        Value = 0.0
-                                    }
-                                }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters =
-                                {
-                                    new Setter
-                                    {
-                                        Property = TranslateTransform.XProperty,
-                                        Value = -SlideLeftDistance
-                                    }
-                                }
-                            }
-                        }
-                    };
-
-                    Debug.WriteLine($"[DevicesListView] Running slide-left animations...");
+                    var opacityAnimation = CreateOpacityAnimation(1.0, 0.0, DeleteAnimationDurationMs, new QuadraticEaseIn());
                     
-                    // Run opacity animation on container
-                    var opacityTask = opacityAnimation.RunAsync(container);
-                    
-                    // Manually animate the transform X property
-                    var startX = 0.0;
-                    var endX = -SlideLeftDistance;
-                    var startTime = DateTime.Now;
-                    var duration = TimeSpan.FromMilliseconds(DeleteAnimationDurationMs);
-                    
-                    var transformTask = Task.Run(async () =>
-                    {
-                        while (DateTime.Now - startTime < duration)
-                        {
-                            var elapsed = DateTime.Now - startTime;
-                            var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
-                            
-                            // Accelerating easing for fast deletion that speeds up
-                            var easedProgress = EaseInQuad(progress);
-                            var currentX = startX + (endX - startX) * easedProgress;
-                            
-                            await Dispatcher.UIThread.InvokeAsync(() =>
-                            {
-                                if (container.RenderTransform is TranslateTransform t)
-                                {
-                                    t.X = currentX;
-                                }
-                            });
-                            
-                            await Task.Delay(FrameDelayMs); // 120fps
-                        }
-                        
-                        // Ensure final position
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            if (container.RenderTransform is TranslateTransform t)
-                            {
-                                t.X = endX;
-                            }
-                        });
-                    });
+                    var opacityTask = opacityAnimation.RunAsync(container, cts.Token);
+                    var transformTask = AnimateTransformAsync(transform, Axis.X, 0.0, -SlideLeftDistance, DeleteAnimationDurationMs, EaseInQuad, cts.Token);
                     
                     await Task.WhenAll(opacityTask, transformTask);
-                    Debug.WriteLine($"[DevicesListView] Slide-left animation completed for container at index {index}");
                 }
                 catch (OperationCanceledException)
                 {
-                    Debug.WriteLine($"[DevicesListView] Animation cancelled for container at index {index}");
                 }
                 finally
                 {
@@ -605,24 +264,9 @@ public partial class DevicesListView : UserControl
                 }
             });
         }
-        catch (OperationCanceledException)
-        {
-        }
         finally
         {
-            lock (animationLock)
-            {
-                if (activeAnimations.TryRemove(index, out var cts))
-                {
-                    cts?.Dispose();
-                }
-                
-                if (activeAnimations.IsEmpty)
-                {
-                    areAnimationsActive = false;
-                }
-            }
-            
+            CleanupAnimation(index);
             operationSemaphore.Release();
         }
     }
@@ -631,13 +275,11 @@ public partial class DevicesListView : UserControl
     {
         if (viewModel == null) return;
         
-        Debug.WriteLine($"[DevicesListView] Hiding all devices except index {excludeIndex}");
-        
         var hideTasks = new List<Task>();
         
         for (int i = 0; i < viewModel.DeviceViews.Count; i++)
         {
-            if (i == excludeIndex) continue; // Skip the item being deleted
+            if (i == excludeIndex) continue;
             
             var container = DevicesListInView.ContainerFromIndex(i) as Control;
             if (container != null)
@@ -647,56 +289,19 @@ public partial class DevicesListView : UserControl
         }
         
         await Task.WhenAll(hideTasks);
-        Debug.WriteLine($"[DevicesListView] All other devices hidden");
     }
     
     private async Task HideDevice(Control container, int index)
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            Debug.WriteLine($"[DevicesListView] Hiding device at index {index}");
-            
             var originalTransitions = container.Transitions;
             container.Transitions = null;
             
             try
             {
-                var hideAnimation = new Animation
-                {
-                    Duration = TimeSpan.FromMilliseconds(HideOthersAnimationDurationMs),
-                    FillMode = FillMode.Forward,
-                    Easing = new LinearEasing(),
-                    Children =
-                    {
-                        new KeyFrame
-                        {
-                            Cue = new Cue(0d),
-                            Setters =
-                            {
-                                new Setter
-                                {
-                                    Property = OpacityProperty,
-                                    Value = container.Opacity
-                                }
-                            }
-                        },
-                        new KeyFrame
-                        {
-                            Cue = new Cue(1d),
-                            Setters =
-                            {
-                                new Setter
-                                {
-                                    Property = OpacityProperty,
-                                    Value = 0.0
-                                }
-                            }
-                        }
-                    }
-                };
-                
+                var hideAnimation = CreateOpacityAnimation(container.Opacity, 0.0, HideOthersAnimationDurationMs, new LinearEasing());
                 await hideAnimation.RunAsync(container);
-                Debug.WriteLine($"[DevicesListView] Device at index {index} hidden");
             }
             finally
             {
@@ -709,8 +314,6 @@ public partial class DevicesListView : UserControl
     {
         if (viewModel == null) return;
         
-        Debug.WriteLine($"[DevicesListView] Starting staggered fade-in for {viewModel.DeviceViews.Count} devices");
-        
         var showTasks = new List<Task>();
         
         for (int i = 0; i < viewModel.DeviceViews.Count; i++)
@@ -719,125 +322,126 @@ public partial class DevicesListView : UserControl
             if (container != null)
             {
                 int delay = i * StaggerDelayMs;
-                showTasks.Add(ShowDeviceWithDelay(container, i, delay));
+                showTasks.Add(Task.Delay(delay).ContinueWith(_ => ShowDevice(container, i)).Unwrap());
             }
         }
         
         await Task.WhenAll(showTasks);
-        Debug.WriteLine($"[DevicesListView] All devices shown with stagger");
-    }
-    
-    private async Task ShowDeviceWithDelay(Control container, int index, int delayMs)
-    {
-        await Task.Delay(delayMs);
-        await ShowDevice(container, index);
     }
     
     private async Task ShowDevice(Control container, int index)
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            Debug.WriteLine($"[DevicesListView] Showing device at index {index}");
-            
             var originalTransitions = container.Transitions;
             container.Transitions = null;
             
             try
             {
-                // Ensure we have a TranslateTransform for the slide effect
-                var transform = container.RenderTransform as TranslateTransform;
-                if (transform == null)
-                {
-                    transform = new TranslateTransform(0, SlideUpDistance);
-                    container.RenderTransform = transform;
-                }
-                else
-                {
-                    transform.Y = SlideUpDistance;
-                }
-                
+                var transform = EnsureTranslateTransform(container, 0, SlideUpDistance);
                 container.Opacity = 0;
                 
-                var showAnimation = new Animation
-                {
-                    Duration = TimeSpan.FromMilliseconds(AnimationDurationMs),
-                    FillMode = FillMode.Forward,
-                    Easing = new QuadraticEaseOut(),
-                    Children =
-                    {
-                        new KeyFrame
-                        {
-                            Cue = new Cue(0d),
-                            Setters =
-                            {
-                                new Setter
-                                {
-                                    Property = OpacityProperty,
-                                    Value = 0.0
-                                }
-                            }
-                        },
-                        new KeyFrame
-                        {
-                            Cue = new Cue(1d),
-                            Setters =
-                            {
-                                new Setter
-                                {
-                                    Property = OpacityProperty,
-                                    Value = 1.0
-                                }
-                            }
-                        }
-                    }
-                };
-                
-                // Manual Y transform animation with EaseOutBack
-                var startY = SlideUpDistance;
-                var endY = 0.0;
-                var startTime = DateTime.Now;
-                var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+                var showAnimation = CreateOpacityAnimation(0.0, 1.0, AnimationDurationMs, new QuadraticEaseOut());
                 
                 var opacityTask = showAnimation.RunAsync(container);
-                var transformTask = Task.Run(async () =>
-                {
-                    while (DateTime.Now - startTime < duration)
-                    {
-                        var elapsed = DateTime.Now - startTime;
-                        var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
-                        
-                        var easedProgress = EaseOutBack(progress);
-                        var currentY = startY + (endY - startY) * easedProgress;
-                        
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            if (container.RenderTransform is TranslateTransform t)
-                            {
-                                t.Y = currentY;
-                            }
-                        });
-                        
-                        await Task.Delay(FrameDelayMs);
-                    }
-                    
-                    // Ensure final position
-                    await Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        if (container.RenderTransform is TranslateTransform t)
-                        {
-                            t.Y = endY;
-                        }
-                    });
-                });
+                var transformTask = AnimateTransformAsync(transform, Axis.Y, SlideUpDistance, 0.0, AnimationDurationMs, EaseOutBack, CancellationToken.None);
                 
                 await Task.WhenAll(opacityTask, transformTask);
-                Debug.WriteLine($"[DevicesListView] Device at index {index} shown");
             }
             finally
             {
                 container.Transitions = originalTransitions;
             }
         });
+    }
+
+    private TranslateTransform EnsureTranslateTransform(Control container, double x, double y)
+    {
+        if (container.RenderTransform is TranslateTransform transform)
+        {
+            transform.X = x;
+            transform.Y = y;
+            return transform;
+        }
+        
+        transform = new TranslateTransform(x, y);
+        container.RenderTransform = transform;
+        return transform;
+    }
+
+    private static Animation CreateOpacityAnimation(double from, double to, int durationMs, Easing easing)
+    {
+        return new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(durationMs),
+            FillMode = FillMode.Forward,
+            Easing = easing,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0d),
+                    Setters = { new Setter { Property = OpacityProperty, Value = from } }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1d),
+                    Setters = { new Setter { Property = OpacityProperty, Value = to } }
+                }
+            }
+        };
+    }
+
+    private enum Axis { X, Y }
+
+    private async Task AnimateTransformAsync(TranslateTransform transform, Axis axis, double from, double to, int durationMs, Func<double, double> easingFunction, CancellationToken cancellationToken)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var duration = TimeSpan.FromMilliseconds(durationMs);
+        
+        while (stopwatch.Elapsed < duration && !cancellationToken.IsCancellationRequested)
+        {
+            var progress = Math.Min(stopwatch.Elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+            var easedProgress = easingFunction(progress);
+            var currentValue = from + (to - from) * easedProgress;
+            
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (axis == Axis.X)
+                    transform.X = currentValue;
+                else
+                    transform.Y = currentValue;
+            });
+            
+            await Task.Delay(FrameDelayMs, cancellationToken);
+        }
+        
+        if (!cancellationToken.IsCancellationRequested)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (axis == Axis.X)
+                    transform.X = to;
+                else
+                    transform.Y = to;
+            });
+        }
+    }
+
+    private void CleanupAnimation(int index)
+    {
+        lock (animationLock)
+        {
+            if (activeAnimations.TryRemove(index, out var cts))
+            {
+                cts?.Dispose();
+            }
+            
+            if (activeAnimations.IsEmpty)
+            {
+                areAnimationsActive = false;
+            }
+        }
     }
     
     private static double EaseOutBack(double t)
@@ -850,10 +454,5 @@ public partial class DevicesListView : UserControl
     private static double EaseInQuad(double t)
     {
         return t * t;
-    }
-    
-    private static double EaseOutQuint(double t)
-    {
-        return 1 - Math.Pow(1 - t, 5);
     }
 }
