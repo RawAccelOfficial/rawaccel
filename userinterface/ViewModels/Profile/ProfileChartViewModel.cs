@@ -85,7 +85,7 @@ namespace userinterface.ViewModels.Profile
 
         public void Initialize(BE.ProfileModel profileModel)
         {
-            if (IsInitialized && currentProfileModel == profileModel)
+            if (currentProfileModel == profileModel)
                 return;
 
             currentProfileModel = profileModel;
@@ -94,34 +94,21 @@ namespace userinterface.ViewModels.Profile
             YXRatio = profileModel.YXRatio;
 
             YXRatio.PropertyChanged += OnYXRatioChanged;
-
-            CreateSeries();
-
-            XAxes = CreateXAxes();
-            YAxes = CreateYAxes();
-            TooltipTextPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush));
-            TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
-
-            // Subscribe to theme and language changes
-            this.themeService.ThemeChanged += OnThemeChanged;
-            this.localizationService.PropertyChanged += OnLocalizationChanged;
-
-            IsInitialized = true;
         }
 
         public Task InitializeAsync()
         {
-            if (IsInitializing || IsInitialized)
+            if (IsInitializing || IsInitialized || currentProfileModel == null)
                 return Task.CompletedTask;
 
             IsInitializing = true;
 
-            // These operations should be fast enough to run synchronously
+            // Initialize chart components - these must be on UI thread
             CreateSeries();
             XAxes = CreateXAxes();
             YAxes = CreateYAxes();
-            TooltipTextPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush));
-            TooltipBackgroundPaint = new SolidColorPaint(RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+            TooltipTextPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush));
+            TooltipBackgroundPaint = new SolidColorPaint(themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
 
             // Subscribe to theme and language changes
             this.themeService.ThemeChanged += OnThemeChanged;
@@ -129,6 +116,13 @@ namespace userinterface.ViewModels.Profile
 
             IsInitializing = false;
             IsInitialized = true;
+
+            // Notify property changes for bindings
+            OnPropertyChanged(nameof(Series));
+            OnPropertyChanged(nameof(XAxes));
+            OnPropertyChanged(nameof(YAxes));
+            OnPropertyChanged(nameof(TooltipTextPaint));
+            OnPropertyChanged(nameof(TooltipBackgroundPaint));
 
             return Task.CompletedTask;
         }
@@ -208,31 +202,6 @@ namespace userinterface.ViewModels.Profile
             YXRatio.PropertyChanged -= OnYXRatioChanged;
         }
 
-        private static SKColor RetrieveThemeColor(string resourceKey)
-        {
-            var app = Application.Current;
-            if (app?.Resources == null || !app.Resources.TryGetResource(resourceKey, app.ActualThemeVariant, out var resource))
-                return RetrieveFallbackColor(resourceKey);
-
-            return resource switch
-            {
-                SolidColorBrush brush => new SKColor(brush.Color.R, brush.Color.G, brush.Color.B, brush.Color.A),
-                ImmutableSolidColorBrush brush => new SKColor(brush.Color.R, brush.Color.G, brush.Color.B, brush.Color.A),
-                _ => RetrieveFallbackColor(resourceKey)
-            };
-        }
-
-        private static SKColor RetrieveFallbackColor(string resourceKey)
-        {
-            return resourceKey switch
-            {
-                var key when key == AxisTitleBrush => SKColors.White,
-                var key when key == AxisLabelsBrush => SKColors.LightGray,
-                var key when key == AxisSeparatorsBrush => SKColors.Gray,
-                var key when key == TooltipBackgroundBrush => SKColors.Black,
-                _ => SKColors.White
-            };
-        }
 
         private void CreateSeries()
         {
@@ -293,12 +262,12 @@ namespace userinterface.ViewModels.Profile
             {
                 Name = localizationService?.GetText("ChartAxisMouseSpeed") ?? "Mouse Speed",
                 NameTextSize = AxisNameTextSize,
-                NamePaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)),
-                LabelsPaint = new SolidColorPaint(RetrieveThemeColor(AxisLabelsBrush)),
+                NamePaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush)),
+                LabelsPaint = new SolidColorPaint(themeService.GetCachedColor(AxisLabelsBrush)),
                 TextSize = AxisTextSize,
-                SeparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
-                TicksPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
-                SubseparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
+                SeparatorsPaint = new SolidColorPaint(themeService.GetCachedColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
+                TicksPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
+                SubseparatorsPaint = new SolidColorPaint(themeService.GetCachedColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
                 AnimationsSpeed = AnimationsTime,
                 MinLimit = minLimit ?? 0,
                 MaxLimit = maxLimit
@@ -311,12 +280,12 @@ namespace userinterface.ViewModels.Profile
             {
                 Name = localizationService?.GetText("ChartAxisOutput") ?? "Output",
                 NameTextSize = AxisNameTextSize,
-                NamePaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)),
-                LabelsPaint = new SolidColorPaint(RetrieveThemeColor(AxisLabelsBrush)),
+                NamePaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush)),
+                LabelsPaint = new SolidColorPaint(themeService.GetCachedColor(AxisLabelsBrush)),
                 TextSize = AxisTextSize,
-                SeparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
-                TicksPaint = new SolidColorPaint(RetrieveThemeColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
-                SubseparatorsPaint = new SolidColorPaint(RetrieveThemeColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
+                SeparatorsPaint = new SolidColorPaint(themeService.GetCachedColor(AxisSeparatorsBrush)) { StrokeThickness = StandardStrokeThickness },
+                TicksPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush)) { StrokeThickness = StandardStrokeThickness },
+                SubseparatorsPaint = new SolidColorPaint(themeService.GetCachedColor(AxisSeparatorsBrush).WithAlpha(SubSeparatorAlpha)) { StrokeThickness = SubStrokeThickness },
                 AnimationsSpeed = AnimationsTime,
                 MinLimit = minLimit ?? 0,
                 MaxLimit = maxLimit
@@ -364,8 +333,8 @@ namespace userinterface.ViewModels.Profile
 
         private void OnThemeChanged(object? sender, EventArgs e)
         {
-            TooltipTextPaint.Color = RetrieveThemeColor(AxisTitleBrush);
-            TooltipBackgroundPaint.Color = RetrieveThemeColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
+            TooltipTextPaint.Color = themeService.GetCachedColor(AxisTitleBrush);
+            TooltipBackgroundPaint.Color = themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
 
             var currentXMin = XAxes?[0]?.MinLimit;
             var currentXMax = XAxes?[0]?.MaxLimit;

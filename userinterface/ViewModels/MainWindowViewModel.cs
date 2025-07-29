@@ -26,13 +26,13 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private NavigationPage selectedPageValue = NavigationPage.Devices;
     private bool isProfilesExpandedValue = false;
 
-    // Lazy-loaded ViewModels
-    private DevicesPageViewModel? devicesPage;
-    private ProfilesPageViewModel? profilesPage;
-    private MappingsPageViewModel? mappingsPage;
-    private SettingsPageViewModel? settingsPage;
-    private ProfileListViewModel? profileListView;
-    private ToastViewModel? toastViewModel;
+    // Pre-created ViewModels
+    private readonly DevicesPageViewModel devicesPage;
+    private readonly ProfilesPageViewModel profilesPage;
+    private readonly MappingsPageViewModel mappingsPage;
+    private readonly SettingsPageViewModel settingsPage;
+    private readonly ProfileListViewModel profileListView;
+    private readonly ToastViewModel toastViewModel;
 
     private readonly BE.BackEnd backEnd;
     private readonly IThemeService themeService;
@@ -44,28 +44,30 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
         this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
+        // Pre-create all ViewModels to avoid lazy loading delays
+        devicesPage = App.Services!.GetRequiredService<DevicesPageViewModel>();
+        profilesPage = App.Services!.GetRequiredService<ProfilesPageViewModel>();
+        mappingsPage = App.Services!.GetRequiredService<MappingsPageViewModel>();
+        settingsPage = App.Services!.GetRequiredService<SettingsPageViewModel>();
+        profileListView = App.Services!.GetRequiredService<ProfileListViewModel>();
+        toastViewModel = App.Services!.GetRequiredService<ToastViewModel>();
+
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
     }
 
-    public DevicesPageViewModel DevicesPage =>
-        devicesPage ??= App.Services!.GetRequiredService<DevicesPageViewModel>();
+    public DevicesPageViewModel DevicesPage => devicesPage;
 
-    public ProfilesPageViewModel ProfilesPage =>
-        profilesPage ??= App.Services!.GetRequiredService<ProfilesPageViewModel>();
+    public ProfilesPageViewModel ProfilesPage => profilesPage;
 
-    public MappingsPageViewModel MappingsPage =>
-        mappingsPage ??= App.Services!.GetRequiredService<MappingsPageViewModel>();
+    public MappingsPageViewModel MappingsPage => mappingsPage;
 
-    public SettingsPageViewModel SettingsPage =>
-        settingsPage ??= App.Services!.GetRequiredService<SettingsPageViewModel>();
+    public SettingsPageViewModel SettingsPage => settingsPage;
 
-    public ProfileListViewModel ProfileListView =>
-        profileListView ??= App.Services!.GetRequiredService<ProfileListViewModel>();
+    public ProfileListViewModel ProfileListView => profileListView;
 
-    public ToastViewModel ToastViewModel =>
-        toastViewModel ??= App.Services!.GetRequiredService<ToastViewModel>();
+    public ToastViewModel ToastViewModel => toastViewModel;
 
     protected BE.BackEnd BackEnd => backEnd;
 
