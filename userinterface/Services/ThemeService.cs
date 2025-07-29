@@ -52,7 +52,14 @@ namespace userinterface.Services
             if (colorCache.TryGetValue(resourceKey, out var cachedColor))
                 return cachedColor;
 
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var color = ResolveThemeColor(resourceKey);
+            
+            if (stopwatch.ElapsedMilliseconds >= 10)
+            {
+                System.Diagnostics.Debug.WriteLine($"[THEME SERVICE] SLOW: GetCachedColor('{resourceKey}') took {stopwatch.ElapsedMilliseconds}ms on thread {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+            }
+            
             colorCache[resourceKey] = color;
             return color;
         }

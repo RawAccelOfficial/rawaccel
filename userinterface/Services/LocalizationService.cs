@@ -39,7 +39,15 @@ public class LocalizationService : INotifyPropertyChanged
 
     public string GetText(string key)
     {
-        return Properties.Resources.Strings.ResourceManager.GetString(key) ?? key;
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var result = Properties.Resources.Strings.ResourceManager.GetString(key) ?? key;
+        
+        if (stopwatch.ElapsedMilliseconds >= 10)
+        {
+            System.Diagnostics.Debug.WriteLine($"[LOCALIZATION] SLOW: GetText('{key}') took {stopwatch.ElapsedMilliseconds}ms on thread {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+        }
+        
+        return result;
     }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
