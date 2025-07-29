@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -63,6 +65,7 @@ namespace userinterface.ViewModels.Profile
 
         private readonly IThemeService themeService;
         private readonly LocalizationService localizationService;
+        private readonly PreviewChartRenderer previewRenderer;
         private BE.ProfileModel currentProfileModel = null!;
         
         // Cached paint objects to avoid recreation
@@ -72,18 +75,39 @@ namespace userinterface.ViewModels.Profile
         // Sync object for thread safety - single allocation
         private readonly object syncObject = new object();
 
-        public ProfileChartViewModel(IThemeService themeService, LocalizationService localizationService)
+        public ProfileChartViewModel(IThemeService themeService, LocalizationService localizationService, PreviewChartRenderer previewRenderer)
         {
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
             this.localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
+            this.previewRenderer = previewRenderer ?? throw new ArgumentNullException(nameof(previewRenderer));
 
-            RecreateAxesCommand = new RelayCommand(() => RecreateAxes());
-            FitToDataCommand = new RelayCommand(() => FitToData());
+            RecreateAxesCommand = new RelayCommand(() => 
+            {
+                EnsureInteractiveChartLoaded();
+                RecreateAxes();
+            });
+            FitToDataCommand = new RelayCommand(() => 
+            {
+                EnsureInteractiveChartLoaded();
+                FitToData();
+            });
         }
 
         public bool IsInitialized { get; private set; }
 
         public bool IsInitializing { get; private set; }
+        
+        public bool IsPreviewMode { get; private set; } = true;
+        
+        public bool IsInteractiveMode { get; private set; } = false;
+        
+        public bool IsLoadingChart { get; private set; } = false;
+        
+        public double ChartOpacity { get; private set; } = 0.0;
+        
+        public Bitmap? PreviewImageSource { get; private set; }
+        
+        private bool hasUserInteracted = false;
 
         public object Sync => syncObject;
 
@@ -111,41 +135,233 @@ namespace userinterface.ViewModels.Profile
         // INITIALIZATION & SETUP
         // ================================================================================================
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             if (IsInitializing || IsInitialized || currentProfileModel == null)
-                return Task.CompletedTask;
+                return;
 
             IsInitializing = true;
 
             try
             {
-                // Create optimized chart components
-                Series.Clear();
-                CreateSeries();
-                XAxes = CreateXAxes();
-                YAxes = CreateYAxes();
-                TooltipTextPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush));
-                TooltipBackgroundPaint = new SolidColorPaint(themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+                // Phase 1: Disable preview generation temporarily to test frame drops  
+                // _ = GeneratePreviewImageAsync();
                 
-                // Subscribe to events
-                this.themeService.ThemeChanged += OnThemeChanged;
-                this.localizationService.PropertyChanged += OnLocalizationChanged;
+                // Phase 2: Disable interactive chart loading temporarily to test frame drops
+                /*
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        // Small delay to ensure preview is visible
+                        await Task.Delay(50);
+                        
+                        // Show loading state
+                        IsLoadingChart = true;
+                        OnPropertyChanged(nameof(IsLoadingChart));
+                        
+                        // Initialize chart components on background thread
+                        await Task.Run(() =>
+                        {
+                            Series.Clear();
+                            CreateSeries();
+                        });
+                        
+                        // UI updates must happen on UI thread
+                        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                        {
+                            try
+                            {
+                                XAxes = CreateXAxes();
+                                YAxes = CreateYAxes();
+                                TooltipTextPaint = new SolidColorPaint(themeService.GetCachedColor(AxisTitleBrush));
+                                TooltipBackgroundPaint = new SolidColorPaint(themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha));
+                                
+                                // Subscribe to events
+                                this.themeService.ThemeChanged += OnThemeChanged;
+                                this.localizationService.PropertyChanged += OnLocalizationChanged;
 
-                // Notify UI of changes
-                OnPropertyChanged(nameof(XAxes));
-                OnPropertyChanged(nameof(YAxes));
-                OnPropertyChanged(nameof(TooltipTextPaint));
-                OnPropertyChanged(nameof(TooltipBackgroundPaint));
-
+                                // Notify UI of changes
+                                OnPropertyChanged(nameof(XAxes));
+                                OnPropertyChanged(nameof(YAxes));
+                                OnPropertyChanged(nameof(TooltipTextPaint));
+                                OnPropertyChanged(nameof(TooltipBackgroundPaint));
+                                OnPropertyChanged(nameof(Series));
+                                
+                                // Transition to interactive mode
+                                TransitionToInteractiveMode();
+                                
+                                IsInitialized = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"[CHART INIT] Error in UI thread: {ex.Message}");
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[CHART INIT] Error in background initialization: {ex.Message}");
+                        
+                        // Fallback to preview mode on error
+                        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                        {
+                            IsLoadingChart = false;
+                            OnPropertyChanged(nameof(IsLoadingChart));
+                        });
+                    }
+                });
+                */
+                
+                // Minimal initialization - no chart loading at all
                 IsInitialized = true;
             }
             finally
             {
                 IsInitializing = false;
             }
+        }
 
-            return Task.CompletedTask;
+        private async Task GeneratePreviewImageAsync()
+        {
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        var xPoints = XCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
+                        var yPoints = YCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
+                        
+                        // Reduce points for preview
+                        var reducedXPoints = ReducePointsForPreview(xPoints, 32);
+                        var reducedYPoints = ReducePointsForPreview(yPoints, 32);
+                        
+                        var xAxisName = localizationService?.GetText("ChartAxisMouseSpeed") ?? "Mouse Speed";
+                        var yAxisName = localizationService?.GetText("ChartAxisOutput") ?? "Output";
+                        
+                        var bitmapBytes = await previewRenderer.GenerateChartPreviewAsync(
+                            reducedXPoints, 
+                            reducedYPoints, 
+                            YXRatio.CurrentValidatedValue,
+                            xAxisName,
+                            yAxisName
+                        );
+                        
+                        if (bitmapBytes.Length > 0)
+                        {
+                            // Update UI on UI thread
+                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                            {
+                                try
+                                {
+                                    using var stream = new MemoryStream(bitmapBytes);
+                                    PreviewImageSource = new Bitmap(stream);
+                                    OnPropertyChanged(nameof(PreviewImageSource));
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"[CHART PREVIEW] Error creating bitmap: {ex.Message}");
+                                }
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[CHART PREVIEW] Error in background thread: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CHART PREVIEW] Error generating preview: {ex.Message}");
+            }
+        }
+
+        private void EnsureInteractiveChartLoaded()
+        {
+            if (!IsInteractiveMode && !IsLoadingChart && !hasUserInteracted)
+            {
+                hasUserInteracted = true;
+                // Force immediate transition to interactive mode
+                _ = ForceInteractiveMode();
+            }
+        }
+
+        private async Task ForceInteractiveMode()
+        {
+            if (IsInteractiveMode)
+                return;
+
+            IsLoadingChart = true;
+            OnPropertyChanged(nameof(IsLoadingChart));
+
+            // Load full resolution data for interactive use
+            await Task.Run(() =>
+            {
+                Series.Clear();
+                CreateFullResolutionSeries();
+            });
+
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                OnPropertyChanged(nameof(Series));
+                TransitionToInteractiveMode();
+            });
+        }
+
+        private void CreateFullResolutionSeries()
+        {
+            // Use full resolution data for interactive chart
+            var xPoints = XCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
+            var yPoints = YCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
+
+            // Initialize cached stroke objects
+            if (cachedXStroke == null)
+                cachedXStroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness };
+            if (cachedYStroke == null)
+                cachedYStroke = new SolidColorPaint(SKColors.OrangeRed) { StrokeThickness = MainStrokeThickness };
+            
+            // Optimize array allocation based on YX ratio
+            var hasYCurve = Math.Abs(YXRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold;
+            var seriesArray = hasYCurve ? new ISeries[2] : new ISeries[1];
+            
+            seriesArray[0] = CreateOptimizedLineSeries(xPoints, cachedXStroke, "X Curve Profile", "X Output");
+            
+            if (hasYCurve)
+            {
+                seriesArray[1] = CreateOptimizedLineSeries(yPoints, cachedYStroke, "Y Curve Profile", "Y Output");
+            }
+
+            foreach (var series in seriesArray)
+            {
+                Series.Add(series);
+            }
+        }
+
+        private async void TransitionToInteractiveMode()
+        {
+            // Phase 1: Hide loading indicator and show interactive chart at 0 opacity
+            IsLoadingChart = false;
+            IsInteractiveMode = true;
+            ChartOpacity = 0.0;
+            
+            OnPropertyChanged(nameof(IsLoadingChart));
+            OnPropertyChanged(nameof(IsInteractiveMode));
+            OnPropertyChanged(nameof(ChartOpacity));
+            
+            // Small delay to ensure chart is rendered
+            await Task.Delay(100);
+            
+            // Phase 2: Fade in interactive chart and fade out preview
+            ChartOpacity = 1.0;
+            OnPropertyChanged(nameof(ChartOpacity));
+            
+            // Wait for transition to complete, then hide preview
+            await Task.Delay(200);
+            
+            IsPreviewMode = false;
+            OnPropertyChanged(nameof(IsPreviewMode));
         }
 
         public Task SwitchToProfileAsync(BE.ProfileModel profileModel)
@@ -241,6 +457,16 @@ namespace userinterface.ViewModels.Profile
                 cachedYStroke.Dispose();
                 cachedYStroke = null;
             }
+            
+            // Dispose preview image
+            if (PreviewImageSource != null)
+            {
+                PreviewImageSource.Dispose();
+                PreviewImageSource = null;
+            }
+            
+            // Clear preview renderer cache for memory cleanup
+            previewRenderer.ClearCache();
         }
 
         // ================================================================================================
@@ -253,6 +479,10 @@ namespace userinterface.ViewModels.Profile
             var xPoints = XCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
             var yPoints = YCurvePreview?.Points?.ToArray() ?? Array.Empty<CurvePoint>();
 
+            // Reduce points for better performance
+            var reducedXPoints = ReducePointsForPreview(xPoints, 64);
+            var reducedYPoints = ReducePointsForPreview(yPoints, 64);
+
             // Initialize cached stroke objects
             if (cachedXStroke == null)
                 cachedXStroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = MainStrokeThickness };
@@ -263,14 +493,35 @@ namespace userinterface.ViewModels.Profile
             var hasYCurve = Math.Abs(YXRatio.CurrentValidatedValue - 1.0) > ToleranceThreshold;
             var seriesArray = hasYCurve ? new ISeries[2] : new ISeries[1];
             
-            seriesArray[0] = CreateOptimizedLineSeries(xPoints, cachedXStroke, "X Curve Profile", "X Output");
+            seriesArray[0] = CreateOptimizedLineSeries(reducedXPoints, cachedXStroke, "X Curve Profile", "X Output");
             
             if (hasYCurve)
             {
-                seriesArray[1] = CreateOptimizedLineSeries(yPoints, cachedYStroke, "Y Curve Profile", "Y Output");
+                seriesArray[1] = CreateOptimizedLineSeries(reducedYPoints, cachedYStroke, "Y Curve Profile", "Y Output");
             }
 
             return seriesArray;
+        }
+
+        private CurvePoint[] ReducePointsForPreview(CurvePoint[] points, int targetCount = 64)
+        {
+            if (points.Length <= targetCount)
+                return points;
+
+            // Use uniform sampling for consistent performance
+            var step = (double)points.Length / targetCount;
+            var reducedPoints = new CurvePoint[targetCount];
+            
+            for (int i = 0; i < targetCount; i++)
+            {
+                var sourceIndex = (int)(i * step);
+                if (sourceIndex >= points.Length)
+                    sourceIndex = points.Length - 1;
+                
+                reducedPoints[i] = points[sourceIndex];
+            }
+            
+            return reducedPoints;
         }
 
         private LineSeries<CurvePoint> CreateOptimizedLineSeries(CurvePoint[] points, SolidColorPaint stroke, string name, string outputLabel)

@@ -28,13 +28,57 @@
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
 			<Setter Property="Opacity" Value="1"/>
 		</Style>
+		
+		<!-- Animations for smooth transitions -->
+		<Style Selector="Image.preview-image">
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+				</Transitions>
+			</Setter>
+		</Style>
+		
+		<Style Selector="lvc|CartesianChart.interactive-chart">
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.5"/>
+				</Transitions>
+			</Setter>
+		</Style>
 	</UserControl.Styles>
 	<Border Background="{DynamicResource HoverBackgroundBrush}"
 	        BorderBrush="{DynamicResource BorderBrush}"
 	        BorderThickness="1"
 	        CornerRadius="8">
 		<Grid>
+			<!-- Static Preview Image (shown first for fast loading) -->
+			<Image x:Name="PreviewImage"
+			       Classes="preview-image"
+			       Source="{Binding PreviewImageSource}"
+			       IsVisible="{Binding IsPreviewMode}"
+			       Stretch="Uniform"
+			       StretchDirection="Both"
+			       HorizontalAlignment="Stretch"
+			       VerticalAlignment="Stretch"/>
+			
+			<!-- Loading indicator -->
+			<Grid IsVisible="{Binding IsLoadingChart}" 
+			      Background="#80000000"
+			      HorizontalAlignment="Stretch"
+			      VerticalAlignment="Stretch">
+				<StackPanel Orientation="Vertical" 
+				           HorizontalAlignment="Center" 
+				           VerticalAlignment="Center">
+					<TextBlock Text="Loading interactive chart..." 
+					          Foreground="White" 
+					          FontSize="12" 
+					          HorizontalAlignment="Center"/>
+				</StackPanel>
+			</Grid>
+			
+			<!-- Interactive Chart (shown after loading) -->
 			<lvc:CartesianChart x:Name="Chart"
+			                    Classes="interactive-chart"
 			                    SyncContext="{Binding Sync}"
 			                    Series="{Binding Series}"
 			                    XAxes="{Binding XAxes}"
@@ -43,11 +87,16 @@
 			                    TooltipTextPaint="{Binding TooltipTextPaint}"
 			                    TooltipBackgroundPaint="{Binding TooltipBackgroundPaint}"
 			                    TooltipTextSize="12"
-			                    AutoUpdateEnabled="True"/>
+			                    AutoUpdateEnabled="True"
+			                    IsVisible="{Binding IsInteractiveMode}"
+			                    Opacity="{Binding ChartOpacity}"/>
+			
+			<!-- Chart Controls -->
 			<StackPanel Orientation="Horizontal"
 			            HorizontalAlignment="Right"
 			            VerticalAlignment="Bottom"
-			            Margin="16,16,16,2">
+			            Margin="16,16,16,2"
+			            IsVisible="{Binding IsInteractiveMode}">
 				<Button Classes="chart-control"
 				        Command="{Binding RecreateAxesCommand}"
 				        ToolTip.Tip="{ext:Localized ProfileResetZoom}">

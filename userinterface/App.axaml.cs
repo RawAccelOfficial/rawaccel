@@ -44,6 +44,7 @@ public partial class App : Application
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<FrameTimerService>();
+        services.AddSingleton<PreviewChartRenderer>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
@@ -294,6 +295,12 @@ public partial class App : Application
                     _ = typeof(LiveChartsCore.CartesianChart<>).Assembly;
 
                     _ = typeof(Avalonia.Controls.ItemsRepeater).Assembly;
+                    
+                    // Preload crypto library to prevent UI thread blocking
+                    _ = typeof(System.Security.Cryptography.MD5).Assembly;
+                    
+                    // Preload bitmap and encoding libraries
+                    _ = typeof(Avalonia.Media.Imaging.Bitmap).Assembly;
                 }
                 catch (Exception ex)
                 {
