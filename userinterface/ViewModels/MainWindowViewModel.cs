@@ -159,7 +159,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         
         // Start frame timing to detect UI thread blocking
         frameTimer.StartMonitoring($"Page switch to {page}");
-        frameTimer.StartRenderMonitoring($"Page switch to {page} rendering");
         
         SelectedPage = page;
         Debug.WriteLine($"SelectedPage set: {stopwatch.ElapsedMilliseconds}ms");
@@ -173,7 +172,6 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         // Stop frame timing after a longer delay to capture the full animation cycle
         _ = Task.Delay(500).ContinueWith(_ => 
         {
-            frameTimer.StopRenderMonitoring($"Page switch to {page} rendering completed");
             frameTimer.StopMonitoring($"Page switch to {page} completed");
         });
     }

@@ -12,9 +12,6 @@ namespace userinterface.Services
         private readonly DispatcherTimer frameTimer;
         private const double THRESHOLD_MS = 8.33; // Target 120fps, flag anything over ~8.5ms
         private bool isMonitoring = false;
-        private bool isRenderMonitoring = false;
-        private readonly Stopwatch renderStopwatch = new();
-        private readonly DispatcherTimer renderMonitorTimer;
 
         public FrameTimerService()
         {
@@ -23,13 +20,6 @@ namespace userinterface.Services
                 Interval = TimeSpan.FromTicks(83333) // ~8.33ms (120fps) for high refresh rate detection
             };
             frameTimer.Tick += OnFrameTick;
-
-            // Use a high-priority dispatcher timer to monitor render performance
-            renderMonitorTimer = new DispatcherTimer(DispatcherPriority.Render)
-            {
-                Interval = TimeSpan.FromTicks(83333) // ~8.33ms (120fps)
-            };
-            renderMonitorTimer.Tick += OnRenderTick;
         }
 
         public void StartMonitoring(string context = "")
@@ -51,24 +41,6 @@ namespace userinterface.Services
             Debug.WriteLine($"[FRAME TIMER] Stopped monitoring: {context}");
         }
 
-        public void StartRenderMonitoring(string context = "")
-        {
-            if (isRenderMonitoring) return;
-
-            isRenderMonitoring = true;
-            renderStopwatch.Restart();
-            renderMonitorTimer.Start();
-            Debug.WriteLine($"[RENDER MONITOR] Started render monitoring: {context}");
-        }
-
-        public void StopRenderMonitoring(string context = "")
-        {
-            if (!isRenderMonitoring) return;
-
-            renderMonitorTimer.Stop();
-            isRenderMonitoring = false;
-            Debug.WriteLine($"[RENDER MONITOR] Stopped render monitoring: {context}");
-        }
 
         private void OnFrameTick(object? sender, EventArgs e)
         {
@@ -83,18 +55,6 @@ namespace userinterface.Services
             frameStopwatch.Restart();
         }
 
-        private void OnRenderTick(object? sender, EventArgs e)
-        {
-            if (!isRenderMonitoring) return;
-
-            var elapsed = renderStopwatch.ElapsedMilliseconds;
-            if (elapsed >= THRESHOLD_MS)
-            {
-                Debug.WriteLine($"[RENDER MONITOR] ⚠️ Render dispatch gap: {elapsed}ms - potential render blocking!");
-            }
-            
-            renderStopwatch.Restart();
-        }
 
         // Add a method to detect blocking during specific operations
         public void MonitorOperation(string operationName, Action operation)
@@ -103,7 +63,6 @@ namespace userinterface.Services
             Debug.WriteLine($"[OPERATION MONITOR] Starting: {operationName}");
             
             StartMonitoring($"Operation: {operationName}");
-            StartRenderMonitoring($"Operation: {operationName} render");
             
             try
             {
@@ -113,7 +72,6 @@ namespace userinterface.Services
             {
                 stopwatch.Stop();
                 StopMonitoring($"Operation: {operationName}");
-                StopRenderMonitoring($"Operation: {operationName} render");
                 Debug.WriteLine($"[OPERATION MONITOR] Completed: {operationName} in {stopwatch.ElapsedMilliseconds}ms");
             }
         }

@@ -35,9 +35,8 @@ public partial class ProfileChartView : UserControl
         
         isChartInitialized = true;
         
-        // Monitor both UI thread and render pipeline
+        // Monitor UI thread for blocking issues
         frameTimer?.StartMonitoring("ProfileChartView initialization");
-        frameTimer?.StartRenderMonitoring("ProfileChartView LiveCharts rendering");
         
         if (!viewModel.IsInitialized)
         {
@@ -47,7 +46,6 @@ public partial class ProfileChartView : UserControl
         // Stop monitoring after initialization completes
         _ = System.Threading.Tasks.Task.Delay(50).ContinueWith(_ => 
         {
-            frameTimer?.StopRenderMonitoring("ProfileChartView LiveCharts rendering");
             frameTimer?.StopMonitoring("ProfileChartView initialization");
         });
         

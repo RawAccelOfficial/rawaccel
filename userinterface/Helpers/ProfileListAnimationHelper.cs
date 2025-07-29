@@ -13,6 +13,7 @@ using Avalonia;
 using System.Linq;
 using Avalonia.Styling;
 using System.Runtime.CompilerServices;
+using userinterface.Services;
 
 namespace userinterface.Helpers;
 
@@ -26,6 +27,8 @@ public class ProfileListAnimationHelper : IDisposable
     private volatile bool areAnimationsActive = false;
     private bool disposed = false;
     
+    private readonly FrameTimerService frameTimer = new();
+    
     // Object pools for memory optimization
     private readonly ObjectPool<Animation> animationPool = new(() => new Animation());
     private readonly ObjectPool<List<Task>> taskListPool = new(() => new List<Task>());
@@ -35,6 +38,10 @@ public class ProfileListAnimationHelper : IDisposable
     private readonly Dictionary<int, double> positionCache = new();
     private readonly Dictionary<int, Button> deleteButtonCache = new();
     private readonly Dictionary<string, Animation> animationTemplateCache = new();
+    
+    // Pre-built animations for common operations
+    private Animation? cachedProfileMoveAnimation;
+    private Animation? cachedProfileCollapseAnimation;
     
     // Performance counters
     private volatile int activeAnimationCount = 0;
@@ -71,6 +78,34 @@ public class ProfileListAnimationHelper : IDisposable
         
         positionCache[cacheKey] = position;
         return position;
+    }
+    
+    private Animation GetOptimizedProfileMoveAnimation()
+    {
+        if (cachedProfileMoveAnimation == null)
+        {
+            cachedProfileMoveAnimation = new Animation
+            {
+                Duration = TimeSpan.FromMilliseconds(300),
+                FillMode = FillMode.Forward,
+                Easing = Easing.Parse("0.25,0.1,0.25,1")
+            };
+        }
+        return cachedProfileMoveAnimation;
+    }
+    
+    private Animation GetOptimizedProfileCollapseAnimation()
+    {
+        if (cachedProfileCollapseAnimation == null)
+        {
+            cachedProfileCollapseAnimation = new Animation
+            {
+                Duration = TimeSpan.FromMilliseconds(300),
+                FillMode = FillMode.Forward,
+                Easing = Easing.Parse("0.25,0.1,0.25,1")
+            };
+        }
+        return cachedProfileCollapseAnimation;
     }
     
     public void UpdateAllZIndexes()
@@ -151,6 +186,13 @@ public class ProfileListAnimationHelper : IDisposable
     {
         if (profileIndex >= profiles.Count) return;
 
+        // Check if profile is already at correct position - skip animation if so
+        var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0);
+        if (profiles[profileIndex].Margin == targetMargin && profiles[profileIndex].ZIndex == position)
+        {
+            return;
+        }
+
         // Cancel existing animation for this profile
         if (activeAnimations.TryRemove(profileIndex, out var existingCts))
         {
@@ -160,14 +202,6 @@ public class ProfileListAnimationHelper : IDisposable
                 existingCts.Dispose();
             }
             catch (ObjectDisposedException) { }
-        }
-
-        // Check if profile is already at correct position - skip animation if so
-        var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(position + 1), 8, 0);
-        if (profiles[profileIndex].Margin == targetMargin)
-        {
-            profiles[profileIndex].ZIndex = position;
-            return;
         }
 
         var cts = new CancellationTokenSource();
@@ -185,44 +219,25 @@ public class ProfileListAnimationHelper : IDisposable
             // Double-check cancellation after delay
             if (cts.Token.IsCancellationRequested) return;
 
-            var animation = new Animation
+            var animation = GetOptimizedProfileMoveAnimation();
+            animation.Children.Clear();
+            animation.Children.Add(new KeyFrame
             {
-                Duration = TimeSpan.FromMilliseconds(300),
-                FillMode = FillMode.Forward,
-                Easing = Easing.Parse("0.25,0.1,0.25,1"),
-                Children =
+                Cue = new Cue(0d),
+                Setters =
                 {
-                    new KeyFrame
-                    {
-                        Cue = new Cue(0d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = Avalonia.Controls.Border.OpacityProperty,
-                                Value = 1.0
-                            }
-                        }
-                    },
-                    new KeyFrame
-                    {
-                        Cue = new Cue(1d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = targetMargin
-                            },
-                            new Setter
-                            {
-                                Property = Avalonia.Controls.Border.OpacityProperty,
-                                Value = 1.0
-                            }
-                        }
-                    }
+                    new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 }
                 }
-            };
+            });
+            animation.Children.Add(new KeyFrame
+            {
+                Cue = new Cue(1d),
+                Setters =
+                {
+                    new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin },
+                    new Setter { Property = Avalonia.Controls.Border.OpacityProperty, Value = 1.0 }
+                }
+            });
             
             await animation.RunAsync(profiles[profileIndex], cts.Token);
             
@@ -261,6 +276,7 @@ public class ProfileListAnimationHelper : IDisposable
 
     public async ValueTask AnimateAllProfilesToCorrectPositionsAsync(int focusIndex = -1)
     {
+        frameTimer.StartMonitoring($"AnimateAllProfilesToCorrectPositions focusIndex={focusIndex}");
         var animationTasks = taskListPool.Get();
         try
         {
@@ -325,6 +341,7 @@ public class ProfileListAnimationHelper : IDisposable
         }
         finally
         {
+            frameTimer.StopMonitoring($"AnimateAllProfilesToCorrectPositions focusIndex={focusIndex}");
             animationTasks.Clear();
             taskListPool.Return(animationTasks);
         }
@@ -360,6 +377,7 @@ public class ProfileListAnimationHelper : IDisposable
     {
         if (profiles.Count == 0) return;
         
+        frameTimer.StartMonitoring("CollapseProfileAnimation");
         var animationTasks = taskListPool.Get();
         try
         {
@@ -403,6 +421,7 @@ public class ProfileListAnimationHelper : IDisposable
         }
         finally
         {
+            frameTimer.StopMonitoring("CollapseProfileAnimation");
             animationTasks.Clear();
             taskListPool.Return(animationTasks);
         }
@@ -417,39 +436,24 @@ public class ProfileListAnimationHelper : IDisposable
         // Check if already at target position
         if (addProfileButton.Margin == targetMargin) return;
 
-        var animation = new Animation
+        var animation = GetOptimizedProfileMoveAnimation();
+        animation.Children.Clear();
+        animation.Children.Add(new KeyFrame
         {
-            Duration = TimeSpan.FromMilliseconds(300),
-            FillMode = FillMode.Forward,
-            Easing = Easing.Parse("0.25,0.1,0.25,1"),
-            Children =
+            Cue = new Cue(0d),
+            Setters =
             {
-                new KeyFrame
-                {
-                    Cue = new Cue(0d),
-                    Setters =
-                    {
-                        new Setter
-                        {
-                            Property = Avalonia.Layout.Layoutable.MarginProperty,
-                            Value = addProfileButton.Margin
-                        }
-                    }
-                },
-                new KeyFrame
-                {
-                    Cue = new Cue(1d),
-                    Setters =
-                    {
-                        new Setter
-                        {
-                            Property = Avalonia.Layout.Layoutable.MarginProperty,
-                            Value = targetMargin
-                        }
-                    }
-                }
+                new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = addProfileButton.Margin }
             }
-        };
+        });
+        animation.Children.Add(new KeyFrame
+        {
+            Cue = new Cue(1d),
+            Setters =
+            {
+                new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin }
+            }
+        });
         
         await animation.RunAsync(addProfileButton);
         addProfileButton.Margin = targetMargin;
@@ -474,39 +478,24 @@ public class ProfileListAnimationHelper : IDisposable
 
             var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(0, false), 8, 0);
 
-            var animation = new Animation
+            var animation = GetOptimizedProfileCollapseAnimation();
+            animation.Children.Clear();
+            animation.Children.Add(new KeyFrame
             {
-                Duration = TimeSpan.FromMilliseconds(300),
-                FillMode = FillMode.Forward,
-                Easing = Easing.Parse("0.25,0.1,0.25,1"),
-                Children =
+                Cue = new Cue(0d),
+                Setters =
                 {
-                    new KeyFrame
-                    {
-                        Cue = new Cue(0d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = profiles[profileIndex].Margin
-                            }
-                        }
-                    },
-                    new KeyFrame
-                    {
-                        Cue = new Cue(1d),
-                        Setters =
-                        {
-                            new Setter
-                            {
-                                Property = Avalonia.Layout.Layoutable.MarginProperty,
-                                Value = targetMargin
-                            }
-                        }
-                    }
+                    new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = profiles[profileIndex].Margin }
                 }
-            };
+            });
+            animation.Children.Add(new KeyFrame
+            {
+                Cue = new Cue(1d),
+                Setters =
+                {
+                    new Setter { Property = Avalonia.Layout.Layoutable.MarginProperty, Value = targetMargin }
+                }
+            });
             
             await animation.RunAsync(profiles[profileIndex], cts.Token);
             
@@ -554,6 +543,10 @@ public class ProfileListAnimationHelper : IDisposable
             positionCache.Clear();
             deleteButtonCache.Clear();
             animationTemplateCache.Clear();
+            
+            // Clear cached animations
+            cachedProfileMoveAnimation = null;
+            cachedProfileCollapseAnimation = null;
         }
     }
     
