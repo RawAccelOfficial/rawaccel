@@ -67,7 +67,6 @@
 		</Style>
 
 		<Style Selector="controls|EditableExpanderView:pointerover">
-			<Setter Property="RenderTransform" Value="scale(1.01)" />
 		</Style>
 	</UserControl.Styles>
 

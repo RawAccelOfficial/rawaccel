@@ -93,34 +93,12 @@ public partial class DevicesListView : UserControl
         {
             Debug.WriteLine($"[DevicesListView] Device added at index {e.NewStartingIndex}, count was {lastKnownItemCount}");
             
-            // Try to animate the new container directly
+            // Update known count after a delay to allow ContainerPrepared to handle the animation
             _ = Task.Run(async () =>
             {
-                await Task.Delay(100); // Wait for container to be prepared
-                await Dispatcher.UIThread.InvokeAsync(async () =>
+                await Task.Delay(200);
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var newIndex = e.NewStartingIndex;
-                    if (newIndex >= 0)
-                    {
-                        var container = DevicesListInView.ContainerFromIndex(newIndex) as Control;
-                        if (container != null)
-                        {
-                            Debug.WriteLine($"[DevicesListView] Found container for new item at index {newIndex}, starting animation");
-                            
-                            // Set initial state
-                            container.Opacity = 0;
-                            container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
-                            
-                            // Start animation
-                            await AnimateDeviceIn(container, newIndex);
-                        }
-                        else
-                        {
-                            Debug.WriteLine($"[DevicesListView] Could not find container for new item at index {newIndex}");
-                        }
-                    }
-                    
-                    // Update known count
                     if (viewModel != null)
                     {
                         lastKnownItemCount = viewModel.DeviceViews.Count;
