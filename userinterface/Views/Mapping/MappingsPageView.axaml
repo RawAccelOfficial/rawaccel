@@ -65,6 +65,22 @@
 			<Setter Property="Width" Value="400"/>
 			<Setter Property="Height" Value="350"/>
 		</Style>
+
+		<Style Selector="Grid.MappingElement">
+			<Setter Property="Opacity" Value="0"/>
+			<Setter Property="RenderTransform" Value="translateY(30px)"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="QuadraticEaseOut"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="BackEaseOut"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Grid.MappingElement.Visible">
+			<Setter Property="Opacity" Value="1"/>
+			<Setter Property="RenderTransform" Value="translateY(0px)"/>
+		</Style>
 	</UserControl.Styles>
 
 	<ScrollViewer>
@@ -77,7 +93,9 @@
 				</ItemsRepeater.Layout>
 				<ItemsRepeater.ItemTemplate>
 					<DataTemplate>
-						<Grid x:DataType="vm:MappingViewModel" Margin="4">
+						<Grid x:DataType="vm:MappingViewModel" 
+							  Classes="MappingElement"
+							  Margin="4">
 							<Border Name="MappingCardBorder"
 									Classes="MappingCard">
 								<Panel Classes="MappingContainer">
