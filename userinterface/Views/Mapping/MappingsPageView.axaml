@@ -3,13 +3,31 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Mapping"
-			 xmlns:ext="using:userinterface.Extensions"
-			 xmlns:helpers="using:userinterface.Helpers"
+             xmlns:ext="using:userinterface.Extensions"
+             xmlns:helpers="using:userinterface.Helpers"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Mapping.MappingsPageView"
              x:DataType="vm:MappingsPageViewModel">
 
 	<UserControl.Styles>
+		<!-- Mapping Element Animation Styles -->
+		<Style Selector="Grid.MappingElement">
+			<Setter Property="Opacity" Value="0"/>
+			<Setter Property="RenderTransform" Value="translateY(30px)"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="QuadraticEaseOut"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="BackEaseOut"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Grid.MappingElement.Visible">
+			<Setter Property="Opacity" Value="1"/>
+			<Setter Property="RenderTransform" Value="translateY(0px)"/>
+		</Style>
+
+		<!-- Mapping Card Styles -->
 		<Style Selector="Border.MappingCard">
 			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -25,6 +43,12 @@
 			<Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
 		</Style>
 
+		<Style Selector="Panel.MappingContainer">
+			<Setter Property="Width" Value="400"/>
+			<Setter Property="Height" Value="350"/>
+		</Style>
+
+		<!-- Selection Border Styles -->
 		<Style Selector="Path.SelectionBorder">
 			<Setter Property="Stroke" Value="{DynamicResource ActiveBrush}"/>
 			<Setter Property="StrokeThickness" Value="3"/>
@@ -40,7 +64,7 @@
 			</Setter>
 		</Style>
 
-
+		<!-- Add Button Styles -->
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
@@ -60,33 +84,10 @@
 		<Style Selector="Button.AddButton:pressed">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
 		</Style>
-
-		<Style Selector="Panel.MappingContainer">
-			<Setter Property="Width" Value="400"/>
-			<Setter Property="Height" Value="350"/>
-		</Style>
-
-		<Style Selector="Grid.MappingElement">
-			<Setter Property="Opacity" Value="0"/>
-			<Setter Property="RenderTransform" Value="translateY(30px)"/>
-			<Setter Property="Transitions">
-				<Transitions>
-					<DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="QuadraticEaseOut"/>
-					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="BackEaseOut"/>
-				</Transitions>
-			</Setter>
-		</Style>
-
-		<Style Selector="Grid.MappingElement.Visible">
-			<Setter Property="Opacity" Value="1"/>
-			<Setter Property="RenderTransform" Value="translateY(0px)"/>
-		</Style>
 	</UserControl.Styles>
 
-	<ScrollViewer>
-		<StackPanel Orientation="Vertical"
-                    VerticalAlignment="Stretch"
-                    Margin="28,16,12,16">
+	<ScrollViewer Margin="28,16,12,16">
+		<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
 			<ItemsRepeater Name="ItemsRepeater" ItemsSource="{Binding MappingViews}">
 				<ItemsRepeater.Layout>
 					<WrapLayout Orientation="Horizontal"/>
@@ -96,8 +97,7 @@
 						<Grid x:DataType="vm:MappingViewModel" 
 							  Classes="MappingElement"
 							  Margin="4">
-							<Border Name="MappingCardBorder"
-									Classes="MappingCard">
+							<Border Classes="MappingCard">
 								<Panel Classes="MappingContainer">
 									<ContentControl Content="{Binding}"/>
 								</Panel>

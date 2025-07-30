@@ -9,10 +9,11 @@ namespace userinterface.Views.Mapping;
 public partial class MappingsPageView : UserControl
 {
     private MappingsPageViewModel? viewModel;
-    private int lastKnownItemCount = 0;
     private bool isInitialLoad = true;
+    private DispatcherTimer? staggerTimer;
     
     private const int StaggerDelayMs = 50;
+    private const int NewItemDelayMs = 50;
 
     public MappingsPageView()
     {
@@ -23,15 +24,11 @@ public partial class MappingsPageView : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if (viewModel != null)
-        {
-            viewModel.MappingViews.CollectionChanged -= OnMappingsCollectionChanged;
-        }
+        CleanupPreviousViewModel();
 
         if (DataContext is MappingsPageViewModel vm)
         {
             viewModel = vm;
-            lastKnownItemCount = vm.MappingViews.Count;
             vm.MappingViews.CollectionChanged += OnMappingsCollectionChanged;
             
             StartInitialLoadAnimation();
@@ -40,33 +37,25 @@ public partial class MappingsPageView : UserControl
 
     private void OnElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
     {
-        if (e.Element is Grid container)
+        if (e.Element is Grid container && !isInitialLoad)
         {
-            bool isNewItem = e.Index >= lastKnownItemCount && !isInitialLoad;
-            
-            if (isNewItem)
-            {
-                RevealElementWithDelay(container, 50);
-            }
+            RevealElementWithDelay(container, NewItemDelayMs);
         }
     }
 
     private void OnMappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null && e.NewItems.Count > 0)
+        // No additional logic needed - ElementPrepared handles new items
+    }
+
+    private void CleanupPreviousViewModel()
+    {
+        if (viewModel != null)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                if (viewModel != null)
-                {
-                    lastKnownItemCount = viewModel.MappingViews.Count;
-                }
-            }, DispatcherPriority.Background);
+            viewModel.MappingViews.CollectionChanged -= OnMappingsCollectionChanged;
         }
-        else if (viewModel != null)
-        {
-            lastKnownItemCount = viewModel.MappingViews.Count;
-        }
+        
+        CleanupTimer();
     }
 
     private void StartInitialLoadAnimation()
@@ -80,24 +69,29 @@ public partial class MappingsPageView : UserControl
 
     private void RevealAllElementsStaggered()
     {
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(StaggerDelayMs) };
-        int index = 0;
+        CleanupTimer();
         
-        timer.Tick += (s, e) =>
+        staggerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(StaggerDelayMs) };
+        int index = 0;
+        int totalElements = viewModel?.MappingViews.Count ?? 0;
+        
+        staggerTimer.Tick += (s, e) =>
         {
-            var element = GetElementAtIndex(index);
-            if (element != null)
+            if (index < totalElements && index < ItemsRepeater.Children.Count)
             {
-                RevealElement(element);
+                if (ItemsRepeater.Children[index] is Grid element)
+                {
+                    RevealElement(element);
+                }
                 index++;
             }
             else
             {
-                timer.Stop();
+                CleanupTimer();
             }
         };
         
-        timer.Start();
+        staggerTimer.Start();
     }
 
     private void RevealElementWithDelay(Grid element, int delayMs)
@@ -106,6 +100,7 @@ public partial class MappingsPageView : UserControl
         timer.Tick += (s, e) =>
         {
             timer.Stop();
+            timer = null;
             RevealElement(element);
         };
         timer.Start();
@@ -116,19 +111,12 @@ public partial class MappingsPageView : UserControl
         element.Classes.Add("Visible");
     }
 
-    private Grid? GetElementAtIndex(int index)
+    private void CleanupTimer()
     {
-        if (viewModel?.MappingViews != null && index < viewModel.MappingViews.Count)
+        if (staggerTimer != null)
         {
-            for (int i = 0; i < ItemsRepeater.Children.Count; i++)
-            {
-                if (ItemsRepeater.Children[i] is Grid grid && 
-                    grid.DataContext == viewModel.MappingViews[index])
-                {
-                    return grid;
-                }
-            }
+            staggerTimer.Stop();
+            staggerTimer = null;
         }
-        return null;
     }
 }
