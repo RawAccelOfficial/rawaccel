@@ -24,15 +24,21 @@
 			<Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
 		</Style>
 
-		<Style Selector="Border.MappingCard.Active">
-			<Setter Property="BorderBrush" Value="{DynamicResource ActiveBrush}"/>
-			<Setter Property="BorderThickness" Value="2"/>
+		<Style Selector="Path.SelectionBorder">
+			<Setter Property="Stroke" Value="{DynamicResource ActiveBrush}"/>
+			<Setter Property="StrokeThickness" Value="3"/>
+			<Setter Property="Fill" Value="Transparent"/>
+			<Setter Property="IsHitTestVisible" Value="False"/>
+			<Setter Property="StrokeDashArray" Value="1640"/>
+			<Setter Property="ZIndex" Value="10"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="StrokeDashOffset" Duration="0:0:0.8" Easing="CubicEaseOut"/>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
-		<Style Selector="Border.MappingCard.Active:pointerover">
-			<Setter Property="BorderBrush" Value="{DynamicResource ActiveBorderHoverBrush}"/>
-			<Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
-		</Style>
 
 		<Style Selector="Button.AddButton">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
@@ -70,15 +76,21 @@
 				</ItemsRepeater.Layout>
 				<ItemsRepeater.ItemTemplate>
 					<DataTemplate>
-						<Border x:DataType="vm:MappingViewModel"
-								Name="MappingCardBorder"
-								BorderBrush="{Binding BorderBrush}"
-								BorderThickness="1"
-								Classes="MappingCard">
-							<Panel Classes="MappingContainer">
-								<ContentControl Content="{Binding}"/>
-							</Panel>
-						</Border>
+						<Grid x:DataType="vm:MappingViewModel" Margin="4">
+							<Border Name="MappingCardBorder"
+									Classes="MappingCard">
+								<Panel Classes="MappingContainer">
+									<ContentControl Content="{Binding}"/>
+								</Panel>
+							</Border>
+							<Path Classes="SelectionBorder"
+								  Data="{Binding SelectionBorderPath}"
+								  StrokeDashOffset="{Binding SelectionBorderDashOffset}"
+								  IsVisible="{Binding IsActiveMapping}"
+								  HorizontalAlignment="Left"
+								  VerticalAlignment="Top"
+								  Margin="8,8,0,0"/>
+						</Grid>
 					</DataTemplate>
 				</ItemsRepeater.ItemTemplate>
 			</ItemsRepeater>

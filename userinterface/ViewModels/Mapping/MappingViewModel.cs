@@ -58,13 +58,16 @@ namespace userinterface.ViewModels.Mapping
                 if (SetProperty(ref isActiveMapping, value))
                 {
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(BorderBrush));
+                    OnPropertyChanged(nameof(IsSelected));
+                    OnPropertyChanged(nameof(SelectionBorderDashOffset));
 
                     if (ActivateCommand is RelayCommand cmd)
                         cmd.RaiseCanExecuteChanged();
                 }
             }
         }
+
+        public bool IsSelected => IsActiveMapping;
 
         public ObservableCollection<BE.MappingGroup> IndividualMappings => MappingBE.IndividualMappings;
 
@@ -76,11 +79,41 @@ namespace userinterface.ViewModels.Mapping
 
         public ICommand ActivateCommand { get; }
 
-        // TODO: Replace hardcoded colors with theme-aware approach
-        // These colors should match ActiveBrush (#22C55E) and InactiveBrush from themes
-        public IBrush BorderBrush => IsActiveMapping ?
-            new SolidColorBrush(Color.Parse("#22C55E")) :
-            new SolidColorBrush(Color.Parse("#404040"));
+        public string SelectionBorderPath
+        {
+            get
+            {
+                var cornerRadius = 8;
+                var strokeWidth = 3;
+                var borderThickness = 1;
+                var padding = 16;
+                
+                var contentWidth = 400;
+                var contentHeight = 350;
+                
+                var totalWidth = contentWidth + (2 * padding) + (2 * borderThickness);
+                var totalHeight = contentHeight + (2 * padding) + (2 * borderThickness);
+                
+                var offset = strokeWidth / 2.0;
+                var x = -offset;
+                var y = -offset;
+                var width = totalWidth + strokeWidth;
+                var height = totalHeight + strokeWidth;
+                
+                return $"M {cornerRadius + x},{y} " +
+                       $"L {width - cornerRadius + x},{y} " +
+                       $"A {cornerRadius},{cornerRadius} 0 0,1 {width + x},{cornerRadius + y} " +
+                       $"L {width + x},{height - cornerRadius + y} " +
+                       $"A {cornerRadius},{cornerRadius} 0 0,1 {width - cornerRadius + x},{height + y} " +
+                       $"L {cornerRadius + x},{height + y} " +
+                       $"A {cornerRadius},{cornerRadius} 0 0,1 {x},{height - cornerRadius + y} " +
+                       $"L {x},{cornerRadius + y} " +
+                       $"A {cornerRadius},{cornerRadius} 0 0,1 {cornerRadius + x},{y} Z";
+            }
+        }
+
+        public double SelectionBorderDashOffset => IsActiveMapping ? 0 : 1640;
+
 
         private void UpdateMappingListElements()
         {
