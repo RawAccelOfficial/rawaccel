@@ -18,7 +18,6 @@ namespace userinterface.ViewModels.Mapping
     {
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
         private bool isActiveMapping;
-        private bool animationEnabled = false;
         private Action<MappingViewModel>? onActivationRequested;
 
         public MappingViewModel()
@@ -59,11 +58,6 @@ namespace userinterface.ViewModels.Mapping
             {
                 if (SetProperty(ref isActiveMapping, value))
                 {
-                    if (value)
-                    {
-                        animationEnabled = true;
-                    }
-                    
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsSelected));
                     OnPropertyChanged(nameof(SelectionBorderDashOffset));
@@ -107,7 +101,7 @@ namespace userinterface.ViewModels.Mapping
                 var width = totalWidth + strokeWidth;
                 var height = totalHeight + strokeWidth;
                 
-                return $"M {cornerRadius + x},{y} " +
+                var path = $"M {cornerRadius + x},{y} " +
                        $"L {width - cornerRadius + x},{y} " +
                        $"A {cornerRadius},{cornerRadius} 0 0,1 {width + x},{cornerRadius + y} " +
                        $"L {width + x},{height - cornerRadius + y} " +
@@ -116,10 +110,12 @@ namespace userinterface.ViewModels.Mapping
                        $"A {cornerRadius},{cornerRadius} 0 0,1 {x},{height - cornerRadius + y} " +
                        $"L {x},{cornerRadius + y} " +
                        $"A {cornerRadius},{cornerRadius} 0 0,1 {cornerRadius + x},{y} Z";
+                
+                return path;
             }
         }
 
-        public double SelectionBorderDashOffset => (IsActiveMapping && animationEnabled) ? 0 : 1640;
+        public double SelectionBorderDashOffset => IsActiveMapping ? 0 : 1640;
 
 
         private void UpdateMappingListElements()
@@ -156,14 +152,6 @@ namespace userinterface.ViewModels.Mapping
             IsActiveMapping = isActive;
         }
 
-        public async void EnableAnimationAsync()
-        {
-            Console.WriteLine($"EnableAnimationAsync: Starting animation for {MappingBE?.Name?.CurrentValidatedValue}");
-            await Task.Delay(100);
-            animationEnabled = true;
-            OnPropertyChanged(nameof(SelectionBorderDashOffset));
-            Console.WriteLine($"EnableAnimationAsync: Animation triggered, DashOffset: {SelectionBorderDashOffset}");
-        }
 
         public void DeleteSelf()
         {

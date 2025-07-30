@@ -97,15 +97,7 @@ namespace userinterface.ViewModels.Mapping
 
             try
             {
-                if (activeMappingView != null)
-                {
-                    Console.WriteLine($"Triggering animation for active mapping: {activeMappingView.MappingBE?.Name?.CurrentValidatedValue}");
-                    activeMappingView.EnableAnimationAsync();
-                }
-                else
-                {
-                    Console.WriteLine("No active mapping found to animate");
-                }
+                // Animation is now handled by the behavior in the view
 
                 await Task.Delay(100);
                 isInitialized = true;
