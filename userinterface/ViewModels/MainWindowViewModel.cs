@@ -130,6 +130,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void SelectPage(NavigationPage page)
     {
+        Console.WriteLine($"SelectPage called with: {page}");
         SelectedPage = page;
         IsProfilesExpanded = page == NavigationPage.Profiles;
         
@@ -160,6 +161,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public async Task SelectPageAsync(NavigationPage page)
     {
+        Console.WriteLine($"SelectPageAsync called with: {page}");
         ViewModelBase pageViewModel = page switch
         {
             NavigationPage.Devices => DevicesPage,
@@ -171,6 +173,7 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         if (pageViewModel is IAsyncInitializable asyncViewModel && !asyncViewModel.IsInitialized)
         {
+            Console.WriteLine($"Calling InitializeAsync on {pageViewModel.GetType().Name}");
             await asyncViewModel.InitializeAsync();
         }
 

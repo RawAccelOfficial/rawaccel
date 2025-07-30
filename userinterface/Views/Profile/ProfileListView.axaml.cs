@@ -598,7 +598,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             {
                 int itemIndex = currentIndex + 1; // Convert to item index
                 
-                // Bounds check to prevent IndexOutOfRangeException
                 if (itemIndex < allItems.Count)
                 {
                     allItems[itemIndex].Classes.Add("Selected");
@@ -619,7 +618,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         {
             int itemIndex = i + 1; // Convert to item index
             
-            // Bounds check to prevent IndexOutOfRangeException
             if (itemIndex >= allItems.Count) break;
             
             var border = allItems[itemIndex];

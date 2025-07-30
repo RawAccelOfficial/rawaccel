@@ -33,7 +33,7 @@
 			<Setter Property="ZIndex" Value="10"/>
 			<Setter Property="Transitions">
 				<Transitions>
-					<DoubleTransition Property="StrokeDashOffset" Duration="0:0:0.8" Easing="CubicEaseOut"/>
+					<DoubleTransition Property="StrokeDashOffset" Duration="0:0:1.2" Easing="CubicEaseOut"/>
 					<DoubleTransition Property="Opacity" Duration="0:0:0.2" Easing="CubicEaseOut"/>
 				</Transitions>
 			</Setter>
@@ -86,7 +86,6 @@
 							<Path Classes="SelectionBorder"
 								  Data="{Binding SelectionBorderPath}"
 								  StrokeDashOffset="{Binding SelectionBorderDashOffset}"
-								  IsVisible="{Binding IsActiveMapping}"
 								  HorizontalAlignment="Left"
 								  VerticalAlignment="Top"
 								  Margin="8,8,0,0"/>

@@ -3,18 +3,22 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Interfaces;
 using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
 {
-    public partial class MappingsPageViewModel : ViewModelBase
+    public partial class MappingsPageViewModel : ViewModelBase, IAsyncInitializable
     {
         private MappingViewModel? activeMappingView;
         private readonly BE.MappingsModel mappingsModel;
         private readonly IViewModelFactory viewModelFactory;
+        private bool isInitialized = false;
+        private bool isInitializing = false;
 
         public MappingsPageViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory)
         {
@@ -79,5 +83,37 @@ namespace userinterface.ViewModels.Mapping
         }
 
         public bool TryAddNewMapping() => MappingsBE.TryAddMapping();
+
+        public bool IsInitialized => isInitialized;
+        public bool IsInitializing => isInitializing;
+
+        public async Task InitializeAsync()
+        {
+            if (isInitialized || isInitializing)
+                return;
+
+            isInitializing = true;
+            Console.WriteLine("MappingsPageViewModel.InitializeAsync called - Navigation to mappings page detected!");
+
+            try
+            {
+                if (activeMappingView != null)
+                {
+                    Console.WriteLine($"Triggering animation for active mapping: {activeMappingView.MappingBE?.Name?.CurrentValidatedValue}");
+                    activeMappingView.EnableAnimationAsync();
+                }
+                else
+                {
+                    Console.WriteLine("No active mapping found to animate");
+                }
+
+                await Task.Delay(100);
+                isInitialized = true;
+            }
+            finally
+            {
+                isInitializing = false;
+            }
+        }
     }
 }

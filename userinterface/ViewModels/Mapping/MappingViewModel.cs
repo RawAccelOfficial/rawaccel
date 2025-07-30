@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using BE = userspace_backend.Model;
@@ -17,6 +18,7 @@ namespace userinterface.ViewModels.Mapping
     {
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
         private bool isActiveMapping;
+        private bool animationEnabled = false;
         private Action<MappingViewModel>? onActivationRequested;
 
         public MappingViewModel()
@@ -57,6 +59,11 @@ namespace userinterface.ViewModels.Mapping
             {
                 if (SetProperty(ref isActiveMapping, value))
                 {
+                    if (value)
+                    {
+                        animationEnabled = true;
+                    }
+                    
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsSelected));
                     OnPropertyChanged(nameof(SelectionBorderDashOffset));
@@ -112,7 +119,7 @@ namespace userinterface.ViewModels.Mapping
             }
         }
 
-        public double SelectionBorderDashOffset => IsActiveMapping ? 0 : 1640;
+        public double SelectionBorderDashOffset => (IsActiveMapping && animationEnabled) ? 0 : 1640;
 
 
         private void UpdateMappingListElements()
@@ -147,6 +154,15 @@ namespace userinterface.ViewModels.Mapping
         public void SetActiveState(bool isActive)
         {
             IsActiveMapping = isActive;
+        }
+
+        public async void EnableAnimationAsync()
+        {
+            Console.WriteLine($"EnableAnimationAsync: Starting animation for {MappingBE?.Name?.CurrentValidatedValue}");
+            await Task.Delay(100);
+            animationEnabled = true;
+            OnPropertyChanged(nameof(SelectionBorderDashOffset));
+            Console.WriteLine($"EnableAnimationAsync: Animation triggered, DashOffset: {SelectionBorderDashOffset}");
         }
 
         public void DeleteSelf()
