@@ -6,6 +6,12 @@ using userinterface.ViewModels.Mapping;
 
 namespace userinterface.Helpers
 {
+    public static class AnimationConstants
+    {
+        public const int AnimationDurationMs = 800;
+        public const double DashLength = 1640;
+    }
+
     public static class MappingAnimationHelper
     {
         public static readonly AttachedProperty<bool> EnableAnimationProperty =
@@ -66,7 +72,6 @@ namespace userinterface.Helpers
                 if (viewModel != null)
                 {
                     viewModel.PropertyChanged += OnViewModelPropertyChanged;
-                    // Set initial state without animation
                     UpdateVisualState(viewModel.IsActiveMapping, animate: false);
                 }
             }
@@ -94,10 +99,7 @@ namespace userinterface.Helpers
             {
                 if (disposed) return;
 
-                // Cancel any pending hide timer
-                hideTimer?.Stop();
-                hideTimer?.Dispose();
-                hideTimer = null;
+                CancelHideTimer();
 
                 if (isActive)
                 {
@@ -113,19 +115,8 @@ namespace userinterface.Helpers
             {
                 if (disposed) return;
 
-                // Show the border immediately
                 path.IsVisible = true;
-                
-                if (animate)
-                {
-                    // Enable CSS transition and set target value
-                    path.StrokeDashOffset = 0;
-                }
-                else
-                {
-                    // Set immediately without animation
-                    path.StrokeDashOffset = 0;
-                }
+                path.StrokeDashOffset = 0;
             }
 
             private void HideSelection(bool animate)
@@ -134,36 +125,43 @@ namespace userinterface.Helpers
 
                 if (animate)
                 {
-                    // Set target value and let CSS transition handle the animation
-                    path.StrokeDashOffset = 1640;
-                    
-                    // Hide the border after a delay to allow animation to complete
-                    hideTimer = new System.Timers.Timer(800); // Match CSS transition duration
-                    hideTimer.Elapsed += (s, e) =>
-                    {
-                        hideTimer?.Dispose();
-                        hideTimer = null;
-                        
-                        if (!disposed)
-                        {
-                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                            {
-                                // Only hide if still in deselected state
-                                if (!disposed && viewModel != null && !viewModel.IsActiveMapping)
-                                {
-                                    path.IsVisible = false;
-                                }
-                            });
-                        }
-                    };
-                    hideTimer.Start();
+                    path.StrokeDashOffset = AnimationConstants.DashLength;
+                    StartHideTimer();
                 }
                 else
                 {
-                    // Hide immediately without animation
                     path.IsVisible = false;
-                    path.StrokeDashOffset = 1640;
+                    path.StrokeDashOffset = AnimationConstants.DashLength;
                 }
+            }
+
+            private void CancelHideTimer()
+            {
+                hideTimer?.Stop();
+                hideTimer?.Dispose();
+                hideTimer = null;
+            }
+
+            private void StartHideTimer()
+            {
+                hideTimer = new System.Timers.Timer(AnimationConstants.AnimationDurationMs);
+                hideTimer.Elapsed += (s, e) =>
+                {
+                    hideTimer?.Dispose();
+                    hideTimer = null;
+                    
+                    if (!disposed)
+                    {
+                        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                        {
+                            if (!disposed && viewModel != null && !viewModel.IsActiveMapping)
+                            {
+                                path.IsVisible = false;
+                            }
+                        });
+                    }
+                };
+                hideTimer.Start();
             }
 
             public void Dispose()
@@ -171,11 +169,7 @@ namespace userinterface.Helpers
                 if (disposed) return;
                 disposed = true;
 
-                // Cancel and dispose any pending timer
-                hideTimer?.Stop();
-                hideTimer?.Dispose();
-                hideTimer = null;
-
+                CancelHideTimer();
                 path.DataContextChanged -= OnDataContextChanged;
                 UnsubscribeFromViewModel();
             }

@@ -38,8 +38,7 @@ namespace userinterface.ViewModels.Mapping
 
         public ICommand AddMappingCommand { get; }
 
-        private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
-            UpdateMappingViews();
+        private void MappingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => UpdateMappingViews();
 
         public void UpdateMappingViews()
         {
@@ -67,19 +66,15 @@ namespace userinterface.ViewModels.Mapping
 
         private void SetActiveMapping(MappingViewModel newActiveMapping)
         {
+            if (activeMappingView == newActiveMapping) return;
+            
             if (activeMappingView != null)
             {
-                activeMappingView.SetActiveState(false);
+                activeMappingView.IsActiveMapping = false;
             }
 
-            newActiveMapping.SetActiveState(true);
+            newActiveMapping.IsActiveMapping = true;
             activeMappingView = newActiveMapping;
-
-            var activeIndex = MappingViews.IndexOf(newActiveMapping);
-            if (activeIndex >= 0)
-            {
-                // TODO: Call backend method to set active mapping
-            }
         }
 
         public bool TryAddNewMapping() => MappingsBE.TryAddMapping();
@@ -89,16 +84,11 @@ namespace userinterface.ViewModels.Mapping
 
         public async Task InitializeAsync()
         {
-            if (isInitialized || isInitializing)
-                return;
+            if (isInitialized || isInitializing) return;
 
             isInitializing = true;
-            Console.WriteLine("MappingsPageViewModel.InitializeAsync called - Navigation to mappings page detected!");
-
             try
             {
-                // Animation is now handled by the behavior in the view
-
                 await Task.Delay(100);
                 isInitialized = true;
             }

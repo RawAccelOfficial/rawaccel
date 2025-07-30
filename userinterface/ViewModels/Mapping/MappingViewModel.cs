@@ -1,19 +1,25 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
 {
+    public static class BorderConstants
+    {
+        public const double DashLength = 1640;
+        public const int CornerRadius = 8;
+        public const int StrokeWidth = 3;
+        public const int BorderThickness = 1;
+        public const int Padding = 16;
+        public const int ContentWidth = 400;
+        public const int ContentHeight = 350;
+    }
+
     public partial class MappingViewModel : ViewModelBase
     {
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
@@ -58,17 +64,11 @@ namespace userinterface.ViewModels.Mapping
             {
                 if (SetProperty(ref isActiveMapping, value))
                 {
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsSelected));
                     OnPropertyChanged(nameof(SelectionBorderDashOffset));
-
-                    if (ActivateCommand is RelayCommand cmd)
-                        cmd.RaiseCanExecuteChanged();
+                    (ActivateCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
-
-        public bool IsSelected => IsActiveMapping;
 
         public ObservableCollection<BE.MappingGroup> IndividualMappings => MappingBE.IndividualMappings;
 
@@ -80,57 +80,44 @@ namespace userinterface.ViewModels.Mapping
 
         public ICommand ActivateCommand { get; }
 
-        public string SelectionBorderPath
+        public string SelectionBorderPath => GenerateSelectionBorderPath();
+
+        private static string GenerateSelectionBorderPath()
         {
-            get
-            {
-                var cornerRadius = 8;
-                var strokeWidth = 3;
-                var borderThickness = 1;
-                var padding = 16;
-                
-                var contentWidth = 400;
-                var contentHeight = 350;
-                
-                var totalWidth = contentWidth + (2 * padding) + (2 * borderThickness);
-                var totalHeight = contentHeight + (2 * padding) + (2 * borderThickness);
-                
-                var offset = strokeWidth / 2.0;
-                var x = -offset;
-                var y = -offset;
-                var width = totalWidth + strokeWidth;
-                var height = totalHeight + strokeWidth;
-                
-                var path = $"M {cornerRadius + x},{y} " +
-                       $"L {width - cornerRadius + x},{y} " +
-                       $"A {cornerRadius},{cornerRadius} 0 0,1 {width + x},{cornerRadius + y} " +
-                       $"L {width + x},{height - cornerRadius + y} " +
-                       $"A {cornerRadius},{cornerRadius} 0 0,1 {width - cornerRadius + x},{height + y} " +
-                       $"L {cornerRadius + x},{height + y} " +
-                       $"A {cornerRadius},{cornerRadius} 0 0,1 {x},{height - cornerRadius + y} " +
-                       $"L {x},{cornerRadius + y} " +
-                       $"A {cornerRadius},{cornerRadius} 0 0,1 {cornerRadius + x},{y} Z";
-                
-                return path;
-            }
+            var totalWidth = BorderConstants.ContentWidth + (2 * BorderConstants.Padding) + (2 * BorderConstants.BorderThickness);
+            var totalHeight = BorderConstants.ContentHeight + (2 * BorderConstants.Padding) + (2 * BorderConstants.BorderThickness);
+            
+            var offset = BorderConstants.StrokeWidth / 2.0;
+            var x = -offset;
+            var y = -offset;
+            var width = totalWidth + BorderConstants.StrokeWidth;
+            var height = totalHeight + BorderConstants.StrokeWidth;
+            var r = BorderConstants.CornerRadius;
+            
+            return $"M {r + x},{y} " +
+                   $"L {width - r + x},{y} " +
+                   $"A {r},{r} 0 0,1 {width + x},{r + y} " +
+                   $"L {width + x},{height - r + y} " +
+                   $"A {r},{r} 0 0,1 {width - r + x},{height + y} " +
+                   $"L {r + x},{height + y} " +
+                   $"A {r},{r} 0 0,1 {x},{height - r + y} " +
+                   $"L {x},{r + y} " +
+                   $"A {r},{r} 0 0,1 {r + x},{y} Z";
         }
 
         public double SelectionBorderDashOffset => IsActiveMapping ? 0 : 1640;
-
-
         private void UpdateMappingListElements()
         {
-            foreach (var element in mappingListElements)
-            {
-                element.Cleanup();
-            }
-
+            mappingListElements.ToList().ForEach(element => element.Cleanup());
             mappingListElements.Clear();
-            for (int i = 0; i < MappingBE.IndividualMappings.Count; i++)
+            
+            var elements = MappingBE.IndividualMappings
+                .Select((mappingGroup, i) => new MappingListElementViewModel(mappingGroup, MappingBE))
+                .ToList();
+            
+            foreach (var element in elements)
             {
-                var mappingGroup = MappingBE.IndividualMappings[i];
-                bool isDefaultElement = IsActiveMapping && i == 0;
-                mappingListElements.Add(new MappingListElementViewModel(mappingGroup, MappingBE, isDefaultElement));
+                mappingListElements.Add(element);
             }
         }
 
@@ -147,16 +134,13 @@ namespace userinterface.ViewModels.Mapping
             onActivationRequested?.Invoke(this);
         }
 
-        public void SetActiveState(bool isActive)
-        {
-            IsActiveMapping = isActive;
-        }
-
 
         public void DeleteSelf()
         {
-            bool success = MappingsBE.RemoveMapping(MappingBE);
-            Debug.Assert(success);
+            if (!MappingsBE.RemoveMapping(MappingBE))
+            {
+                throw new InvalidOperationException("Failed to remove mapping");
+            }
         }
 
         public void Cleanup()
