@@ -49,6 +49,7 @@ namespace userinterface.Helpers
             private MappingViewModel? viewModel;
             private System.Timers.Timer? hideTimer;
             private bool disposed = false;
+            private readonly object lockObject = new object();
 
             public AnimationHandler(Path path)
             {
@@ -64,15 +65,18 @@ namespace userinterface.Helpers
 
             private void UpdateViewModel()
             {
-                if (disposed) return;
-
-                UnsubscribeFromViewModel();
-                viewModel = path.DataContext as MappingViewModel;
-
-                if (viewModel != null)
+                lock (lockObject)
                 {
-                    viewModel.PropertyChanged += OnViewModelPropertyChanged;
-                    UpdateVisualState(viewModel.IsActiveMapping, animate: false);
+                    if (disposed) return;
+
+                    UnsubscribeFromViewModel();
+                    viewModel = path.DataContext as MappingViewModel;
+
+                    if (viewModel != null)
+                    {
+                        viewModel.PropertyChanged += OnViewModelPropertyChanged;
+                        UpdateVisualState(viewModel.IsActiveMapping, animate: false);
+                    }
                 }
             }
 
@@ -87,27 +91,33 @@ namespace userinterface.Helpers
 
             private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
             {
-                if (disposed) return;
-
-                if (e.PropertyName == nameof(MappingViewModel.IsActiveMapping) && sender is MappingViewModel vm)
+                lock (lockObject)
                 {
-                    UpdateVisualState(vm.IsActiveMapping, animate: true);
+                    if (disposed) return;
+
+                    if (e.PropertyName == nameof(MappingViewModel.IsActiveMapping) && sender is MappingViewModel vm)
+                    {
+                        UpdateVisualState(vm.IsActiveMapping, animate: true);
+                    }
                 }
             }
 
             private void UpdateVisualState(bool isActive, bool animate)
             {
-                if (disposed) return;
-
-                CancelHideTimer();
-
-                if (isActive)
+                lock (lockObject)
                 {
-                    ShowSelection(animate);
-                }
-                else
-                {
-                    HideSelection(animate);
+                    if (disposed) return;
+
+                    CancelHideTimer();
+
+                    if (isActive)
+                    {
+                        ShowSelection(animate);
+                    }
+                    else
+                    {
+                        HideSelection(animate);
+                    }
                 }
             }
 
@@ -137,41 +147,61 @@ namespace userinterface.Helpers
 
             private void CancelHideTimer()
             {
-                hideTimer?.Stop();
-                hideTimer?.Dispose();
-                hideTimer = null;
+                if (hideTimer != null)
+                {
+                    hideTimer.Stop();
+                    hideTimer.Dispose();
+                    hideTimer = null;
+                }
             }
 
             private void StartHideTimer()
             {
-                hideTimer = new System.Timers.Timer(AnimationConstants.AnimationDurationMs);
-                hideTimer.Elapsed += (s, e) =>
+                lock (lockObject)
                 {
-                    hideTimer?.Dispose();
-                    hideTimer = null;
-                    
-                    if (!disposed)
+                    if (disposed) return;
+
+                    hideTimer = new System.Timers.Timer(AnimationConstants.AnimationDurationMs);
+                    hideTimer.Elapsed += (s, e) =>
                     {
-                        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                        lock (lockObject)
                         {
-                            if (!disposed && viewModel != null && !viewModel.IsActiveMapping)
+                            if (hideTimer != null)
                             {
-                                path.IsVisible = false;
+                                hideTimer.Dispose();
+                                hideTimer = null;
                             }
-                        });
-                    }
-                };
-                hideTimer.Start();
+                            
+                            if (!disposed)
+                            {
+                                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                                {
+                                    lock (lockObject)
+                                    {
+                                        if (!disposed && viewModel != null && !viewModel.IsActiveMapping)
+                                        {
+                                            path.IsVisible = false;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    hideTimer.Start();
+                }
             }
 
             public void Dispose()
             {
-                if (disposed) return;
-                disposed = true;
+                lock (lockObject)
+                {
+                    if (disposed) return;
+                    disposed = true;
 
-                CancelHideTimer();
-                path.DataContextChanged -= OnDataContextChanged;
-                UnsubscribeFromViewModel();
+                    CancelHideTimer();
+                    path.DataContextChanged -= OnDataContextChanged;
+                    UnsubscribeFromViewModel();
+                }
             }
         }
     }
