@@ -25,7 +25,6 @@ public partial class DevicesListView : UserControl
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
     private readonly object animationLock = new();
     private volatile bool areAnimationsActive = false;
-    private volatile bool isCustomDeleteInProgress = false;
     
     private const int AnimationDurationMs = 400;
     private const int InitialLoadAnimationDurationMs = 200;
@@ -56,7 +55,6 @@ public partial class DevicesListView : UserControl
         var container = DevicesListInView.ContainerFromIndex(index) as Control;
         if (container != null)
         {
-            isCustomDeleteInProgress = true;
             
             try
             {
@@ -72,7 +70,6 @@ public partial class DevicesListView : UserControl
             }
             finally
             {
-                isCustomDeleteInProgress = false;
             }
         }
         else

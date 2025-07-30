@@ -131,10 +131,10 @@ namespace userinterface.ViewModels.Profile
         // INITIALIZATION & SETUP
         // ================================================================================================
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
             if (IsInitializing || IsInitialized || currentProfileModel == null)
-                return;
+                return Task.CompletedTask;
 
             IsInitializing = true;
 
@@ -215,6 +215,8 @@ namespace userinterface.ViewModels.Profile
             {
                 IsInitializing = false;
             }
+            
+            return Task.CompletedTask;
         }
 
 

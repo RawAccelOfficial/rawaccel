@@ -20,16 +20,16 @@ namespace userinterface.ViewModels.Profile
         private readonly SemaphoreSlim operationQueue = new(1, 1);
         private readonly ConcurrentQueue<Func<Task>> pendingOperations = new();
         private volatile bool isProcessingQueue = false;
-        private Views.Profile.ProfileListView profileListView;
+        private Views.Profile.ProfileListView? profileListView;
 
         [ObservableProperty]
-        private BE.ProfileModel selectedProfile;
+        private BE.ProfileModel? selectedProfile;
 
-        public event Action<BE.ProfileModel> SelectedProfileChanged;
+        public event Action<BE.ProfileModel>? SelectedProfileChanged;
 
-        partial void OnSelectedProfileChanged(BE.ProfileModel value)
+        partial void OnSelectedProfileChanged(BE.ProfileModel? value)
         {
-            SelectedProfileChanged?.Invoke(value);
+            if (value != null) SelectedProfileChanged?.Invoke(value);
             
             if (profileListView != null)
             {
@@ -189,7 +189,7 @@ namespace userinterface.ViewModels.Profile
 
                 var tcs = new TaskCompletionSource<bool>();
 
-                void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+                void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
                 {
                     if (e.PropertyName == nameof(profileListView.AreAnimationsActive) && !profileListView.AreAnimationsActive)
                     {

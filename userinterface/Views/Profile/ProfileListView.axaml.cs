@@ -24,10 +24,10 @@ namespace userinterface.Views.Profile;
 public partial class ProfileListView : UserControl, INotifyPropertyChanged
 {
     private readonly List<Border> allItems = [];
-    private Panel profileContainer;
+    private Panel? profileContainer;
     private readonly BE.ProfilesModel profilesModel;
     private readonly SemaphoreSlim operationSemaphore = new(1, 1);
-    private BE.ProfileModel selectedProfile;
+    private BE.ProfileModel? selectedProfile;
 
     private int GetProfileCount() => allItems.Count - 1;
     private volatile bool areAnimationsActive = false;
@@ -35,7 +35,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     public new event PropertyChangedEventHandler? PropertyChanged;
     private readonly IModalService modalService;
     private readonly LocalizationService localizationService;
-    private TextBlock addProfileTextBlock;
+    private TextBlock? addProfileTextBlock;
 
     private const double ProfileHeight = 38.0;
     private const double ProfileSpacing = 4.0;
@@ -61,7 +61,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         Unloaded += OnUnloaded;
     }
 
-    private void OnUnloaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnUnloaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         operationSemaphore?.Dispose();
         if (localizationService != null)
@@ -70,7 +70,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    private void OnLoaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         profileContainer = this.FindControl<Panel>("ProfileContainer");
 
@@ -82,7 +82,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         var addButton = CreateAddProfileButton();
         allItems.Add(addButton);
-        profileContainer.Children.Add(addButton);
+        profileContainer?.Children.Add(addButton);
 
         CreateProfilesWithStagger();
 
@@ -91,7 +91,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         // SetSelectedProfile(null);
     }
 
-    private void OnLocalizationPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void OnLocalizationPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (addProfileTextBlock != null)
         {
@@ -99,7 +99,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    private async void OnProfilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void OnProfilesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         await operationSemaphore.WaitAsync();
         try
@@ -278,7 +278,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     {
         if (targetIndex < 0 || targetIndex > GetProfileCount()) return;
 
-        var profileBorder = CreateProfileBorder(null, targetIndex);
+        var profileBorder = CreateProfileBorder(null!, targetIndex);
 
         profileBorder.ZIndex = 1000;
         profileBorder.Opacity = 1.0; // Ensure full visibility
@@ -313,7 +313,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             Child = addProfileTextBlock
         };
 
-        border.PointerPressed += (s, e) => OnAddProfileClicked(s, e);
+        border.PointerPressed += (s, e) => OnAddProfileClicked(s!, e);
 
         return border;
     }
@@ -388,7 +388,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    private void OnProfileBorderClicked(object sender, Avalonia.Input.PointerPressedEventArgs e)
+    private void OnProfileBorderClicked(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         if (sender is Border border)
         {
@@ -416,7 +416,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    private async void OnDeleteButtonClicked(object sender, RoutedEventArgs e)
+    private async void OnDeleteButtonClicked(object? sender, RoutedEventArgs e)
     {
         // Prevent deletion during animations to avoid bugs
         if (areAnimationsActive)
@@ -469,7 +469,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     {
         for (int i = 0; i < profilesModel.Profiles.Count; i++)
         {
-            var profileBorder = CreateProfileBorder(null, i);
+            var profileBorder = CreateProfileBorder(null!, i);
             profileBorder.ZIndex = 1000;
             profileBorder.Opacity = 1.0;
             // Elements start in collapsed state with Y=0 margin (already set in CreateProfileBorder)
@@ -562,7 +562,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
                 
                 await Task.Delay(AnimationCompleteDelayMs);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }
@@ -607,7 +607,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         }
     }
 
-    public BE.ProfileModel GetSelectedProfile()
+    public BE.ProfileModel? GetSelectedProfile()
     {
         return selectedProfile;
     }
