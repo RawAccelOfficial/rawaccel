@@ -1,11 +1,7 @@
 using Avalonia;
-using Avalonia.Animation;
-using Avalonia.Animation.Easings;
 using Avalonia.Controls.Shapes;
-using Avalonia.Styling;
 using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using userinterface.ViewModels.Mapping;
 
 namespace userinterface.Helpers
@@ -45,7 +41,7 @@ namespace userinterface.Helpers
         {
             private readonly Path path;
             private MappingViewModel? viewModel;
-            private bool isAnimating = false;
+            private System.Timers.Timer? hideTimer;
             private bool disposed = false;
 
             public AnimationHandler(Path path)
@@ -96,55 +92,34 @@ namespace userinterface.Helpers
 
             private void UpdateVisualState(bool isActive, bool animate)
             {
-                if (disposed || isAnimating) return;
+                if (disposed) return;
+
+                // Cancel any pending hide timer
+                hideTimer?.Stop();
+                hideTimer?.Dispose();
+                hideTimer = null;
 
                 if (isActive)
                 {
-                    AnimateSelection(animate);
+                    ShowSelection(animate);
                 }
                 else
                 {
-                    AnimateDeselection(animate);
+                    HideSelection(animate);
                 }
             }
 
-            private void AnimateSelection(bool animate)
+            private void ShowSelection(bool animate)
             {
                 if (disposed) return;
 
                 // Show the border immediately
                 path.IsVisible = true;
-
+                
                 if (animate)
                 {
-                    isAnimating = true;
-
-                    // Animate from hidden (1640) to visible (0)
-                    var animation = new Animation
-                    {
-                        Duration = TimeSpan.FromMilliseconds(800),
-                        Easing = new CubicEaseOut(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters = { new Setter(Path.StrokeDashOffsetProperty, 1640.0) }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters = { new Setter(Path.StrokeDashOffsetProperty, 0.0) }
-                            }
-                        }
-                    };
-
-                    var task = animation.RunAsync(path);
-                    task.ContinueWith(_ =>
-                    {
-                        if (!disposed)
-                            isAnimating = false;
-                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                    // Enable CSS transition and set target value
+                    path.StrokeDashOffset = 0;
                 }
                 else
                 {
@@ -153,44 +128,35 @@ namespace userinterface.Helpers
                 }
             }
 
-            private void AnimateDeselection(bool animate)
+            private void HideSelection(bool animate)
             {
                 if (disposed) return;
 
                 if (animate)
                 {
-                    isAnimating = true;
-
-                    // Animate from visible (0) to hidden (1640), then hide
-                    var animation = new Animation
+                    // Set target value and let CSS transition handle the animation
+                    path.StrokeDashOffset = 1640;
+                    
+                    // Hide the border after a delay to allow animation to complete
+                    hideTimer = new System.Timers.Timer(800); // Match CSS transition duration
+                    hideTimer.Elapsed += (s, e) =>
                     {
-                        Duration = TimeSpan.FromMilliseconds(800),
-                        Easing = new CubicEaseOut(),
-                        Children =
-                        {
-                            new KeyFrame
-                            {
-                                Cue = new Cue(0d),
-                                Setters = { new Setter(Path.StrokeDashOffsetProperty, 0.0) }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters = { new Setter(Path.StrokeDashOffsetProperty, 1640.0) }
-                            }
-                        }
-                    };
-
-                    var task = animation.RunAsync(path);
-                    task.ContinueWith(_ =>
-                    {
+                        hideTimer?.Dispose();
+                        hideTimer = null;
+                        
                         if (!disposed)
                         {
-                            // Hide the border after animation completes
-                            path.IsVisible = false;
-                            isAnimating = false;
+                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                            {
+                                // Only hide if still in deselected state
+                                if (!disposed && viewModel != null && !viewModel.IsActiveMapping)
+                                {
+                                    path.IsVisible = false;
+                                }
+                            });
                         }
-                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                    };
+                    hideTimer.Start();
                 }
                 else
                 {
@@ -204,6 +170,11 @@ namespace userinterface.Helpers
             {
                 if (disposed) return;
                 disposed = true;
+
+                // Cancel and dispose any pending timer
+                hideTimer?.Stop();
+                hideTimer?.Dispose();
+                hideTimer = null;
 
                 path.DataContextChanged -= OnDataContextChanged;
                 UnsubscribeFromViewModel();
