@@ -20,6 +20,7 @@ public partial class MappingsPageView : UserControl
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
         ItemsRepeater.ElementPrepared += OnElementPrepared;
+        ItemsRepeater.ElementClearing += OnElementClearing;
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
@@ -37,9 +38,24 @@ public partial class MappingsPageView : UserControl
 
     private void OnElementPrepared(object? sender, ItemsRepeaterElementPreparedEventArgs e)
     {
-        if (e.Element is Grid container && !isInitialLoad)
+        if (e.Element is Grid container)
         {
-            RevealElementWithDelay(container, NewItemDelayMs);
+            // Always reset to initial hidden state first
+            container.Classes.Remove("Visible");
+            
+            if (!isInitialLoad) // This is a new item being added
+            {
+                RevealElementWithDelay(container, NewItemDelayMs);
+            }
+            // Initial load items will be revealed by RevealAllElementsStaggered()
+        }
+    }
+
+    private void OnElementClearing(object? sender, ItemsRepeaterElementClearingEventArgs e)
+    {
+        if (e.Element is Grid element)
+        {
+            element.Classes.Remove("Visible"); // Reset to hidden state
         }
     }
 
