@@ -5,6 +5,7 @@
              xmlns:vm="using:userinterface.ViewModels.Mapping"
              xmlns:ext="using:userinterface.Extensions"
              xmlns:helpers="using:userinterface.Helpers"
+             xmlns:mapping="using:userinterface.ViewModels.Mapping"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Mapping.MappingsPageView"
              x:DataType="vm:MappingsPageViewModel">
@@ -44,8 +45,8 @@
 		</Style>
 
 		<Style Selector="Panel.MappingContainer">
-			<Setter Property="Width" Value="392"/>
-			<Setter Property="Height" Value="350"/>
+			<Setter Property="Width" Value="{x:Static mapping:BorderConstants.ContentWidthProperty}"/>
+			<Setter Property="Height" Value="{x:Static mapping:BorderConstants.ContentHeightProperty}"/>
 		</Style>
 
 		<!-- Selection Border Styles -->

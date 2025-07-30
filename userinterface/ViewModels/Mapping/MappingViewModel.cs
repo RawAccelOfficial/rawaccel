@@ -16,8 +16,12 @@ namespace userinterface.ViewModels.Mapping
         public const int StrokeWidth = 3;
         public const int BorderThickness = 1;
         public const int Padding = 16;
-        public const int ContentWidth = 400;
+        public const int ContentWidth = 392;
         public const int ContentHeight = 350;
+        
+        // Static properties for XAML binding
+        public static double ContentWidthProperty => ContentWidth;
+        public static double ContentHeightProperty => ContentHeight;
     }
 
     public partial class MappingViewModel : ViewModelBase
