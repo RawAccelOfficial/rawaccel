@@ -46,7 +46,7 @@ namespace userinterface.ViewModels.Mapping
             for (int i = 0; i < MappingsBE.Mappings.Count; i++)
             {
                 var mappingBE = MappingsBE.Mappings[i];
-                bool isActive = i == 0;
+                bool isActive = mappingBE.SetActive;
 
                 var viewModel = viewModelFactory.CreateMappingViewModel(mappingBE, MappingsBE, isActive, OnMappingActivationRequested);
 
@@ -68,13 +68,16 @@ namespace userinterface.ViewModels.Mapping
         {
             if (activeMappingView == newActiveMapping) return;
             
-            if (activeMappingView != null)
+            if (MappingsBE.SetActiveMapping(newActiveMapping.MappingBE))
             {
-                activeMappingView.IsActiveMapping = false;
-            }
+                if (activeMappingView != null)
+                {
+                    activeMappingView.IsActiveMapping = false;
+                }
 
-            newActiveMapping.IsActiveMapping = true;
-            activeMappingView = newActiveMapping;
+                newActiveMapping.IsActiveMapping = true;
+                activeMappingView = newActiveMapping;
+            }
         }
 
         public bool TryAddNewMapping() => MappingsBE.TryAddMapping();

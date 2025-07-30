@@ -51,6 +51,14 @@ namespace userinterface.ViewModels.Mapping
             {
                 OnPropertyChanged(nameof(HasDeviceGroupsToAdd));
             };
+
+            MappingBE.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(BE.MappingModel.SetActive))
+                {
+                    IsActiveMapping = MappingBE.SetActive;
+                }
+            };
         }
 
         public BE.MappingModel MappingBE { get; private set; } = null!;

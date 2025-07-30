@@ -73,17 +73,20 @@ namespace userspace_backend.Data
         [JsonRequired]
         public Mapping[] Mappings { get; set; } = null!;
 
+        public int ActiveMappingIndex { get; set; } = 0;
+
         public override bool Equals(object? obj)
         {
             MappingSet test = obj as MappingSet;
             return obj is MappingSet set
             && set.Mappings.Length == this.Mappings.Length
+            && set.ActiveMappingIndex == this.ActiveMappingIndex
             && !set.Mappings.Except(this.Mappings, Mapping.EqualityComparer).Any();
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Mappings);
+            return HashCode.Combine(Mappings, ActiveMappingIndex);
         }
     }
 }

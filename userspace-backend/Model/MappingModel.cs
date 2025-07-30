@@ -23,7 +23,7 @@ namespace userspace_backend.Model
             ProfilesModel profiles) : base(dataObject)
         {
             NameValidator = nameValidator;
-            SetActive = true;
+            SetActive = false;
             DeviceGroups = deviceGroups;
             Profiles = profiles;
             InitIndividualMappings(dataObject);
@@ -33,7 +33,12 @@ namespace userspace_backend.Model
             DeviceGroups.DeviceGroupModels.CollectionChanged += OnIndividualMappingsChanged;
         }
 
-        public bool SetActive { get; set; }
+        private bool setActive;
+        public bool SetActive 
+        { 
+            get => setActive; 
+            internal set => SetProperty(ref setActive, value); 
+        }
 
         public EditableSetting<string> Name { get; set; }
 
