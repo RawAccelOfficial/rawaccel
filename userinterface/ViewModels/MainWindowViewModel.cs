@@ -1,11 +1,16 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Converters;
+using userinterface.Interfaces;
 using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels.Controls;
@@ -13,6 +18,7 @@ using userinterface.ViewModels.Device;
 using userinterface.ViewModels.Mapping;
 using userinterface.ViewModels.Profile;
 using userinterface.ViewModels.Settings;
+using userinterface.Views;
 using BE = userspace_backend;
 
 namespace userinterface.ViewModels;
@@ -20,48 +26,53 @@ namespace userinterface.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private NavigationPage selectedPageValue = NavigationPage.Devices;
-    private bool IsProfilesExpandedValue = false;
+    private bool isProfilesExpandedValue = false;
 
-    // Lazy-loaded ViewModels
-    private DevicesPageViewModel? devicesPage;
-    private ProfilesPageViewModel? profilesPage;
-    private MappingsPageViewModel? mappingsPage;
-    private SettingsPageViewModel? settingsPage;
-    private ProfileListViewModel? profileListView;
-    private ToastViewModel? toastViewModel;
+    // Pre-created ViewModels
+    private readonly DevicesPageViewModel devicesPage;
+    private readonly ProfilesPageViewModel profilesPage;
+    private readonly MappingsPageViewModel mappingsPage;
+    private readonly SettingsPageViewModel settingsPage;
+    private readonly ProfileListViewModel profileListView;
+    private readonly ToastViewModel toastViewModel;
 
     private readonly BE.BackEnd backEnd;
     private readonly IThemeService themeService;
+    private readonly ISettingsService settingsService;
+    private readonly FrameTimerService frameTimer;
 
-    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService)
+    public MainWindowViewModel(BE.BackEnd backEnd, IThemeService themeService, ISettingsService settingsService, FrameTimerService frameTimer)
     {
         this.backEnd = backEnd ?? throw new ArgumentNullException(nameof(backEnd));
         this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
+        this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+        this.frameTimer = frameTimer ?? throw new ArgumentNullException(nameof(frameTimer));
+
+        devicesPage = App.Services!.GetRequiredService<DevicesPageViewModel>();
+        profilesPage = App.Services!.GetRequiredService<ProfilesPageViewModel>();
+        mappingsPage = App.Services!.GetRequiredService<MappingsPageViewModel>();
+        settingsPage = App.Services!.GetRequiredService<SettingsPageViewModel>();
+        profileListView = App.Services!.GetRequiredService<ProfileListViewModel>();
+        toastViewModel = App.Services!.GetRequiredService<ToastViewModel>();
 
         ApplyCommand = new RelayCommand(() => Apply());
         NavigateCommand = new RelayCommand<NavigationPage>(page => SelectPage(page));
         ToggleThemeCommand = new RelayCommand(() => ToggleTheme());
-
-        SubscribeToProfileSelectionChanges();
+        
+        profileListView.SelectedProfileChanged += OnProfileSelected;
     }
 
-    public DevicesPageViewModel DevicesPage =>
-        devicesPage ??= App.Services!.GetRequiredService<DevicesPageViewModel>();
+    public DevicesPageViewModel DevicesPage => devicesPage;
 
-    public ProfilesPageViewModel ProfilesPage =>
-        profilesPage ??= App.Services!.GetRequiredService<ProfilesPageViewModel>();
+    public ProfilesPageViewModel ProfilesPage => profilesPage;
 
-    public MappingsPageViewModel MappingsPage =>
-        mappingsPage ??= App.Services!.GetRequiredService<MappingsPageViewModel>();
+    public MappingsPageViewModel MappingsPage => mappingsPage;
 
-    public SettingsPageViewModel SettingsPage =>
-        settingsPage ??= App.Services!.GetRequiredService<SettingsPageViewModel>();
+    public SettingsPageViewModel SettingsPage => settingsPage;
 
-    public ProfileListViewModel ProfileListView =>
-        profileListView ??= App.Services!.GetRequiredService<ProfileListViewModel>();
+    public ProfileListViewModel ProfileListView => profileListView;
 
-    public ToastViewModel ToastViewModel =>
-        toastViewModel ??= App.Services!.GetRequiredService<ToastViewModel>();
+    public ToastViewModel ToastViewModel => toastViewModel;
 
     protected BE.BackEnd BackEnd => backEnd;
 
@@ -87,13 +98,22 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public bool IsProfilesExpanded
     {
-        get => IsProfilesExpandedValue;
+        get => isProfilesExpandedValue;
         set
         {
-            if (IsProfilesExpandedValue != value)
+            if (isProfilesExpandedValue != value)
             {
-                IsProfilesExpandedValue = value;
+                isProfilesExpandedValue = value;
                 OnPropertyChanged();
+
+                if (value)
+                {
+                    ExpandProfiles();
+                }
+                else
+                {
+                    CollapseProfiles();
+                }
             }
         }
     }
@@ -110,8 +130,92 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void SelectPage(NavigationPage page)
     {
+        Console.WriteLine($"SelectPage called with: {page}");
         SelectedPage = page;
         IsProfilesExpanded = page == NavigationPage.Profiles;
+        
+        if (page == NavigationPage.Profiles && profileListView.SelectedProfile == null)
+        {
+            var defaultProfile = backEnd.Profiles.Profiles.FirstOrDefault(p => p == BE.Model.ProfilesModel.DefaultProfile);
+            if (defaultProfile != null)
+            {
+                profileListView.SelectedProfile = defaultProfile;
+            }
+            else if (backEnd.Profiles.Profiles.Count > 0)
+            {
+                profileListView.SelectedProfile = backEnd.Profiles.Profiles[0];
+            }
+        }
+        
+        UpdateNavigationButtonSelection(page);
+    }
+    
+    private void UpdateNavigationButtonSelection(NavigationPage page)
+    {
+        if (App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && 
+            desktop.MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.UpdateNavigationSelection(page);
+        }
+    }
+
+    public async Task SelectPageAsync(NavigationPage page)
+    {
+        Console.WriteLine($"SelectPageAsync called with: {page}");
+        ViewModelBase pageViewModel = page switch
+        {
+            NavigationPage.Devices => DevicesPage,
+            NavigationPage.Profiles => ProfilesPage,
+            NavigationPage.Mappings => MappingsPage,
+            NavigationPage.Settings => SettingsPage,
+            _ => DevicesPage
+        };
+
+        if (pageViewModel is IAsyncInitializable asyncViewModel && !asyncViewModel.IsInitialized)
+        {
+            Console.WriteLine($"Calling InitializeAsync on {pageViewModel.GetType().Name}");
+            await asyncViewModel.InitializeAsync();
+        }
+
+        SelectedPage = page;
+        IsProfilesExpanded = page == NavigationPage.Profiles;
+        
+        if (page == NavigationPage.Profiles && profileListView.SelectedProfile == null)
+        {
+            var defaultProfile = backEnd.Profiles.Profiles.FirstOrDefault(p => p == BE.Model.ProfilesModel.DefaultProfile);
+            if (defaultProfile != null)
+            {
+                profileListView.SelectedProfile = defaultProfile;
+            }
+            else if (backEnd.Profiles.Profiles.Count > 0)
+            {
+                profileListView.SelectedProfile = backEnd.Profiles.Profiles[0];
+            }
+        }
+    }
+
+    private async void ExpandProfiles()
+    {
+        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow?.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView")
+            : null;
+
+        if (view != null)
+        {
+            await view.ExpandElements();
+        }
+    }
+
+    private async void CollapseProfiles()
+    {
+        var view = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow?.FindControl<userinterface.Views.Profile.ProfileListView>("ProfileListView")
+            : null;
+
+        if (view != null)
+        {
+            await view.CollapseElements();
+        }
     }
 
     public void Apply()
@@ -121,46 +225,27 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void ToggleTheme()
     {
-        var currentTheme = Application.Current?.ActualThemeVariant;
-        var newTheme = currentTheme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-        if (Application.Current != null)
+        var currentTheme = settingsService.Theme.ToLower();
+        string newTheme;
+        
+        if (currentTheme == "system")
         {
-            Application.Current.RequestedThemeVariant = newTheme;
+            var actualSystemTheme = ThemeVariantConverter.GetSystemThemeVariant();
+            newTheme = actualSystemTheme == ThemeVariant.Dark ? "Light" : "Dark";
         }
-        themeService.NotifyThemeChanged();
-    }
-
-    private void SubscribeToProfileSelectionChanges()
-    {
-        ProfileListView.ProfileItems.CollectionChanged += (sender, e) =>
+        else
         {
-            if (e.NewItems != null)
-            {
-                foreach (ProfileListElementViewModel item in e.NewItems)
-                {
-                    item.SelectionChanged += OnProfileSelectionChanged;
-                }
-            }
-            if (e.OldItems != null)
-            {
-                foreach (ProfileListElementViewModel item in e.OldItems)
-                {
-                    item.SelectionChanged -= OnProfileSelectionChanged;
-                }
-            }
-        };
-
-        foreach (var item in ProfileListView.ProfileItems)
-        {
-            item.SelectionChanged += OnProfileSelectionChanged;
+            newTheme = currentTheme == "light" ? "Dark" : "Light";
         }
+        
+        settingsService.Theme = newTheme;
     }
-
-    private void OnProfileSelectionChanged(ProfileListElementViewModel profileElement, bool isSelected)
+    
+    private void OnProfileSelected(BE.Model.ProfileModel selectedProfile)
     {
-        if (isSelected)
+        if (selectedProfile != null && SelectedPage != NavigationPage.Profiles)
         {
-            ProfilesPage?.UpdateCurrentProfile();
+            SelectPage(NavigationPage.Profiles);
         }
     }
 
@@ -169,16 +254,5 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     protected virtual new void OnPropertyChanged([CallerMemberName] string? PropertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-    }
-
-    public void Cleanup()
-    {
-        if (profileListView != null)
-        {
-            foreach (var item in profileListView.ProfileItems)
-            {
-                item.SelectionChanged -= OnProfileSelectionChanged;
-            }
-        }
     }
 }

@@ -5,6 +5,7 @@
              xmlns:vm="using:userinterface.ViewModels.Settings"
              xmlns:controls="using:userinterface.Views.Controls"
              xmlns:ext="using:userinterface.Extensions"
+             xmlns:settings="using:userinterface.Views.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Settings.SettingsPageView"
              x:DataType="vm:SettingsPageViewModel">
@@ -84,9 +85,7 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>
 
-					<StackPanel Spacing="12" x:Name="SettingsStackPanel">
-						<!-- The DualColumnLabelFieldView will be added in code-behind -->
-					</StackPanel>
+					<settings:GeneralSettingsView DataContext="{Binding GeneralSettingsViewModel}" />
 				</StackPanel>
 			</Border>
 
@@ -97,42 +96,12 @@
                     CornerRadius="8"
                     Padding="20">
 				<StackPanel Spacing="16">
-					<TextBlock Text="Support &amp; Bug Reports"
+					<TextBlock Text="{ext:Localized SupportSectionTitle}"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>
 
-					<TextBlock Text="Before reporting a bug, please search through existing issues first to avoid duplicates."
-                               FontSize="14"
-                               Foreground="{DynamicResource SecondaryTextBrush}"
-                               TextWrapping="Wrap"
-                               Margin="0,0,0,12"/>
-
-					<Button Content="Search Existing Issues"
-                            Command="{Binding BugReportCommand}"
-                            Background="{DynamicResource PrimaryButtonBrush}"
-                            Foreground="{DynamicResource PrimaryTextBrush}"
-                            BorderThickness="0"
-                            CornerRadius="6"
-                            Padding="20,12"
-                            FontSize="14"
-                            FontWeight="Medium"
-                            Cursor="Hand"
-                            HorizontalAlignment="Left">
-						<Button.Styles>
-							<Style Selector="Button:pointerover">
-								<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
-							</Style>
-							<Style Selector="Button:pressed">
-								<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
-							</Style>
-						</Button.Styles>
-					</Button>
-
-					<TextBlock Text="Check closed issues too - your problem may already be resolved"
-                               FontSize="12"
-                               Foreground="{DynamicResource DisabledTextBrush}"
-                               FontStyle="Italic"/>
+					<settings:SupportView DataContext="{Binding SupportViewModel}" />
 				</StackPanel>
 			</Border>
 		</StackPanel>

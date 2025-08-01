@@ -1,10 +1,10 @@
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 using System.Resources;
 using userinterface.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace userinterface.Extensions;
 
@@ -51,13 +51,11 @@ public class LocalizedExtension : MarkupExtension, INotifyPropertyChanged
 
     private ResourceManager GetResourceManagerForKey(string key)
     {
-        // Always use the consolidated Strings resource manager
         return Properties.Resources.Strings.ResourceManager;
     }
 
     private string GetActualKey(string key)
     {
-        // No longer need to strip prefixes - use the key as-is
         return key;
     }
-} 
+}

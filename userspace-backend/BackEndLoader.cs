@@ -18,10 +18,14 @@ namespace userspace_backend
 
         public IEnumerable<DATA.Profile> LoadProfiles();
 
+        public DATA.Settings? LoadSettings();
+
         public void WriteSettingsToDisk(
             IEnumerable<DeviceModel> devices,
             MappingsModel mappings,
             IEnumerable<ProfileModel> profiles);
+
+        public void WriteSettings(DATA.Settings settings);
     }
 
     public class BackEndLoader : IBackEndLoader
@@ -31,6 +35,8 @@ namespace userspace_backend
         public static MappingsReaderWriter MappingsReaderWriter = new MappingsReaderWriter();
 
         public static ProfileReaderWriter ProfileReaderWriter = new ProfileReaderWriter();
+
+        public static SettingsReaderWriter SettingsReaderWriter = new SettingsReaderWriter();
 
         public BackEndLoader(string settingsDirectory)
         {
@@ -55,6 +61,31 @@ namespace userspace_backend
         public IEnumerable<DATA.Profile> LoadProfiles()
         {
             throw new NotImplementedException();
+        }
+
+        public DATA.Settings? LoadSettings()
+        {
+            string settingsFile = GetSettingsFile(SettingsDirectory);
+            
+            if (!File.Exists(settingsFile))
+            {
+                return null;
+            }
+
+            try
+            {
+                return SettingsReaderWriter.Read(settingsFile);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void WriteSettings(DATA.Settings settings)
+        {
+            string settingsFile = GetSettingsFile(SettingsDirectory);
+            SettingsReaderWriter.Write(settingsFile, settings);
         }
 
         public void WriteSettingsToDisk(
@@ -104,5 +135,7 @@ namespace userspace_backend
         protected static string GetProfilesDirectory(string settingsDirectory) => Path.Combine(settingsDirectory, "profiles");
 
         protected static string GetProfileFile(string profileDirectory, string profileName) => Path.Combine(profileDirectory, $"{profileName}.json");
+
+        protected static string GetSettingsFile(string settingsDirectory) => Path.Combine(settingsDirectory, "settings.json");
     }
 }

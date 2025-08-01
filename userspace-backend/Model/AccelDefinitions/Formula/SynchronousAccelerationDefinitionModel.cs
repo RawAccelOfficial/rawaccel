@@ -68,24 +68,28 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
         {
             Gamma = new EditableSetting<double>(
                 displayName: "Gamma",
-                dataObject.Gamma,
+                initialValue: dataObject.Gamma,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelSynchronousGamma");
             Motivity = new EditableSetting<double>(
                 displayName: "Motivity",
-                dataObject.Motivity,
+                initialValue: dataObject.Motivity,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelSynchronousMotivity");
             SyncSpeed = new EditableSetting<double>(
                 displayName: "Sync Speed",
-                dataObject.SyncSpeed,
+                initialValue: dataObject.SyncSpeed,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelSynchronousSyncSpeed");
             Smoothness = new EditableSetting<double>(
                 displayName: "Smoothness",
-                dataObject.Smoothness,
+                initialValue: dataObject.Smoothness,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelSynchronousSmoothness");
         }
     }
 }

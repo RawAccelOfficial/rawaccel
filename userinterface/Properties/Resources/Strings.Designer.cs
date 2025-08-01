@@ -61,6 +61,492 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Acceleration.
+        /// </summary>
+        public static string AccelClassicAcceleration {
+            get {
+                return ResourceManager.GetString("AccelClassicAcceleration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cap.
+        /// </summary>
+        public static string AccelClassicCap {
+            get {
+                return ResourceManager.GetString("AccelClassicCap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exponent.
+        /// </summary>
+        public static string AccelClassicExponent {
+            get {
+                return ResourceManager.GetString("AccelClassicExponent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Offset.
+        /// </summary>
+        public static string AccelClassicOffset {
+            get {
+                return ResourceManager.GetString("AccelClassicOffset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Formula.
+        /// </summary>
+        public static string AccelDefinitionFormula {
+            get {
+                return ResourceManager.GetString("AccelDefinitionFormula", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lookup Table.
+        /// </summary>
+        public static string AccelDefinitionLookupTable {
+            get {
+                return ResourceManager.GetString("AccelDefinitionLookupTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string AccelDefinitionNone {
+            get {
+                return ResourceManager.GetString("AccelDefinitionNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Definition Type.
+        /// </summary>
+        public static string AccelDefinitionType {
+            get {
+                return ResourceManager.GetString("AccelDefinitionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Classic.
+        /// </summary>
+        public static string AccelFormulaClassic {
+            get {
+                return ResourceManager.GetString("AccelFormulaClassic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jump.
+        /// </summary>
+        public static string AccelFormulaJump {
+            get {
+                return ResourceManager.GetString("AccelFormulaJump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Linear.
+        /// </summary>
+        public static string AccelFormulaLinear {
+            get {
+                return ResourceManager.GetString("AccelFormulaLinear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Natural.
+        /// </summary>
+        public static string AccelFormulaNatural {
+            get {
+                return ResourceManager.GetString("AccelFormulaNatural", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power.
+        /// </summary>
+        public static string AccelFormulaPower {
+            get {
+                return ResourceManager.GetString("AccelFormulaPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronous.
+        /// </summary>
+        public static string AccelFormulaSynchronous {
+            get {
+                return ResourceManager.GetString("AccelFormulaSynchronous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Formula Type.
+        /// </summary>
+        public static string AccelFormulaType {
+            get {
+                return ResourceManager.GetString("AccelFormulaType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input.
+        /// </summary>
+        public static string AccelJumpInput {
+            get {
+                return ResourceManager.GetString("AccelJumpInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output.
+        /// </summary>
+        public static string AccelJumpOutput {
+            get {
+                return ResourceManager.GetString("AccelJumpOutput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smooth.
+        /// </summary>
+        public static string AccelJumpSmooth {
+            get {
+                return ResourceManager.GetString("AccelJumpSmooth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acceleration.
+        /// </summary>
+        public static string AccelLinearAcceleration {
+            get {
+                return ResourceManager.GetString("AccelLinearAcceleration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cap.
+        /// </summary>
+        public static string AccelLinearCap {
+            get {
+                return ResourceManager.GetString("AccelLinearCap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Offset.
+        /// </summary>
+        public static string AccelLinearOffset {
+            get {
+                return ResourceManager.GetString("AccelLinearOffset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decay Rate.
+        /// </summary>
+        public static string AccelNaturalDecayRate {
+            get {
+                return ResourceManager.GetString("AccelNaturalDecayRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input Offset.
+        /// </summary>
+        public static string AccelNaturalInputOffset {
+            get {
+                return ResourceManager.GetString("AccelNaturalInputOffset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limit.
+        /// </summary>
+        public static string AccelNaturalLimit {
+            get {
+                return ResourceManager.GetString("AccelNaturalLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cap.
+        /// </summary>
+        public static string AccelPowerCap {
+            get {
+                return ResourceManager.GetString("AccelPowerCap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exponent.
+        /// </summary>
+        public static string AccelPowerExponent {
+            get {
+                return ResourceManager.GetString("AccelPowerExponent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output Offset.
+        /// </summary>
+        public static string AccelPowerOutputOffset {
+            get {
+                return ResourceManager.GetString("AccelPowerOutputOffset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scale.
+        /// </summary>
+        public static string AccelPowerScale {
+            get {
+                return ResourceManager.GetString("AccelPowerScale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gamma.
+        /// </summary>
+        public static string AccelSynchronousGamma {
+            get {
+                return ResourceManager.GetString("AccelSynchronousGamma", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Motivity.
+        /// </summary>
+        public static string AccelSynchronousMotivity {
+            get {
+                return ResourceManager.GetString("AccelSynchronousMotivity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoothness.
+        /// </summary>
+        public static string AccelSynchronousSmoothness {
+            get {
+                return ResourceManager.GetString("AccelSynchronousSmoothness", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync Speed.
+        /// </summary>
+        public static string AccelSynchronousSyncSpeed {
+            get {
+                return ResourceManager.GetString("AccelSynchronousSyncSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only create new issue reports for genuine bugs that haven&apos;t been reported yet..
+        /// </summary>
+        public static string AlphaBuildWarningFooter {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningFooter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to here.
+        /// </summary>
+        public static string AlphaBuildWarningHere {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningHere", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is an alpha build of RawAccel. Before reporting issues, please:.
+        /// </summary>
+        public static string AlphaBuildWarningMainMessage {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningMainMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1. Check existing issues.
+        /// </summary>
+        public static string AlphaBuildWarningStep1 {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningStep1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to see if your problem has already been reported.
+        /// </summary>
+        public static string AlphaBuildWarningStep1Continue {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningStep1Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 2. Search through closed issues for similar problems that may have been resolved.
+        /// </summary>
+        public static string AlphaBuildWarningStep2 {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningStep2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 3. For questions or help, join our Discord.
+        /// </summary>
+        public static string AlphaBuildWarningStep3 {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningStep3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to and ask in English.
+        /// </summary>
+        public static string AlphaBuildWarningStep3Continue {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningStep3Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alpha Build Warning.
+        /// </summary>
+        public static string AlphaBuildWarningTitle {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I Understand.
+        /// </summary>
+        public static string AlphaBuildWarningUnderstand {
+            get {
+                return ResourceManager.GetString("AlphaBuildWarningUnderstand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Combine X and Y Components.
+        /// </summary>
+        public static string AnisotropyCombineXY {
+            get {
+                return ResourceManager.GetString("AnisotropyCombineXY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Domain.
+        /// </summary>
+        public static string AnisotropyDomain {
+            get {
+                return ResourceManager.GetString("AnisotropyDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Domain X.
+        /// </summary>
+        public static string AnisotropyDomainX {
+            get {
+                return ResourceManager.GetString("AnisotropyDomainX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Domain Y.
+        /// </summary>
+        public static string AnisotropyDomainY {
+            get {
+                return ResourceManager.GetString("AnisotropyDomainY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LP Norm.
+        /// </summary>
+        public static string AnisotropyLPNorm {
+            get {
+                return ResourceManager.GetString("AnisotropyLPNorm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Range.
+        /// </summary>
+        public static string AnisotropyRange {
+            get {
+                return ResourceManager.GetString("AnisotropyRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Range X.
+        /// </summary>
+        public static string AnisotropyRangeX {
+            get {
+                return ResourceManager.GetString("AnisotropyRangeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Range Y.
+        /// </summary>
+        public static string AnisotropyRangeY {
+            get {
+                return ResourceManager.GetString("AnisotropyRangeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mouse Speed.
+        /// </summary>
+        public static string ChartAxisMouseSpeed {
+            get {
+                return ResourceManager.GetString("ChartAxisMouseSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output.
+        /// </summary>
+        public static string ChartAxisOutput {
+            get {
+                return ResourceManager.GetString("ChartAxisOutput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input Smoothing Half-Life.
+        /// </summary>
+        public static string CoalescionInputSmoothingHalfLife {
+            get {
+                return ResourceManager.GetString("CoalescionInputSmoothingHalfLife", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scale Smoothing Half-Life.
+        /// </summary>
+        public static string CoalescionScaleSmoothingHalfLife {
+            get {
+                return ResourceManager.GetString("CoalescionScaleSmoothingHalfLife", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Device.
         /// </summary>
         public static string DeviceAddDevice {
@@ -93,6 +579,150 @@ namespace userinterface.Properties.Resources {
         public static string DeviceDevices {
             get {
                 return ResourceManager.GetString("DeviceDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DPI.
+        /// </summary>
+        public static string DeviceDPI {
+            get {
+                return ResourceManager.GetString("DeviceDPI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device Group.
+        /// </summary>
+        public static string DeviceGroupName {
+            get {
+                return ResourceManager.GetString("DeviceGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hardware ID.
+        /// </summary>
+        public static string DeviceHardwareID {
+            get {
+                return ResourceManager.GetString("DeviceHardwareID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore.
+        /// </summary>
+        public static string DeviceIgnore {
+            get {
+                return ResourceManager.GetString("DeviceIgnore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string DeviceName {
+            get {
+                return ResourceManager.GetString("DeviceName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Polling Rate.
+        /// </summary>
+        public static string DevicePollingRate {
+            get {
+                return ResourceManager.GetString("DevicePollingRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Angle Snapping.
+        /// </summary>
+        public static string HiddenAngleSnapping {
+            get {
+                return ResourceManager.GetString("HiddenAngleSnapping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to L/R Ratio.
+        /// </summary>
+        public static string HiddenLRRatio {
+            get {
+                return ResourceManager.GetString("HiddenLRRatio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output Smoothing Half-Life.
+        /// </summary>
+        public static string HiddenOutputSmoothingHalfLife {
+            get {
+                return ResourceManager.GetString("HiddenOutputSmoothingHalfLife", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotation.
+        /// </summary>
+        public static string HiddenRotation {
+            get {
+                return ResourceManager.GetString("HiddenRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speed Cap.
+        /// </summary>
+        public static string HiddenSpeedCap {
+            get {
+                return ResourceManager.GetString("HiddenSpeedCap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to U/D Ratio.
+        /// </summary>
+        public static string HiddenUDRatio {
+            get {
+                return ResourceManager.GetString("HiddenUDRatio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to English.
+        /// </summary>
+        public static string LanguageEN_US {
+            get {
+                return ResourceManager.GetString("LanguageEN-US", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 日本語.
+        /// </summary>
+        public static string LanguageJA_JP {
+            get {
+                return ResourceManager.GetString("LanguageJA-JP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply as.
+        /// </summary>
+        public static string LookupTableApplyAs {
+            get {
+                return ResourceManager.GetString("LookupTableApplyAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data.
+        /// </summary>
+        public static string LookupTableData {
+            get {
+                return ResourceManager.GetString("LookupTableData", resourceCulture);
             }
         }
         
@@ -142,6 +772,15 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Settings applied successfully!.
+        /// </summary>
+        public static string MainWindowSettingsAppliedSuccess {
+            get {
+                return ResourceManager.GetString("MainWindowSettingsAppliedSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Entry.
         /// </summary>
         public static string MappingAddEntry {
@@ -160,11 +799,65 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string ModalCancel {
+            get {
+                return ResourceManager.GetString("ModalCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string ModalOK {
+            get {
+                return ResourceManager.GetString("ModalOK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add New Profile.
         /// </summary>
         public static string ProfileAddNewProfile {
             get {
                 return ResourceManager.GetString("ProfileAddNewProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Classic with a power of 2 is equal to linear.
+        /// </summary>
+        public static string ProfileClassicLinearEquivalent {
+            get {
+                return ResourceManager.GetString("ProfileClassicLinearEquivalent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string ProfileDeleteConfirm {
+            get {
+                return ResourceManager.GetString("ProfileDeleteConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete this profile?.
+        /// </summary>
+        public static string ProfileDeleteMessage {
+            get {
+                return ResourceManager.GetString("ProfileDeleteMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Profile.
+        /// </summary>
+        public static string ProfileDeleteTitle {
+            get {
+                return ResourceManager.GetString("ProfileDeleteTitle", resourceCulture);
             }
         }
         
@@ -196,11 +889,65 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Output DPI.
+        /// </summary>
+        public static string ProfileOutputDPI {
+            get {
+                return ResourceManager.GetString("ProfileOutputDPI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Reset Zoom.
         /// </summary>
         public static string ProfileResetZoom {
             get {
                 return ResourceManager.GetString("ProfileResetZoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acceleration.
+        /// </summary>
+        public static string ProfileSectionAcceleration {
+            get {
+                return ResourceManager.GetString("ProfileSectionAcceleration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anisotropy.
+        /// </summary>
+        public static string ProfileSectionAnisotropy {
+            get {
+                return ResourceManager.GetString("ProfileSectionAnisotropy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Coalescion.
+        /// </summary>
+        public static string ProfileSectionCoalescion {
+            get {
+                return ResourceManager.GetString("ProfileSectionCoalescion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden.
+        /// </summary>
+        public static string ProfileSectionHidden {
+            get {
+                return ResourceManager.GetString("ProfileSectionHidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Y/X Ratio.
+        /// </summary>
+        public static string ProfileYXRatio {
+            get {
+                return ResourceManager.GetString("ProfileYXRatio", resourceCulture);
             }
         }
         
@@ -214,11 +961,119 @@ namespace userinterface.Properties.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string SettingsLanguage {
+            get {
+                return ResourceManager.GetString("SettingsLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language changed to {0}.
+        /// </summary>
+        public static string SettingsLanguageChangedTo {
+            get {
+                return ResourceManager.GetString("SettingsLanguageChangedTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string SettingsPageTitle {
             get {
                 return ResourceManager.GetString("SettingsPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Confirmation Dialogs.
+        /// </summary>
+        public static string SettingsShowConfirmModals {
+            get {
+                return ResourceManager.GetString("SettingsShowConfirmModals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Toast Notifications.
+        /// </summary>
+        public static string SettingsShowToastNotifications {
+            get {
+                return ResourceManager.GetString("SettingsShowToastNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Theme.
+        /// </summary>
+        public static string SettingsTheme {
+            get {
+                return ResourceManager.GetString("SettingsTheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Before reporting a bug, please search through existing issues first to avoid duplicates..
+        /// </summary>
+        public static string SupportBugReportInstructions {
+            get {
+                return ResourceManager.GetString("SupportBugReportInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check closed issues too - your problem may already be resolved.
+        /// </summary>
+        public static string SupportCheckClosedIssues {
+            get {
+                return ResourceManager.GetString("SupportCheckClosedIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search Existing Issues.
+        /// </summary>
+        public static string SupportSearchExistingIssues {
+            get {
+                return ResourceManager.GetString("SupportSearchExistingIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Support &amp; Bug Reports.
+        /// </summary>
+        public static string SupportSectionTitle {
+            get {
+                return ResourceManager.GetString("SupportSectionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        public static string ThemeDark {
+            get {
+                return ResourceManager.GetString("ThemeDark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        public static string ThemeLight {
+            get {
+                return ResourceManager.GetString("ThemeLight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to System.
+        /// </summary>
+        public static string ThemeSystem {
+            get {
+                return ResourceManager.GetString("ThemeSystem", resourceCulture);
             }
         }
     }

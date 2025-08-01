@@ -17,6 +17,8 @@ namespace userspace_backend
 
         public DATA.Profile[] ProfilesToLoad { get; set; }
 
+        public DATA.Settings SettingsToLoad { get; set; }
+
         // Allows us to test parts of BackEndLoader as desired
         public BackEndLoader BackEndLoader { get; set; }
 
@@ -41,6 +43,16 @@ namespace userspace_backend
             IEnumerable<ProfileModel> profiles)
         {
             BackEndLoader.WriteSettingsToDisk(devices, mappings, profiles);
+        }
+
+        public DATA.Settings? LoadSettings()
+        {
+            return SettingsToLoad ?? BackEndLoader?.LoadSettings();
+        }
+
+        public void WriteSettings(DATA.Settings settings)
+        {
+            BackEndLoader?.WriteSettings(settings);
         }
     }
 }

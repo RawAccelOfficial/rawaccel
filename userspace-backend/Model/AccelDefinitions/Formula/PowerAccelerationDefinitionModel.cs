@@ -68,22 +68,26 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 displayName: "Scale",
                 initialValue: dataObject.Scale,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelPowerScale");
             Exponent = new EditableSetting<double>(
                 displayName: "Exponent",
                 initialValue: dataObject.Exponent,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelPowerExponent");
             OutputOffset = new EditableSetting<double>(
                 displayName: "Output Offset",
                 initialValue: dataObject.OutputOffset,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelPowerOutputOffset");
             Cap = new EditableSetting<double>(
                 displayName: "Cap",
                 initialValue: dataObject.Cap,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelPowerCap");
         }
     }
 }

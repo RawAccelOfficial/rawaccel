@@ -18,6 +18,6 @@
 	</UserControl.Styles>
 
 	<Grid>
-		<ContentControl Content="{Binding SelectedProfileView}" />
+		<ContentControl x:Name="ProfileContentControl" Content="{Binding SelectedProfileView}" />
 	</Grid>
 </UserControl>

@@ -19,13 +19,16 @@ namespace userspace_backend
             BackEndLoader = backEndLoader;
             Devices = new DevicesModel();
             Profiles = new ProfilesModel([]);
+            Settings = new DATA.Settings();
         }
 
         public DevicesModel Devices { get; set; }
 
-        public MappingsModel Mappings { get; set; }
+        public MappingsModel Mappings { get; set; } = null!;
 
         public ProfilesModel Profiles { get; set; }
+
+        public DATA.Settings Settings { get; set; }
 
         protected IBackEndLoader BackEndLoader { get; set; }
 
@@ -39,6 +42,8 @@ namespace userspace_backend
 
             DATA.MappingSet mappingData = BackEndLoader.LoadMappings();
             Mappings = new MappingsModel(mappingData, Devices.DeviceGroups, Profiles);
+
+            Settings = BackEndLoader.LoadSettings() ?? new DATA.Settings();
         }
 
         protected void LoadDevicesFromData(IEnumerable<DATA.Device> devicesData)
@@ -63,7 +68,7 @@ namespace userspace_backend
             {
                 // WriteToDriver();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return;
             }
@@ -77,6 +82,8 @@ namespace userspace_backend
                 Devices.DevicesEnumerable,
                 Mappings,
                 Profiles.Profiles);
+            
+            BackEndLoader.WriteSettings(Settings);
         }
 
         protected void WriteToDriver()
@@ -87,7 +94,7 @@ namespace userspace_backend
             {
                 config.Activate();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log this once logging is added
             }

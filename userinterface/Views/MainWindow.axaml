@@ -382,14 +382,9 @@
 							<Button Classes="NavButton"
 									Name="ProfilesButton"
 									Tag="Profiles"
-									Content="{ext:Localized MainWindowProfilesButton}"/>
-							<ContentControl IsVisible="{Binding IsProfilesExpanded}">
-								<StackPanel>
-									<vp:ActiveProfilesListView DataContext="{Binding ProfilesPage.ActiveProfilesListView}"/>
-									<Border Classes="ProfileSeparator"/>
-									<vp:ProfileListView DataContext="{Binding ProfilesPage.ProfileListView}"/>
-								</StackPanel>
-							</ContentControl>
+									Content="{ext:Localized MainWindowProfilesButton}"
+									ZIndex="1"/>
+							<vp:ProfileListView Name="ProfileListView" DataContext="{Binding ProfilesPage.ProfileListView}"/>
 						</StackPanel>
 					</StackPanel>
 				</ScrollViewer>

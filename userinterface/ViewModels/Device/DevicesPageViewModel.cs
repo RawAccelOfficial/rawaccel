@@ -1,5 +1,5 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Device

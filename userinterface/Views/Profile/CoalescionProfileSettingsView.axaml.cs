@@ -49,8 +49,8 @@ public partial class CoalescionProfileSettingsView : UserControl
         if (CoalescionFieldViewModel == null)
             return;
 
-        CoalescionFieldViewModel.AddField("Input Smoothing Half Life", CreateInputControl(viewModel.InputSmoothingHalfLife));
-        CoalescionFieldViewModel.AddField("Scale Smoothing Half Life", CreateInputControl(viewModel.ScaleSmoothingHalfLife));
+        CoalescionFieldViewModel.AddField("CoalescionInputSmoothingHalfLife", CreateInputControl(viewModel.InputSmoothingHalfLife));
+        CoalescionFieldViewModel.AddField("CoalescionScaleSmoothingHalfLife", CreateInputControl(viewModel.ScaleSmoothingHalfLife));
     }
 
     private void AddControlToMainPanel()

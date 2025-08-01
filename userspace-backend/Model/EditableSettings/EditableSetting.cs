@@ -28,9 +28,11 @@ namespace userspace_backend.Model.EditableSettings
             T initialValue,
             IUserInputParser<T> parser,
             IModelValueValidator<T> validator,
-            bool autoUpdateFromInterface = false)
+            bool autoUpdateFromInterface = false,
+            string localizationKey = null)
         {
             DisplayName = displayName;
+            LocalizationKey = localizationKey;
             LastWrittenValue = initialValue;
             Parser = parser;
             Validator = validator;
@@ -42,7 +44,22 @@ namespace userspace_backend.Model.EditableSettings
         /// <summary>
         /// Display name for this setting in UI
         /// </summary>
+        /// TODO: Make private and only use DisplayText for UI
         public string DisplayName { get; }
+
+        /// <summary>
+        /// Optional localization key for this setting. If provided, DisplayText will use localized string instead of DisplayName
+        /// </summary>
+        public string LocalizationKey { get; set; }
+
+        /// <summary>
+        /// Gets the display text for this setting. Returns LocalizationKey if provided, otherwise DisplayName.
+        /// UI layer should handle actual localization of the key.
+        /// </summary>
+        public string DisplayText => 
+            !string.IsNullOrEmpty(LocalizationKey) 
+                ? LocalizationKey 
+                : DisplayName ?? string.Empty;
 
         public virtual T ModelValue { get; protected set; }
 
@@ -126,5 +143,6 @@ namespace userspace_backend.Model.EditableSettings
                 TryUpdateFromInterface();
             }
         }
+
     }
 }

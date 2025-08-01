@@ -6,11 +6,12 @@ using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using userinterface.Converters;
+using userinterface.Extensions;
 using userinterface.Models;
 using userinterface.Services;
 using userinterface.ViewModels;
 using userinterface.Views.Controls;
-using userinterface.Extensions;
 
 namespace userinterface.Views;
 
@@ -26,17 +27,25 @@ public partial class MainWindow : Window
         InitializeControls();
         UpdateThemeToggleButton();
         UpdateSelectedButton(NavigationPage.Devices);
+        
+        // Subscribe to theme changes
+        ThemeService.ThemeChanged += OnThemeChanged;
     }
 
     private INotificationService NotificationService =>
         App.Services!.GetRequiredService<INotificationService>();
+    
+    private ISettingsService SettingsService =>
+        App.Services!.GetRequiredService<ISettingsService>();
+    
+    private IThemeService ThemeService =>
+        App.Services!.GetRequiredService<IThemeService>();
 
     private void InitializeControls()
     {
         ApplyButtonControl = this.FindControl<Button>("ApplyButton");
         LoadingProgressBar = this.FindControl<ProgressBar>("LoadingProgress");
 
-        // Subscribe to click events
         if (ApplyButtonControl != null)
         {
             ApplyButtonControl.Click += ApplyButtonHandler;
@@ -68,7 +77,7 @@ public partial class MainWindow : Window
         }
     }
 
-    public async void ApplyButtonHandler(object sender, RoutedEventArgs args)
+    public async void ApplyButtonHandler(object? sender, RoutedEventArgs args)
     {
         if (DataContext is MainWindowViewModel viewModel)
         {
@@ -93,7 +102,7 @@ public partial class MainWindow : Window
                 LoadingProgressBar.IsVisible = false;
             }
 
-            NotificationService.ShowSuccessToast("Settings applied successfully!");
+            NotificationService.ShowSuccessToast("MainWindowSettingsAppliedSuccess");
 
             if (ApplyButtonControl != null)
             {
@@ -102,34 +111,28 @@ public partial class MainWindow : Window
         }
     }
 
-    public void OnNavigationClick(object? sender, RoutedEventArgs e)
+    public async void OnNavigationClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button button && 
-            button.Tag is string pageNameString && 
+        if (sender is Button button &&
+            button.Tag is string pageNameString &&
             Enum.TryParse<NavigationPage>(pageNameString, out var page) &&
             DataContext is MainWindowViewModel viewModel)
         {
-            if (viewModel.NavigateCommand.CanExecute(page))
-            {
-                viewModel.NavigateCommand.Execute(page);
-            }
+            await viewModel.SelectPageAsync(page);
             UpdateSelectedButton(page);
         }
     }
 
-    private void OnSettingsClick(object? sender, RoutedEventArgs e)
+    private async void OnSettingsClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel)
         {
-            if (viewModel.NavigateCommand.CanExecute(NavigationPage.Settings))
-            {
-                viewModel.NavigateCommand.Execute(NavigationPage.Settings);
-            }
+            await viewModel.SelectPageAsync(NavigationPage.Settings);
             UpdateSelectedButton(NavigationPage.Settings);
         }
     }
 
-    private void ToggleTheme(object sender, RoutedEventArgs e)
+    private void ToggleTheme(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel)
         {
@@ -172,22 +175,37 @@ public partial class MainWindow : Window
                 break;
         }
     }
+    
+    public void UpdateNavigationSelection(NavigationPage page)
+    {
+        UpdateSelectedButton(page);
+    }
+
 
     private void UpdateThemeToggleButton()
     {
-        if (this.TryFindControl<PathIcon>("ThemeIcon", out var themeIcon) && 
+        if (this.TryFindControl<PathIcon>("ThemeIcon", out var themeIcon) &&
             this.TryFindControl<ToggleButton>("ThemeToggleButton", out var toggleButton))
         {
-            var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
-            if (isDark)
+            var currentTheme = SettingsService.Theme;
+            var actualTheme = ThemeVariantConverter.GetActualTheme(currentTheme);
+            
+            if (actualTheme == ThemeVariant.Dark)
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_moon_regular");
+                toggleButton.IsChecked = true;
             }
             else
             {
                 themeIcon.Data = (Avalonia.Media.Geometry?)this.FindResource("weather_sunny_regular");
+                toggleButton.IsChecked = false;
             }
-            toggleButton.IsChecked = !isDark;
         }
+    }
+
+
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        UpdateThemeToggleButton();
     }
 }

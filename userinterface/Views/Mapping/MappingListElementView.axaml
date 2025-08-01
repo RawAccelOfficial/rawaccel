@@ -171,7 +171,6 @@
                 Classes="DeleteButton"
 				Command="{Binding DeleteCommand}"
                 VerticalAlignment="Center"
-                IsVisible="{Binding ShowActionButtons}"
                 IsEnabled="{Binding CanDelete}">
 			<PathIcon Data="{StaticResource delete_regular}"
                       Width="12" Height="12"/>

@@ -11,12 +11,12 @@ public partial class MappingListElementViewModel : ViewModelBase
     private readonly BE.MappingGroup mappingGroup;
     private readonly BE.MappingModel parentMapping;
 
-    public MappingListElementViewModel(BE.MappingGroup mappingGroup, BE.MappingModel parentMapping, bool isDefaultElement = false)
+    public MappingListElementViewModel(BE.MappingGroup mappingGroup, BE.MappingModel parentMapping)
     {
         this.mappingGroup = mappingGroup;
         this.parentMapping = parentMapping;
 
-        DeleteCommand = new RelayCommand(() => DeleteSelf());
+        DeleteCommand = new RelayCommand(Delete);
 
         parentMapping.IndividualMappings.CollectionChanged += OnIndividualMappingsChanged;
     }
@@ -42,7 +42,6 @@ public partial class MappingListElementViewModel : ViewModelBase
         }
     }
 
-    public bool ShowActionButtons => true;
 
     public ICommand DeleteCommand { get; }
 
@@ -51,10 +50,9 @@ public partial class MappingListElementViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanDelete));
     }
 
-    public void DeleteSelf()
+    public void Delete()
     {
         Cleanup();
-        // Remove this mapping from the parent mapping
         parentMapping.IndividualMappings.Remove(mappingGroup);
     }
 

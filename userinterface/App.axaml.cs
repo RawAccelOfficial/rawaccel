@@ -1,11 +1,14 @@
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using userinterface.Services;
 using userinterface.ViewModels;
@@ -13,6 +16,7 @@ using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Settings;
 using userinterface.Views;
 using userspace_backend;
+using Windows.System;
 using DATA = userspace_backend.Data;
 
 namespace userinterface;
@@ -31,12 +35,16 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Register services
-        services.AddSingleton<INotificationService, NotificationService>();
-        services.AddSingleton<IModalService, ModalService>();
-        services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<INotificationService>(provider =>
+            new NotificationService(provider.GetRequiredService<LocalizationService>(), provider.GetRequiredService<ISettingsService>()));
+        services.AddSingleton<IModalService>(provider =>
+            new ModalService(provider.GetRequiredService<LocalizationService>(), provider.GetRequiredService<ISettingsService>()));
+        services.AddSingleton<IThemeService>(provider =>
+            new ThemeService(provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        services.AddSingleton<SettingsService>();
         services.AddSingleton<LocalizationService>();
+        services.AddSingleton<FrameTimerService>();
+        services.AddSingleton<PreviewChartRenderer>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
@@ -48,9 +56,15 @@ public partial class App : Application
             return backEnd;
         });
 
+        // Register settings service that depends on backend
+        services.AddSingleton<ISettingsService, SettingsService>();
+
         RegisterViewModels(services);
 
         Services = services.BuildServiceProvider();
+
+        // Apply settings from backend after services are built
+        ApplyStartupSettings();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -72,6 +86,9 @@ public partial class App : Application
 
             desktop.MainWindow = mainWindow;
 
+            // Preload libraries that cause first-page stutter
+            _ = PreloadLibrariesAsync();
+
             // Show alpha build warning modal
             _ = ShowAlphaBuildWarningAsync();
 
@@ -86,7 +103,12 @@ public partial class App : Application
     private void RegisterViewModels(IServiceCollection services)
     {
         // Main ViewModels
-        services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<MainWindowViewModel>(provider =>
+            new MainWindowViewModel(
+                provider.GetRequiredService<BackEnd>(),
+                provider.GetRequiredService<IThemeService>(),
+                provider.GetRequiredService<ISettingsService>(),
+                provider.GetRequiredService<FrameTimerService>()));
         services.AddSingleton<ToastViewModel>();
 
         // Device ViewModels
@@ -101,8 +123,6 @@ public partial class App : Application
         services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
         services.AddSingleton<ViewModels.Profile.ProfileListViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileViewModel>();
-        services.AddTransient<ViewModels.Profile.ProfileListElementViewModel>();
-        services.AddTransient<ViewModels.Profile.ActiveProfilesListViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileSettingsViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();
         services.AddTransient<ViewModels.Profile.AccelerationFormulaSettingsViewModel>();
@@ -119,6 +139,8 @@ public partial class App : Application
 
         // Settings ViewModels
         services.AddTransient<SettingsPageViewModel>();
+        services.AddTransient<ViewModels.Settings.GeneralSettingsViewModel>();
+        services.AddTransient<ViewModels.Settings.SupportViewModel>();
 
         // Control ViewModels
         services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
@@ -191,6 +213,13 @@ public partial class App : Application
                     },
                 ],
             },
+            SettingsToLoad = new DATA.Settings()
+            {
+                ShowToastNotifications = true,
+                ShowConfirmModals = true,
+                Theme = "Dark",
+                Language = "ja-JP"
+            },
         };
     }
 
@@ -216,7 +245,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
+            Debug.WriteLine($"Failed to open bug report URL: {ex.Message}");
         }
     }
 
@@ -232,7 +261,84 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to open Discord URL: {ex.Message}");
+            Debug.WriteLine($"Failed to open Discord URL: {ex.Message}");
+        }
+    }
+
+    /* 
+     * This was originally intended to preload libraries that cause stutter 
+     * but it seems to not have much effect. Will leave it here for now.
+     * 
+     * Could also do these
+     * System.Runtime.Intrinsics
+     * System.Text.Json
+     * System.Text.Encodings.Web
+     * System.Text.Encoding.Extensions
+     * System.IO.Pipelines
+    */
+    private async Task PreloadLibrariesAsync()
+    {
+        try
+        {
+            Debug.WriteLine("[PRELOAD] Starting library preload...");
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    _ = typeof(LiveChartsCore.SkiaSharpView.Avalonia.CartesianChart).Assembly;
+
+                    _ = typeof(SkiaSharp.HarfBuzz.SKShaper).Assembly;
+
+                    _ = typeof(SkiaSharp.SKCanvas).Assembly;
+
+                    _ = typeof(LiveChartsCore.CartesianChart<>).Assembly;
+
+                    _ = typeof(Avalonia.Controls.ItemsRepeater).Assembly;
+                    
+                    // Preload crypto library to prevent UI thread blocking
+                    _ = typeof(System.Security.Cryptography.MD5).Assembly;
+                    
+                    // Preload bitmap and encoding libraries
+                    _ = typeof(Avalonia.Media.Imaging.Bitmap).Assembly;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[PRELOAD] Library loading failed: {ex.Message}");
+                }
+            });
+
+            Debug.WriteLine("[PRELOAD] All libraries preloaded successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[PRELOAD] Preload task failed: {ex.Message}");
+        }
+    }
+
+    private void ApplyStartupSettings()
+    {
+        try
+        {
+            var settingsService = Services?.GetService<ISettingsService>();
+            var localizationService = Services?.GetService<LocalizationService>();
+            var themeService = Services?.GetService<IThemeService>();
+
+            if (settingsService != null && localizationService != null)
+            {
+                // Apply language setting from backend
+                localizationService.ChangeLanguage(settingsService.Language);
+            }
+
+            if (themeService != null)
+            {
+                // Apply theme setting from backend
+                themeService.ApplyThemeFromSettings();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[STARTUP] Failed to apply startup settings: {ex.Message}");
         }
     }
 }

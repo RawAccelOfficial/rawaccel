@@ -133,13 +133,15 @@ namespace userspace_backend.Model
                 displayName: "Output DPI",
                 initialValue: dataObject.OutputDPI,
                 parser: UserInputParsers.IntParser,
-                validator: ModelValueValidators.DefaultIntValidator);
+                validator: ModelValueValidators.DefaultIntValidator,
+                localizationKey: "ProfileOutputDPI");
 
             YXRatio = new EditableSetting<double>(
                 displayName: "Y/X Ratio",
                 initialValue: dataObject.YXRatio,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "ProfileYXRatio");
 
             Acceleration = new AccelerationModel(dataObject.Acceleration);
             Hidden = new HiddenModel(dataObject.Hidden);

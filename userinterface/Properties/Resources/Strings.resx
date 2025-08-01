@@ -181,4 +181,354 @@
   <data name="ProfileResetZoom" xml:space="preserve">
     <value>Reset Zoom</value>
   </data>
+
+  <!-- Language Names (Native) -->
+  <data name="LanguageEN-US" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageJA-JP" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+
+  <!-- Toast Notification Resources -->
+  <data name="MainWindowSettingsAppliedSuccess" xml:space="preserve">
+    <value>Settings applied successfully!</value>
+  </data>
+  <data name="SettingsLanguageChangedTo" xml:space="preserve">
+    <value>Language changed to {0}</value>
+  </data>
+  <data name="ProfileClassicLinearEquivalent" xml:space="preserve">
+    <value>Classic with a power of 2 is equal to linear</value>
+  </data>
+
+  <!-- Modal Dialog Resources -->
+  <data name="ModalOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ModalCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ProfileDeleteTitle" xml:space="preserve">
+    <value>Delete Profile</value>
+  </data>
+  <data name="ProfileDeleteMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this profile?</value>
+  </data>
+  <data name="ProfileDeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeviceDeleteTitle" xml:space="preserve">
+    <value>Delete Device</value>
+  </data>
+  <data name="DeviceDeleteMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this device?</value>
+  </data>
+  <data name="DeviceDeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MappingDeleteTitle" xml:space="preserve">
+    <value>Delete Mapping</value>
+  </data>
+  <data name="MappingDeleteMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this mapping?</value>
+  </data>
+  <data name="MappingDeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+
+  <data name="AccelClassicAcceleration" xml:space="preserve">
+    <value>Acceleration</value>
+  </data>
+  <data name="AccelClassicExponent" xml:space="preserve">
+    <value>Exponent</value>
+  </data>
+  <data name="AccelClassicOffset" xml:space="preserve">
+    <value>Offset</value>
+  </data>
+  <data name="AccelClassicCap" xml:space="preserve">
+    <value>Cap</value>
+  </data>
+
+  <!-- Jump Acceleration Resources -->
+  <data name="AccelJumpSmooth" xml:space="preserve">
+    <value>Smooth</value>
+  </data>
+  <data name="AccelJumpInput" xml:space="preserve">
+    <value>Input</value>
+  </data>
+  <data name="AccelJumpOutput" xml:space="preserve">
+    <value>Output</value>
+  </data>
+
+  <!-- Linear Acceleration Resources -->
+  <data name="AccelLinearAcceleration" xml:space="preserve">
+    <value>Acceleration</value>
+  </data>
+  <data name="AccelLinearOffset" xml:space="preserve">
+    <value>Offset</value>
+  </data>
+  <data name="AccelLinearCap" xml:space="preserve">
+    <value>Cap</value>
+  </data>
+
+  <!-- Power Acceleration Resources -->
+  <data name="AccelPowerScale" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="AccelPowerExponent" xml:space="preserve">
+    <value>Exponent</value>
+  </data>
+  <data name="AccelPowerOutputOffset" xml:space="preserve">
+    <value>Output Offset</value>
+  </data>
+  <data name="AccelPowerCap" xml:space="preserve">
+    <value>Cap</value>
+  </data>
+
+  <!-- Natural Acceleration Resources -->
+  <data name="AccelNaturalDecayRate" xml:space="preserve">
+    <value>Decay Rate</value>
+  </data>
+  <data name="AccelNaturalInputOffset" xml:space="preserve">
+    <value>Input Offset</value>
+  </data>
+  <data name="AccelNaturalLimit" xml:space="preserve">
+    <value>Limit</value>
+  </data>
+
+  <!-- Synchronous Acceleration Resources -->
+  <data name="AccelSynchronousGamma" xml:space="preserve">
+    <value>Gamma</value>
+  </data>
+  <data name="AccelSynchronousMotivity" xml:space="preserve">
+    <value>Motivity</value>
+  </data>
+  <data name="AccelSynchronousSyncSpeed" xml:space="preserve">
+    <value>Sync Speed</value>
+  </data>
+  <data name="AccelSynchronousSmoothness" xml:space="preserve">
+    <value>Smoothness</value>
+  </data>
+
+  <!-- General Acceleration Resources -->
+  <data name="AccelDefinitionType" xml:space="preserve">
+    <value>Definition Type</value>
+  </data>
+  <data name="AccelFormulaType" xml:space="preserve">
+    <value>Formula Type</value>
+  </data>
+
+  <!-- Lookup Table Resources -->
+  <data name="LookupTableApplyAs" xml:space="preserve">
+    <value>Apply as</value>
+  </data>
+  <data name="LookupTableData" xml:space="preserve">
+    <value>Data</value>
+  </data>
+
+  <!-- Profile Component Resources -->
+  <data name="ProfileOutputDPI" xml:space="preserve">
+    <value>Output DPI</value>
+  </data>
+  <data name="ProfileYXRatio" xml:space="preserve">
+    <value>Y/X Ratio</value>
+  </data>
+
+  <!-- Anisotropy Resources -->
+  <data name="AnisotropyDomain" xml:space="preserve">
+    <value>Domain</value>
+  </data>
+  <data name="AnisotropyRange" xml:space="preserve">
+    <value>Range</value>
+  </data>
+  <data name="AnisotropyDomainX" xml:space="preserve">
+    <value>Domain X</value>
+  </data>
+  <data name="AnisotropyDomainY" xml:space="preserve">
+    <value>Domain Y</value>
+  </data>
+  <data name="AnisotropyRangeX" xml:space="preserve">
+    <value>Range X</value>
+  </data>
+  <data name="AnisotropyRangeY" xml:space="preserve">
+    <value>Range Y</value>
+  </data>
+  <data name="AnisotropyLPNorm" xml:space="preserve">
+    <value>LP Norm</value>
+  </data>
+  <data name="AnisotropyCombineXY" xml:space="preserve">
+    <value>Combine X and Y Components</value>
+  </data>
+
+  <!-- Hidden Model Resources -->
+  <data name="HiddenRotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="HiddenAngleSnapping" xml:space="preserve">
+    <value>Angle Snapping</value>
+  </data>
+  <data name="HiddenLRRatio" xml:space="preserve">
+    <value>L/R Ratio</value>
+  </data>
+  <data name="HiddenUDRatio" xml:space="preserve">
+    <value>U/D Ratio</value>
+  </data>
+  <data name="HiddenSpeedCap" xml:space="preserve">
+    <value>Speed Cap</value>
+  </data>
+  <data name="HiddenOutputSmoothingHalfLife" xml:space="preserve">
+    <value>Output Smoothing Half-Life</value>
+  </data>
+
+  <!-- Coalescion Resources -->
+  <data name="CoalescionInputSmoothingHalfLife" xml:space="preserve">
+    <value>Input Smoothing Half-Life</value>
+  </data>
+  <data name="CoalescionScaleSmoothingHalfLife" xml:space="preserve">
+    <value>Scale Smoothing Half-Life</value>
+  </data>
+
+  <!-- Device Resources -->
+  <data name="DeviceDPI" xml:space="preserve">
+    <value>DPI</value>
+  </data>
+  <data name="DevicePollingRate" xml:space="preserve">
+    <value>Polling Rate</value>
+  </data>
+  <data name="DeviceIgnore" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+
+  <!-- Settings Resources -->
+  <data name="SettingsLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="SettingsShowToastNotifications" xml:space="preserve">
+    <value>Show Toast Notifications</value>
+  </data>
+  <data name="SettingsShowConfirmModals" xml:space="preserve">
+    <value>Show Confirmation Dialogs</value>
+  </data>
+  <data name="SettingsTheme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+
+  <!-- Support & Bug Reports Resources -->
+  <data name="SupportSectionTitle" xml:space="preserve">
+    <value>Support &amp; Bug Reports</value>
+  </data>
+  <data name="SupportBugReportInstructions" xml:space="preserve">
+    <value>Before reporting a bug, please search through existing issues first to avoid duplicates.</value>
+  </data>
+  <data name="SupportSearchExistingIssues" xml:space="preserve">
+    <value>Search Existing Issues</value>
+  </data>
+  <data name="SupportCheckClosedIssues" xml:space="preserve">
+    <value>Check closed issues too - your problem may already be resolved</value>
+  </data>
+
+  <!-- Device Field Resources -->
+  <data name="DeviceName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="DeviceHardwareID" xml:space="preserve">
+    <value>Hardware ID</value>
+  </data>
+  <data name="DeviceGroupName" xml:space="preserve">
+    <value>Device Group</value>
+  </data>
+
+  <!-- Chart Axis Labels -->
+  <data name="ChartAxisMouseSpeed" xml:space="preserve">
+    <value>Mouse Speed</value>
+  </data>
+  <data name="ChartAxisOutput" xml:space="preserve">
+    <value>Output</value>
+  </data>
+
+  <!-- Profile Section Headers -->
+  <data name="ProfileSectionAcceleration" xml:space="preserve">
+    <value>Acceleration</value>
+  </data>
+  <data name="ProfileSectionHidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
+  <data name="ProfileSectionCoalescion" xml:space="preserve">
+    <value>Coalescion</value>
+  </data>
+  <data name="ProfileSectionAnisotropy" xml:space="preserve">
+    <value>Anisotropy</value>
+  </data>
+
+  <!-- Alpha Build Warning Dialog Resources -->
+  <data name="AlphaBuildWarningTitle" xml:space="preserve">
+    <value>Alpha Build Warning</value>
+  </data>
+  <data name="AlphaBuildWarningMainMessage" xml:space="preserve">
+    <value>This is an alpha build of RawAccel. Before reporting issues, please:</value>
+  </data>
+  <data name="AlphaBuildWarningStep1" xml:space="preserve">
+    <value>1. Check existing issues</value>
+  </data>
+  <data name="AlphaBuildWarningHere" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="AlphaBuildWarningStep1Continue" xml:space="preserve">
+    <value>to see if your problem has already been reported</value>
+  </data>
+  <data name="AlphaBuildWarningStep2" xml:space="preserve">
+    <value>2. Search through closed issues for similar problems that may have been resolved</value>
+  </data>
+  <data name="AlphaBuildWarningStep3" xml:space="preserve">
+    <value>3. For questions or help, join our Discord</value>
+  </data>
+  <data name="AlphaBuildWarningStep3Continue" xml:space="preserve">
+    <value>and ask in English</value>
+  </data>
+  <data name="AlphaBuildWarningFooter" xml:space="preserve">
+    <value>Only create new issue reports for genuine bugs that haven't been reported yet.</value>
+  </data>
+  <data name="AlphaBuildWarningUnderstand" xml:space="preserve">
+    <value>I Understand</value>
+  </data>
+
+  <!-- Acceleration Definition Type Options -->
+  <data name="AccelDefinitionNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="AccelDefinitionFormula" xml:space="preserve">
+    <value>Formula</value>
+  </data>
+  <data name="AccelDefinitionLookupTable" xml:space="preserve">
+    <value>Lookup Table</value>
+  </data>
+
+  <!-- Acceleration Formula Type Options -->
+  <data name="AccelFormulaSynchronous" xml:space="preserve">
+    <value>Synchronous</value>
+  </data>
+  <data name="AccelFormulaLinear" xml:space="preserve">
+    <value>Linear</value>
+  </data>
+  <data name="AccelFormulaClassic" xml:space="preserve">
+    <value>Classic</value>
+  </data>
+  <data name="AccelFormulaPower" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="AccelFormulaNatural" xml:space="preserve">
+    <value>Natural</value>
+  </data>
+  <data name="AccelFormulaJump" xml:space="preserve">
+    <value>Jump</value>
+  </data>
 </root>

@@ -84,7 +84,8 @@ namespace userspace_backend.Model.AccelDefinitions
                 displayName: "Definition Type",
                 initialValue: dataObject?.Type ?? AccelerationDefinitionType.None,
                 parser: UserInputParsers.AccelerationDefinitionTypeParser,
-                validator: ModelValueValidators.DefaultAccelerationTypeValidator);
+                validator: ModelValueValidators.DefaultAccelerationTypeValidator,
+                localizationKey: "AccelDefinitionType");
 
             DefinitionModels = new Dictionary<AccelerationDefinitionType, IAccelDefinitionModel>();
             foreach (AccelerationDefinitionType defnType in Enum.GetValues(typeof(AccelerationDefinitionType)))

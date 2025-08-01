@@ -31,12 +31,12 @@ public partial class HiddenProfileSettingsView : UserControl
             return;
 
         var hiddenSettingsFieldViewModel = new DualColumnLabelFieldViewModel();
-        hiddenSettingsFieldViewModel.AddField("Rotation", CreateInputControl(viewModel.RotationField));
-        hiddenSettingsFieldViewModel.AddField("LR Ratio", CreateInputControl(viewModel.LRRatioField));
-        hiddenSettingsFieldViewModel.AddField("UD Ratio", CreateInputControl(viewModel.UDRatioField));
-        hiddenSettingsFieldViewModel.AddField("Speed Cap", CreateInputControl(viewModel.SpeedCapField));
-        hiddenSettingsFieldViewModel.AddField("Angle Snapping", CreateInputControl(viewModel.AngleSnappingField));
-        hiddenSettingsFieldViewModel.AddField("Output Smoothing Half Life", CreateInputControl(viewModel.OutputSmoothingHalfLifeField));
+        hiddenSettingsFieldViewModel.AddField("HiddenRotation", CreateInputControl(viewModel.RotationField));
+        hiddenSettingsFieldViewModel.AddField("HiddenLRRatio", CreateInputControl(viewModel.LRRatioField));
+        hiddenSettingsFieldViewModel.AddField("HiddenUDRatio", CreateInputControl(viewModel.UDRatioField));
+        hiddenSettingsFieldViewModel.AddField("HiddenSpeedCap", CreateInputControl(viewModel.SpeedCapField));
+        hiddenSettingsFieldViewModel.AddField("HiddenAngleSnapping", CreateInputControl(viewModel.AngleSnappingField));
+        hiddenSettingsFieldViewModel.AddField("HiddenOutputSmoothingHalfLife", CreateInputControl(viewModel.OutputSmoothingHalfLifeField));
 
         HiddenSettingsFieldView = new DualColumnLabelFieldView(hiddenSettingsFieldViewModel);
 

@@ -36,7 +36,6 @@ namespace userinterface.ViewModels.Device
             for (int i = 0; i < DeviceGroupsBE.DeviceGroupModels.Count; i++)
             {
                 var deviceGroup = DeviceGroupsBE.DeviceGroupModels[i];
-                // Consider the first device group as the default
                 bool isDefault = i == 0;
                 DeviceGroupViews.Add(new DeviceGroupViewModel(deviceGroup, DeviceGroupsBE, isDefault));
             }

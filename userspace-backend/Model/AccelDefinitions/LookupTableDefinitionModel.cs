@@ -68,12 +68,14 @@ namespace userspace_backend.Model.AccelDefinitions
                 displayName: "Apply as",
                 initialValue: dataObject.ApplyAs,
                 parser: UserInputParsers.LookupTableTypeParser,
-                validator: ModelValueValidators.DefaultLookupTableTypeValidator);
+                validator: ModelValueValidators.DefaultLookupTableTypeValidator,
+                localizationKey: "LookupTableApplyAs");
             Data = new EditableSetting<LookupTableData>(
                 displayName: "Data",
                 initialValue: new LookupTableData(dataObject.Data),
                 parser: UserInputParsers.LookupTableDataParser,
-                validator: ModelValueValidators.DefaultLookupTableDataValidator);
+                validator: ModelValueValidators.DefaultLookupTableDataValidator,
+                localizationKey: "LookupTableData");
         }
     }
 
