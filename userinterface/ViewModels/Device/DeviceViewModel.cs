@@ -64,6 +64,8 @@ namespace userinterface.ViewModels.Device
 
         public bool IsExpanderEnabled => !IgnoreBool.Value;
 
+        private bool isDeleting = false;
+
         private void OnIgnoreBoolChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(EditableBoolViewModel.Value))
@@ -74,17 +76,32 @@ namespace userinterface.ViewModels.Device
 
         private async Task DeleteWithAnimation()
         {
-            Debug.WriteLine($"[DeviceViewModel] DeleteWithAnimation called, AnimatedDeleteCallback is {(AnimatedDeleteCallback != null ? "not null" : "null")}");
+            Debug.WriteLine($"[DeviceViewModel] DeleteWithAnimation called, isDeleting = {isDeleting}, AnimatedDeleteCallback is {(AnimatedDeleteCallback != null ? "not null" : "null")}");
             
-            if (AnimatedDeleteCallback != null)
+            if (isDeleting)
             {
-                Debug.WriteLine($"[DeviceViewModel] Calling AnimatedDeleteCallback");
-                await AnimatedDeleteCallback(this);
-                Debug.WriteLine($"[DeviceViewModel] AnimatedDeleteCallback completed");
+                Debug.WriteLine($"[DeviceViewModel] Delete already in progress - ignoring duplicate request");
+                return;
             }
-            else
+            
+            isDeleting = true;
+            
+            try
             {
-                Debug.WriteLine($"[DeviceViewModel] No AnimatedDeleteCallback available - delete ignored");
+                if (AnimatedDeleteCallback != null)
+                {
+                    Debug.WriteLine($"[DeviceViewModel] Calling AnimatedDeleteCallback");
+                    await AnimatedDeleteCallback(this);
+                    Debug.WriteLine($"[DeviceViewModel] AnimatedDeleteCallback completed");
+                }
+                else
+                {
+                    Debug.WriteLine($"[DeviceViewModel] No AnimatedDeleteCallback available - delete ignored");
+                }
+            }
+            finally
+            {
+                isDeleting = false;
             }
         }
 
