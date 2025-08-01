@@ -12,7 +12,7 @@ namespace grapher.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -44,6 +44,18 @@ namespace grapher.Properties {
             }
             set {
                 this["Size"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool HasRunBefore {
+            get {
+                return ((bool)(this["HasRunBefore"]));
+            }
+            set {
+                this["HasRunBefore"] = value;
             }
         }
     }

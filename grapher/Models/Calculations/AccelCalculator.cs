@@ -394,7 +394,7 @@ namespace grapher.Models.Calculations
                 mouseInputData.y = ceil;
                 mouseInputData.time = MeasurementTime*timeFactor;
                 mouseInputData.velocity = DecimalCheck(Velocity(0, ceil, mouseInputData.time));
-                mouseInputData.angle = 0;
+                mouseInputData.angle = Math.PI / 2;
                 magnitudes.Add(mouseInputData);
             }
 
@@ -586,21 +586,9 @@ namespace grapher.Models.Calculations
                 mouseInputData.x = ceilX;
                 mouseInputData.y = ceilY;
                 mouseInputData.time = timeFactor;
-
-                if (mouseInputData.x == 1 && mouseInputData.time == 1)
-                {
-                    Console.WriteLine("Oops");
-                }
-
             }
 
             mouseInputData.velocity = DecimalCheck(Velocity(mouseInputData.x, mouseInputData.y, mouseInputData.time));
-
-            if (double.IsNaN(mouseInputData.velocity))
-            {
-                Console.WriteLine("oopsie");
-            }
-
             mouseInputData.angle = angle;
             return mouseInputData;
         }

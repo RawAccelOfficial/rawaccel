@@ -271,7 +271,6 @@ namespace grapher
                 LutApplyActiveXLabel,
                 LutApplyActiveYLabel);
 
-            ResizeAndCenter();
         }
 
         #endregion Constructor
@@ -408,16 +407,40 @@ namespace grapher
 
         private void RawAcceleration_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Properties.Settings.Default.Location = Location;
             Properties.Settings.Default.Size = Size;
-
+            Properties.Settings.Default.Location = Location;
             Properties.Settings.Default.Save();
         }
 
-        private void RawAcceleration_Load(object sender, EventArgs e)
+        private void RawAcceleration_Shown(object sender, EventArgs e)
         {
-            Location = Properties.Settings.Default.Location;
-            Size = Properties.Settings.Default.Size;
+            var sizeDirect = chartsPanel.GetPreferredSize(Constants.MaxSize);
+            Console.WriteLine($"[BeginInvoke] Direct size: {sizeDirect}");
+
+            if (Properties.Settings.Default.HasRunBefore)
+            {
+                var savedSettingsRect = new Rectangle(Properties.Settings.Default.Location, Properties.Settings.Default.Size);
+                bool isSavedSettingsVisible = Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(savedSettingsRect));
+                if (isSavedSettingsVisible)
+                {
+                    //this.Location = Properties.Settings.Default.Location;
+                    //this.Size = Properties.Settings.Default.Size;
+                }
+                else
+                {
+                    ResizeAndCenter();
+                }
+            }
+            else
+            {
+                Properties.Settings.Default.HasRunBefore = true;
+                Properties.Settings.Default.Save();
+                IAsyncResult result = this.BeginInvoke(new MethodInvoker(() =>
+                {
+                    ResizeAndCenter();
+                }));
+                this.EndInvoke(result);
+            }
         }
         
         private void AutoLoadStartupItem_Click(object sender, EventArgs e)
