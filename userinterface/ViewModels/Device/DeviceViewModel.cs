@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
@@ -16,8 +15,6 @@ namespace userinterface.ViewModels.Device
             DevicesBE = devicesBE;
             IsDefaultDevice = isDefault;
             AnimatedDeleteCallback = animatedDeleteCallback;
-            
-            Debug.WriteLine($"[DeviceViewModel] Constructor called for device '{deviceBE.Name}', AnimatedDeleteCallback is {(animatedDeleteCallback != null ? "not null" : "null")}");
 
             NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
 
@@ -32,12 +29,7 @@ namespace userinterface.ViewModels.Device
 
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
 
-            DeleteCommand = new RelayCommand(
-                async () => 
-                {
-                    Debug.WriteLine($"[DeviceViewModel] Delete button pressed for device '{DeviceBE.Name}'");
-                    await DeleteWithAnimation();
-                });
+            DeleteCommand = new RelayCommand(async () => await DeleteWithAnimation());
         }
 
         internal BE.DeviceModel DeviceBE { get; }
@@ -76,13 +68,8 @@ namespace userinterface.ViewModels.Device
 
         private async Task DeleteWithAnimation()
         {
-            Debug.WriteLine($"[DeviceViewModel] DeleteWithAnimation called, isDeleting = {isDeleting}, AnimatedDeleteCallback is {(AnimatedDeleteCallback != null ? "not null" : "null")}");
-            
             if (isDeleting)
-            {
-                Debug.WriteLine($"[DeviceViewModel] Delete already in progress - ignoring duplicate request");
                 return;
-            }
             
             isDeleting = true;
             
@@ -90,13 +77,7 @@ namespace userinterface.ViewModels.Device
             {
                 if (AnimatedDeleteCallback != null)
                 {
-                    Debug.WriteLine($"[DeviceViewModel] Calling AnimatedDeleteCallback");
                     await AnimatedDeleteCallback(this);
-                    Debug.WriteLine($"[DeviceViewModel] AnimatedDeleteCallback completed");
-                }
-                else
-                {
-                    Debug.WriteLine($"[DeviceViewModel] No AnimatedDeleteCallback available - delete ignored");
                 }
             }
             finally
@@ -107,8 +88,7 @@ namespace userinterface.ViewModels.Device
 
         public void DeleteSelf()
         {
-            bool success = DevicesBE.RemoveDevice(DeviceBE);
-            Debug.Assert(success);
+            DevicesBE.RemoveDevice(DeviceBE);
         }
     }
 }
