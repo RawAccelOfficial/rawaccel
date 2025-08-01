@@ -217,6 +217,24 @@
   <data name="ProfileDeleteConfirm" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="DeviceDeleteTitle" xml:space="preserve">
+    <value>Delete Device</value>
+  </data>
+  <data name="DeviceDeleteMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this device?</value>
+  </data>
+  <data name="DeviceDeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MappingDeleteTitle" xml:space="preserve">
+    <value>Delete Mapping</value>
+  </data>
+  <data name="MappingDeleteMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this mapping?</value>
+  </data>
+  <data name="MappingDeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
 
   <data name="AccelClassicAcceleration" xml:space="preserve">
     <value>Acceleration</value>

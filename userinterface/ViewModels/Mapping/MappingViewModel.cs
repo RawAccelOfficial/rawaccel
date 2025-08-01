@@ -3,8 +3,11 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using userinterface.Commands;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
@@ -29,11 +32,12 @@ namespace userinterface.ViewModels.Mapping
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
         private bool isActiveMapping;
         private Action<MappingViewModel>? onActivationRequested;
+        private IModalService? modalService;
 
         public MappingViewModel()
         {
             mappingListElements = new ObservableCollection<MappingListElementViewModel>();
-            DeleteCommand = new RelayCommand(() => DeleteSelf());
+            DeleteCommand = new RelayCommand(async () => await DeleteSelfAsync());
             ActivateCommand = new RelayCommand(() => ActivateMapping(), () => !IsActiveMapping);
         }
 
@@ -43,6 +47,7 @@ namespace userinterface.ViewModels.Mapping
             MappingsBE = mappingsModel;
             IsActiveMapping = isActive;
             this.onActivationRequested = onActivationRequested;
+            modalService = App.Services?.GetRequiredService<IModalService>();
 
             UpdateMappingListElements();
 
@@ -147,8 +152,20 @@ namespace userinterface.ViewModels.Mapping
         }
 
 
-        public void DeleteSelf()
+        private async Task DeleteSelfAsync()
         {
+            if (modalService != null)
+            {
+                var confirmed = await modalService.ShowConfirmationAsync(
+                    "MappingDeleteTitle",
+                    "MappingDeleteMessage",
+                    "MappingDeleteConfirm",
+                    "ModalCancel");
+
+                if (!confirmed)
+                    return;
+            }
+
             if (!MappingsBE.RemoveMapping(MappingBE))
             {
                 throw new InvalidOperationException("Failed to remove mapping");
