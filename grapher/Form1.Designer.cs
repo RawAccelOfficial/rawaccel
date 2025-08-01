@@ -206,6 +206,7 @@ namespace grapher
             this.showVelocityGainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showLastMouseMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.advancedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AutoLoadStartupItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AutoWriteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeviceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chartsPanel = new System.Windows.Forms.Panel();
@@ -1689,15 +1690,16 @@ namespace grapher
             // advancedToolStripMenuItem
             // 
             this.advancedToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AutoLoadStartupItem,
             this.AutoWriteMenuItem,
-            this.DeviceMenuItem});
+            this.DeviceMenuItem}); 
             this.advancedToolStripMenuItem.Name = "advancedToolStripMenuItem";
             this.advancedToolStripMenuItem.Size = new System.Drawing.Size(72, 20);
             this.advancedToolStripMenuItem.Text = "Advanced";
             // 
             // AutoWriteMenuItem
             // 
-            this.AutoWriteMenuItem.Checked = true;
+            this.AutoWriteMenuItem.Checked = false;
             this.AutoWriteMenuItem.CheckOnClick = true;
             this.AutoWriteMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.AutoWriteMenuItem.Name = "AutoWriteMenuItem";
@@ -1709,6 +1711,19 @@ namespace grapher
             this.DeviceMenuItem.Name = "DeviceMenuItem";
             this.DeviceMenuItem.Size = new System.Drawing.Size(257, 22);
             this.DeviceMenuItem.Text = "Device Menu";
+            //
+            // AutoLoadStartupItem
+            //
+            this.AutoLoadStartupItem.Checked = false;
+            this.AutoLoadStartupItem.CheckOnClick = true;
+            this.AutoLoadStartupItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AutoLoadStartupItem.Name = "AutoLoadStartupItem";
+            this.AutoLoadStartupItem.Size = new System.Drawing.Size(257, 22);
+            this.AutoLoadStartupItem.Text = "Load GUI On Windows Startup";
+      
+
+
+
             // 
             // chartsPanel
             // 
@@ -2492,6 +2507,7 @@ namespace grapher
         private System.Windows.Forms.DataVisualization.Charting.Chart VelocityChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart AccelerationChart;
         private System.Windows.Forms.ToolStripMenuItem AutoWriteMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AutoLoadStartupItem;
         private System.Windows.Forms.Panel DirectionalityPanel;
         private System.Windows.Forms.Label DirectionalityRangeLabel;
         private System.Windows.Forms.Label DirectionalDomainLabel;

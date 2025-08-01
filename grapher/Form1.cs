@@ -22,6 +22,7 @@ namespace grapher
         {
             InitializeComponent();
 
+
             Version driverVersion = VersionHelper.ValidOrThrow();
 
             ToolStripMenuItem HelpMenuItem = new ToolStripMenuItem("&Help");
@@ -37,6 +38,17 @@ namespace grapher
                     })
             });
             
+            //
+            // load on startup addition
+            //
+            var startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            var shortcutPath = Path.Combine(startupFolder, "rawaccel.lnk");
+            AutoLoadStartupItem.Checked = File.Exists(shortcutPath);
+
+            AutoLoadStartupItem.Click += AutoLoadStartupItem_Click;
+
+
+
             var schemes = ColorSchemeManager.LoadSchemes().ToList();
             var themeMenuItem = new ToolStripMenuItem("&Themes");
 
@@ -89,6 +101,7 @@ namespace grapher
                 showLastMouseMoveToolStripMenuItem,
                 AutoWriteMenuItem,
                 DeviceMenuItem,
+                
                 ScaleMenuItem,
                 themeMenuItem,
                 DPITextBox,
@@ -364,6 +377,10 @@ namespace grapher
                 {
                     if (!gui) lnk.Arguments = Constants.DefaultSettingsFileName;
                     lnk.TargetPath = $@"{Application.StartupPath}\{name}.exe";
+                    
+                    // Set "start in" directory to the application path
+                    lnk.WorkingDirectory = Application.StartupPath;
+                    
                     lnk.Save();
                 }
                 finally
@@ -375,6 +392,17 @@ namespace grapher
             finally
             {
                 Marshal.FinalReleaseComObject(shell);
+            }
+        }
+
+        private void RemoveStartupShortcut()
+        {
+            var startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            var shortcutPath = Path.Combine(startupFolder, "rawaccel.lnk");
+
+            if (File.Exists(shortcutPath))
+            {
+                File.Delete(shortcutPath);
             }
         }
 
@@ -390,6 +418,27 @@ namespace grapher
         {
             Location = Properties.Settings.Default.Location;
             Size = Properties.Settings.Default.Size;
+        }
+        
+        private void AutoLoadStartupItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Toggle shortcut creation/removal based on check box
+                if (AutoLoadStartupItem.Checked)
+                {
+                    MakeStartupShortcut(true);
+                }
+                else
+                {
+                    RemoveStartupShortcut();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed To Update Startup Shortcut: {ex.Message}","ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
