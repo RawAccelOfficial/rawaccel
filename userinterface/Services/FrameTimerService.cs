@@ -18,7 +18,7 @@ namespace userinterface.Services
             this.logger = logger;
             frameTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromTicks(83333)
+                Interval = TimeSpan.FromMilliseconds(THRESHOLD_MS)
             };
             frameTimer.Tick += OnFrameTick;
         }
