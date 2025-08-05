@@ -17,7 +17,6 @@ namespace userinterface.Services
         private const int ChartWidth = 400;
         private const int ChartHeight = 300;
         private const int MainStrokeThickness = 2;
-        private const double ToleranceThreshold = 0.001;
 
         public async Task<byte[]> GenerateChartPreviewAsync(CurvePoint[] xPoints, CurvePoint[] yPoints, double yxRatio, string? xAxisName = null, string? yAxisName = null)
         {
@@ -35,7 +34,7 @@ namespace userinterface.Services
                     }
 
                     // Create simplified series
-                    var hasYCurve = Math.Abs(yxRatio - 1.0) > ToleranceThreshold;
+                    var hasYCurve = yxRatio != 1.0;
                     var seriesCount = hasYCurve ? 2 : 1;
                     var series = new ISeries[seriesCount];
 
