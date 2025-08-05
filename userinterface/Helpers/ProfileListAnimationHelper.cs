@@ -27,7 +27,7 @@ public class ProfileListAnimationHelper : IDisposable
     private volatile bool areAnimationsActive = false;
     private bool disposed = false;
     
-    private readonly FrameTimerService frameTimer = new();
+    private readonly FrameTimerService frameTimer;
     
     // Object pools for memory optimization
     private readonly ObjectPool<Animation> animationPool = new(() => new Animation());
@@ -52,11 +52,12 @@ public class ProfileListAnimationHelper : IDisposable
     public static double ProfileSpawnPosition => 0.0;
     public static double FirstIndexOffset => 6;
 
-    public ProfileListAnimationHelper(List<Border> profiles, Panel profileContainer, Border addProfileButton)
+    public ProfileListAnimationHelper(List<Border> profiles, Panel profileContainer, Border addProfileButton, FrameTimerService frameTimer)
     {
         this.profiles = profiles ?? throw new ArgumentNullException(nameof(profiles));
         this.profileContainer = profileContainer ?? throw new ArgumentNullException(nameof(profileContainer));
         this.addProfileButton = addProfileButton ?? throw new ArgumentNullException(nameof(addProfileButton));
+        this.frameTimer = frameTimer ?? throw new ArgumentNullException(nameof(frameTimer));
     }
 
     public bool AreAnimationsActive

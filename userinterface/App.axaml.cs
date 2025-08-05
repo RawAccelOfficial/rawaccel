@@ -6,6 +6,7 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Security.AccessControl;
@@ -33,6 +34,18 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var services = new ServiceCollection();
+
+        // Register logging
+        services.AddLogging(builder =>
+        {
+            // Change this to be "LogLevel.Debug" if you want to see logs.
+#if DEBUG
+            builder.AddDebug();
+            builder.SetMinimumLevel(LogLevel.Warning);
+#else
+            builder.SetMinimumLevel(LogLevel.Warning);
+#endif
+        });
 
         // Register services
         services.AddSingleton<INotificationService>(provider =>
