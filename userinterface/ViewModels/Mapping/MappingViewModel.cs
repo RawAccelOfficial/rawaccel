@@ -41,13 +41,13 @@ namespace userinterface.ViewModels.Mapping
             ActivateCommand = new RelayCommand(() => ActivateMapping(), () => !IsActiveMapping);
         }
 
-        public void Initialize(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested)
+        public void Initialize(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, IModalService modalService, bool isActive, Action<MappingViewModel> onActivationRequested)
         {
             MappingBE = mappingModel;
             MappingsBE = mappingsModel;
             IsActiveMapping = isActive;
             this.onActivationRequested = onActivationRequested;
-            modalService = App.Services?.GetRequiredService<IModalService>();
+            this.modalService = modalService;
 
             UpdateMappingListElements();
 

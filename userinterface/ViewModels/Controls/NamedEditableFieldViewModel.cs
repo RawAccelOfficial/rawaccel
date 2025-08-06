@@ -9,11 +9,11 @@ namespace userinterface.ViewModels.Controls
     {
         private readonly LocalizationService localizationService;
 
-        public NamedEditableFieldViewModel(BE.IEditableSetting settingBE)
+        public NamedEditableFieldViewModel(BE.IEditableSetting settingBE, LocalizationService localizationService)
         {
             SettingBE = settingBE;
             Field = new EditableFieldViewModel(settingBE);
-            localizationService = App.Services?.GetRequiredService<LocalizationService>()!;
+            this.localizationService = localizationService;
 
             // Subscribe to language changes to update the Name property
             if (localizationService != null)

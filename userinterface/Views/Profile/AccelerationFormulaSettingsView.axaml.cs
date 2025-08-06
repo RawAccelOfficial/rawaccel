@@ -3,7 +3,9 @@ using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
@@ -84,7 +86,8 @@ public partial class AccelerationFormulaSettingsView : UserControl
             return;
         }
 
-        FormulaFieldViewModel = new DualColumnLabelFieldViewModel();
+        var localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        FormulaFieldViewModel = new DualColumnLabelFieldViewModel(localizationService);
         FormulaFieldViewModel.AddField("AccelFormulaType", FormulaTypeCombo);
         FormulaField = new DualColumnLabelFieldView(FormulaFieldViewModel);
     }

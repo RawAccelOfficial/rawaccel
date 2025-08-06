@@ -11,14 +11,7 @@ public partial class ProfilesPageView : UserControl
 
     public ProfilesPageView()
     {
-        try
-        {
-            frameTimer = App.Services?.GetRequiredService<FrameTimerService>();
-        }
-        catch
-        {
-            frameTimer = null;
-        }
+        frameTimer = App.Services?.GetService<FrameTimerService>();
         InitializeComponent();
         
         var contentControl = this.FindControl<ContentControl>("ProfileContentControl");

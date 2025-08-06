@@ -65,7 +65,8 @@ namespace userinterface.Services
         public MappingViewModel CreateMappingViewModel(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested)
         {
             var viewModel = ServiceProvider.GetRequiredService<MappingViewModel>();
-            viewModel.Initialize(mappingModel, mappingsModel, isActive, onActivationRequested);
+            var modalService = ServiceProvider.GetRequiredService<IModalService>();
+            viewModel.Initialize(mappingModel, mappingsModel, modalService, isActive, onActivationRequested);
             return viewModel;
         }
 

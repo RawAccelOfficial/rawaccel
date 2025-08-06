@@ -1,7 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
+using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Settings;
 using userinterface.Views.Controls;
@@ -28,7 +31,8 @@ public partial class GeneralSettingsView : UserControl
     {
         SettingsStackPanel.Children.Clear();
 
-        var settingsFieldViewModel = new DualColumnLabelFieldViewModel();
+        var localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        var settingsFieldViewModel = new DualColumnLabelFieldViewModel(localizationService);
         var settingsField = new DualColumnLabelFieldView(settingsFieldViewModel);
 
         var languageComboBox = new ComboBox

@@ -49,9 +49,10 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
     public ProfileListView()
     {
         var backEnd = App.Services?.GetRequiredService<BackEnd>() ?? throw new InvalidOperationException("BackEnd service not available");
-        profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
         modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
         localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        
+        profilesModel = backEnd.Profiles ?? throw new ArgumentNullException(nameof(backEnd.Profiles));
         localizationService.PropertyChanged += OnLocalizationPropertyChanged;
         profilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
 

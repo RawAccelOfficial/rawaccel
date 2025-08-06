@@ -1,6 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
@@ -30,7 +33,8 @@ public partial class HiddenProfileSettingsView : UserControl
         if (DataContext is not HiddenProfileSettingsViewModel viewModel)
             return;
 
-        var hiddenSettingsFieldViewModel = new DualColumnLabelFieldViewModel();
+        var localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        var hiddenSettingsFieldViewModel = new DualColumnLabelFieldViewModel(localizationService);
         hiddenSettingsFieldViewModel.AddField("HiddenRotation", CreateInputControl(viewModel.RotationField));
         hiddenSettingsFieldViewModel.AddField("HiddenLRRatio", CreateInputControl(viewModel.LRRatioField));
         hiddenSettingsFieldViewModel.AddField("HiddenUDRatio", CreateInputControl(viewModel.UDRatioField));

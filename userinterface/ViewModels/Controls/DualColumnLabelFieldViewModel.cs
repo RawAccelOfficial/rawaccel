@@ -25,10 +25,10 @@ public class DualColumnLabelFieldViewModel : INotifyPropertyChanged
 
     public ObservableCollection<FieldItemViewModel> Fields { get; }
 
-    public DualColumnLabelFieldViewModel()
+    public DualColumnLabelFieldViewModel(LocalizationService localizationService)
     {
         Fields = [];
-        localizationService = App.Services?.GetRequiredService<LocalizationService>()!;
+        this.localizationService = localizationService;
 
         // Subscribe to language changes to update field labels
         if (localizationService != null)

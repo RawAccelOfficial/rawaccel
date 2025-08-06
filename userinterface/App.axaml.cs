@@ -125,8 +125,16 @@ public partial class App : Application
         services.AddSingleton<ToastViewModel>();
 
         // Device ViewModels
-        services.AddTransient<ViewModels.Device.DevicesPageViewModel>();
-        services.AddTransient<ViewModels.Device.DevicesListViewModel>();
+        services.AddTransient<ViewModels.Device.DevicesPageViewModel>(provider =>
+            new ViewModels.Device.DevicesPageViewModel(
+                provider.GetRequiredService<BackEnd>(),
+                provider.GetRequiredService<IModalService>(),
+                provider.GetRequiredService<LocalizationService>()));
+        services.AddTransient<ViewModels.Device.DevicesListViewModel>(provider =>
+            new ViewModels.Device.DevicesListViewModel(
+                provider.GetRequiredService<BackEnd>().Devices,
+                provider.GetRequiredService<IModalService>(),
+                provider.GetRequiredService<LocalizationService>()));
         services.AddTransient<ViewModels.Device.DeviceGroupsViewModel>();
         services.AddTransient<ViewModels.Device.DeviceGroupViewModel>();
         services.AddTransient<ViewModels.Device.DeviceGroupSelectorViewModel>();
@@ -136,7 +144,10 @@ public partial class App : Application
         services.AddTransient<ViewModels.Profile.ProfilesPageViewModel>();
         services.AddSingleton<ViewModels.Profile.ProfileListViewModel>();
         services.AddTransient<ViewModels.Profile.ProfileViewModel>();
-        services.AddTransient<ViewModels.Profile.ProfileSettingsViewModel>();
+        services.AddTransient<ViewModels.Profile.ProfileSettingsViewModel>(provider =>
+            new ViewModels.Profile.ProfileSettingsViewModel(
+                provider.GetRequiredService<INotificationService>(),
+                provider.GetRequiredService<LocalizationService>()));
         services.AddTransient<ViewModels.Profile.ProfileChartViewModel>();
         services.AddTransient<ViewModels.Profile.AccelerationFormulaSettingsViewModel>();
         services.AddTransient<ViewModels.Profile.AccelerationLUTSettingsViewModel>();
@@ -156,10 +167,10 @@ public partial class App : Application
         services.AddTransient<ViewModels.Settings.SupportViewModel>();
 
         // Control ViewModels
-        services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>();
-        services.AddTransient<ViewModels.Controls.EditableBoolViewModel>();
+        services.AddTransient<ViewModels.Controls.DualColumnLabelFieldViewModel>(provider =>
+            new ViewModels.Controls.DualColumnLabelFieldViewModel(
+                provider.GetRequiredService<LocalizationService>()));
         services.AddTransient<ViewModels.Controls.EditableFieldViewModel>();
-        services.AddTransient<ViewModels.Controls.NamedEditableFieldViewModel>();
     }
 
     protected static Bootstrapper BootstrapBackEnd()

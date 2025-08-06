@@ -13,10 +13,10 @@ namespace userinterface.ViewModels.Controls
 
         private readonly LocalizationService localizationService;
 
-        public EditableBoolViewModel(BE.IEditableSetting settingBE)
+        public EditableBoolViewModel(BE.IEditableSetting settingBE, LocalizationService localizationService)
         {
             SettingBE = settingBE;
-            localizationService = App.Services?.GetRequiredService<LocalizationService>()!;
+            this.localizationService = localizationService;
             ResetValueFromBackEnd();
 
             // Subscribe to language changes to update the Name property

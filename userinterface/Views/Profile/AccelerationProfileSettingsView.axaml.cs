@@ -2,7 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
+using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
@@ -92,7 +95,8 @@ public partial class AccelerationProfileSettingsView : UserControl
         if (AccelerationComboBox == null)
             return;
 
-        var fieldViewModel = new DualColumnLabelFieldViewModel();
+        var localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        var fieldViewModel = new DualColumnLabelFieldViewModel(localizationService);
         fieldViewModel.AddField("AccelDefinitionType", AccelerationComboBox);
         AccelerationField = new DualColumnLabelFieldView(fieldViewModel);
     }

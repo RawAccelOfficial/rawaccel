@@ -13,23 +13,23 @@ namespace userinterface.ViewModels.Device
     {
         private readonly IModalService modalService;
 
-        public DeviceViewModel(BE.DeviceModel deviceBE, BE.DevicesModel devicesBE, bool isDefault = false, Func<DeviceViewModel, Task>? animatedDeleteCallback = null)
+        public DeviceViewModel(BE.DeviceModel deviceBE, BE.DevicesModel devicesBE, IModalService modalService, LocalizationService localizationService, bool isDefault = false, Func<DeviceViewModel, Task>? animatedDeleteCallback = null)
         {
             DeviceBE = deviceBE;
             DevicesBE = devicesBE;
             IsDefaultDevice = isDefault;
             AnimatedDeleteCallback = animatedDeleteCallback;
-            modalService = App.Services?.GetRequiredService<IModalService>() ?? throw new InvalidOperationException("ModalService not available");
+            this.modalService = modalService;
 
-            NameField = new NamedEditableFieldViewModel(DeviceBE.Name);
+            NameField = new NamedEditableFieldViewModel(DeviceBE.Name, localizationService);
 
-            HWIDField = new NamedEditableFieldViewModel(DeviceBE.HardwareID);
+            HWIDField = new NamedEditableFieldViewModel(DeviceBE.HardwareID, localizationService);
 
-            DPIField = new NamedEditableFieldViewModel(DeviceBE.DPI);
+            DPIField = new NamedEditableFieldViewModel(DeviceBE.DPI, localizationService);
 
-            PollRateField = new NamedEditableFieldViewModel(DeviceBE.PollRate);
+            PollRateField = new NamedEditableFieldViewModel(DeviceBE.PollRate, localizationService);
 
-            IgnoreBool = new EditableBoolViewModel(DeviceBE.Ignore);
+            IgnoreBool = new EditableBoolViewModel(DeviceBE.Ignore, localizationService);
             IgnoreBool.PropertyChanged += OnIgnoreBoolChanged;
 
             DeviceGroup = new DeviceGroupSelectorViewModel(DeviceBE, DevicesBE.DeviceGroups);
