@@ -67,17 +67,20 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 displayName: "Decay Rate",
                 initialValue: dataObject.DecayRate,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelNaturalDecayRate");
             InputOffset = new EditableSetting<double>(
                 displayName: "Input Offset",
                 initialValue: dataObject.InputOffset,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelNaturalInputOffset");
             Limit = new EditableSetting<double>(
                 displayName: "Limit",
                 initialValue: dataObject.Limit,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelNaturalLimit");
         }
     }
 }

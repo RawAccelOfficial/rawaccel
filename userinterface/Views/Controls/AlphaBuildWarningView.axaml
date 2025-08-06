@@ -1,6 +1,7 @@
 <UserControl x:Class="userinterface.Views.Controls.AlphaBuildWarningView"
              xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:userinterface.Extensions">
 
 	<UserControl.Styles>
 		<Style Selector="Button.LinkButton">
@@ -47,7 +48,7 @@
 		
 		<StackPanel Spacing="20">
 			<!-- Header -->
-			<TextBlock Text="Alpha Build Warning"
+			<TextBlock Text="{ext:Localized AlphaBuildWarningTitle}"
 			           FontSize="24"
 			           FontWeight="Bold"
 			           Foreground="{DynamicResource PrimaryTextBrush}"
@@ -55,31 +56,31 @@
 			
 			<!-- Warning Message -->
 			<StackPanel Spacing="16">
-				<TextBlock Text="This is an alpha build of RawAccel. Before reporting issues, please:"
+				<TextBlock Text="{ext:Localized AlphaBuildWarningMainMessage}"
 				           FontSize="14"
 				           Foreground="{DynamicResource PrimaryTextBrush}"
 				           TextWrapping="Wrap"/>
 				
 				<StackPanel Spacing="8" Margin="16,0,0,0">
 					<StackPanel Orientation="Horizontal" Spacing="4">
-						<TextBlock Text="1. Check existing issues" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-						<Button Classes="LinkButton" Content="here" Click="OnBugReportLinkClicked"/>
-						<TextBlock Text="to see if your problem has already been reported" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+						<TextBlock Text="{ext:Localized AlphaBuildWarningStep1}" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+						<Button Classes="LinkButton" Content="{ext:Localized AlphaBuildWarningHere}" Click="OnBugReportLinkClicked"/>
+						<TextBlock Text="{ext:Localized AlphaBuildWarningStep1Continue}" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
 					</StackPanel>
 					
-					<TextBlock Text="2. Search through closed issues for similar problems that may have been resolved"
+					<TextBlock Text="{ext:Localized AlphaBuildWarningStep2}"
 					           FontSize="14"
 					           Foreground="{DynamicResource PrimaryTextBrush}"
 					           TextWrapping="Wrap"/>
 					
 					<StackPanel Orientation="Horizontal" Spacing="4">
-						<TextBlock Text="3. For questions or help, join our Discord" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-						<Button Classes="LinkButton" Content="here" Click="OnDiscordLinkClicked"/>
-						<TextBlock Text="and ask in English" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+						<TextBlock Text="{ext:Localized AlphaBuildWarningStep3}" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+						<Button Classes="LinkButton" Content="{ext:Localized AlphaBuildWarningHere}" Click="OnDiscordLinkClicked"/>
+						<TextBlock Text="{ext:Localized AlphaBuildWarningStep3Continue}" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
 					</StackPanel>
 				</StackPanel>
 				
-				<TextBlock Text="Only create new issue reports for genuine bugs that haven't been reported yet."
+				<TextBlock Text="{ext:Localized AlphaBuildWarningFooter}"
 				           FontSize="14"
 				           Foreground="{DynamicResource SecondaryTextBrush}"
 				           FontStyle="Italic"
@@ -89,7 +90,7 @@
 			
 			<!-- Understand Button -->
 			<Button Classes="PrimaryButton"
-			        Content="I Understand"
+			        Content="{ext:Localized AlphaBuildWarningUnderstand}"
 			        Click="OnUnderstandClicked"
 			        Margin="0,8,0,0"/>
 		</StackPanel>

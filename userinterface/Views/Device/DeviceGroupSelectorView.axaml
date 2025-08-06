@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Device"
+             xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -101,7 +102,7 @@
 	<Grid ColumnDefinitions="Auto,*">
 		<TextBlock Grid.Column="0"
                    VerticalAlignment="Center"
-                   Text="Device Group"
+                   Text="{ext:Localized DeviceGroupName}"
                    Margin="0,0,12,0" />
 
 		<ComboBox Grid.Column="1"

@@ -1,6 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.ViewModels.Profile;
 using userinterface.Views.Controls;
@@ -40,7 +43,8 @@ public partial class CoalescionProfileSettingsView : UserControl
 
     private void CreateCoalescionFieldViewModel()
     {
-        CoalescionFieldViewModel = new DualColumnLabelFieldViewModel();
+        var localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        CoalescionFieldViewModel = new DualColumnLabelFieldViewModel(localizationService);
         CoalescionField = new DualColumnLabelFieldView(CoalescionFieldViewModel);
     }
 
@@ -49,8 +53,8 @@ public partial class CoalescionProfileSettingsView : UserControl
         if (CoalescionFieldViewModel == null)
             return;
 
-        CoalescionFieldViewModel.AddField("Input Smoothing Half Life", CreateInputControl(viewModel.InputSmoothingHalfLife));
-        CoalescionFieldViewModel.AddField("Scale Smoothing Half Life", CreateInputControl(viewModel.ScaleSmoothingHalfLife));
+        CoalescionFieldViewModel.AddField("CoalescionInputSmoothingHalfLife", CreateInputControl(viewModel.InputSmoothingHalfLife));
+        CoalescionFieldViewModel.AddField("CoalescionScaleSmoothingHalfLife", CreateInputControl(viewModel.ScaleSmoothingHalfLife));
     }
 
     private void AddControlToMainPanel()

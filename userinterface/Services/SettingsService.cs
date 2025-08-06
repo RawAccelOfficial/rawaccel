@@ -1,35 +1,78 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
+using userspace_backend;
 
 namespace userinterface.Services;
 
 public class SettingsService : ISettingsService
 {
-    private readonly string settingsFilePath;
-    private bool showToastNotifications = true; // Default to true
+    private readonly BackEnd backEnd;
 
-    public SettingsService()
+    public SettingsService(BackEnd backEnd)
     {
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var appFolder = Path.Combine(appDataPath, "RawAccel");
-        Directory.CreateDirectory(appFolder);
-        settingsFilePath = Path.Combine(appFolder, "settings.json");
+        this.backEnd = backEnd;
 
-        Load();
+        // Subscribe to backend settings property changes
+        if (this.backEnd.Settings != null)
+        {
+            this.backEnd.Settings.PropertyChanged += OnBackEndSettingsPropertyChanged;
+        }
+    }
+
+    private void OnBackEndSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        // Forward property change notifications
+        OnPropertyChanged(e.PropertyName);
     }
 
     public bool ShowToastNotifications
     {
-        get => showToastNotifications;
+        get => backEnd.Settings?.ShowToastNotifications ?? true;
         set
         {
-            if (showToastNotifications != value)
+            if (backEnd.Settings != null && backEnd.Settings.ShowToastNotifications != value)
             {
-                showToastNotifications = value;
-                OnPropertyChanged();
+                backEnd.Settings.ShowToastNotifications = value;
+                Save();
+            }
+        }
+    }
+
+    public string Theme
+    {
+        get => backEnd.Settings?.Theme ?? "System";
+        set
+        {
+            if (backEnd.Settings != null && backEnd.Settings.Theme != value)
+            {
+                backEnd.Settings.Theme = value;
+                Save();
+            }
+        }
+    }
+
+    public bool ShowConfirmModals
+    {
+        get => backEnd.Settings?.ShowConfirmModals ?? true;
+        set
+        {
+            if (backEnd.Settings != null && backEnd.Settings.ShowConfirmModals != value)
+            {
+                backEnd.Settings.ShowConfirmModals = value;
+                Save();
+            }
+        }
+    }
+
+    public string Language
+    {
+        get => backEnd.Settings?.Language ?? "en-US";
+        set
+        {
+            if (backEnd.Settings != null && backEnd.Settings.Language != value)
+            {
+                backEnd.Settings.Language = value;
                 Save();
             }
         }
@@ -40,15 +83,12 @@ public class SettingsService : ISettingsService
         errorMessage = null;
         try
         {
-            var settings = new { ShowToastNotifications = showToastNotifications };
-            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(settingsFilePath, json);
+            backEnd.Apply();
             return true;
         }
         catch (Exception ex)
         {
             errorMessage = $"Failed to save settings: {ex.Message}";
-            Console.WriteLine(errorMessage);
             return false;
         }
     }
@@ -63,24 +103,12 @@ public class SettingsService : ISettingsService
         errorMessage = null;
         try
         {
-            if (File.Exists(settingsFilePath))
-            {
-                var json = File.ReadAllText(settingsFilePath);
-                var settings = JsonSerializer.Deserialize<JsonElement>(json);
-
-                if (settings.TryGetProperty("ShowToastNotifications", out var showToastProp))
-                {
-                    showToastNotifications = showToastProp.GetBoolean();
-                }
-            }
+            backEnd.Load();
             return true;
         }
         catch (Exception ex)
         {
-            // Handle gracefully - use defaults
             errorMessage = $"Failed to load settings: {ex.Message}";
-            Console.WriteLine(errorMessage);
-            showToastNotifications = true;
             return false;
         }
     }
@@ -91,9 +119,16 @@ public class SettingsService : ISettingsService
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+    public event EventHandler? ThemeChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        
+        // Fire specific event for theme changes
+        if (propertyName == nameof(Theme))
+        {
+            ThemeChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

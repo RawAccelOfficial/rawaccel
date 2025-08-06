@@ -1,37 +1,53 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using userinterface.Commands;
+using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Mapping
 {
+    public static class BorderConstants
+    {
+        public const double DashLength = 1640;
+        public const int CornerRadius = 8;
+        public const int StrokeWidth = 3;
+        public const int BorderThickness = 1;
+        public const int Padding = 16;
+        public const int ContentWidth = 392;
+        public const int ContentHeight = 350;
+        
+        // Static properties for XAML binding
+        public static double ContentWidthProperty => ContentWidth;
+        public static double ContentHeightProperty => ContentHeight;
+    }
+
     public partial class MappingViewModel : ViewModelBase
     {
         private ObservableCollection<MappingListElementViewModel> mappingListElements;
         private bool isActiveMapping;
         private Action<MappingViewModel>? onActivationRequested;
+        private IModalService? modalService;
 
         public MappingViewModel()
         {
             mappingListElements = new ObservableCollection<MappingListElementViewModel>();
-            DeleteCommand = new RelayCommand(() => DeleteSelf());
+            DeleteCommand = new RelayCommand(async () => await DeleteSelfAsync());
             ActivateCommand = new RelayCommand(() => ActivateMapping(), () => !IsActiveMapping);
         }
 
-        public void Initialize(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, bool isActive, Action<MappingViewModel> onActivationRequested)
+        public void Initialize(BE.MappingModel mappingModel, BE.MappingsModel mappingsModel, IModalService modalService, bool isActive, Action<MappingViewModel> onActivationRequested)
         {
             MappingBE = mappingModel;
             MappingsBE = mappingsModel;
             IsActiveMapping = isActive;
             this.onActivationRequested = onActivationRequested;
+            this.modalService = modalService;
 
             UpdateMappingListElements();
 
@@ -43,6 +59,14 @@ namespace userinterface.ViewModels.Mapping
             MappingBE.DeviceGroupsStillUnmapped.CollectionChanged += (sender, e) =>
             {
                 OnPropertyChanged(nameof(HasDeviceGroupsToAdd));
+            };
+
+            MappingBE.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(BE.MappingModel.SetActive))
+                {
+                    IsActiveMapping = MappingBE.SetActive;
+                }
             };
         }
 
@@ -57,12 +81,8 @@ namespace userinterface.ViewModels.Mapping
             {
                 if (SetProperty(ref isActiveMapping, value))
                 {
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(BorderBrush));
-
-                    // Update the ActivateCommand's can execute state
-                    if (ActivateCommand is RelayCommand cmd)
-                        cmd.RaiseCanExecuteChanged();
+                    OnPropertyChanged(nameof(SelectionBorderDashOffset));
+                    (ActivateCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -77,26 +97,44 @@ namespace userinterface.ViewModels.Mapping
 
         public ICommand ActivateCommand { get; }
 
-        // TODO: Replace hardcoded colors with theme-aware approach
-        // These colors should match ActiveBrush (#22C55E) and InactiveBrush from themes
-        public IBrush BorderBrush => IsActiveMapping ?
-            new SolidColorBrush(Color.Parse("#22C55E")) :
-            new SolidColorBrush(Color.Parse("#404040"));
+        public string SelectionBorderPath => GenerateSelectionBorderPath();
 
+        private static string GenerateSelectionBorderPath()
+        {
+            var totalWidth = BorderConstants.ContentWidth + (2 * BorderConstants.Padding) + (2 * BorderConstants.BorderThickness);
+            var totalHeight = BorderConstants.ContentHeight + (2 * BorderConstants.Padding) + (2 * BorderConstants.BorderThickness);
+            
+            var offset = BorderConstants.StrokeWidth / 2.0;
+            var x = -offset;
+            var y = -offset;
+            var width = totalWidth + BorderConstants.StrokeWidth;
+            var height = totalHeight + BorderConstants.StrokeWidth;
+            var r = BorderConstants.CornerRadius;
+            
+            return $"M {r + x},{y} " +
+                   $"L {width - r + x},{y} " +
+                   $"A {r},{r} 0 0,1 {width + x},{r + y} " +
+                   $"L {width + x},{height - r + y} " +
+                   $"A {r},{r} 0 0,1 {width - r + x},{height + y} " +
+                   $"L {r + x},{height + y} " +
+                   $"A {r},{r} 0 0,1 {x},{height - r + y} " +
+                   $"L {x},{r + y} " +
+                   $"A {r},{r} 0 0,1 {r + x},{y} Z";
+        }
+
+        public double SelectionBorderDashOffset => IsActiveMapping ? 0 : 1640;
         private void UpdateMappingListElements()
         {
-            foreach (var element in mappingListElements)
-            {
-                element.Cleanup();
-            }
-
+            mappingListElements.ToList().ForEach(element => element.Cleanup());
             mappingListElements.Clear();
-            for (int i = 0; i < MappingBE.IndividualMappings.Count; i++)
+            
+            var elements = MappingBE.IndividualMappings
+                .Select((mappingGroup, i) => new MappingListElementViewModel(mappingGroup, MappingBE))
+                .ToList();
+            
+            foreach (var element in elements)
             {
-                var mappingGroup = MappingBE.IndividualMappings[i];
-                // Consider the first mapping element as default
-                bool isDefaultElement = IsActiveMapping && i == 0;
-                mappingListElements.Add(new MappingListElementViewModel(mappingGroup, MappingBE, isDefaultElement));
+                mappingListElements.Add(element);
             }
         }
 
@@ -113,15 +151,25 @@ namespace userinterface.ViewModels.Mapping
             onActivationRequested?.Invoke(this);
         }
 
-        public void SetActiveState(bool isActive)
-        {
-            IsActiveMapping = isActive;
-        }
 
-        public void DeleteSelf()
+        private async Task DeleteSelfAsync()
         {
-            bool success = MappingsBE.RemoveMapping(MappingBE);
-            Debug.Assert(success);
+            if (modalService != null)
+            {
+                var confirmed = await modalService.ShowConfirmationAsync(
+                    "MappingDeleteTitle",
+                    "MappingDeleteMessage",
+                    "MappingDeleteConfirm",
+                    "ModalCancel");
+
+                if (!confirmed)
+                    return;
+            }
+
+            if (!MappingsBE.RemoveMapping(MappingBE))
+            {
+                throw new InvalidOperationException("Failed to remove mapping");
+            }
         }
 
         public void Cleanup()

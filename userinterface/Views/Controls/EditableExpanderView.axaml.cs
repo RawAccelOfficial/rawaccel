@@ -43,7 +43,6 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
     private bool IsDisposedValue;
     private bool isAnimating;
 
-    // Cached controls for performance
     private NoInteractionButtonView? CachedHeaderButton;
 
     private NoInteractionButtonView? CachedContentButton;
@@ -174,25 +173,21 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         {
             if (IsExpanded)
             {
-                // Show content and animate expand
                 contentButton.IsVisible = true;
                 headerButton.Classes.Add(ExpandedClass);
-                
-                // Run chevron and height animations concurrently (height animation handles the smooth layout)
+
                 var chevronTask = AnimateChevron(expandIcon, ExpandedChevronAngle);
                 var heightTask = AnimateHeightExpand(contentButton);
-                
+
                 await Task.WhenAll(chevronTask, heightTask);
             }
             else
             {
-                // Run chevron and height animations concurrently while keeping expanded styling
                 var chevronTask = AnimateChevron(expandIcon, CollapsedChevronAngle);
                 var heightTask = AnimateHeightCollapse(contentButton);
-                
+
                 await Task.WhenAll(chevronTask, heightTask);
-                
-                // Only remove expanded styling and hide content after animation completes
+
                 headerButton.Classes.Remove(ExpandedClass);
                 contentButton.IsVisible = false;
             }
@@ -249,7 +244,6 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
 
     private static async Task AnimateContentExpand(Control contentControl)
     {
-        // Set initial state for expand animation
         contentControl.Opacity = 0.0;
         contentControl.RenderTransform = new ScaleTransform { ScaleY = 0.0 };
         contentControl.RenderTransformOrigin = new RelativePoint(0.5, 0.0, RelativeUnit.Relative); // Scale from top
@@ -283,7 +277,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         };
 
         await animation.RunAsync(contentControl, CancellationToken.None);
-        
+
         // Ensure final state
         contentControl.Opacity = 1.0;
         if (contentControl.RenderTransform is ScaleTransform scaleTransform)
@@ -296,7 +290,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
     {
         // Ensure transform origin is set for consistent scaling direction
         contentControl.RenderTransformOrigin = new RelativePoint(0.5, 0.0, RelativeUnit.Relative); // Scale from top
-        
+
         var animation = new Animation
         {
             Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),
@@ -334,11 +328,11 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         contentControl.Opacity = 1.0;
         contentControl.RenderTransform = null;
         contentControl.ClearValue(Control.HeightProperty);
-        
+
         // Measure the natural height of the content
         contentControl.Measure(Size.Infinity);
         var targetHeight = contentControl.DesiredSize.Height;
-        
+
         // Start with height 0 and animate to target height
         var animation = new Animation
         {
@@ -369,7 +363,7 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
         };
 
         await animation.RunAsync(contentControl, CancellationToken.None);
-        
+
         // Clear explicit height to allow natural responsive sizing
         contentControl.ClearValue(Control.HeightProperty);
     }
@@ -384,10 +378,9 @@ public partial class EditableExpanderView : UserControl, INotifyPropertyChanged,
             contentControl.Measure(Size.Infinity);
             currentHeight = contentControl.DesiredSize.Height;
         }
-        
-        // Set explicit height to current height before animating
+
         contentControl.Height = currentHeight;
-        
+
         var animation = new Animation
         {
             Duration = TimeSpan.FromMilliseconds(ContentAnimationDurationMilliseconds),

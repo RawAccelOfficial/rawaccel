@@ -1,12 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
-using userinterface.Services;
+using userspace_backend;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -14,315 +16,217 @@ namespace userinterface.ViewModels.Profile
     public partial class ProfileListViewModel : ViewModelBase
     {
         private const int MaxProfileAttempts = 10;
-
-        private readonly ObservableCollection<ProfileListElementViewModel> profileItems;
-        private readonly IViewModelFactory viewModelFactory;
         private readonly BE.ProfilesModel profilesModel;
+        private readonly SemaphoreSlim operationQueue = new(1, 1);
+        private readonly ConcurrentQueue<Func<Task>> pendingOperations = new();
+        private volatile bool isProcessingQueue = false;
+        private Views.Profile.ProfileListView? profileListView;
 
-        // Just for optimization, only for cleaning up
-        private readonly Dictionary<BE.ProfileModel, ProfileListElementViewModel> profileViewModelCache;
+        [ObservableProperty]
+        private BE.ProfileModel? selectedProfile;
 
-        public ProfileListViewModel(userspace_backend.BackEnd backEnd, IViewModelFactory viewModelFactory)
+        public event Action<BE.ProfileModel>? SelectedProfileChanged;
+
+        partial void OnSelectedProfileChanged(BE.ProfileModel? value)
         {
-            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Constructor started");
-
-            this.viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
-            this.profilesModel = backEnd?.Profiles ?? throw new ArgumentNullException(nameof(backEnd));
-
-            profileItems = new ObservableCollection<ProfileListElementViewModel>();
-            profileViewModelCache = new Dictionary<BE.ProfileModel, ProfileListElementViewModel>();
-
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: ProfilesModel null check: {ProfilesModel == null}");
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: ProfilesModel.Profiles null check: {ProfilesModel?.Profiles == null}");
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: ProfilesModel.Profiles count: {ProfilesModel?.Profiles?.Count ?? -1}");
-
-            ProfilesModel.Profiles.CollectionChanged += OnProfilesCollectionChanged;
-
-            UpdateProfileItems();
-
-            AddProfileCommand = new RelayCommand(() => TryAddProfile());
-
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Constructor completed. ProfileItems count: {profileItems.Count}");
+            if (value != null) SelectedProfileChanged?.Invoke(value);
+            
+            if (profileListView != null)
+            {
+                profileListView.SetSelectedProfile(value, false);
+            }
         }
 
-        // Access ProfilesModel via constructor injection
-        private BE.ProfilesModel ProfilesModel => profilesModel;
-
-        private void OnProfilesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public ProfileListViewModel(BackEnd backEnd)
         {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: OnProfilesCollectionChanged - Action: {e.Action}");
-
-            switch (e.Action)
-            {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    if (e.NewItems != null)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Adding {e.NewItems.Count} items");
-                        foreach (BE.ProfileModel profile in e.NewItems)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Adding profile: {profile.CurrentNameForDisplay}");
-                            AddProfileItem(profile, e.NewStartingIndex);
-                        }
-                    }
-                    break;
-
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    if (e.OldItems != null)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Removing {e.OldItems.Count} items");
-                        bool wasSelectedItemDeleted = false;
-                        foreach (BE.ProfileModel profile in e.OldItems)
-                        {
-                            if (profileViewModelCache.TryGetValue(profile, out var viewModel) && viewModel.IsSelected)
-                            {
-                                wasSelectedItemDeleted = true;
-                            }
-                            RemoveProfileItem(profile);
-                        }
-
-                        // If we deleted the selected item, select the default
-                        if (wasSelectedItemDeleted)
-                        {
-                            SelectDefaultItem();
-                        }
-                    }
-                    break;
-
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Reset action - calling UpdateProfileItems");
-                    UpdateProfileItems();
-                    break;
-
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
-                    throw new NotImplementedException("Move action is not written yet.");
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
-                    System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Replace action - calling UpdateProfileItems");
-                    // For these cases, fall back to full update
-                    UpdateProfileItems();
-                    break;
-            }
-
-            // Update default profile status after any change
-            UpdateDefaultProfileStatus();
+            profilesModel = backEnd?.Profiles ?? throw new System.ArgumentNullException(nameof(backEnd));
+            AddProfileCommand = new RelayCommand(TryAddProfile);
         }
 
-        private void AddProfileItem(BE.ProfileModel profile, int index)
-        {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: AddProfileItem - Profile: {profile.CurrentNameForDisplay}, Index: {index}");
+        public ObservableCollection<BE.ProfileModel> Profiles => profilesModel.Profiles;
+        public ICommand AddProfileCommand { get; }
 
-            if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
+        public void SetView(Views.Profile.ProfileListView view)
+        {
+            profileListView = view;
+        }
+
+        public void TryAddProfile()
+        {
+            // Queue the operation to prevent overlapping
+            pendingOperations.Enqueue(async () => await TryAddProfileAsync());
+            _ = ProcessOperationQueue();
+        }
+
+        private async Task TryAddProfileAsync()
+        {
+            var startTime = DateTime.Now;
+
+            var profileName = GenerateProfileName();
+            if (TryAddProfileWithName(profileName))
             {
-                bool isDefault = index == 0;
-                elementViewModel = viewModelFactory.CreateProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
-                elementViewModel.ProfileDeleted += OnProfileDeleted;
-                profileViewModelCache[profile] = elementViewModel;
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Created new ProfileListElementViewModel for {profile.CurrentNameForDisplay}");
+                var backendAddTime = DateTime.Now;
+
+                MoveNewProfileToOptimalPosition(profileName);
+
+                var reorderTime = DateTime.Now;
+
+                // Wait for any animations to complete before allowing next operation
+                await WaitForAnimationsToComplete();
+
+                var completionTime = DateTime.Now;
+            }
+        }
+
+        private void MoveNewProfileToOptimalPosition(string profileName)
+        {
+            // Find the newly added profile (should be at the end)
+            var newProfile = Profiles.FirstOrDefault(p => p.Name.ModelValue == profileName);
+            if (newProfile == null) return;
+
+            // Find the optimal insertion position - before other "Profile X" entries but after custom names
+            int insertPosition = FindOptimalInsertPosition();
+
+            int currentIndex = Profiles.IndexOf(newProfile);
+            if (currentIndex >= 0 && currentIndex != insertPosition)
+            {
+                Profiles.RemoveAt(currentIndex);
+                // Adjust insert position if we removed from before it
+                if (currentIndex < insertPosition) insertPosition--;
+                Profiles.Insert(insertPosition, newProfile);
+            }
+        }
+
+        private int FindOptimalInsertPosition()
+        {
+            // Find the first "Profile X" entry (auto-generated name) after the Default profile
+            for (int i = 1; i < Profiles.Count; i++) // Start at 1 to skip Default profile
+            {
+                var profile = Profiles[i];
+                if (IsAutoGeneratedProfileName(profile.Name.ModelValue))
+                {
+                    return i; // Insert before the first auto-generated profile
+                }
             }
 
-            // Insert at the correct position
-            if (index >= 0 && index < profileItems.Count)
+            return Profiles.Count;
+        }
+
+        private static bool IsAutoGeneratedProfileName(string name)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(name, @"^Profile \d+$");
+        }
+
+        public bool TryAddProfileAtPosition(int position)
+        {
+            var profileName = GenerateProfileName();
+            if (!profilesModel.TryAddNewDefaultProfile(profileName)) return false;
+
+            // Move the newly added profile to the specified position
+            var newProfile = profilesModel.Profiles[^1];
+            profilesModel.Profiles.RemoveAt(profilesModel.Profiles.Count - 1);
+
+            // Ensure position is within bounds
+            int clampedPosition = Math.Max(1, Math.Min(position, profilesModel.Profiles.Count));
+            profilesModel.Profiles.Insert(clampedPosition, newProfile);
+
+            return true;
+        }
+
+        private bool TryAddProfileWithName(string profileName)
+        {
+            return !string.IsNullOrEmpty(profileName) && profilesModel.TryAddNewDefaultProfile(profileName);
+        }
+
+        private string GenerateProfileName()
+        {
+            for (int i = 1; i <= MaxProfileAttempts; i++)
             {
-                profileItems.Insert(index, elementViewModel);
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Inserted at index {index}");
+                string name = $"Profile {i}";
+                if (!profilesModel.TryGetProfile(name, out _))
+                {
+                    return name;
+                }
+            }
+            return string.Empty;
+        }
+
+        private async Task ProcessOperationQueue()
+        {
+            if (isProcessingQueue) return;
+
+            isProcessingQueue = true;
+
+            try
+            {
+                while (pendingOperations.TryDequeue(out var operation))
+                {
+                    await operationQueue.WaitAsync();
+                    try
+                    {
+                        await operation();
+                    }
+                    finally
+                    {
+                        operationQueue.Release();
+                    }
+                }
+            }
+            finally
+            {
+                isProcessingQueue = false;
+            }
+        }
+
+        private async Task WaitForAnimationsToComplete()
+        {
+            if (profileListView != null)
+            {
+                if (!profileListView.AreAnimationsActive)
+                {
+                    return;
+                }
+
+                var tcs = new TaskCompletionSource<bool>();
+
+                void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    if (e.PropertyName == nameof(profileListView.AreAnimationsActive) && !profileListView.AreAnimationsActive)
+                    {
+                        tcs.TrySetResult(true);
+                    }
+                }
+
+                profileListView.PropertyChanged += OnPropertyChanged;
+
+                try
+                {
+                    // Double-check in case animations completed between the initial check and event subscription
+                    if (!profileListView.AreAnimationsActive)
+                    {
+                        return;
+                    }
+
+                    await tcs.Task;
+                }
+                finally
+                {
+                    profileListView.PropertyChanged -= OnPropertyChanged;
+                }
             }
             else
             {
-                profileItems.Add(elementViewModel);
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Added to end. Total count: {profileItems.Count}");
+                await Task.Delay(400);
             }
         }
 
-        private void RemoveProfileItem(BE.ProfileModel profile)
+
+        public bool RemoveProfile(BE.ProfileModel profile) => profile != null && profilesModel.RemoveProfile(profile);
+
+
+        public void Dispose()
         {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: RemoveProfileItem - Profile: {profile.CurrentNameForDisplay}");
-
-            if (profileViewModelCache.TryGetValue(profile, out var elementViewModel))
-            {
-                profileItems.Remove(elementViewModel);
-
-                // Clean up the view model
-                elementViewModel.ProfileDeleted -= OnProfileDeleted;
-                profileViewModelCache.Remove(profile);
-
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Removed profile. Remaining count: {profileItems.Count}");
-            }
-        }
-
-        private void UpdateDefaultProfileStatus()
-        {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: UpdateDefaultProfileStatus - Processing {profileItems.Count} items");
-
-            for (int i = 0; i < profileItems.Count; i++)
-            {
-                var item = profileItems[i];
-                item.IsDefaultProfile = i == 0;
-            }
-        }
-
-        private void SelectDefaultItem()
-        {
-            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: SelectDefaultItem called");
-
-            foreach (var item in profileItems)
-            {
-                if (item.IsDefaultProfile)
-                {
-                    item.UpdateSelection(true);
-                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Selected default item: {item.Profile.CurrentNameForDisplay}");
-                    return; // Exit early - there can only be one default item
-                }
-                else
-                {
-                    item.UpdateSelection(false);
-                }
-            }
-        }
-
-        public ObservableCollection<BE.ProfileModel> Profiles => ProfilesModel.Profiles;
-
-        public ICommand AddProfileCommand { get; }
-
-        public ObservableCollection<ProfileListElementViewModel> ProfileItems => profileItems;
-
-        private void UpdateProfileItems()
-        {
-            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: UpdateProfileItems started");
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Profiles count: {Profiles?.Count ?? -1}");
-
-            // Clear the observable collection but keep the cache for reuse
-            profileItems.Clear();
-
-            // Clean up ViewModels that are no longer needed
-            var profilesToRemove = profileViewModelCache.Keys.Except(Profiles).ToList();
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Profiles to remove from cache: {profilesToRemove.Count}");
-
-            foreach (var profile in profilesToRemove)
-            {
-                if (profileViewModelCache.TryGetValue(profile, out var viewModel))
-                {
-                    viewModel.ProfileDeleted -= OnProfileDeleted;
-                    profileViewModelCache.Remove(profile);
-                }
-            }
-
-            for (int i = 0; i < Profiles.Count; i++)
-            {
-                var profile = Profiles[i];
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Processing profile {i}: {profile.CurrentNameForDisplay}");
-
-                if (!profileViewModelCache.TryGetValue(profile, out var elementViewModel))
-                {
-                    bool isDefault = i == 0;
-                    elementViewModel = viewModelFactory.CreateProfileListElementViewModel(profile, showButtons: true, isDefault: isDefault);
-
-                    elementViewModel.ProfileDeleted += OnProfileDeleted;
-
-                    profileViewModelCache[profile] = elementViewModel;
-                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Created new ViewModel for {profile.CurrentNameForDisplay}");
-                }
-                else
-                {
-                    elementViewModel.IsDefaultProfile = i == 0;
-                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Reused existing ViewModel for {profile.CurrentNameForDisplay}");
-                }
-
-                profileItems.Add(elementViewModel);
-            }
-
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: UpdateProfileItems completed. Final count: {profileItems.Count}");
-
-            SelectDefaultItem();
-        }
-
-        private void OnProfileDeleted(ProfileListElementViewModel elementViewModel)
-        {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: OnProfileDeleted - {elementViewModel.Profile.CurrentNameForDisplay}");
-            RemoveProfile(elementViewModel.Profile);
-        }
-
-        public bool TryAddProfile()
-        {
-            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: TryAddProfile called");
-
-            for (int i = 0; i < MaxProfileAttempts; i++)
-            {
-                string newProfileName = $"Profile{i}";
-                System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Trying to add profile: {newProfileName}");
-
-                if (ProfilesModel.TryAddNewDefaultProfile(newProfileName))
-                {
-                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Successfully added profile: {newProfileName}");
-                    var newProfile = Profiles.FirstOrDefault(p => p.CurrentNameForDisplay == newProfileName);
-                    if (newProfile != null)
-                    {
-                        var newProfileViewModel = ProfileItems.FirstOrDefault(vm => vm.Profile == newProfile);
-                        if (newProfileViewModel != null)
-                        {
-                            SetSelectedProfile(newProfileViewModel);
-                        }
-                    }
-                    return true;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: Failed to add profile: {newProfileName}");
-                }
-            }
-            return false;
-        }
-
-        public void RemoveProfile(BE.ProfileModel profile)
-        {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: RemoveProfile called for {profile?.CurrentNameForDisplay ?? "null"}");
-
-            if (profile != null)
-            {
-                _ = ProfilesModel.RemoveProfile(profile);
-            }
-        }
-
-        public BE.ProfileModel? GetSelectedProfile()
-        {
-            var selected = ProfileItems.FirstOrDefault(vm => vm.IsSelected)?.Profile;
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: GetSelectedProfile returning: {selected?.CurrentNameForDisplay ?? "null"}");
-            return selected;
-        }
-
-        public void SetSelectedProfile(BE.ProfileModel? profile)
-        {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: SetSelectedProfile called for: {profile?.CurrentNameForDisplay ?? "null"}");
-
-            foreach (var item in ProfileItems)
-            {
-                item.UpdateSelection(item.Profile == profile);
-            }
-        }
-
-        public void SetSelectedProfile(ProfileListElementViewModel? profileViewModel)
-        {
-            System.Diagnostics.Debug.WriteLine($"ProfileListViewModel: SetSelectedProfile (ViewModel) called for: {profileViewModel?.Profile.CurrentNameForDisplay ?? "null"}");
-
-            foreach (var item in ProfileItems)
-            {
-                item.UpdateSelection(item == profileViewModel);
-            }
-        }
-
-        public void Cleanup()
-        {
-            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Cleanup called");
-
-            ProfilesModel.Profiles.CollectionChanged -= OnProfilesCollectionChanged;
-
-            foreach (var viewModel in profileViewModelCache.Values)
-            {
-                viewModel.ProfileDeleted -= OnProfileDeleted;
-            }
-
-            profileViewModelCache.Clear();
-            profileItems.Clear();
-
-            System.Diagnostics.Debug.WriteLine("ProfileListViewModel: Cleanup completed");
+            operationQueue?.Dispose();
         }
     }
 }

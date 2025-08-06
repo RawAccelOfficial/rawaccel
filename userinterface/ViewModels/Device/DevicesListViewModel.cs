@@ -1,16 +1,26 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using userinterface.Commands;
+using userinterface.Services;
+using userinterface.Views.Device;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Device
 {
     public partial class DevicesListViewModel : ViewModelBase
     {
-        public DevicesListViewModel(BE.DevicesModel devicesBE)
+        private DevicesListView? devicesListView;
+        private readonly IModalService modalService;
+        private readonly LocalizationService localizationService;
+
+        public DevicesListViewModel(BE.DevicesModel devicesBE, IModalService modalService, LocalizationService localizationService)
         {
             DevicesBE = devicesBE;
+            this.modalService = modalService;
+            this.localizationService = localizationService;
             DeviceViews = [];
             UpdateDeviceViews();
             DevicesBE.Devices.CollectionChanged += DevicesCollectionChanged;
@@ -27,8 +37,50 @@ namespace userinterface.ViewModels.Device
 
         public ICommand AddDeviceCommand { get; }
 
-        private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
+        public void SetView(DevicesListView view)
+        {
+            devicesListView = view;
+            
+            // Refresh existing DeviceViewModels to include the animation callback
             UpdateDeviceViews();
+        }
+
+        private void DevicesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    if (e.NewItems != null)
+                    {
+                        foreach (BE.DeviceModel device in e.NewItems)
+                        {
+                            int index = DevicesBE.Devices.IndexOf(device);
+                            bool isDefault = index == 0;
+                            var animateCallback = devicesListView != null ? (Func<DeviceViewModel, Task>)devicesListView.AnimateDeviceDelete : null;
+                            var deviceViewModel = new DeviceViewModel(device, DevicesBE, modalService, localizationService, isDefault, animateCallback);
+                            DeviceViews.Insert(index, deviceViewModel);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null && e.OldStartingIndex >= 0)
+                    {
+                        for (int i = 0; i < e.OldItems.Count; i++)
+                        {
+                            DeviceViews.RemoveAt(e.OldStartingIndex);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Replace:
+                case NotifyCollectionChangedAction.Move:
+                default:
+                    UpdateDeviceViews();
+                    break;
+            }
+        }
 
         public void UpdateDeviceViews()
         {
@@ -36,9 +88,9 @@ namespace userinterface.ViewModels.Device
             for (int i = 0; i < DevicesBE.Devices.Count; i++)
             {
                 var device = DevicesBE.Devices[i];
-                // Consider the first device as the default device
                 bool isDefault = i == 0;
-                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, isDefault));
+                var animateCallback = devicesListView != null ? (Func<DeviceViewModel, Task>)devicesListView.AnimateDeviceDelete : null;
+                DeviceViews.Add(new DeviceViewModel(device, DevicesBE, modalService, localizationService, isDefault, animateCallback));
             }
         }
 

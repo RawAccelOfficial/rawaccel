@@ -185,7 +185,7 @@ namespace grapher.Models.Options.LUT
                 {
                     x = float.Parse(pointSplit[0]);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw new ApplicationException($"X-value for point at index {index} is malformed. Expected: float. Given: {pointSplit[0]}", ex);
                 }
@@ -206,7 +206,7 @@ namespace grapher.Models.Options.LUT
                 {
                     y = float.Parse(pointSplit[1]);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw new ApplicationException($"Y-value for point at index {index} is malformed. Expected: float. Given: {pointSplit[1]}", ex);
                 }

@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Settings"
+             xmlns:controls="using:userinterface.Views.Controls"
+             xmlns:ext="using:userinterface.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Settings.GeneralSettingsView"
+             x:DataType="vm:GeneralSettingsViewModel">
+
+	<UserControl.Styles>
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="MaxDropDownHeight" Value="200"/>
+		</Style>
+
+		<Style Selector="CheckBox">
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+			<Setter Property="FontSize" Value="14" />
+		</Style>
+
+		<Style Selector="CheckBox /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
+
+		<Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}" />
+			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}" />
+		</Style>
+
+		<Style Selector="CheckBox:checked:pointerover /template/ Border#NormalRectangle">
+			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}" />
+		</Style>
+
+		<Style Selector="controls|DualColumnLabelFieldView ContentPresenter">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Spacing="12" x:Name="SettingsStackPanel">
+		<!-- The DualColumnLabelFieldView will be added in code-behind -->
+	</StackPanel>
+</UserControl>

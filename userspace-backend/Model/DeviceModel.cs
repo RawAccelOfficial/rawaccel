@@ -52,27 +52,32 @@ namespace userspace_backend.Model
                 displayName: "Name",
                 initialValue: device.Name,
                 parser: UserInputParsers.StringParser,
-                validator: ModelValueValidators.DefaultStringValidator);
+                validator: ModelValueValidators.DefaultStringValidator,
+                localizationKey: "DeviceName");
             HardwareID = new EditableSetting<string>(
                 displayName: "Hardware ID",
                 initialValue: device.HWID,
                 parser: UserInputParsers.StringParser,
-                validator: ModelValueValidators.DefaultStringValidator);
+                validator: ModelValueValidators.DefaultStringValidator,
+                localizationKey: "DeviceHardwareID");
             DPI = new EditableSetting<int>(
                displayName: "DPI",
                initialValue: device.DPI,
                parser: UserInputParsers.IntParser,
-               validator: ModelValueValidators.DefaultIntValidator);
+               validator: ModelValueValidators.DefaultIntValidator,
+               localizationKey: "DeviceDPI");
             PollRate = new EditableSetting<int>(
                 displayName: "Polling Rate",
                 initialValue: device.PollingRate,
                 parser: UserInputParsers.IntParser,
-                validator: ModelValueValidators.DefaultIntValidator);
+                validator: ModelValueValidators.DefaultIntValidator,
+                localizationKey: "DevicePollingRate");
             Ignore = new EditableSetting<bool>(
                 displayName: "Ignore",
                 initialValue: device.Ignore,
                 parser: UserInputParsers.BoolParser,
-                validator: ModelValueValidators.DefaultBoolValidator);
+                validator: ModelValueValidators.DefaultBoolValidator,
+                localizationKey: "DeviceIgnore");
         }
 
         public override Device MapToData()

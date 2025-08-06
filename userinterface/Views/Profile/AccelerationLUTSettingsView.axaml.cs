@@ -1,5 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using userinterface.Services;
 using userinterface.ViewModels.Controls;
 using userinterface.Views.Controls;
 
@@ -9,7 +12,6 @@ public partial class AccelerationLUTSettingsView : UserControl
 {
     private const string VelocityOptionText = "Velocity";
     private const string SensitivityOptionText = "Sensitivity";
-    private const string ApplyAsLabelText = "Apply as:";
 
     public AccelerationLUTSettingsView()
     {
@@ -41,8 +43,9 @@ public partial class AccelerationLUTSettingsView : UserControl
 
     private static DualColumnLabelFieldViewModel CreateDualColumnViewModel(ComboBox applyAsComboBox)
     {
-        var viewModel = new DualColumnLabelFieldViewModel();
-        viewModel.AddField(ApplyAsLabelText, applyAsComboBox);
+        var localizationService = App.Services?.GetRequiredService<LocalizationService>() ?? throw new InvalidOperationException("LocalizationService not available");
+        var viewModel = new DualColumnLabelFieldViewModel(localizationService);
+        viewModel.AddField("LookupTableApplyAs", applyAsComboBox);
         return viewModel;
     }
 

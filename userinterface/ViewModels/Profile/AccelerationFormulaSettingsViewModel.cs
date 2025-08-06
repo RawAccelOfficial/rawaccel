@@ -17,6 +17,11 @@ namespace userinterface.ViewModels.Profile
                 .Cast<BEData.AccelerationFormulaType>()
                 .Select(formulaType => formulaType.ToString()));
 
+        public static ObservableCollection<string> FormulaTypeKeys { get; } =
+            new(Enum.GetValues(typeof(BEData.AccelerationFormulaType))
+                .Cast<BEData.AccelerationFormulaType>()
+                .Select(formulaType => $"AccelFormula{formulaType}"));
+
         public AccelerationFormulaSettingsViewModel(BE.FormulaAccelModel formulaAccel, INotificationService notificationService)
         {
             this.notificationService = notificationService;
@@ -47,6 +52,8 @@ namespace userinterface.ViewModels.Profile
 
         public static ObservableCollection<string> FormulaTypesLocal => FormulaTypes;
 
+        public static ObservableCollection<string> FormulaTypeKeysLocal => FormulaTypeKeys;
+
         public SynchronousSettings SynchronousSettings { get; }
 
         public LinearSettings LinearSettings { get; }
@@ -67,7 +74,7 @@ namespace userinterface.ViewModels.Profile
                 if (double.TryParse(ClassicSettings.Exponent.ValueText, out double exponentValue) &&
                     Math.Abs(exponentValue - 2.0) < 0.001)
                 {
-                    notificationService.ShowInfoToast("Classic with a power of 2 is equal to linear");
+                    notificationService.ShowInfoToast("ProfileClassicLinearEquivalent");
                 }
             }
         }

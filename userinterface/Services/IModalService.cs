@@ -6,11 +6,11 @@ namespace userinterface.Services
 {
     public interface IModalService : IDisposable
     {
-        Task<bool> ShowConfirmationAsync(string title, string message, string confirmText = "OK", string cancelText = "Cancel");
+        Task<bool> ShowConfirmationAsync(string titleKey, string messageKey, string confirmTextKey = "ModalOK", string cancelTextKey = "ModalCancel");
 
-        Task ShowMessageAsync(string title, string message, string okText = "OK");
+        Task ShowMessageAsync(string titleKey, string messageKey, string okTextKey = "ModalOK");
 
-        Task<T?> ShowDialogAsync<T>(UserControl dialogContent, string title = "");
+        Task<T?> ShowDialogAsync<T>(UserControl dialogContent, string titleKey = "");
 
         void CloseCurrentModal();
     }

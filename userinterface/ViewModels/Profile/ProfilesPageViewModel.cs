@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+using userinterface.Interfaces;
 using userinterface.Services;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
 {
-    public partial class ProfilesPageViewModel : ViewModelBase
+    public partial class ProfilesPageViewModel : ViewModelBase, IAsyncInitializable
     {
         [ObservableProperty]
         public ProfileViewModel? selectedProfileView;
@@ -23,7 +25,6 @@ namespace userinterface.ViewModels.Profile
             INotificationService notificationService,
             userspace_backend.BackEnd backEnd,
             ProfileListViewModel profileListView,
-            ActiveProfilesListViewModel activeProfilesListView,
             IViewModelFactory viewModelFactory)
         {
             this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
@@ -33,8 +34,8 @@ namespace userinterface.ViewModels.Profile
 
             ProfileViewModels = [];
             UpdateProfileViewModels();
-            SelectedProfileView = ProfileViewModels.FirstOrDefault();
-            ActiveProfilesListView = activeProfilesListView ?? throw new ArgumentNullException(nameof(activeProfilesListView));
+            
+            profileListView.SelectedProfileChanged += OnProfileSelectionChanged;
         }
 
         private INotificationService NotificationService => notificationService;
@@ -45,15 +46,30 @@ namespace userinterface.ViewModels.Profile
 
         protected ObservableCollection<ProfileViewModel> ProfileViewModels { get; }
 
-        public ActiveProfilesListViewModel ActiveProfilesListView { get; }
+        public bool IsInitialized { get; private set; } = true; // Already initialized in constructor
+
+        public bool IsInitializing { get; private set; }
+
+        public Task InitializeAsync()
+        {
+            if (IsInitializing || IsInitialized)
+                return Task.CompletedTask;
+
+            IsInitializing = true;
+
+            UpdateProfileViewModels();
+
+            IsInitializing = false;
+            IsInitialized = true;
+
+            return Task.CompletedTask;
+        }
+
 
         public void UpdateCurrentProfile()
         {
             UpdateProfileViewModels();
-
-            var selectedProfile = ProfileListView.GetSelectedProfile();
-
-            UpdateSelectedProfileView(selectedProfile);
+            UpdateSelectedProfileView(ProfileListView.SelectedProfile);
         }
 
         private void UpdateSelectedProfileView(BE.ProfileModel? currentProfile)
@@ -73,10 +89,17 @@ namespace userinterface.ViewModels.Profile
         protected void UpdateProfileViewModels()
         {
             ProfileViewModels.Clear();
+            
             foreach (var profileModelBE in ProfileModels)
             {
-                ProfileViewModels.Add(viewModelFactory.CreateProfileViewModel(profileModelBE));
+                var profileViewModel = viewModelFactory.CreateProfileViewModel(profileModelBE);
+                ProfileViewModels.Add(profileViewModel);
             }
+        }
+
+        private void OnProfileSelectionChanged(BE.ProfileModel selectedProfile)
+        {
+            UpdateSelectedProfileView(selectedProfile);
         }
     }
 }

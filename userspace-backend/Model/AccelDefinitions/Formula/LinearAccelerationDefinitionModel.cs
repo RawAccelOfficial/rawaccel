@@ -70,17 +70,20 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 displayName: "Acceleration",
                 initialValue: dataObject.Acceleration,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelLinearAcceleration");
             Offset = new EditableSetting<double>(
                 displayName: "Offset",
                 initialValue: dataObject.Offset,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelLinearOffset");
             Cap = new EditableSetting<double>(
                 displayName: "Cap",
                 initialValue: dataObject.Cap,
                 parser: UserInputParsers.DoubleParser,
-                validator: ModelValueValidators.DefaultDoubleValidator);
+                validator: ModelValueValidators.DefaultDoubleValidator,
+                localizationKey: "AccelLinearCap");
         }
     }
 }

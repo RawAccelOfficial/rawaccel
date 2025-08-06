@@ -77,7 +77,8 @@ namespace userspace_backend.Model.AccelDefinitions
                 initialValue: dataObject.FormulaType,
                 parser: UserInputParsers.AccelerationFormulaTypeParser,
                 validator: ModelValueValidators.DefaultAccelerationFormulaTypeValidator,
-                autoUpdateFromInterface: true);
+                autoUpdateFromInterface: true,
+                localizationKey: "AccelFormulaType");
 
             FormulaModels = new Dictionary<FormulaAccel.AccelerationFormulaType, IAccelDefinitionModel>();
 

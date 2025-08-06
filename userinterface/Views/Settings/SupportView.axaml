@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:userinterface.ViewModels.Settings"
+             xmlns:ext="using:userinterface.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="userinterface.Views.Settings.SupportView"
+             x:DataType="vm:SupportViewModel">
+
+	<StackPanel Spacing="16">
+		<TextBlock Text="{ext:Localized SupportBugReportInstructions}"
+                   FontSize="14"
+                   Foreground="{DynamicResource SecondaryTextBrush}"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,12"/>
+
+		<Button Content="{ext:Localized SupportSearchExistingIssues}"
+                Command="{Binding BugReportCommand}"
+                Background="{DynamicResource PrimaryButtonBrush}"
+                Foreground="{DynamicResource PrimaryTextBrush}"
+                BorderThickness="0"
+                CornerRadius="6"
+                Padding="20,12"
+                FontSize="14"
+                FontWeight="Medium"
+                Cursor="Hand"
+                HorizontalAlignment="Left">
+			<Button.Styles>
+				<Style Selector="Button:pointerover">
+					<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
+				</Style>
+				<Style Selector="Button:pressed">
+					<Setter Property="Background" Value="{DynamicResource PrimaryButtonPressedBrush}"/>
+				</Style>
+			</Button.Styles>
+		</Button>
+
+		<TextBlock Text="{ext:Localized SupportCheckClosedIssues}"
+                   FontSize="12"
+                   Foreground="{DynamicResource DisabledTextBrush}"
+                   FontStyle="Italic"/>
+	</StackPanel>
+</UserControl>
