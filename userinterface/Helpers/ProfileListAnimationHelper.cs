@@ -22,9 +22,7 @@ public class ProfileListAnimationHelper : IDisposable
     private readonly List<Border> profiles;
     private readonly Panel profileContainer;
     private readonly Border addProfileButton;
-    private readonly ConcurrentDictionary<int, CancellationTokenSource> activeAnimations = new();
-    private readonly ReaderWriterLockSlim animationLock = new();
-    private volatile bool areAnimationsActive = false;
+    private readonly IAnimationStateService animationStateService;
     private bool disposed = false;
     
     private readonly FrameTimerService frameTimer;
@@ -45,25 +43,20 @@ public class ProfileListAnimationHelper : IDisposable
     
     // Performance counters
     private volatile int activeAnimationCount = 0;
-    
-    public static double ProfileHeight => 38.0;
-    public static double ProfileSpacing => 4.0;
-    public static int StaggerDelayMs => 20;
-    public static double ProfileSpawnPosition => 0.0;
-    public static double FirstIndexOffset => 6;
 
-    public ProfileListAnimationHelper(List<Border> profiles, Panel profileContainer, Border addProfileButton, FrameTimerService frameTimer)
+    public ProfileListAnimationHelper(List<Border> profiles, Panel profileContainer, Border addProfileButton, FrameTimerService frameTimer, IAnimationStateService animationStateService)
     {
         this.profiles = profiles ?? throw new ArgumentNullException(nameof(profiles));
         this.profileContainer = profileContainer ?? throw new ArgumentNullException(nameof(profileContainer));
         this.addProfileButton = addProfileButton ?? throw new ArgumentNullException(nameof(addProfileButton));
         this.frameTimer = frameTimer ?? throw new ArgumentNullException(nameof(frameTimer));
+        this.animationStateService = animationStateService ?? throw new ArgumentNullException(nameof(animationStateService));
     }
 
     public bool AreAnimationsActive
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => areAnimationsActive;
+        get => animationStateService.AreAnimationsActive;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,7 +68,7 @@ public class ProfileListAnimationHelper : IDisposable
             return cachedPosition;
             
         var adjustedIndex = includeAddButton ? index + 1 : index;
-        var position = adjustedIndex == 0 ? 0 : (adjustedIndex * (ProfileHeight + ProfileSpacing)) + FirstIndexOffset;
+        var position = adjustedIndex == 0 ? 0 : (adjustedIndex * (animationStateService.Config.ProfileHeight + animationStateService.Config.ProfileSpacing)) + animationStateService.Config.FirstIndexOffset;
         
         positionCache[cacheKey] = position;
         return position;
@@ -119,7 +112,7 @@ public class ProfileListAnimationHelper : IDisposable
     
     public void UpdateDeleteButtonStates()
     {
-        var isActive = areAnimationsActive;
+        var isActive = animationStateService.AreAnimationsActive;
         for (int i = 0; i < profiles.Count; i++)
         {
             // Use cached delete button reference if available
@@ -143,44 +136,9 @@ public class ProfileListAnimationHelper : IDisposable
     
     public void CancelAllAnimations()
     {
-        animationLock.EnterWriteLock();
-        try
-        {
-            CancelAllAnimationsInternal();
-            areAnimationsActive = false;
-            Interlocked.Exchange(ref activeAnimationCount, 0);
-        }
-        finally
-        {
-            animationLock.ExitWriteLock();
-        }
+        animationStateService.CancelAllAnimations("ProfileListAnimationHelper");
+        Interlocked.Exchange(ref activeAnimationCount, 0);
         UpdateDeleteButtonStates();
-    }
-    
-    private void CancelAllAnimationsInternal()
-    {
-        var tokensToReturn = new List<CancellationTokenSource>();
-        
-        foreach (var kvp in activeAnimations)
-        {
-            try
-            {
-                kvp.Value.Cancel();
-                tokensToReturn.Add(kvp.Value);
-            }
-            catch (ObjectDisposedException)
-            {
-                // Token was already disposed, ignore
-            }
-        }
-        
-        activeAnimations.Clear();
-        
-        // Return tokens to pool
-        foreach (var cts in tokensToReturn)
-        {
-            try { cts.Dispose(); } catch (ObjectDisposedException) { }
-        }
     }
 
     public async ValueTask AnimateProfileToPositionAsync(int profileIndex, int position, int staggerIndex = 0)
@@ -194,31 +152,20 @@ public class ProfileListAnimationHelper : IDisposable
             return;
         }
 
-        // Cancel existing animation for this profile
-        if (activeAnimations.TryRemove(profileIndex, out var existingCts))
-        {
-            try
-            {
-                existingCts.Cancel();
-                existingCts.Dispose();
-            }
-            catch (ObjectDisposedException) { }
-        }
-
-        var cts = new CancellationTokenSource();
-        activeAnimations[profileIndex] = cts;
+        // Register animation with the service
+        var cancellationToken = await animationStateService.RegisterAnimationAsync("ProfileListAnimationHelper", profileIndex);
         Interlocked.Increment(ref activeAnimationCount);
 
         try
         {
             // Apply stagger delay only if not canceled
-            if (staggerIndex > 0 && !cts.Token.IsCancellationRequested)
+            if (staggerIndex > 0 && !cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(staggerIndex * StaggerDelayMs, cts.Token);
+                await Task.Delay(staggerIndex * animationStateService.Config.StaggerDelayMs, cancellationToken);
             }
 
             // Double-check cancellation after delay
-            if (cts.Token.IsCancellationRequested) return;
+            if (cancellationToken.IsCancellationRequested) return;
 
             var animation = GetOptimizedProfileMoveAnimation();
             animation.Children.Clear();
@@ -240,9 +187,9 @@ public class ProfileListAnimationHelper : IDisposable
                 }
             });
             
-            await animation.RunAsync(profiles[profileIndex], cts.Token);
+            await animation.RunAsync(profiles[profileIndex], cancellationToken);
             
-            if (!cts.Token.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested)
             {
                 profiles[profileIndex].Margin = targetMargin;
                 profiles[profileIndex].ZIndex = position;
@@ -259,19 +206,12 @@ public class ProfileListAnimationHelper : IDisposable
         }
         finally
         {
-            if (activeAnimations.TryRemove(profileIndex, out var removedCts))
-            {
-                try { removedCts.Dispose(); } catch (ObjectDisposedException) { }
-            }
+            animationStateService.UnregisterAnimation("ProfileListAnimationHelper", profileIndex);
             
             var remainingCount = Interlocked.Decrement(ref activeAnimationCount);
             
-            // Check if this was the last animation
-            if (remainingCount == 0 && areAnimationsActive)
-            {
-                areAnimationsActive = false;
-                Debug.WriteLine($"[ANIMATION] All animations completed, re-enabling interactions at {DateTime.Now:HH:mm:ss.fff}");
-            }
+            // Note: The service handles global animation state automatically
+            Debug.WriteLine($"[ANIMATION] Cleaned up animation for profile {profileIndex}, remaining: {remainingCount}");
         }
     }
 
@@ -281,16 +221,8 @@ public class ProfileListAnimationHelper : IDisposable
         var animationTasks = taskListPool.Get();
         try
         {
-            animationLock.EnterWriteLock();
-            try
-            {
-                // Cancel any existing animations before starting new ones
-                CancelAllAnimationsInternal();
-            }
-            finally
-            {
-                animationLock.ExitWriteLock();
-            }
+            // Cancel any existing animations before starting new ones
+            animationStateService.CancelAllAnimations("ProfileListAnimationHelper");
             
             // Batch process animations for better performance
             var animationsToRun = new List<(int index, int staggerIndex)>();
@@ -322,7 +254,7 @@ public class ProfileListAnimationHelper : IDisposable
             
             if (animationTasks.Count > 0)
             {
-                areAnimationsActive = true;
+                animationStateService.SetAnimationsActive(true);
                 UpdateDeleteButtonStates();
                 
                 try
@@ -335,7 +267,7 @@ public class ProfileListAnimationHelper : IDisposable
                 }
                 finally
                 {
-                    areAnimationsActive = false;
+                    animationStateService.SetAnimationsActive(false);
                     UpdateDeleteButtonStates();
                 }
             }
@@ -382,16 +314,8 @@ public class ProfileListAnimationHelper : IDisposable
         var animationTasks = taskListPool.Get();
         try
         {
-            animationLock.EnterWriteLock();
-            try
-            {
-                CancelAllAnimationsInternal();
-                areAnimationsActive = true;
-            }
-            finally
-            {
-                animationLock.ExitWriteLock();
-            }
+            animationStateService.CancelAllAnimations("ProfileListAnimationHelper");
+            animationStateService.SetAnimationsActive(true);
             
             UpdateDeleteButtonStates();
             
@@ -415,7 +339,7 @@ public class ProfileListAnimationHelper : IDisposable
                 }
                 finally
                 {
-                    areAnimationsActive = false;
+                    animationStateService.SetAnimationsActive(false);
                     UpdateDeleteButtonStates();
                 }
             }
@@ -464,18 +388,17 @@ public class ProfileListAnimationHelper : IDisposable
     {
         if (profileIndex >= profiles.Count) return;
 
-        var cts = new CancellationTokenSource();
-        activeAnimations[profileIndex] = cts;
+        var cancellationToken = await animationStateService.RegisterAnimationAsync("ProfileListAnimationHelper", profileIndex);
         Interlocked.Increment(ref activeAnimationCount);
 
         try
         {
-            if (staggerIndex > 0 && !cts.Token.IsCancellationRequested)
+            if (staggerIndex > 0 && !cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(staggerIndex * StaggerDelayMs, cts.Token);
+                await Task.Delay(staggerIndex * animationStateService.Config.StaggerDelayMs, cancellationToken);
             }
 
-            if (cts.Token.IsCancellationRequested) return;
+            if (cancellationToken.IsCancellationRequested) return;
 
             var targetMargin = new Avalonia.Thickness(8, CalculatePositionForIndex(0, false), 8, 0);
 
@@ -498,9 +421,9 @@ public class ProfileListAnimationHelper : IDisposable
                 }
             });
             
-            await animation.RunAsync(profiles[profileIndex], cts.Token);
+            await animation.RunAsync(profiles[profileIndex], cancellationToken);
             
-            if (!cts.Token.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested)
             {
                 profiles[profileIndex].Margin = targetMargin;
             }
@@ -515,11 +438,7 @@ public class ProfileListAnimationHelper : IDisposable
         }
         finally
         {
-            if (activeAnimations.TryRemove(profileIndex, out var removedCts))
-            {
-                try { removedCts.Dispose(); } catch (ObjectDisposedException) { }
-            }
-            
+            animationStateService.UnregisterAnimation("ProfileListAnimationHelper", profileIndex);
             Interlocked.Decrement(ref activeAnimationCount);
         }
     }
@@ -536,9 +455,6 @@ public class ProfileListAnimationHelper : IDisposable
             // Dispose of all pools and resources
             animationPool?.Dispose();
             taskListPool?.Dispose();
-            
-            // Dispose locks
-            animationLock?.Dispose();
             
             // Clear caches
             positionCache.Clear();

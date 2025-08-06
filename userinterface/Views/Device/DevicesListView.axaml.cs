@@ -11,6 +11,8 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
+using userinterface.Services;
 using userinterface.ViewModels.Device;
 
 namespace userinterface.Views.Device;
@@ -21,25 +23,14 @@ public partial class DevicesListView : UserControl
     private int lastKnownItemCount = 0;
     private bool isInitialLoad = true;
     
-    private readonly ConcurrentDictionary<int, CancellationTokenSource> activeAnimations = new();
-    private readonly SemaphoreSlim operationSemaphore = new(1, 1);
-    private readonly object animationLock = new();
-    private volatile bool areAnimationsActive = false;
+    private readonly IAnimationStateService animationStateService;
     
-    private const int AnimationDurationMs = 400;
-    private const int InitialLoadAnimationDurationMs = 200;
-    private const int DeleteAnimationDurationMs = 180;
-    private const int HideOthersAnimationDurationMs = 100;
-    private const int StaggerDelayMs = 50;
-    private const double SlideUpDistance = 30.0;
-    private const double SlideLeftDistance = 120.0;
-    private const int TargetFps = 120;
-    private const int FrameDelayMs = 1000 / TargetFps;
-    
-    public bool AreAnimationsActive => areAnimationsActive;
+    public bool AreAnimationsActive => animationStateService.AreAnimationsActive;
 
     public DevicesListView()
     {
+        animationStateService = App.Services?.GetRequiredService<IAnimationStateService>() ?? throw new InvalidOperationException("AnimationStateService not available");
+        
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
         DevicesListInView.ContainerPrepared += OnContainerPrepared;
@@ -68,8 +59,10 @@ public partial class DevicesListView : UserControl
                 
                 await AnimateAllDevicesIn();
             }
-            finally
+            catch (Exception ex)
             {
+                Debug.WriteLine($"Animation error: {ex.Message}");
+                deviceViewModel.DeleteSelf();
             }
         }
         else
@@ -80,27 +73,36 @@ public partial class DevicesListView : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if (viewModel != null)
-        {
-            viewModel.DeviceViews.CollectionChanged -= OnDevicesCollectionChanged;
-        }
-
         if (DataContext is DevicesListViewModel vm)
         {
+            if (viewModel != null)
+            {
+                viewModel.DeviceViews.CollectionChanged -= OnDevicesCollectionChanged;
+            }
+            
             viewModel = vm;
             lastKnownItemCount = vm.DeviceViews.Count;
+            
             vm.DeviceViews.CollectionChanged += OnDevicesCollectionChanged;
-            vm.SetView(this);
             
             _ = Task.Run(async () =>
             {
-                await Task.Delay(vm.DeviceViews.Count * StaggerDelayMs + AnimationDurationMs);
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    isInitialLoad = false;
-                });
+                await Task.Delay(vm.DeviceViews.Count * animationStateService.Config.StaggerDelayMs + animationStateService.Config.AnimationDurationMs);
+                isInitialLoad = false;
             });
         }
+    }
+    
+    private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(100);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                isInitialLoad = false;
+            });
+        });
     }
 
     private void OnContainerPrepared(object? sender, ContainerPreparedEventArgs e)
@@ -112,11 +114,11 @@ public partial class DevicesListView : UserControl
             if (isInitialLoad)
             {
                 container.Opacity = 0;
-                container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
+                container.RenderTransform = new TranslateTransform(0, animationStateService.Config.SlideUpDistance);
                 
                 _ = Task.Run(async () =>
                 {
-                    int delay = e.Index * StaggerDelayMs;
+                    int delay = e.Index * animationStateService.Config.StaggerDelayMs;
                     await Task.Delay(delay);
                     await ShowDevice(container, e.Index);
                 });
@@ -124,7 +126,7 @@ public partial class DevicesListView : UserControl
             else if (isNewItem)
             {
                 container.Opacity = 0;
-                container.RenderTransform = new TranslateTransform(0, SlideUpDistance);
+                container.RenderTransform = new TranslateTransform(0, animationStateService.Config.SlideUpDistance);
                 
                 _ = Task.Run(async () =>
                 {
@@ -149,39 +151,17 @@ public partial class DevicesListView : UserControl
                 await Task.Delay(200);
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    if (viewModel != null)
-                    {
-                        lastKnownItemCount = viewModel.DeviceViews.Count;
-                    }
+                    lastKnownItemCount = viewModel?.DeviceViews.Count ?? 0;
                 });
             });
-        }
-        else if (viewModel != null)
-        {
-            lastKnownItemCount = viewModel.DeviceViews.Count;
         }
     }
 
     private async Task AnimateDeviceIn(Control container, int index)
     {
-        await operationSemaphore.WaitAsync();
-        
-        try
+        await animationStateService.ExecuteWithSemaphoreAsync(async () =>
         {
-            CancellationTokenSource? cts = null;
-            
-            lock (animationLock)
-            {
-                if (activeAnimations.TryGetValue(index, out var existingCts))
-                {
-                    existingCts.Cancel();
-                    existingCts.Dispose();
-                }
-                
-                cts = new CancellationTokenSource();
-                activeAnimations[index] = cts;
-                areAnimationsActive = true;
-            }
+            var cancellationToken = await animationStateService.RegisterAnimationAsync("DevicesListView", index);
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -190,12 +170,12 @@ public partial class DevicesListView : UserControl
 
                 try
                 {
-                    var transform = EnsureTranslateTransform(container, 0, SlideUpDistance);
+                    var transform = animationStateService.EnsureTranslateTransform(container, 0, animationStateService.Config.SlideUpDistance);
 
-                    var opacityAnimation = CreateOpacityAnimation(0.0, 1.0, InitialLoadAnimationDurationMs, new QuadraticEaseOut());
+                    var opacityAnimation = animationStateService.CreateOpacityAnimation(0.0, 1.0, animationStateService.Config.InitialLoadAnimationDurationMs, new QuadraticEaseOut());
                     
-                    var opacityTask = opacityAnimation.RunAsync(container, cts.Token);
-                    var transformTask = AnimateTransformAsync(transform, Axis.Y, SlideUpDistance, 0.0, InitialLoadAnimationDurationMs, EaseOutBack, cts.Token);
+                    var opacityTask = opacityAnimation.RunAsync(container, cancellationToken);
+                    var transformTask = animationStateService.AnimateTransformAsync(transform, TransformAxis.Y, animationStateService.Config.SlideUpDistance, 0.0, animationStateService.Config.InitialLoadAnimationDurationMs, EaseOutBack, cancellationToken);
                     
                     await Task.WhenAll(opacityTask, transformTask);
                 }
@@ -205,36 +185,17 @@ public partial class DevicesListView : UserControl
                 finally
                 {
                     container.Transitions = originalTransitions;
+                    animationStateService.UnregisterAnimation("DevicesListView", index);
                 }
             });
-        }
-        finally
-        {
-            CleanupAnimation(index);
-            operationSemaphore.Release();
-        }
+        });
     }
 
     private async Task AnimateDeviceOut(Control container, int index)
     {
-        await operationSemaphore.WaitAsync();
-        
-        try
+        await animationStateService.ExecuteWithSemaphoreAsync(async () =>
         {
-            CancellationTokenSource? cts = null;
-            
-            lock (animationLock)
-            {
-                if (activeAnimations.TryGetValue(index, out var existingCts))
-                {
-                    existingCts.Cancel();
-                    existingCts.Dispose();
-                }
-                
-                cts = new CancellationTokenSource();
-                activeAnimations[index] = cts;
-                areAnimationsActive = true;
-            }
+            var cancellationToken = await animationStateService.RegisterAnimationAsync("DevicesListView", index);
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -243,12 +204,12 @@ public partial class DevicesListView : UserControl
 
                 try
                 {
-                    var transform = EnsureTranslateTransform(container, 0, 0);
+                    var transform = animationStateService.EnsureTranslateTransform(container, 0, 0);
 
-                    var opacityAnimation = CreateOpacityAnimation(1.0, 0.0, DeleteAnimationDurationMs, new QuadraticEaseIn());
+                    var opacityAnimation = animationStateService.CreateOpacityAnimation(1.0, 0.0, animationStateService.Config.DeleteAnimationDurationMs, new QuadraticEaseIn());
                     
-                    var opacityTask = opacityAnimation.RunAsync(container, cts.Token);
-                    var transformTask = AnimateTransformAsync(transform, Axis.X, 0.0, -SlideLeftDistance, DeleteAnimationDurationMs, EaseInQuad, cts.Token);
+                    var opacityTask = opacityAnimation.RunAsync(container, cancellationToken);
+                    var transformTask = animationStateService.AnimateTransformAsync(transform, TransformAxis.X, 0.0, -animationStateService.Config.SlideLeftDistance, animationStateService.Config.DeleteAnimationDurationMs, EaseInQuad, cancellationToken);
                     
                     await Task.WhenAll(opacityTask, transformTask);
                 }
@@ -258,17 +219,13 @@ public partial class DevicesListView : UserControl
                 finally
                 {
                     container.Transitions = originalTransitions;
+                    animationStateService.UnregisterAnimation("DevicesListView", index);
                 }
             });
-        }
-        finally
-        {
-            CleanupAnimation(index);
-            operationSemaphore.Release();
-        }
+        });
     }
-    
-    private async Task HideAllOtherDevices(int excludeIndex)
+
+    private async Task HideAllOtherDevices(int exceptIndex)
     {
         if (viewModel == null) return;
         
@@ -276,18 +233,19 @@ public partial class DevicesListView : UserControl
         
         for (int i = 0; i < viewModel.DeviceViews.Count; i++)
         {
-            if (i == excludeIndex) continue;
-            
-            var container = DevicesListInView.ContainerFromIndex(i) as Control;
-            if (container != null)
+            if (i != exceptIndex)
             {
-                hideTasks.Add(HideDevice(container, i));
+                var container = DevicesListInView.ContainerFromIndex(i) as Control;
+                if (container != null && container.Opacity > 0)
+                {
+                    hideTasks.Add(HideDevice(container, i));
+                }
             }
         }
         
         await Task.WhenAll(hideTasks);
     }
-    
+
     private async Task HideDevice(Control container, int index)
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -297,7 +255,7 @@ public partial class DevicesListView : UserControl
             
             try
             {
-                var hideAnimation = CreateOpacityAnimation(container.Opacity, 0.0, HideOthersAnimationDurationMs, new LinearEasing());
+                var hideAnimation = animationStateService.CreateOpacityAnimation(container.Opacity, 0.0, animationStateService.Config.HideOthersAnimationDurationMs, new LinearEasing());
                 await hideAnimation.RunAsync(container);
             }
             finally
@@ -306,10 +264,12 @@ public partial class DevicesListView : UserControl
             }
         });
     }
-    
+
     private async Task AnimateAllDevicesIn()
     {
         if (viewModel == null) return;
+        
+        await Task.Delay(100);
         
         var showTasks = new List<Task>();
         
@@ -318,7 +278,7 @@ public partial class DevicesListView : UserControl
             var container = DevicesListInView.ContainerFromIndex(i) as Control;
             if (container != null)
             {
-                int delay = i * StaggerDelayMs;
+                int delay = i * animationStateService.Config.StaggerDelayMs;
                 showTasks.Add(Task.Delay(delay).ContinueWith(_ => ShowDevice(container, i)).Unwrap());
             }
         }
@@ -335,110 +295,23 @@ public partial class DevicesListView : UserControl
             
             try
             {
-                var transform = EnsureTranslateTransform(container, 0, SlideUpDistance);
+                var transform = animationStateService.EnsureTranslateTransform(container, 0, animationStateService.Config.SlideUpDistance);
                 container.Opacity = 0;
                 
-                var showAnimation = CreateOpacityAnimation(0.0, 1.0, AnimationDurationMs, new QuadraticEaseOut());
+                var showAnimation = animationStateService.CreateOpacityAnimation(0.0, 1.0, animationStateService.Config.AnimationDurationMs, new QuadraticEaseOut());
                 
+                var cancellationToken = await animationStateService.RegisterAnimationAsync("DevicesListView", index);
                 var opacityTask = showAnimation.RunAsync(container);
-                var transformTask = AnimateTransformAsync(transform, Axis.Y, SlideUpDistance, 0.0, AnimationDurationMs, EaseOutBack, CancellationToken.None);
+                var transformTask = animationStateService.AnimateTransformAsync(transform, TransformAxis.Y, animationStateService.Config.SlideUpDistance, 0.0, animationStateService.Config.AnimationDurationMs, EaseOutBack, cancellationToken);
                 
                 await Task.WhenAll(opacityTask, transformTask);
             }
             finally
             {
                 container.Transitions = originalTransitions;
+                animationStateService.UnregisterAnimation("DevicesListView", index);
             }
         });
-    }
-
-    private TranslateTransform EnsureTranslateTransform(Control container, double x, double y)
-    {
-        if (container.RenderTransform is TranslateTransform transform)
-        {
-            transform.X = x;
-            transform.Y = y;
-            return transform;
-        }
-        
-        transform = new TranslateTransform(x, y);
-        container.RenderTransform = transform;
-        return transform;
-    }
-
-    private static Animation CreateOpacityAnimation(double from, double to, int durationMs, Easing easing)
-    {
-        return new Animation
-        {
-            Duration = TimeSpan.FromMilliseconds(durationMs),
-            FillMode = FillMode.Forward,
-            Easing = easing,
-            Children =
-            {
-                new KeyFrame
-                {
-                    Cue = new Cue(0d),
-                    Setters = { new Setter { Property = OpacityProperty, Value = from } }
-                },
-                new KeyFrame
-                {
-                    Cue = new Cue(1d),
-                    Setters = { new Setter { Property = OpacityProperty, Value = to } }
-                }
-            }
-        };
-    }
-
-    private enum Axis { X, Y }
-
-    private async Task AnimateTransformAsync(TranslateTransform transform, Axis axis, double from, double to, int durationMs, Func<double, double> easingFunction, CancellationToken cancellationToken)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        var duration = TimeSpan.FromMilliseconds(durationMs);
-        
-        while (stopwatch.Elapsed < duration && !cancellationToken.IsCancellationRequested)
-        {
-            var progress = Math.Min(stopwatch.Elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
-            var easedProgress = easingFunction(progress);
-            var currentValue = from + (to - from) * easedProgress;
-            
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                if (axis == Axis.X)
-                    transform.X = currentValue;
-                else
-                    transform.Y = currentValue;
-            });
-            
-            await Task.Delay(FrameDelayMs, cancellationToken);
-        }
-        
-        if (!cancellationToken.IsCancellationRequested)
-        {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                if (axis == Axis.X)
-                    transform.X = to;
-                else
-                    transform.Y = to;
-            });
-        }
-    }
-
-    private void CleanupAnimation(int index)
-    {
-        lock (animationLock)
-        {
-            if (activeAnimations.TryRemove(index, out var cts))
-            {
-                cts?.Dispose();
-            }
-            
-            if (activeAnimations.IsEmpty)
-            {
-                areAnimationsActive = false;
-            }
-        }
     }
     
     private static double EaseOutBack(double t)

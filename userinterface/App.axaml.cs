@@ -58,6 +58,7 @@ public partial class App : Application
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<FrameTimerService>();
         services.AddSingleton<PreviewChartRenderer>();
+        services.AddSingleton<IAnimationStateService, AnimationStateService>();
 
         // Register backend services
         services.AddSingleton<Bootstrapper>(provider => BootstrapBackEnd());
