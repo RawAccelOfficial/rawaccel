@@ -85,7 +85,7 @@ namespace grapher.Models.Calculations
             return (int)Math.Round(angleTransformed);
         }
 
-        public void Calculate(AccelChartData data, ManagedAccel accel, double starter, ICollection<SimulatedMouseInput> simulatedInputData)
+        public void Calculate(AccelChartData data, ManagedAccel accel, double starter, ICollection<SimulatedMouseInput> simulatedInputData, Profile settings = null)
         {
             double lastInputMagnitude = 0;
             double lastOutputMagnitude = 0;
@@ -101,6 +101,9 @@ namespace grapher.Models.Calculations
             int index = 0;
             int logIndex = 0;
 
+            bool shouldStripRotation = settings != null && ShouldStripRot(settings);
+            (double rotX, double rotY) = shouldStripRotation ? GetRotVector(settings) : (1.0, 0.0);
+
             foreach (var simulatedInputDatum in simulatedInputData)
             {
                 if (simulatedInputDatum.velocity <= 0)
@@ -109,7 +112,16 @@ namespace grapher.Models.Calculations
                 }
 
                 var output = accel.Accelerate(simulatedInputDatum.x, simulatedInputDatum.y, 1, simulatedInputDatum.time);
-                var outMagnitude = DecimalCheck(Velocity(output.Item1, output.Item2, simulatedInputDatum.time));
+
+                double outputX = output.Item1;
+                double outputY = output.Item2;
+
+                if (shouldStripRotation)
+                {
+                    (outputX, outputY) = StripRot(outputX, outputY, rotX, rotY);
+                }
+
+                var outMagnitude = DecimalCheck(Velocity(outputX, outputY, simulatedInputDatum.time));
                 var inDiff = Math.Round(simulatedInputDatum.velocity - lastInputMagnitude, 5);
                 var outDiff = Math.Round(outMagnitude - lastOutputMagnitude, 5);
 

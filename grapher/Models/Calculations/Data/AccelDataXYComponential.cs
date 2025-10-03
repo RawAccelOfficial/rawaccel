@@ -60,8 +60,8 @@ namespace grapher.Models.Calculations.Data
             Clear();
             var sensFactor = Helper.GetSensitivityFactor(settings);
             var sensY = sensFactor * settings.yxOutputDPIRatio;
-            Calculator.Calculate(X, accel, sensFactor, Calculator.SimulatedInputX);
-            Calculator.Calculate(Y, accel, sensY, Calculator.SimulatedInputY);
+            Calculator.Calculate(X, accel, sensFactor, Calculator.SimulatedInputX, settings);
+            Calculator.Calculate(Y, accel, sensY, Calculator.SimulatedInputY, settings);
         }
     }
 }
