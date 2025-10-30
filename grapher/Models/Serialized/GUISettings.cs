@@ -41,6 +41,13 @@ namespace grapher.Models.Serialized
         [DefaultValue("Light Theme")]
         public string CurrentColorScheme { get; set; }
 
+        [JsonIgnore]
+        public static string GuiConfigFileName {
+            get {
+                return Path.Combine(Helper.GetCfgPath(), ".config");
+            }
+        }
+
         #endregion Properties
 
         #region Methods
@@ -79,7 +86,7 @@ namespace grapher.Models.Serialized
 
         public void Save()
         {
-            File.WriteAllText(Constants.GuiConfigFileName, JsonConvert.SerializeObject(this));
+            File.WriteAllText(GuiConfigFileName, JsonConvert.SerializeObject(this));
         }
 
         public static GUISettings MaybeLoad()
@@ -89,7 +96,7 @@ namespace grapher.Models.Serialized
             try
             {
                 settings = JsonConvert.DeserializeObject<GUISettings>(
-                    File.ReadAllText(Constants.GuiConfigFileName));
+                    File.ReadAllText(GuiConfigFileName));
             }
             catch (Exception ex)
             {

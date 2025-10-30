@@ -361,7 +361,8 @@ namespace grapher
 
                 try
                 {
-                    if (!gui) lnk.Arguments = Constants.DefaultSettingsFileName;
+                    if (!gui) lnk.Arguments = Helper.GetDefaultSettingsFilePath();
+
                     lnk.TargetPath = $@"{Application.StartupPath}\{name}.exe";
                     lnk.Save();
                 }

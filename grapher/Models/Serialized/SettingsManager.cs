@@ -188,7 +188,7 @@ namespace grapher.Models.Serialized
 
                 UserConfig = settings;
                 ActiveConfig = settings;
-                File.WriteAllText(Constants.DefaultSettingsFileName, settings.ToJSON());
+                File.WriteAllText(Helper.GetDefaultSettingsFilePath(), settings.ToJSON());
 
                 new Thread(() => ActiveConfig.Activate()).Start();
             }
@@ -300,7 +300,7 @@ namespace grapher.Models.Serialized
 
         private DriverConfig InitActiveAndGetUserConfig()
         {
-            var path = Constants.DefaultSettingsFileName;
+            var path = Helper.GetDefaultSettingsFilePath();
             if (File.Exists(path))
             {
                 try

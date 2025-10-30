@@ -1,4 +1,4 @@
-﻿using System;
+﻿using grapher.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace grapher.Models.Theming.IO
 
         public IEnumerable<ColorScheme> LoadThemes()
         {
-            ThemePath = Path.Combine(Environment.CurrentDirectory, "themes");
+            ThemePath = Path.Combine(Helper.GetCfgPath(), "themes");
 
             var pathFound = Directory.Exists(ThemePath);
 
