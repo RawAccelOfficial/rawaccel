@@ -123,11 +123,6 @@ namespace grapher.Common
         /// <summary> Text for y component. </summary>
         public const string YComponent = "Y";
 
-        /// <summary> Default name of settings file. </summary>
-        public const string DefaultSettingsFileName = @"settings.json";
-
-        public const string GuiConfigFileName = ".config";
-
         /// <summary> Text to directionality panel title when panel is closed. </summary>
         public const string DirectionalityTitleClosed = "Anisotropy \u25BC";
 
