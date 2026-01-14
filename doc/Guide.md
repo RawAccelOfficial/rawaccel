@@ -24,18 +24,55 @@ Raw Accel, like any mouse modification program, works by acting on a passed-in $
 - **Sensitivity**: The ratio of the output speed to the input speed. The "sensitivity multiplier" parameter in the program is a multiplier used on the post-calculation output vector.
 - **(Output) Velocity**: The speed of the final output vector. The output vs input velocity curve is perhaps the most important relationship in a particular setup because it directly describes the output for any given input. (We use "speed" and "velocity" interchangeably, and are aware of the difference elsewhere.)
 - **Gain**: The slope of the output vs input velocity curve. It answers the question: "if I move my hand a little faster, how much faster will my cursor move?" The relationship between gain and sensitivity is that if gain is continuous, so is sensitivity. The reverse is not necessarily true, so keeping the gain "nice" ensures "nice" sensitivity but not vice versa.
-- For the mathematically inclined: for input speed $v$ and Output Velocity $f(v)$, Sensitivity is $f(v)/v$ and Gain is $f'(v) = \frac{\mathrm d}{\mathrm d v} \left ( f(v) \right)$.
+- For the mathematically inclined: for
+  - $v$ input speed and
+  - $f(v)$ Output Velocity
+  - $f(v)/v$ is Sensitivity
+  - $f'(v) = \frac{\mathrm d}{\mathrm d v} \left ( f(v) \right)$ is Gain
 
 Acceleration, then, is a characteristic of the velocity curve, defined as true when the velocity curve is non-linear for any input speed.
 
 ### Example
 The above is much more clear with an example. Let's say I have 
-- linear acceleration with acceleration parameter of 0.01
-- a sensitivity parameter of 0.5
+- linear acceleration $1 + av_i$ with acceleration parameter of $a = 0.01$ (`Acceleration` in the middle of the UI)
+- a sensitivity parameter $m$ of $0.5$ (`Sens Multiplier` at the top of the UI)
 
-and I move my mouse to create an input of $(30,40)$ at a poll rate of 1000 hz.
+and I move my mouse to create an input $x,y$ of $(30,40)$ at a poll rate $f$ of 1000 Hz.
 
-Then our input speed is $\sqrt{30^2 + 40^2} = 50$ counts/ms. Our accelerated sensitivity is calculated to be $(1 + 0.01 * 50) * 0.5 = 1.5 * 0.5 = 0.75$. So our output velocity is $0.75 * 50  = 37.5$. If I run the previous calculations with input speed 49.9 I get output velocity 37.40005, so our gain is about $\frac{37.5-37.40005}{50-49.9} = 0.9995$. Here is a picture of the charts in Raw Accel showing the same thing:
+Then we have the following **input** parameters:
+|Parameter         	| Value	| Unit     	| Formula             	| Calculation         	|
+|:-                	|    -:	| :-       	| :-                  	| :-                  	|
+|$d$ distance      	| $50$ 	| counts   	| $\sqrt{Δx^2 + Δy^2}$	| $\sqrt{30^2 + 40^2}$	|
+|$t$ time          	| $1$  	| ms       	| $f^{−1}$ sec        	| $1/1000$            	|
+|$v_i$ **velocity**	| $50$ 	| counts/ms	| $d/t$               	| $50/1$              	|
+
+…**transformation**:
+|Parameter                        	| Value 	| Unit	| Formula               	| Calculation  	|
+|:-                               	|    -: 	| :-  	| :-                    	| :-           	|
+|$v_a$ accelerated<br/> velocity  	| $1.5$ 	|     	| $(1 + av_i)$          	| $1 + 0.01⋅50$	|
+|$s_a$ accelerated<br/>sensitivity	| $0.75$	|     	| $v_a⋅m$<br/>$≝v_o/v_i$	| $1.5⋅0.5$    	|
+
+…and **output**:
+|Parameter     	| Value 	| Unit     	| Formula  	| Calculation	|
+|:-            	|    -: 	| :-       	| :-       	| :-         	|
+|$v_o$ velocity	| $37.5$	| counts/ms	| $s_a⋅v_i$	| $0.75⋅50$  	|
+
+
+If I run the previous calculations with slighly lower/higher input speeds of $49.9$ / $50.1$ I get output velocity $37.40005$ / $37.60005$:
+|Input velocity	| Output velocity	| Calculation             	|
+|:-            	| :-             	| :-:                     	|
+|$49.9$        	| $37.40005$     	| $(1+0.01⋅49.9)⋅0.5⋅49.9$	|
+|$50$          	| $37.5$         	| $(1+0.01⋅50  )⋅0.5⋅50$  	|
+|$50.1$        	| $37.60005$     	| $(1+0.01⋅50.1)⋅0.5⋅50.1$	|
+
+So our gain is:
+|Parameter     	| Value   	| Unit	| Formula    	| Calculation                    	|
+|:-            	|    -:   	| :-  	| :-         	| :-                             	|
+|gain from prev	| $0.9995$	|     	| $Δv_o/Δv_i$	| $\frac{37.5-37.40005}{50-49.9}$	|
+|gain to next  	| $1.0005$	|     	| $Δv_o/Δv_i$	| $\frac{37.60005-37.5}{50.1-50}$	|
+
+
+Here is a picture of the charts in Raw Accel showing the same thing (with orange markers to help match the calculations above):
 
 ![SensVelocityGainExample](images/accel_readme_example.png)
 
@@ -86,7 +123,7 @@ $$(out_x, out_y) = (in_x * sens_x, in_y * sens_y) * \left(\left(f\left( \text{do
 
 This formula guarantees the smooth transition from the horizontal to vertical curve and vice versa as the user moves their hand diagonally.
 
-#### ***By Component***  
+#### ***By Component***
 In this case, the horizontal components are separated and each is given as input to the sensitivity calculation to multiplied by itself before being recombined at output.
 
 $$(out_x, out_y) = (in_x * f(in_x) * sens_x, in_y * f(in_y) * sens_y))$$
