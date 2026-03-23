@@ -72,6 +72,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpeedTests.cs" />
     <Compile Include="SynchronousAccelTests.cs" />
+    <Compile Include="ThresholdTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
