@@ -21,17 +21,44 @@
 		</Style>
 	</UserControl.Styles>
 	<ScrollViewer>
-		<StackPanel Orientation="Vertical"
-					HorizontalAlignment="Stretch"
-					Margin="16"
-					Spacing="12">
-			<Grid Classes="FormRow" ColumnDefinitions="200,*">
-				<TextBlock Grid.Column="0" Text="{ext:Localized ProfileOutputDPI}"/>
-				<ContentControl Grid.Column="1" Content="{Binding OutputDPIField}"/>
+		<StackPanel Spacing="12" Grid.IsSharedSizeScope="True">
+			<!-- Output DPI -->
+			<Grid Classes="FormRow">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" SharedSizeGroup="FieldLabel"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+
+				<TextBlock Grid.Column="0"
+						   MaxWidth="240"
+						   TextTrimming="CharacterEllipsis"
+						   TextWrapping="NoWrap"
+						   VerticalAlignment="Center"
+						   Text="{ext:Localized ProfileOutputDPI}"/>
+
+				<ContentControl Grid.Column="1"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Center"
+								Content="{Binding OutputDPIField}"/>
 			</Grid>
-			<Grid Classes="FormRow" ColumnDefinitions="200,*">
-				<TextBlock Grid.Column="0" Text="{ext:Localized ProfileYXRatio}"/>
-				<ContentControl Grid.Column="1" Content="{Binding YXRatioField}"/>
+			<!-- YX Ratio -->
+			<Grid Classes="FormRow">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" SharedSizeGroup="FieldLabel"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+
+				<TextBlock Grid.Column="0"
+						   MaxWidth="240"
+						   TextTrimming="CharacterEllipsis"
+						   TextWrapping="NoWrap"
+						   VerticalAlignment="Center"
+						   Text="{ext:Localized ProfileYXRatio}"/>
+
+				<ContentControl Grid.Column="1"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Center"
+								Content="{Binding YXRatioField}"/>
 			</Grid>
 			<ContentControl Content="{Binding AccelerationSettings}"/>
 			<ContentControl Content="{Binding HiddenSettings}"/>

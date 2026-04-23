@@ -45,18 +45,24 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid ColumnDefinitions="*,*" Margin="8">
+	<Grid Margin="8" Grid.IsSharedSizeScope="True">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" SharedSizeGroup="FieldLabel"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+
 		<TextBlock Grid.Column="0"
-                   x:Name="NameTextBlock"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Center"
-                   TextWrapping="Wrap"
-                   Text="{Binding Name}"
-                   Margin="0,0,12,0" />
+				   x:Name="NameTextBlock"
+				   MaxWidth="240"
+				   TextTrimming="CharacterEllipsis"
+				   TextWrapping="NoWrap"
+				   ToolTip.Tip="{Binding Name}"
+				   Text="{Binding Name}"
+				   VerticalAlignment="Center"/>
 
 		<CheckBox Grid.Column="1"
-                  HorizontalAlignment="Right"
-                  VerticalAlignment="Center"
-                  IsChecked="{Binding ValueInDisplay}" />
+				  HorizontalAlignment="Left"
+				  VerticalAlignment="Center"
+				  IsChecked="{Binding ValueInDisplay}" />
 	</Grid>
 </UserControl>

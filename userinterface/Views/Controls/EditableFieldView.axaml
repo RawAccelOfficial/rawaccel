@@ -50,6 +50,8 @@
              KeyDown="TextBox_KeyDown"
              LostFocus="LostFocusHandler"
              TextChanged="TextChangedHandler"
-             TextWrapping="Wrap"
+             TextWrapping="NoWrap"
+			 MinWidth="80"
+			 HorizontalAlignment="Stretch"
              Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}" />
 </UserControl>

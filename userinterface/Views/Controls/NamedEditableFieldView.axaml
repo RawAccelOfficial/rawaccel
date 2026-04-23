@@ -26,18 +26,23 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid ColumnDefinitions="Auto,*" Margin="0,2,0,2">
+	<Grid Grid.IsSharedSizeScope="True">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" SharedSizeGroup="FieldLabel"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
 		<TextBlock Grid.Column="0"
-                   x:Name="FieldNameTextBlock"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Center"
-                   TextWrapping="Wrap"
-                   Text="{Binding Name}"
-                   Margin="0,0,0,0" />
+				   x:Name="FieldNameTextBlock"
+				   MaxWidth="240"
+				   TextTrimming="CharacterEllipsis"
+				   VerticalAlignment="Center"
+			       TextWrapping="NoWrap"
+				   Text="{Binding Name}"
+				   ToolTip.Tip="{Binding Name}"/>
 
 		<ContentControl Grid.Column="1"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        Content="{Binding Field}" />
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Center"
+						Content="{Binding Field}" />
 	</Grid>
 </UserControl>

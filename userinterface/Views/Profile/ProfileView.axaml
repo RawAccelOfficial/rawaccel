@@ -18,17 +18,23 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid ColumnDefinitions="3*,7*">
-		<Border Grid.Column="0"
-				Classes="SectionBorder"
-				Margin="0,0,8,0">
-			<ContentControl Content="{Binding Settings}"/>
-		</Border>
-
-		<Border Grid.Column="1"
-				Classes="SectionBorder"
-				Margin="8,0,0,0">
-			<ContentControl Content="{Binding Chart}"/>
-		</Border>
-	</Grid>
+	<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+		<Grid ColumnSpacing="16">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" MinWidth="360"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+			<!-- Settings -->
+			<Border Grid.Column="0" 
+					Classes="SectionBorder">
+				<ContentControl Content="{Binding Settings}"/>
+			</Border>
+			<!-- Chart -->
+			<Border Grid.Column="1" 
+					Classes="SectionBorder"
+					Width="620" MinWidth="520" MaxWidth="820">
+				<ContentControl Content="{Binding Chart}"/>
+			</Border>
+		</Grid>
+	</ScrollViewer>
 </UserControl>
