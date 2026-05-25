@@ -219,9 +219,9 @@ public partial class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    public void Apply()
+    public bool Apply()
     {
-        BackEnd.Apply();
+        return BackEnd.Apply();
     }
 
     private void ToggleTheme()

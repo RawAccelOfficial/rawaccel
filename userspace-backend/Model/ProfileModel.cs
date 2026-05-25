@@ -12,6 +12,7 @@ using userspace_backend.Model.AccelDefinitions;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
 using DATA = userspace_backend.Data;
+using Profile = RawAccel.Contracts.RawAccelProfile;
 
 namespace userspace_backend.Model
 {

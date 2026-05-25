@@ -77,10 +77,20 @@ namespace userspace_backend.Model.ProfileComponents
         {
             if (data == null) return false;
 
-            return DomainX.TryUpdateModelDirectly(data.Domain.X)
-                & DomainY.TryUpdateModelDirectly(data.Domain.Y)
-                & RangeX.TryUpdateModelDirectly(data.Range.X)
-                & RangeY.TryUpdateModelDirectly(data.Range.Y)
+            // Identity weights ((1,1),(1,1)) are the only meaningful defaults; a (0,0) vector
+            // was written by an older buggy fallback and produces a degenerate flat curve.
+            // Substitute identity for that specific corrupted shape on load.
+            Vector2 domain = (data.Domain == null || (data.Domain.X == 0 && data.Domain.Y == 0))
+                ? new Vector2 { X = 1, Y = 1 }
+                : data.Domain;
+            Vector2 range = (data.Range == null || (data.Range.X == 0 && data.Range.Y == 0))
+                ? new Vector2 { X = 1, Y = 1 }
+                : data.Range;
+
+            return DomainX.TryUpdateModelDirectly(domain.X)
+                & DomainY.TryUpdateModelDirectly(domain.Y)
+                & RangeX.TryUpdateModelDirectly(range.X)
+                & RangeY.TryUpdateModelDirectly(range.Y)
                 & LPNorm.TryUpdateModelDirectly(data.LPNorm)
                 & CombineXYComponents.TryUpdateModelDirectly(data.CombineXYComponents);
         }

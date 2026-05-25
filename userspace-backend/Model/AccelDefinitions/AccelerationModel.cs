@@ -4,6 +4,7 @@ using userspace_backend.Data.Profiles;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
 using static userspace_backend.Data.Profiles.Acceleration;
+using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
 
 namespace userspace_backend.Model.AccelDefinitions
 {
@@ -77,8 +78,8 @@ namespace userspace_backend.Model.AccelDefinitions
             else
                 result &= Anisotropy.TryMapFromData(new Anisotropy
                 {
-                    Domain = new Vector2(),
-                    Range = new Vector2(),
+                    Domain = new Vector2 { X = 1, Y = 1 },
+                    Range = new Vector2 { X = 1, Y = 1 },
                     LPNorm = 2.0,
                     CombineXYComponents = false
                 });

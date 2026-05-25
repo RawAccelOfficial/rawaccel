@@ -85,6 +85,7 @@
 			                    XAxes="{Binding XAxes}"
 			                    YAxes="{Binding YAxes}"
 			                    TooltipPosition="Top"
+			                    TooltipFindingStrategy="CompareOnlyXTakeClosest"
 			                    TooltipTextPaint="{Binding TooltipTextPaint}"
 			                    TooltipBackgroundPaint="{Binding TooltipBackgroundPaint}"
 			                    TooltipTextSize="12"

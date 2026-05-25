@@ -1,11 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RawAccel.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using userspace_backend;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Data.Profiles.Accel;
+using userspace_backend.Data.Profiles.Accel.Formula;
+using userspace_backend.Driver;
 using userspace_backend.IO;
 using userspace_backend.Model;
 using userspace_backend.Model.AccelDefinitions;
@@ -56,19 +59,31 @@ namespace userspace_backend_tests.ModelTests
             public string HWID { get; init; } = string.Empty;
         }
 
-        private sealed class CapturingDriverConfigActivator : IDriverConfigActivator
+        // Captures whatever the BackEnd hands to its driver. Implements
+        // IRawAccelDriver so these tests exercise the apply path without
+        // touching wrapper.dll or a real backend.
+        private sealed class CapturingDriver : IRawAccelDriver
         {
-            public DriverConfig? CapturedConfig { get; private set; }
-            public int WriteCount { get; private set; }
+            public RawAccelConfig? CapturedConfig { get; private set; }
+            public int ApplyCount { get; private set; }
 
-            public void Write(DriverConfig config)
+            public bool IsAvailable => true;
+
+            public bool Apply(RawAccelConfig config)
             {
                 CapturedConfig = config;
-                WriteCount++;
+                ApplyCount++;
+                return true;
             }
+
+            public RawAccelConfig Read() => CapturedConfig ?? new RawAccelConfig();
+
+            public void Deactivate() { }
+
+            public double GetCurrentMouseSpeed() => 0;
         }
 
-        private static (IBackEnd backEnd, CapturingDriverConfigActivator activator) BuildBackEndWithDefaults(
+        private static (IBackEnd backEnd, CapturingDriver driver) BuildBackEndWithDefaults(
             IList<ISystemDevice>? systemDevices = null)
         {
             var services = new ServiceCollection();
@@ -78,26 +93,26 @@ namespace userspace_backend_tests.ModelTests
             {
                 Devices = systemDevices ?? new List<ISystemDevice>(),
             });
-            var activator = new CapturingDriverConfigActivator();
-            services.AddSingleton<IDriverConfigActivator>(activator);
+            var driver = new CapturingDriver();
+            services.AddSingleton<IRawAccelDriver>(driver);
 
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
             backEnd.Load();
-            return (backEnd, activator);
+            return (backEnd, driver);
         }
 
-        private static DriverConfig ApplyAndCapture(IBackEnd backEnd, CapturingDriverConfigActivator activator)
+        private static RawAccelConfig ApplyAndCapture(IBackEnd backEnd, CapturingDriver driver)
         {
             backEnd.Apply();
-            Assert.IsNotNull(activator.CapturedConfig, "Apply should have written a DriverConfig to the activator.");
-            return activator.CapturedConfig!;
+            Assert.IsNotNull(driver.CapturedConfig, "Apply should have handed a RawAccelConfig to the driver.");
+            return driver.CapturedConfig!;
         }
 
         [TestMethod]
         public void EnsureDefaultMapping_FreshInstall_CreatesMappingWithDefaultEntry()
         {
-            var (backEnd, activator) = BuildBackEndWithDefaults();
+            var (backEnd, driver) = BuildBackEndWithDefaults();
 
             Assert.IsTrue(
                 backEnd.Mappings.TryGetMapping("Default", out MappingModel? mapping) && mapping != null,
@@ -108,7 +123,7 @@ namespace userspace_backend_tests.ModelTests
             Assert.AreEqual(DeviceGroups.DefaultDeviceGroup, mapping.IndividualMappings[0].DeviceGroup);
             Assert.AreEqual("Default", mapping.IndividualMappings[0].Profile.Name.ModelValue);
 
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var cfg = ApplyAndCapture(backEnd, driver);
             Assert.AreEqual(1, cfg.profiles.Count);
             Assert.AreEqual(1, cfg.devices.Count);
         }
@@ -121,8 +136,8 @@ namespace userspace_backend_tests.ModelTests
             var services = new ServiceCollection();
             services.AddSingleton<IBackEndLoader>(staleLoader);
             services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
-            var activator = new CapturingDriverConfigActivator();
-            services.AddSingleton<IDriverConfigActivator>(activator);
+            var driver = new CapturingDriver();
+            services.AddSingleton<IRawAccelDriver>(driver);
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
             backEnd.Load();
@@ -134,7 +149,7 @@ namespace userspace_backend_tests.ModelTests
                 1, mapping!.IndividualMappings.Count,
                 "Stale empty Default mapping must self-heal to one DefaultDeviceGroup -> Default entry.");
 
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var cfg = ApplyAndCapture(backEnd, driver);
             Assert.AreEqual(1, cfg.profiles.Count);
             Assert.AreEqual(1, cfg.devices.Count);
         }
@@ -168,8 +183,8 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void Apply_DefaultState_ProducesOneProfileAndOneDevice()
         {
-            var (backEnd, activator) = BuildBackEndWithDefaults();
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var (backEnd, driver) = BuildBackEndWithDefaults();
+            var cfg = ApplyAndCapture(backEnd, driver);
 
             Assert.AreEqual(1, cfg.profiles.Count, "Expected exactly one profile in the DriverConfig.");
             Assert.AreEqual(1, cfg.devices.Count, "Expected exactly one device in the DriverConfig.");
@@ -183,8 +198,8 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void Apply_DefaultState_DeviceReferencesDefaultProfileByName()
         {
-            var (backEnd, activator) = BuildBackEndWithDefaults();
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var (backEnd, driver) = BuildBackEndWithDefaults();
+            var cfg = ApplyAndCapture(backEnd, driver);
 
             var device = cfg.devices[0];
             var profile = cfg.profiles[0];
@@ -197,25 +212,25 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void Apply_ProfileOutputDpiEdit_FlowsIntoDriverConfig()
         {
-            var (backEnd, activator) = BuildBackEndWithDefaults();
+            var (backEnd, driver) = BuildBackEndWithDefaults();
             var profile = backEnd.Profiles.Elements[0];
 
             Assert.IsTrue(profile.OutputDPI.TryUpdateModelDirectly(1600), "OutputDPI update should succeed.");
 
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var cfg = ApplyAndCapture(backEnd, driver);
             Assert.AreEqual(1600, cfg.profiles[0].outputDPI);
         }
 
         [TestMethod]
         public void Apply_DeviceDpiEdit_DoesNotAffectPollingRate()
         {
-            var (backEnd, activator) = BuildBackEndWithDefaults();
+            var (backEnd, driver) = BuildBackEndWithDefaults();
             var device = backEnd.Devices.Elements[0];
 
             Assert.IsTrue(device.DPI.TryUpdateModelDirectly(3200), "DPI update should succeed.");
             Assert.IsTrue(device.PollRate.TryUpdateModelDirectly(500), "PollRate update should succeed.");
 
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var cfg = ApplyAndCapture(backEnd, driver);
             Assert.AreEqual(3200, cfg.devices[0].config.dpi);
             Assert.AreEqual(500, cfg.devices[0].config.pollingRate);
         }
@@ -280,7 +295,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<IBackEndLoader>(new StubBackEndLoader());
             var retrieverStub = new StubSystemDevicesRetriever { Devices = initial };
             services.AddSingleton<ISystemDevicesRetriever>(retrieverStub);
-            services.AddSingleton<IDriverConfigActivator>(new CapturingDriverConfigActivator());
+            services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
 
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
@@ -313,7 +328,7 @@ namespace userspace_backend_tests.ModelTests
             // must propagate through EditableSettingsSelector.AnySettingChanged up to
             // ProfileModel.RecalculateDriverData so CurrentValidatedDriverProfile refreshes
             // before BackEnd.Apply() reads it via MapToDriverConfig.
-            var (backEnd, activator) = BuildBackEndWithDefaults();
+            var (backEnd, driver) = BuildBackEndWithDefaults();
             var profile = backEnd.Profiles.Elements[0];
 
             Assert.IsTrue(
@@ -337,13 +352,259 @@ namespace userspace_backend_tests.ModelTests
                 classic.Acceleration.TryUpdateModelDirectly(expectedAcceleration),
                 "Classic.Acceleration update should succeed.");
 
-            var cfg = ApplyAndCapture(backEnd, activator);
+            var cfg = ApplyAndCapture(backEnd, driver);
             Assert.AreEqual(AccelMode.classic, cfg.profiles[0].argsX.mode,
                 "DriverConfig should reflect the chosen Classic formula.");
             Assert.AreEqual(expectedAcceleration, cfg.profiles[0].argsX.acceleration,
                 "DriverConfig should reflect the tweaked Classic.Acceleration coefficient. " +
                 "If this fails with the default coefficient, EditableSettingsSelector is not " +
                 "propagating nested sub-model changes up to ProfileModel.");
+        }
+
+        // Regression: a saved ClassicAccel used to StackOverflow on Load via
+        // EditableSettingsSelectable.TryMapFromData recursing into itself.
+        private sealed class ClassicAccelLoader : IBackEndLoader
+        {
+            public IEnumerable<DATA.Device> LoadDevices() => Array.Empty<DATA.Device>();
+            public DATA.MappingSet LoadMappings() => new DATA.MappingSet
+            {
+                Mappings = Array.Empty<DATA.Mapping>(),
+                ActiveMappingIndex = 0,
+            };
+            public IEnumerable<DATA.Profile> LoadProfiles() => new[]
+            {
+                new DATA.Profile
+                {
+                    Name = "Default",
+                    OutputDPI = 1000,
+                    YXRatio = 1,
+                    Acceleration = new ClassicAccel
+                    {
+                        Acceleration = 0.05,
+                        Exponent = 2.3,
+                        Offset = 1.5,
+                        Cap = 4.0,
+                        Gain = true,
+                    },
+                    Hidden = new Hidden(),
+                },
+            };
+            public DATA.Settings? LoadSettings() => null;
+            public void WriteSettingsToDisk(
+                IEnumerable<IDeviceModel> devices,
+                MappingsModel mappings,
+                IEnumerable<IProfileModel> profiles) { }
+            public void WriteSettings(DATA.Settings settings) { }
+        }
+
+        [TestMethod]
+        public void Load_ProfileWithClassicAccel_DoesNotRecurse()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IBackEndLoader>(new ClassicAccelLoader());
+            services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
+            services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            var sp = BackEndComposer.Compose(services);
+            var backEnd = sp.GetRequiredService<IBackEnd>();
+
+            backEnd.Load();
+
+            var profile = backEnd.Profiles.Elements.Single();
+            Assert.AreEqual(Acceleration.AccelerationDefinitionType.Formula,
+                profile.Acceleration.DefinitionType.ModelValue);
+            var formula = (FormulaAccelModel)profile.Acceleration.GetSelectable(
+                Acceleration.AccelerationDefinitionType.Formula);
+            Assert.AreEqual(FormulaAccel.AccelerationFormulaType.Classic,
+                formula.FormulaType.ModelValue);
+            var classic = (ClassicAccelerationDefinitionModel)formula.GetSelectable(
+                FormulaAccel.AccelerationFormulaType.Classic);
+            Assert.AreEqual(0.05, classic.Acceleration.ModelValue);
+            Assert.AreEqual(2.3, classic.Exponent.ModelValue);
+            Assert.AreEqual(1.5, classic.Offset.ModelValue);
+            Assert.AreEqual(4.0, classic.Cap.ModelValue);
+        }
+
+        // Regression: an older AccelerationModel fallback wrote
+        // Anisotropy.Domain={0,0} / Range={0,0} when the on-disk profile had a
+        // missing Anisotropy block. Those zeros then round-tripped back to disk
+        // and degenerated the preview curve to a flat line (domain=0 collapses
+        // input speed to 0; range=0 collapses scale to 1). Loading a profile
+        // with the legacy all-zero Anisotropy must sanitize back to identity
+        // weights so the curve preview is meaningful.
+        private sealed class ZeroAnisotropyLoader : IBackEndLoader
+        {
+            public IEnumerable<DATA.Device> LoadDevices() => Array.Empty<DATA.Device>();
+            public DATA.MappingSet LoadMappings() => new DATA.MappingSet
+            {
+                Mappings = Array.Empty<DATA.Mapping>(),
+                ActiveMappingIndex = 0,
+            };
+            public IEnumerable<DATA.Profile> LoadProfiles() => new[]
+            {
+                new DATA.Profile
+                {
+                    Name = "Default",
+                    OutputDPI = 1000,
+                    YXRatio = 1,
+                    Acceleration = new ClassicAccel
+                    {
+                        Acceleration = 0.01,
+                        Anisotropy = new Anisotropy
+                        {
+                            Domain = new Vector2 { X = 0, Y = 0 },
+                            Range = new Vector2 { X = 0, Y = 0 },
+                            LPNorm = 2,
+                            CombineXYComponents = false,
+                        },
+                    },
+                    Hidden = new Hidden(),
+                },
+            };
+            public DATA.Settings? LoadSettings() => null;
+            public void WriteSettingsToDisk(
+                IEnumerable<IDeviceModel> devices,
+                MappingsModel mappings,
+                IEnumerable<IProfileModel> profiles) { }
+            public void WriteSettings(DATA.Settings settings) { }
+        }
+
+        [TestMethod]
+        public void Load_ProfileWithZeroAnisotropy_SanitizesToIdentityWeights()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IBackEndLoader>(new ZeroAnisotropyLoader());
+            services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
+            services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            var sp = BackEndComposer.Compose(services);
+            var backEnd = sp.GetRequiredService<IBackEnd>();
+
+            backEnd.Load();
+
+            var aniso = backEnd.Profiles.Elements.Single().Acceleration.Anisotropy;
+            Assert.AreEqual(1.0, aniso.DomainX.ModelValue,
+                "DomainX must be sanitized to identity; zero collapses input speed to 0.");
+            Assert.AreEqual(1.0, aniso.DomainY.ModelValue);
+            Assert.AreEqual(1.0, aniso.RangeX.ModelValue,
+                "RangeX must be sanitized to identity; zero collapses curve scale to 1.");
+            Assert.AreEqual(1.0, aniso.RangeY.ModelValue);
+        }
+
+        // Simulates the user-reported flow: app boots with a Default profile of
+        // Type=None on disk, user switches DefinitionType to Formula then picks
+        // Classic and edits a coefficient. The chained Apply must see the
+        // Classic args in the RawAccelConfig the driver receives.
+        [TestMethod]
+        public void TypeChange_FromNoneToClassic_FlowsThroughApply()
+        {
+            var (backEnd, driver) = BuildBackEndWithDefaults();
+            var profile = backEnd.Profiles.Elements[0];
+
+            Assert.AreEqual(Acceleration.AccelerationDefinitionType.None,
+                profile.Acceleration.DefinitionType.ModelValue,
+                "Test precondition: fresh-install profile is Type=None.");
+
+            Assert.IsTrue(profile.Acceleration.DefinitionType.TryUpdateModelDirectly(
+                Acceleration.AccelerationDefinitionType.Formula));
+
+            var formula = (FormulaAccelModel)profile.Acceleration.GetSelectable(
+                Acceleration.AccelerationDefinitionType.Formula);
+
+            Assert.IsTrue(formula.FormulaType.TryUpdateModelDirectly(
+                FormulaAccel.AccelerationFormulaType.Classic));
+
+            var classic = (ClassicAccelerationDefinitionModel)formula.GetSelectable(
+                FormulaAccel.AccelerationFormulaType.Classic);
+            Assert.IsTrue(classic.Acceleration.TryUpdateModelDirectly(0.42));
+
+            var cfg = ApplyAndCapture(backEnd, driver);
+            Assert.AreEqual(RawAccel.Contracts.AccelMode.classic, cfg.profiles[0].argsX.mode,
+                "Apply must see Classic mode after the user-driven type change.");
+            Assert.AreEqual(0.42, cfg.profiles[0].argsX.acceleration,
+                "Apply must see the edited Classic coefficient, not stale state.");
+        }
+
+        // Regression: a user-created device group (e.g. "DeviceGroup0") was lost
+        // on reload because DeviceGroups.DeviceGroupModels is the master list
+        // backing the UI dropdown and MappingModel.TryAddMapping, but is never
+        // rehydrated from devices.json or mappings.json. Symptoms:
+        //   1. devices.json keeps device.DeviceGroup="DeviceGroup0" - this part
+        //      survives, but the UI dropdown only shows "Default".
+        //   2. mappings.json has DeviceGroup0 -> Some Profile, but TryAddMapping
+        //      rejects the row because "DeviceGroup0" isn't registered.
+        private sealed class CustomDeviceGroupLoader : IBackEndLoader
+        {
+            public IEnumerable<DATA.Device> LoadDevices() => new[]
+            {
+                new DATA.Device
+                {
+                    Name = "Mouse In Custom Group",
+                    HWID = @"HID\VID_1111&PID_2222",
+                    DPI = 1000,
+                    PollingRate = 1000,
+                    DeviceGroup = "DeviceGroup0",
+                },
+            };
+            public DATA.MappingSet LoadMappings() => new DATA.MappingSet
+            {
+                Mappings = new[]
+                {
+                    new DATA.Mapping
+                    {
+                        Name = "Default",
+                        GroupsToProfiles = new DATA.Mapping.GroupsToProfilesMapping
+                        {
+                            { "Default", "Default" },
+                            { "DeviceGroup0", "Default" },
+                        },
+                    },
+                },
+                ActiveMappingIndex = 0,
+            };
+            public IEnumerable<DATA.Profile> LoadProfiles() => new[]
+            {
+                new DATA.Profile
+                {
+                    Name = "Default",
+                    OutputDPI = 1000,
+                    YXRatio = 1,
+                    Acceleration = new userspace_backend.Data.Profiles.Accel.NoAcceleration(),
+                    Hidden = new Hidden(),
+                },
+            };
+            public DATA.Settings? LoadSettings() => null;
+            public void WriteSettingsToDisk(
+                IEnumerable<IDeviceModel> devices,
+                MappingsModel mappings,
+                IEnumerable<IProfileModel> profiles) { }
+            public void WriteSettings(DATA.Settings settings) { }
+        }
+
+        [TestMethod]
+        public void Load_CustomDeviceGroupInDevicesAndMappings_RestoresGroupList()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IBackEndLoader>(new CustomDeviceGroupLoader());
+            services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
+            services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            var sp = BackEndComposer.Compose(services);
+            var backEnd = sp.GetRequiredService<IBackEnd>();
+
+            backEnd.Load();
+
+            CollectionAssert.Contains(
+                backEnd.Devices.DeviceGroups.DeviceGroupModels,
+                "DeviceGroup0",
+                "DeviceGroup0 should be restored into the master list from devices.json / mappings.json.");
+            CollectionAssert.Contains(
+                backEnd.Devices.DeviceGroups.DeviceGroupModels,
+                DeviceGroups.DefaultDeviceGroup);
+
+            Assert.IsTrue(
+                backEnd.Mappings.TryGetMapping("Default", out MappingModel? mapping) && mapping != null);
+            var groupNames = mapping!.IndividualMappings.Select(m => m.DeviceGroup).ToList();
+            CollectionAssert.Contains(groupNames, "DeviceGroup0",
+                "MappingModel must keep the DeviceGroup0 row after Load (was silently dropped before restore).");
+            CollectionAssert.Contains(groupNames, DeviceGroups.DefaultDeviceGroup);
         }
 
         [TestMethod]

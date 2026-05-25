@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using DATA = userspace_backend.Data;
 using userspace_backend.Display;
+using userspace_backend.Driver;
+using userspace_backend.Driver.Windows;
 using userspace_backend.IO;
 using userspace_backend.Model;
 using userspace_backend.Model.AccelDefinitions;
@@ -20,7 +22,7 @@ namespace userspace_backend
     {
         public static IServiceProvider Compose(IServiceCollection services)
         {
-            services.TryAddSingleton<ISystemDevicesRetriever, SystemDevicesRetriever>();
+            RegisterPlatformServices(services);
             services.TryAddSingleton<ISystemDevicesProvider, SystemDevicesProvider>();
 
             #region Parsers
@@ -588,13 +590,21 @@ namespace userspace_backend
 
             services.AddSingleton<IProfilesModel, ProfilesModel>();
 
-            services.TryAddSingleton<IDriverConfigActivator, DriverConfigActivator>();
-
             services.AddSingleton<IBackEnd, BackEnd>();
 
             #endregion BackEnd
 
             return services.BuildServiceProvider();
+        }
+
+        // Driver/evaluator/device-enumeration registration. The concrete impls
+        // (WindowsRawAccelDriver, ManagedAccelEvaluator, WindowsSystemDevicesRetriever)
+        // live under Driver/Windows/ and depend on wrapper.dll (C++/CLI).
+        private static void RegisterPlatformServices(IServiceCollection services)
+        {
+            services.TryAddSingleton<IRawAccelDriver, WindowsRawAccelDriver>();
+            services.TryAddSingleton<IAccelEvaluator, ManagedAccelEvaluator>();
+            services.TryAddSingleton<ISystemDevicesRetriever, WindowsSystemDevicesRetriever>();
         }
     }
 }

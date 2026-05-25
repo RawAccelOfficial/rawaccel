@@ -8,6 +8,7 @@ using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.AccelDefinitions.Formula;
 using userspace_backend.Model.EditableSettings;
 using static userspace_backend.Data.Profiles.Accel.FormulaAccel;
+using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
 
 namespace userspace_backend.Model.AccelDefinitions
 {
@@ -49,7 +50,8 @@ namespace userspace_backend.Model.AccelDefinitions
 
         protected override bool TryMapEditableSettingsFromData(FormulaAccel data)
         {
-            return Gain.TryUpdateModelDirectly(data.Gain);
+            return FormulaType.TryUpdateModelDirectly(data.FormulaType)
+                 & Gain.TryUpdateModelDirectly(data.Gain);
         }
     }
 }

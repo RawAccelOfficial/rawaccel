@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using userspace_backend.Data.Profiles;
@@ -115,10 +116,18 @@ namespace userspace_backend.IO.Serialization
 
             switch (formulaType)
             {
+                case AccelerationFormulaType.Synchronous:
+                    return JsonSerializer.Deserialize<SynchronousAccel>(ref readerFromStart);
                 case AccelerationFormulaType.Linear:
                     return JsonSerializer.Deserialize<LinearAccel>(ref readerFromStart);
                 case AccelerationFormulaType.Classic:
                     return JsonSerializer.Deserialize<ClassicAccel>(ref readerFromStart);
+                case AccelerationFormulaType.Power:
+                    return JsonSerializer.Deserialize<PowerAccel>(ref readerFromStart);
+                case AccelerationFormulaType.Natural:
+                    return JsonSerializer.Deserialize<NaturalAccel>(ref readerFromStart);
+                case AccelerationFormulaType.Jump:
+                    return JsonSerializer.Deserialize<JumpAccel>(ref readerFromStart);
                 default:
                     throw new JsonException($"Unknown formula type {formulaTypeString}");
             }
@@ -142,6 +151,41 @@ namespace userspace_backend.IO.Serialization
 
         public override void Write(Utf8JsonWriter writer, Acceleration value, JsonSerializerOptions options)
         {
+            // Serialize the runtime type's own fields, then patch the "Type"
+            // property to the discriminator string the Read side expects
+            // (e.g. "Formula/Classic", "LookupTable", "None"). Using a fresh
+            // options instance that excludes this converter avoids recursing
+            // into ourselves and hanging.
+            JsonNode? node = JsonSerializer.SerializeToNode(
+                value, value.GetType(), WriteOptionsWithoutSelf(options));
+
+            if (node is JsonObject obj)
+            {
+                obj["Type"] = GetDiscriminator(value);
+                // FormulaType is encoded inside the Type discriminator
+                // ("Formula/Classic"), so do not also emit it as a sibling.
+                obj.Remove("FormulaType");
+            }
+            node?.WriteTo(writer);
+        }
+
+        private static string GetDiscriminator(Acceleration v) => v switch
+        {
+            NoAcceleration => "None",
+            LookupTableAccel => "LookupTable",
+            FormulaAccel f => $"Formula/{f.FormulaType}",
+            _ => v.Type.ToString(),
+        };
+
+        private static JsonSerializerOptions WriteOptionsWithoutSelf(JsonSerializerOptions src)
+        {
+            var copy = new JsonSerializerOptions(src);
+            for (int i = copy.Converters.Count - 1; i >= 0; --i)
+            {
+                if (copy.Converters[i] is AccelerationJsonConverter)
+                    copy.Converters.RemoveAt(i);
+            }
+            return copy;
         }
     }
 }

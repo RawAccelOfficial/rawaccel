@@ -2,6 +2,10 @@
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using AccelMode = RawAccel.Contracts.AccelMode;
+using CapMode = RawAccel.Contracts.CapMode;
+using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -48,7 +52,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 acceleration = Acceleration.ModelValue,
                 exponentClassic = Exponent.ModelValue,
                 inputOffset = Offset.ModelValue,
-                cap = new Vec2<double> { x = 0, y = Cap.ModelValue },
+                cap = new Vec2D { x = 0, y = Cap.ModelValue },
                 capMode = CapMode.output
             };
         }

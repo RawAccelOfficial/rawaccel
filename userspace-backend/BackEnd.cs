@@ -4,10 +4,15 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using RawAccel.Contracts;
 using userspace_backend.Data.Profiles;
+using userspace_backend.Driver;
 using userspace_backend.IO;
 using userspace_backend.Model;
 using DATA = userspace_backend.Data;
+using Profile = RawAccel.Contracts.RawAccelProfile;
+using DeviceSettings = RawAccel.Contracts.RawAccelDeviceSettings;
+using DeviceConfig = RawAccel.Contracts.RawAccelDeviceConfig;
 
 namespace userspace_backend
 {
@@ -15,7 +20,7 @@ namespace userspace_backend
     {
         void Load();
 
-        void Apply();
+        bool Apply();
 
         void SaveToDisk();
 
@@ -35,11 +40,11 @@ namespace userspace_backend
     public class BackEnd : IBackEnd
     {
         private readonly ILogger<BackEnd> logger;
-        private readonly IDriverConfigActivator driverConfigActivator;
+        private readonly IRawAccelDriver driver;
 
         public BackEnd(
             IBackEndLoader backEndLoader,
-            IDriverConfigActivator driverConfigActivator,
+            IRawAccelDriver driver,
             IProfilesModel profilesModel,
             DevicesModel devicesModel,
             MappingsModel mappingsModel,
@@ -47,7 +52,7 @@ namespace userspace_backend
             ILogger<BackEnd>? logger = null)
         {
             BackEndLoader = backEndLoader;
-            this.driverConfigActivator = driverConfigActivator;
+            this.driver = driver;
             Devices = devicesModel;
             Mappings = mappingsModel;
             Profiles = profilesModel;
@@ -69,13 +74,21 @@ namespace userspace_backend
 
         public void Load()
         {
-            IEnumerable<DATA.Device> devicesData = BackEndLoader.LoadDevices();
+            List<DATA.Device> devicesData = BackEndLoader.LoadDevices().ToList();
             LoadDevicesFromData(devicesData);
 
             IEnumerable<DATA.Profile> profilesData = BackEndLoader.LoadProfiles();
             LoadProfilesFromData(profilesData);
 
             DATA.MappingSet mappingData = BackEndLoader.LoadMappings();
+
+            // DeviceGroups.DeviceGroupModels is the master list the UI and
+            // MappingModel.TryAddMapping look up against. It is not serialized
+            // directly: group names live implicitly inside devices.json (per
+            // device) and mappings.json (as map keys). Restore the list before
+            // applying mappings so non-Default rows are not silently dropped.
+            RestoreDeviceGroupsFromData(devicesData, mappingData);
+
             LoadMappingsFromData(mappingData);
 
             Settings = BackEndLoader.LoadSettings() ?? new DATA.Settings();
@@ -84,6 +97,30 @@ namespace userspace_backend
             EnsureDefaultDeviceExists();
             EnsureDefaultProfileExists();
             EnsureDefaultMappingExists();
+        }
+
+        protected void RestoreDeviceGroupsFromData(
+            IEnumerable<DATA.Device> devicesData,
+            DATA.MappingSet mappingData)
+        {
+            foreach (DATA.Device device in devicesData)
+            {
+                if (!string.IsNullOrEmpty(device.DeviceGroup))
+                {
+                    Devices.DeviceGroups.AddOrGetDeviceGroup(device.DeviceGroup);
+                }
+            }
+
+            foreach (DATA.Mapping mapping in mappingData?.Mappings ?? [])
+            {
+                foreach (string group in mapping.GroupsToProfiles.Keys)
+                {
+                    if (!string.IsNullOrEmpty(group))
+                    {
+                        Devices.DeviceGroups.AddOrGetDeviceGroup(group);
+                    }
+                }
+            }
         }
 
         protected void LoadDevicesFromData(IEnumerable<DATA.Device> devicesData)
@@ -221,7 +258,7 @@ namespace userspace_backend
             }
         }
 
-        public void Apply()
+        public bool Apply()
         {
             logger.LogInformation("Apply clicked");
 
@@ -230,10 +267,10 @@ namespace userspace_backend
             {
                 logger.LogWarning("Apply: no active mapping to apply");
                 WriteSettingsToDisk();
-                return;
+                return false;
             }
 
-            DriverConfig? config = null;
+            RawAccelConfig? config = null;
             try
             {
                 config = MapToDriverConfig(mappingToApply);
@@ -242,26 +279,28 @@ namespace userspace_backend
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Apply: error building DriverConfig");
+                logger.LogError(ex, "Apply: error building RawAccelConfig");
             }
 
+            bool driverApplied = false;
             if (config != null)
             {
-                try
+                driverApplied = driver.Apply(config);
+                if (driverApplied)
                 {
-                    driverConfigActivator.Write(config);
-                    logger.LogInformation("Apply: driver.Activate() succeeded");
+                    logger.LogInformation("Apply: driver.Apply() succeeded");
                 }
-                catch (Exception ex)
+                else
                 {
-                    logger.LogError(ex, "Apply: driver.Activate() failed");
+                    logger.LogError("Apply: driver.Apply() failed");
                 }
             }
 
             WriteSettingsToDisk();
+            return driverApplied;
         }
 
-        private void LogDriverConfigSummary(MappingModel mapping, DriverConfig config)
+        private void LogDriverConfigSummary(MappingModel mapping, RawAccelConfig config)
         {
             int profileCount = config.profiles?.Count ?? 0;
             int deviceCount = config.devices?.Count ?? 0;
@@ -296,18 +335,18 @@ namespace userspace_backend
             }
         }
 
-        private void LogDriverConfigJson(DriverConfig config)
+        private void LogDriverConfigJson(RawAccelConfig config)
         {
             try
             {
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(
                     config,
                     Newtonsoft.Json.Formatting.Indented);
-                logger.LogDebug("Apply: DriverConfig JSON{NewLine}{Json}", Environment.NewLine, json);
+                logger.LogDebug("Apply: RawAccelConfig JSON{NewLine}{Json}", Environment.NewLine, json);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Apply: could not serialize DriverConfig to JSON");
+                logger.LogWarning(ex, "Apply: could not serialize RawAccelConfig to JSON");
             }
         }
 
@@ -334,16 +373,18 @@ namespace userspace_backend
             }
         }
 
-        protected DriverConfig MapToDriverConfig(MappingModel mappingModel)
+        protected RawAccelConfig MapToDriverConfig(MappingModel mappingModel)
         {
             IEnumerable<DeviceSettings> configDevices = MapToDriverDevices(mappingModel);
             IEnumerable<Profile> configProfiles = MapToDriverProfiles(mappingModel);
 
-            DriverConfig config = DriverConfig.GetDefault();
-            config.profiles = configProfiles.ToList();
-            config.devices = configDevices.ToList();
-            config.accels = configProfiles.Select(p => new ManagedAccel(p)).ToList();
-            return config;
+            return new RawAccelConfig
+            {
+                version = RawAccelConstants.VersionString,
+                defaultDeviceConfig = new DeviceConfig(),
+                profiles = configProfiles.ToList(),
+                devices = configDevices.ToList(),
+            };
         }
 
         protected IEnumerable<DeviceSettings> MapToDriverDevices(MappingModel mapping)

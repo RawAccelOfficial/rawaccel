@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using userspace_backend.Display.Calculations;
+using userspace_backend.Driver;
+using Profile = RawAccel.Contracts.RawAccelProfile;
 
 namespace userspace_backend.Display
 {
@@ -20,8 +22,11 @@ namespace userspace_backend.Display
 
     public class CurvePreview : ICurvePreview
     {
-        public CurvePreview()
+        private readonly IAccelEvaluator evaluator;
+
+        public CurvePreview(IAccelEvaluator evaluator)
         {
+            this.evaluator = evaluator;
             Points = new ObservableCollection<CurvePoint>();
             InitPoints();
         }
@@ -30,12 +35,12 @@ namespace userspace_backend.Display
 
         public void GeneratePoints(Profile profile)
         {
-            ManagedAccel accel = new ManagedAccel(profile).CreateStatelessCopy();
+            IAccelInstance instance = evaluator.CreateInstance(profile);
 
             foreach (CurvePoint point in Points)
             {
-                var output = accel.Accelerate(point.MouseSpeed, 0, 1, 1);
-                var outputSpeed = Math.Sqrt(Math.Pow(output.Item1, 2) + Math.Pow(output.Item2, 2));
+                var (ox, oy) = instance.Accelerate(point.MouseSpeed, 0, 1, 1);
+                var outputSpeed = Math.Sqrt(ox * ox + oy * oy);
                 point.Output = outputSpeed / point.MouseSpeed;
             }
         }

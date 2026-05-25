@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using userspace_backend.Model;
+using Profile = RawAccel.Contracts.RawAccelProfile;
+using SpeedArgs = RawAccel.Contracts.RawAccelSpeedArgs;
+using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Common
 {
@@ -17,12 +20,12 @@ namespace userspace_backend.Common
                 outputDPI = model.OutputDPI.ModelValue,
                 yxOutputDPIRatio = model.YXRatio.ModelValue,
                 argsX = model.Acceleration.MapToDriver(),
-                domainXY = new Vec2<double>
+                domainXY = new Vec2D
                 {
                     x = model.Acceleration.Anisotropy.DomainX.ModelValue,
                     y = model.Acceleration.Anisotropy.DomainY.ModelValue,
                 },
-                rangeXY = new Vec2<double>
+                rangeXY = new Vec2D
                 {
                     x = model.Acceleration.Anisotropy.RangeX.ModelValue,
                     y = model.Acceleration.Anisotropy.RangeY.ModelValue,

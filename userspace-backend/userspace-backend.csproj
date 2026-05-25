@@ -17,7 +17,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
+  <!-- The driver abstraction (IRawAccelDriver / IAccelEvaluator) is shared via
+       RawAccel.Contracts; the concrete Windows impls bind to the C++/CLI wrapper. -->
   <ItemGroup>
+    <ProjectReference Include="..\RawAccel.Contracts\RawAccel.Contracts.csproj" />
     <ProjectReference Include="..\wrapper\wrapper.vcxproj" />
   </ItemGroup>
 

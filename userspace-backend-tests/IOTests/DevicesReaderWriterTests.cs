@@ -11,7 +11,7 @@ namespace userspace_backend_tests.IOTests
     [TestClass]
     public class DevicesReaderWriterTests
     {
-        public static string TestDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"TestFiles\DevicesReaderWriter");
+        public static string TestDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestFiles", "DevicesReaderWriter");
         public static string ExpectedOutputs = Path.Combine(TestDirectory, "ExpectedOutputs");
         public static string TestInputs = Path.Combine(TestDirectory, "Inputs");
 

@@ -5,6 +5,8 @@ using userspace_backend.Data.Profiles;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Model.EditableSettings;
 using static userspace_backend.Data.Profiles.Accel.LookupTableAccel;
+using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using AccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions
 {

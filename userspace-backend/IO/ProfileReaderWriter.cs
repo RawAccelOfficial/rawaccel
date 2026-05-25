@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using DATA = userspace_backend.Data;
+using userspace_backend.IO.Serialization;
 
 namespace userspace_backend.IO
 {
@@ -13,6 +14,7 @@ namespace userspace_backend.IO
             Converters =
             {
                 new JsonStringEnumConverter(),
+                new AccelerationJsonConverter(),
             }
         };
 

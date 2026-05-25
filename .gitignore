@@ -352,3 +352,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Linux build directory
+linux/build/

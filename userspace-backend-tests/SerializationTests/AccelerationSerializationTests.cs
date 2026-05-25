@@ -82,6 +82,32 @@ namespace userspace_backend_tests.SerializationTests
             Assert.AreEqual(0.001, actualLinearAccel.Acceleration);
         }
 
+        // Regression: the converter only handled Linear and Classic.
+        // A Default profile saved with Type=Formula/Synchronous (the default
+        // formula picked when a user switches DefinitionType -> Formula in the
+        // UI without picking a specific formula) threw "Unknown formula type
+        // Synchronous" at startup, crashing the app on the next launch.
+        [TestMethod]
+        [DataRow("Synchronous", typeof(SynchronousAccel))]
+        [DataRow("Power", typeof(PowerAccel))]
+        [DataRow("Natural", typeof(NaturalAccel))]
+        [DataRow("Jump", typeof(JumpAccel))]
+        public void DeserializeFormulaAccel_AllSubtypes(string formulaType, Type expectedRuntimeType)
+        {
+            string textToDeserialize = $$"""
+                {
+                    "Acceleration": {
+                        "Type": "Formula/{{formulaType}}",
+                        "Gain": false
+                    }
+                }
+                """;
+
+            var deserialized = JsonSerializer.Deserialize<AccelerationOnlyObject>(textToDeserialize);
+            Assert.IsNotNull(deserialized.Acceleration);
+            Assert.IsInstanceOfType(deserialized.Acceleration, expectedRuntimeType);
+        }
+
         [TestMethod]
         public void DeserializeLookupTableVelocity()
         {

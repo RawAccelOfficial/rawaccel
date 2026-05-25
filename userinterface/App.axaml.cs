@@ -173,6 +173,23 @@ public partial class App : Application
                 }
             };
 
+            // Avalonia's ShutdownRequested only fires when the window closes
+            // normally. Under `dotnet run` a Ctrl+C in the terminal sends
+            // SIGINT, which bypasses the window lifecycle but still triggers
+            // .NET's ProcessExit. Mirror the save there so dev sessions do
+            // not silently drop unsaved edits.
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                try
+                {
+                    backEnd.SaveToDisk();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[PROCESS_EXIT] SaveToDisk failed: {ex.Message}");
+                }
+            };
+
             // Preload libraries that cause first-page stutter
             _ = PreloadLibrariesAsync();
 

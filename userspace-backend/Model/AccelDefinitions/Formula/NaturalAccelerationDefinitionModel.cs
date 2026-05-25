@@ -2,6 +2,8 @@
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using AccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {

@@ -194,6 +194,9 @@
   <data name="MainWindowSettingsAppliedSuccess" xml:space="preserve">
     <value>Settings applied successfully!</value>
   </data>
+  <data name="MainWindowSettingsAppliedFailure" xml:space="preserve">
+    <value>Failed to apply settings. Check the log for details.</value>
+  </data>
   <data name="SettingsLanguageChangedTo" xml:space="preserve">
     <value>Language changed to {0}</value>
   </data>

@@ -14,17 +14,13 @@ namespace userspace_backend.Display.Calculations
 
         public static ICollection<double> CalculateCurvePointSpeeds()
         {
-            List<double> curvePointSpeeds = new List<double>();
+            int count = (int)CurvePointsResolution;
+            List<double> curvePointSpeeds = new List<double>(count);
 
-            double ratio = FastestHandSpeed / SlowestHandSpeed;
-            double sqrtRatio = Math.Sqrt(ratio);
-            double middle = sqrtRatio * SlowestHandSpeed;
-            double increment = 2.0 / (CurvePointsResolution - 1.0);
-
-            for (double i = -1; i <= 1; i += increment)
+            double step = (FastestHandSpeed - SlowestHandSpeed) / (count - 1);
+            for (int i = 0; i < count; i++)
             {
-                double speed = middle * Math.Pow(sqrtRatio, i);
-                curvePointSpeeds.Add(speed);
+                curvePointSpeeds.Add(SlowestHandSpeed + i * step);
             }
 
             return curvePointSpeeds;

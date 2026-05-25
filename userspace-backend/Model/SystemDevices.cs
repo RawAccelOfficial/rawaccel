@@ -50,7 +50,9 @@ namespace userspace_backend.Model
     }
 
     /// <summary>
-    /// Retrieves list of devices from operating system
+    /// Retrieves list of devices from operating system. Concrete impls are
+    /// per-platform; WindowsSystemDevicesRetriever reads RawInput via
+    /// wrapper.dll.
     /// </summary>
     public interface ISystemDevicesRetriever
     {
@@ -58,42 +60,13 @@ namespace userspace_backend.Model
     }
 
     /// <summary>
-    /// Application implementation of <see cref="SystemDevicesRetriever"/>
-    /// </summary>
-    public sealed class SystemDevicesRetriever : ISystemDevicesRetriever
-    {
-        public IList<ISystemDevice> GetSystemDevices()
-        {
-            IList<MultiHandleDevice> rawDevices = MultiHandleDevice.GetList();
-            return rawDevices.Select(d => new SystemDevice(d) as ISystemDevice).ToList();
-        }
-    }
-
-    /// <summary>
-    /// Interface to represent devices as they come from windows.
-    /// The actual class from windows is non-trivial to construct and test.
+    /// Interface to represent devices as they come from the operating system.
+    /// Backing impls live next to their per-platform retrievers.
     /// </summary>
     public interface ISystemDevice
     {
         public string Name { get; }
 
         public string HWID { get; }
-    }
-
-    /// <summary>
-    /// Data class to wrap <see cref="MultiHandleDevice"/>
-    /// </summary>
-    public class SystemDevice : ISystemDevice
-    {
-        public SystemDevice(MultiHandleDevice multiHandleDevice)
-        {
-            RawDevice = multiHandleDevice;
-        }
-
-        public string Name { get => RawDevice.name; }
-
-        public string HWID { get => RawDevice.id; }
-
-        private MultiHandleDevice RawDevice { get; }
     }
 }
