@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using DATA = userspace_backend.Data;
 using userspace_backend.Display;
 using userspace_backend.Driver;
-using userspace_backend.Driver.Linux;
 using userspace_backend.IO;
 using userspace_backend.Model;
 using userspace_backend.Model.AccelDefinitions;
@@ -352,16 +351,10 @@ namespace userspace_backend
                 // method can compile on Linux where those types do not exist.
                 RegisterWindowsServicesByReflection(services);
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                services.TryAddSingleton<IRawAccelDriver, LinuxAgentDriver>();
-                services.TryAddSingleton<IAccelEvaluator, LinuxAccelEvaluator>();
-                services.TryAddSingleton<ISystemDevicesRetriever, LinuxSystemDevicesRetriever>();
-            }
             else
             {
                 throw new PlatformNotSupportedException(
-                    $"Raw Accel backend supports Windows and Linux only; current platform: {RuntimeInformation.OSDescription}");
+                    $"Raw Accel backend supports Windows only; current platform: {RuntimeInformation.OSDescription}");
             }
         }
 

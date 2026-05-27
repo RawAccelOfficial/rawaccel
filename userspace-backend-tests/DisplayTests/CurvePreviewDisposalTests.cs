@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RawAccel.Contracts;
 using userspace_backend.Display;
 using userspace_backend.Driver;
-using userspace_backend.Driver.Linux;
 
 namespace userspace_backend_tests.DisplayTests
 {
@@ -106,22 +105,6 @@ namespace userspace_backend_tests.DisplayTests
             Assert.AreEqual(1, evaluator.Created.Count);
             Assert.AreEqual(1, evaluator.Created[0].DisposeCount,
                 "instance must be disposed even when evaluation throws");
-        }
-
-        [TestMethod]
-        public void AccelInstance_DisposeIsIdempotent()
-        {
-            // Guards the ShimInstance double-free guard. With the native shim
-            // present this disposes a real ra_curve handle; without it, the
-            // evaluator returns the identity instance. Either way a second
-            // Dispose() must be a safe no-op (no double native Destroy).
-            var evaluator = new LinuxAccelEvaluator();
-            IAccelInstance instance = evaluator.CreateInstance(new RawAccelProfile());
-
-            instance.Dispose();
-            instance.Dispose();
-
-            Assert.IsNotNull(instance);
         }
     }
 }
