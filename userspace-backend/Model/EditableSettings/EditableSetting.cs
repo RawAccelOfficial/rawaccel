@@ -1,169 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
-using userspace_backend.Logging;
 
 namespace userspace_backend.Model.EditableSettings
 {
-    public partial class EditableSetting<T> : ObservableObject, IEditableSettingSpecific<T> where T : IComparable
-    {
-        /// <summary>
-        /// This value can be bound in UI for direct editing
-        /// </summary>
-        [ObservableProperty]
-        public string interfaceValue;
-
-        /// <summary>
-        /// This value can be bound in UI for logic based on validated input
-        /// </summary>
-        [ObservableProperty]
-        public T modelValue;
-
-        public T CurrentValidatedValue => ModelValue;
-
-        public EditableSetting(
-            string displayName,
-            T initialValue,
-            IUserInputParser<T> parser,
-            IModelValueValidator<T> validator,
-            bool autoUpdateFromInterface = false,
-            string localizationKey = null)
-        {
-            DisplayName = displayName;
-            LocalizationKey = localizationKey;
-            LastWrittenValue = initialValue;
-            Parser = parser;
-            Validator = validator;
-            UpdateModelValueFromLastKnown();
-            UpdateInterfaceValue();
-            AutoUpdateFromInterface = autoUpdateFromInterface;
-        }
-
-        /// <summary>
-        /// Display name for this setting in UI
-        /// </summary>
-        /// TODO: Make private and only use DisplayText for UI
-        public string DisplayName { get; }
-
-        /// <summary>
-        /// Optional localization key for this setting. If provided, DisplayText will use localized string instead of DisplayName
-        /// </summary>
-        public string LocalizationKey { get; set; }
-
-        /// <summary>
-        /// Gets the display text for this setting. Returns LocalizationKey if provided, otherwise DisplayName.
-        /// UI layer should handle actual localization of the key.
-        /// </summary>
-        public string DisplayText =>
-            !string.IsNullOrEmpty(LocalizationKey)
-                ? LocalizationKey
-                : DisplayName ?? string.Empty;
-
-        public string EditedValueForDiplay => InterfaceValue;
-
-        public T LastWrittenValue { get; protected set; }
-
-        /// <summary>
-        /// Interface can set this for cases when new value arrives all at once (such as menu selection)
-        /// instead of cases where new value arrives in parts (typing)
-        /// </summary>
-        public bool AutoUpdateFromInterface { get; set; }
-
-        private IUserInputParser<T> Parser { get; }
-
-        //TODO: change settings collections init so that this can be made private for non-static validators
-        public IModelValueValidator<T> Validator { get; set; }
-
-        public bool HasChanged() => ModelValue.CompareTo(LastWrittenValue) == 0;
-
-        public bool TryUpdateFromInterface()
-        {
-            if (string.IsNullOrEmpty(InterfaceValue))
-            {
-                UpdateInterfaceValue();
-                return false;
-            }
-
-            if (!Parser.TryParse(InterfaceValue.Trim(), out T parsedValue))
-            {
-                UpdateInterfaceValue();
-                return false;
-            }
-
-            if (parsedValue.CompareTo(ModelValue) == 0)
-            {
-                return true;
-            }
-
-            if (Validator == null)
-            {
-                throw new InvalidOperationException(
-                    $"Validator is null for EditableSetting '{DisplayName}'. " +
-                    $"InterfaceValue: '{InterfaceValue}', " +
-                    $"ParsedValue: '{parsedValue}', " +
-                    $"ModelValue: '{ModelValue}', " +
-                    $"Parser: {Parser?.GetType().Name ?? "null"}");
-            }
-
-            if (!Validator.Validate(parsedValue))
-            {
-                UpdateInterfaceValue();
-                return false;
-            }
-
-            UpdatedModeValue(parsedValue);
-            return true;
-        }
-
-        protected void UpdateInterfaceValue()
-        {
-            InterfaceValue = ModelValue?.ToString();
-        }
-
-        protected void UpdateModelValueFromLastKnown()
-        {
-            UpdatedModeValue(LastWrittenValue);
-        }
-
-        protected void UpdatedModeValue(T value)
-        {
-            ModelValue = value;
-        }
-
-        partial void OnInterfaceValueChanged(string value)
-        {
-            if (AutoUpdateFromInterface)
-            {
-                TryUpdateFromInterface();
-            }
-        }
-
-        public bool TryUpdateModelDirectly(T data)
-        {
-            if (data.CompareTo(ModelValue) == 0)
-            {
-                return true;
-            }
-
-            if (!Validator.Validate(data))
-            {
-                UpdateInterfaceValue();
-                EditableSettingLog.Logger.LogDebug(
-                    "Setting '{Name}' ({Type}) [v1] rejected direct update: value {Value} failed validation",
-                    DisplayName, typeof(T).Name, data);
-                return false;
-            }
-
-            T previous = ModelValue;
-            UpdatedModeValue(data);
-            UpdateInterfaceValue();
-            EditableSettingLog.Logger.LogDebug(
-                "Setting '{Name}' ({Type}) [v1] changed: {Old} -> {New}",
-                DisplayName, typeof(T).Name, previous, data);
-            return true;
-        }
-    }
-
     public partial class EditableSettingV2<T> : ObservableObject, IEditableSettingSpecific<T> where T : IComparable
     {
         /// <summary>
@@ -180,13 +21,18 @@ namespace userspace_backend.Model.EditableSettings
 
         public T CurrentValidatedValue => ModelValue;
 
+        public const string LoggerCategoryName = "userspace_backend.EditableSetting";
+
+        private readonly ILogger logger;
+
         public EditableSettingV2(
             string displayName,
             T initialValue,
             IUserInputParser<T> parser,
             IModelValueValidator<T> validator,
             bool autoUpdateFromInterface = false,
-            string localizationKey = null)
+            string localizationKey = null,
+            ILogger? logger = null)
         {
             DisplayName = displayName;
             LocalizationKey = localizationKey;
@@ -196,6 +42,7 @@ namespace userspace_backend.Model.EditableSettings
             UpdateModelValueFromLastKnown();
             SetInterfaceToModel();
             AutoUpdateFromInterface = autoUpdateFromInterface;
+            this.logger = logger ?? NullLogger.Instance;
         }
 
         /// <summary>
@@ -210,7 +57,7 @@ namespace userspace_backend.Model.EditableSettings
                 ? LocalizationKey
                 : DisplayName ?? string.Empty;
 
-        public string EditedValueForDiplay => InterfaceValue;
+        public string EditedValueForDisplay => InterfaceValue;
 
         public T LastWrittenValue { get; protected set; }
 
@@ -227,7 +74,7 @@ namespace userspace_backend.Model.EditableSettings
 
         private bool AllowAutoUpdateFromInterface { get; set; } = true;
 
-        public bool HasChanged() => ModelValue.CompareTo(LastWrittenValue) == 0;
+        public bool HasChanged() => ModelValue.CompareTo(LastWrittenValue) != 0;
 
         public bool TryUpdateFromInterface()
         {
@@ -247,7 +94,7 @@ namespace userspace_backend.Model.EditableSettings
 
             if (string.IsNullOrEmpty(InterfaceValue))
             {
-                EditableSettingLog.Logger.LogDebug(
+                logger.LogDebug(
                     "Setting '{Name}' ({Type}) commit skipped: InterfaceValue is empty",
                     DisplayName, typeof(T).Name);
                 return false;
@@ -255,7 +102,7 @@ namespace userspace_backend.Model.EditableSettings
 
             if (!Parser.TryParse(InterfaceValue.Trim(), out T parsedValue))
             {
-                EditableSettingLog.Logger.LogDebug(
+                logger.LogDebug(
                     "Setting '{Name}' ({Type}) commit rejected: parser could not parse '{Value}'",
                     DisplayName, typeof(T).Name, InterfaceValue);
                 return false;
@@ -309,7 +156,7 @@ namespace userspace_backend.Model.EditableSettings
             if (!Validator.Validate(data))
             {
                 editedInterfaceNeedsReset = true;
-                EditableSettingLog.Logger.LogDebug(
+                logger.LogDebug(
                     "Setting '{Name}' ({Type}) rejected direct update: value {Value} failed validation",
                     DisplayName, typeof(T).Name, data);
                 return false;
@@ -318,7 +165,7 @@ namespace userspace_backend.Model.EditableSettings
             T previous = ModelValue;
             UpdateModeValue(data);
             SetInterfaceToModel();
-            EditableSettingLog.Logger.LogDebug(
+            logger.LogDebug(
                 "Setting '{Name}' ({Type}) changed: {Old} -> {New}",
                 DisplayName, typeof(T).Name, previous, data);
             return true;

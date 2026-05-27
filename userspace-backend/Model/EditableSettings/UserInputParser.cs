@@ -42,7 +42,9 @@ namespace userspace_backend.Model.EditableSettings
     {
         public bool TryParse(string input, out double parsedValue)
         {
-            if (double.TryParse(input, out parsedValue))
+            if (double.TryParse(input, out parsedValue) &&
+                !double.IsNaN(parsedValue) &&
+                !double.IsInfinity(parsedValue))
             {
                 return true;
             }
@@ -66,31 +68,12 @@ namespace userspace_backend.Model.EditableSettings
         }
     }
 
-        public class AccelerationDefinitionTypeParser : IUserInputParser<Acceleration.AccelerationDefinitionType>
+    public class EnumParser<T> : IUserInputParser<T> where T : struct, Enum
     {
-        public bool TryParse(string input, out Acceleration.AccelerationDefinitionType parsedValue)
+        public bool TryParse(string input, out T parsedValue)
         {
-            if (Enum.TryParse(input, ignoreCase: true, out parsedValue))
-            {
-                return true;
-            }
-
-            parsedValue = default;
-            return false;
-        }
-    }
-
-    public class LookupTableTypeParser : IUserInputParser<LookupTableAccel.LookupTableType>
-    {
-        public bool TryParse(string input, out LookupTableAccel.LookupTableType parsedValue)
-        {
-            if (Enum.TryParse(input, ignoreCase: true, out parsedValue))
-            {
-                return true;
-            }
-
-            parsedValue = default;
-            return false;
+            // Enum.TryParse sets parsedValue to default on failure.
+            return Enum.TryParse(input, ignoreCase: true, out parsedValue);
         }
     }
 
@@ -128,20 +111,6 @@ namespace userspace_backend.Model.EditableSettings
             }
 
             parsedValue = new LookupTableData();
-            return false;
-        }
-    }
-
-    public class AccelerationFormulaTypeParser : IUserInputParser<FormulaAccel.AccelerationFormulaType>
-    {
-        public bool TryParse(string input, out FormulaAccel.AccelerationFormulaType parsedValue)
-        {
-            if (Enum.TryParse(input, ignoreCase: true, out parsedValue))
-            {
-                return true;
-            }
-
-            parsedValue = default;
             return false;
         }
     }

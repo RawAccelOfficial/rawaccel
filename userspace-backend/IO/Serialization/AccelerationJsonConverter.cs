@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
@@ -77,8 +73,8 @@ namespace userspace_backend.IO.Serialization
         {
             if (!Enum.TryParse(typeStringFromJson, ignoreCase: true, out AccelerationDefinitionType result))
             {
-                throw new JsonException($"Acceleration base type [\"{typeStringFromJson}\"] not valid." +
-                    $"Valid values: [{string.Join(", ", Enum.GetNames(typeof(AccelerationDefinitionType)))}");
+                throw new JsonException($"Acceleration base type [\"{typeStringFromJson}\"] not valid. " +
+                    $"Valid values: [{string.Join(", ", Enum.GetNames(typeof(AccelerationDefinitionType)))}]");
             }
 
             return result;
@@ -100,7 +96,7 @@ namespace userspace_backend.IO.Serialization
 
         private static FormulaAccel CreateFormulaAccel(string[] defnSplit, ref Utf8JsonReader readerFromStart)
         {
-            if (defnSplit.Length < 1)
+            if (defnSplit.Length < 2)
             {
                 throw new JsonException("Type \"Formula\" must be followed by a forward slash and formula type. Example: \"Type\": \"Formula/Classic\"");
             }
@@ -137,8 +133,8 @@ namespace userspace_backend.IO.Serialization
         {
             if (!Enum.TryParse(formulaTypeFromJson, ignoreCase: true, out AccelerationFormulaType result))
             {
-                throw new JsonException($"Acceleration formula type [\"{formulaTypeFromJson}\"] not valid." +
-                    $"Valid values: [{string.Join(", ", Enum.GetNames(typeof(AccelerationFormulaType)))}");
+                throw new JsonException($"Acceleration formula type [\"{formulaTypeFromJson}\"] not valid. " +
+                    $"Valid values: [{string.Join(", ", Enum.GetNames(typeof(AccelerationFormulaType)))}]");
             }
 
             return result;
@@ -177,15 +173,29 @@ namespace userspace_backend.IO.Serialization
             _ => v.Type.ToString(),
         };
 
-        private static JsonSerializerOptions WriteOptionsWithoutSelf(JsonSerializerOptions src)
+        // Cache the derived options keyed by the source instance so we do not
+        // rebuild a copy on every Write. The same JsonSerializerOptions instance
+        // is reused for the lifetime of a reader/writer, so this is a near-perfect
+        // hit; if a different source ever arrives we simply re-derive. A concurrent
+        // first-call race only wastes one redundant copy, so no locking is needed.
+        private JsonSerializerOptions? cachedSource;
+        private JsonSerializerOptions? cachedWriteOptions;
+
+        private JsonSerializerOptions WriteOptionsWithoutSelf(JsonSerializerOptions src)
         {
-            var copy = new JsonSerializerOptions(src);
-            for (int i = copy.Converters.Count - 1; i >= 0; --i)
+            if (!ReferenceEquals(src, cachedSource))
             {
-                if (copy.Converters[i] is AccelerationJsonConverter)
-                    copy.Converters.RemoveAt(i);
+                var copy = new JsonSerializerOptions(src);
+                for (int i = copy.Converters.Count - 1; i >= 0; --i)
+                {
+                    if (copy.Converters[i] is AccelerationJsonConverter)
+                        copy.Converters.RemoveAt(i);
+                }
+                cachedSource = src;
+                cachedWriteOptions = copy;
             }
-            return copy;
+
+            return cachedWriteOptions!;
         }
     }
 }

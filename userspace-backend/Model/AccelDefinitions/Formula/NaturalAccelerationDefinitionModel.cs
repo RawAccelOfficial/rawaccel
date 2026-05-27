@@ -12,7 +12,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class NaturalAccelerationDefinitionModel
-        : EditableSettingsSelectable<NaturalAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<NaturalAccel>,
         INaturalAccelerationDefinitionModel
     {
         public const string DecayRateDIKey = $"{nameof(NaturalAccelerationDefinitionModel)}.{nameof(DecayRate)}";
@@ -23,7 +23,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             [FromKeyedServices(DecayRateDIKey)]IEditableSettingSpecific<double> decayRate,
             [FromKeyedServices(InputOffsetDIKey)]IEditableSettingSpecific<double> inputOffset,
             [FromKeyedServices(LimitDIKey)]IEditableSettingSpecific<double> limit)
-            : base([decayRate, inputOffset, limit], [])
+            : base([decayRate, inputOffset, limit])
         {
             DecayRate = decayRate;
             InputOffset = inputOffset;
@@ -36,7 +36,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Limit { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override AccelArgs MapToDriver()
         {
             return new AccelArgs
             {
@@ -62,11 +62,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             return DecayRate.TryUpdateModelDirectly(data.DecayRate)
                 & InputOffset.TryUpdateModelDirectly(data.InputOffset)
                 & Limit.TryUpdateModelDirectly(data.Limit);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(NaturalAccel data)
-        {
-            return true;
         }
     }
 }

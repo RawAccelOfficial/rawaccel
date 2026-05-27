@@ -6,13 +6,13 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using userspace_backend.Common;
 using userspace_backend.Display;
 using userspace_backend.Model.AccelDefinitions;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
 using DATA = userspace_backend.Data;
 using Profile = RawAccel.Contracts.RawAccelProfile;
+using SpeedArgs = RawAccel.Contracts.RawAccelSpeedArgs;
 
 namespace userspace_backend.Model
 {
@@ -98,8 +98,6 @@ namespace userspace_backend.Model
         [Obsolete("Use XCurvePreview instead")]
         public ICurvePreview CurvePreview => XCurvePreview;
 
-        protected IModelValueValidator<string> NameValidator { get; }
-
         public override DATA.Profile MapToData()
         {
             return new DATA.Profile()
@@ -109,6 +107,43 @@ namespace userspace_backend.Model
                 YXRatio = YXRatio.ModelValue,
                 Acceleration = Acceleration.MapToData(),
                 Hidden = Hidden.MapToData(),
+            };
+        }
+
+        public Profile MapToDriver()
+        {
+            return new Profile()
+            {
+                name = Name.ModelValue,
+                outputDPI = OutputDPI.ModelValue,
+                yxOutputDPIRatio = YXRatio.ModelValue,
+
+                // Both axes get the same single UI curve, but argsX and argsY MUST be independent
+                // instances: the native wrapper mutates each axis's data array separately, so sharing
+                // one reference would corrupt it. Do not collapse these two calls into a shared
+                // variable. Pinned by BackEndApplyTests.Apply_SingleCurve_PopulatesBothAxes.
+                argsX = Acceleration.MapToDriver(),
+                argsY = Acceleration.MapToDriver(),
+
+                domainXY = Acceleration.Anisotropy.MapDomainToDriver(),
+                rangeXY = Acceleration.Anisotropy.MapRangeToDriver(),
+                rotation = Hidden.RotationDegrees.ModelValue,
+                lrOutputDPIRatio = Hidden.LeftRightRatio.ModelValue,
+                udOutputDPIRatio = Hidden.UpDownRatio.ModelValue,
+                snap = Hidden.AngleSnappingDegrees.ModelValue,
+                maximumSpeed = Hidden.SpeedCap.ModelValue,
+
+                // The driver supports a speed floor (common/rawaccel-base.hpp), but the UI
+                // deliberately does not expose one; keep it pinned at 0.
+                minimumSpeed = 0,
+                inputSpeedArgs = new SpeedArgs
+                {
+                    combineMagnitudes = Acceleration.Anisotropy.CombineXYComponents.ModelValue,
+                    lpNorm = Acceleration.Anisotropy.LPNorm.ModelValue,
+                    outputSmoothHalflife = Hidden.OutputSmoothingHalfLife.ModelValue,
+                    inputSmoothHalflife = Acceleration.Coalescion.InputSmoothingHalfLife.ModelValue,
+                    scaleSmoothHalflife = Acceleration.Coalescion.ScaleSmoothingHalfLife.ModelValue,
+                }
             };
         }
 
@@ -139,7 +174,7 @@ namespace userspace_backend.Model
 
         protected void RecalculateDriverData()
         {
-            CurrentValidatedDriverProfile = DriverHelpers.MapProfileModelToDriver(this);
+            CurrentValidatedDriverProfile = MapToDriver();
             logger.LogDebug(
                 "RecalculateDriverData for profile {Name}: outputDPI={OutputDPI} argsX.mode={Mode} argsX.accel={Accel}",
                 Name?.ModelValue ?? "<unnamed>",

@@ -1,72 +1,19 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace userspace_backend.Data
 {
-    public class Settings : INotifyPropertyChanged
+    public partial class Settings : ObservableObject
     {
+        [ObservableProperty]
         private bool showToastNotifications = true;
+
+        [ObservableProperty]
         private bool showConfirmModals = true;
+
+        [ObservableProperty]
         private string theme = "System";
+
+        [ObservableProperty]
         private string language = "en-US";
-
-        public bool ShowToastNotifications
-        {
-            get => showToastNotifications;
-            set
-            {
-                if (showToastNotifications != value)
-                {
-                    showToastNotifications = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string Theme
-        {
-            get => theme;
-            set
-            {
-                if (theme != value)
-                {
-                    theme = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool ShowConfirmModals
-        {
-            get => showConfirmModals;
-            set
-            {
-                if (showConfirmModals != value)
-                {
-                    showConfirmModals = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string Language
-        {
-            get => language;
-            set
-            {
-                if (language != value)
-                {
-                    language = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

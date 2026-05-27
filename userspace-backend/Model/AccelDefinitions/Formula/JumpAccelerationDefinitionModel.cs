@@ -13,18 +13,18 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class JumpAccelerationDefinitionModel
-        : EditableSettingsSelectable<JumpAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<JumpAccel>,
         IJumpAccelerationDefinitionModel
     {
-        public const string SmoothDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Smooth)}";
-        public const string InputDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Input)}";
-        public const string OutputDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Output)}";
+        public const string SmoothDIKey = $"{nameof(JumpAccelerationDefinitionModel)}.{nameof(Smooth)}";
+        public const string InputDIKey = $"{nameof(JumpAccelerationDefinitionModel)}.{nameof(Input)}";
+        public const string OutputDIKey = $"{nameof(JumpAccelerationDefinitionModel)}.{nameof(Output)}";
 
         public JumpAccelerationDefinitionModel(
             [FromKeyedServices(SmoothDIKey)]IEditableSettingSpecific<double> smooth,
             [FromKeyedServices(InputDIKey)]IEditableSettingSpecific<double> input,
             [FromKeyedServices(OutputDIKey)]IEditableSettingSpecific<double> output)
-            : base([smooth, input, output], [])
+            : base([smooth, input, output])
         {
             Smooth = smooth;
             Input = input;
@@ -37,7 +37,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Output { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override AccelArgs MapToDriver()
         {
             return new AccelArgs
             {
@@ -62,11 +62,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             return Smooth.TryUpdateModelDirectly(data.Smooth)
                 & Input.TryUpdateModelDirectly(data.Input)
                 & Output.TryUpdateModelDirectly(data.Output);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(JumpAccel data)
-        {
-            return true;
         }
     }
 }

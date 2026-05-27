@@ -3,8 +3,8 @@ using System.Collections.Generic;
 namespace RawAccel.Contracts
 {
     // Root JSON contract. Mirrors DriverConfig in wrapper/wrapper.cpp.
-    // The Windows wrapper IOCTL path consumes this exact shape; do not
-    // introduce divergent fields.
+    // Both the Windows wrapper IOCTL path and the Linux agent unix-socket
+    // path consume this exact shape; do not introduce divergent fields.
     public class RawAccelConfig
     {
         public string version { get; set; } = string.Empty;

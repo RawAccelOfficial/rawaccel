@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Data;
 using System.Collections.Specialized;
@@ -42,6 +43,9 @@ namespace userspace_backend.Model
             {
                 dg.DeviceGroupModels.CollectionChanged += OnIndividualMappingsChanged;
             }
+
+            // When a referenced profile is deleted, reassign affected entries to the default profile.
+            ((INotifyCollectionChanged)Profiles.Profiles).CollectionChanged += OnProfilesChanged;
         }
 
         private bool setActive;
@@ -132,6 +136,43 @@ namespace userspace_backend.Model
             FindDeviceGroupsStillUnmapped();
         }
 
+        protected void OnProfilesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems == null)
+            {
+                return;
+            }
+
+            foreach (IProfileModel removed in e.OldItems.OfType<IProfileModel>())
+            {
+                ReassignGroupsFromRemovedProfile(removed);
+            }
+        }
+
+        private void ReassignGroupsFromRemovedProfile(IProfileModel removedProfile)
+        {
+            IProfileModel? fallback = Profiles.DefaultProfile;
+
+            // If the default profile itself was the one removed, fall back to any remaining profile.
+            if (fallback == null || ReferenceEquals(fallback, removedProfile))
+            {
+                fallback = Profiles.Profiles.FirstOrDefault(p => !ReferenceEquals(p, removedProfile));
+            }
+
+            if (fallback == null)
+            {
+                return;
+            }
+
+            foreach (MappingGroup group in IndividualMappings)
+            {
+                if (ReferenceEquals(group.Profile, removedProfile))
+                {
+                    group.Profile = fallback;
+                }
+            }
+        }
+
         protected override bool TryMapEditableSettingsFromData(Mapping data)
         {
             return Name.TryUpdateModelDirectly(data.Name);
@@ -143,11 +184,17 @@ namespace userspace_backend.Model
         }
     }
 
-    public class MappingGroup
+    public class MappingGroup : ObservableObject
     {
         public string DeviceGroup { get; set; }
 
-        public IProfileModel Profile { get; set; }
+        private IProfileModel profile;
+
+        public IProfileModel Profile
+        {
+            get => profile;
+            set => SetProperty(ref profile, value);
+        }
 
         // This is here for easy binding
         public IProfilesModel Profiles { get; set; }

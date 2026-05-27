@@ -8,7 +8,7 @@ namespace userspace_backend.IO
 {
     public class DevicesReaderWriter : ReaderWriterBase<IEnumerable<Device>>
     {
-        public static JsonSerializerOptions JsonOptions = new JsonSerializerOptions { WriteIndented = true };
+        public static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions { WriteIndented = true };
 
         protected override string FileType => "Devices";
 
@@ -17,7 +17,7 @@ namespace userspace_backend.IO
             return JsonSerializer.Serialize(devices, JsonOptions);
         }
 
-        public override IEnumerable<Device> Deserialize(string toRead)
+        public override IEnumerable<Device>? Deserialize(string toRead)
         {
             return JsonSerializer.Deserialize<List<Device>>(toRead, JsonOptions);
         }

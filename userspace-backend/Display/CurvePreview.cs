@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using userspace_backend.Display.Calculations;
 using userspace_backend.Driver;
 using Profile = RawAccel.Contracts.RawAccelProfile;
@@ -35,13 +32,13 @@ namespace userspace_backend.Display
 
         public void GeneratePoints(Profile profile)
         {
-            IAccelInstance instance = evaluator.CreateInstance(profile);
+            using IAccelInstance instance = evaluator.CreateInstance(profile);
 
             foreach (CurvePoint point in Points)
             {
-                var (ox, oy) = instance.Accelerate(point.MouseSpeed, 0, 1, 1);
+                var (ox, oy) = instance.Accelerate(point.MouseSpeed, 0, dpiFactor: 1, timeMs: 1);
                 var outputSpeed = Math.Sqrt(ox * ox + oy * oy);
-                point.Output = outputSpeed / point.MouseSpeed;
+                point.Output = point.MouseSpeed > 0 ? outputSpeed / point.MouseSpeed : 0.0;
             }
         }
 
@@ -54,9 +51,9 @@ namespace userspace_backend.Display
             }
         }
 
-        protected void InitPoints()
+        private void InitPoints()
         {
-            ICollection<double> speeds = CurveCalculationHelpers.CalculateCurvePointSpeeds();
+            IReadOnlyList<double> speeds = CurveCalculationHelpers.CalculateCurvePointSpeeds();
             
             foreach (double speed in speeds)
             {

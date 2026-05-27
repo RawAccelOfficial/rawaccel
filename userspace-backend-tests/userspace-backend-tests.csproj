@@ -25,19 +25,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\userspace-backend\userspace-backend.csproj" />
+  </ItemGroup>
+
+  <!-- Wrapper is C++/CLI net472, only buildable on Windows. Tests that
+       exercise the Windows IOCTL path (BackEndApplyTests, SystemDevicesTests)
+       are excluded from the Linux build via the next ItemGroup. -->
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <ProjectReference Include="..\wrapper\wrapper.vcxproj" />
   </ItemGroup>
 
-  <!--
-    These tests reference UserInputParsers / ModelValueValidators, static helpers
-    removed during the DI refactor.They currently don't compile.
-  -->
-  <ItemGroup>
-    <Compile Remove="ModelTests\EditableSettingsTests.cs" />
-    <Compile Remove="ModelTests\EditableSettingsCollectionTests.cs" />
-    <Compile Remove="ModelTests\EditableSettingsSelectorTests.cs" />
-    <Compile Remove="ModelTests\EditableSettingsListTests.cs" />
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove="ModelTests\WindowsSystemDevicesTests.cs" />
   </ItemGroup>
+
 
   <ItemGroup>
     <None Update="TestFiles\DevicesReaderWriter\ExpectedOutputs\expectedOverwriteOutput.json">

@@ -11,7 +11,7 @@ namespace userspace_backend.IO
 {
     public class MappingsReaderWriter : ReaderWriterBase<MappingSet>
     {
-        public static JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        public static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
         {
             WriteIndented = true,
         };
@@ -23,7 +23,7 @@ namespace userspace_backend.IO
             return JsonSerializer.Serialize(toWrite, JsonOptions);
         }
 
-        public override MappingSet Deserialize(string toRead)
+        public override MappingSet? Deserialize(string toRead)
         {
             return JsonSerializer.Deserialize<MappingSet>(toRead, JsonOptions);
         }

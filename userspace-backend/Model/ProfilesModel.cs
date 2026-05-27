@@ -49,7 +49,8 @@ namespace userspace_backend.Model
 
         public ReadOnlyObservableCollection<IProfileModel> Profiles => Elements;
 
-        public IProfileModel? DefaultProfile => Elements.FirstOrDefault(p => p.Name.ModelValue == "default");
+        public IProfileModel? DefaultProfile =>
+            Elements.FirstOrDefault(p => string.Equals(p.Name.ModelValue, "default", StringComparison.InvariantCultureIgnoreCase));
 
         public bool TryGetProfile(string name, out IProfileModel? profile) => TryGetElement(name, out profile);
 

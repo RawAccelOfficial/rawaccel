@@ -15,20 +15,20 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class ClassicAccelerationDefinitionModel
-        : EditableSettingsSelectable<ClassicAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<ClassicAccel>,
         IClassicAccelerationDefinitionModel
     {
         public const string AccelerationDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Acceleration)}";
         public const string ExponentDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Exponent)}";
         public const string OffsetDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Offset)}";
-        public const string CapDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(CapDIKey)}";
+        public const string CapDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Cap)}";
 
         public ClassicAccelerationDefinitionModel(
             [FromKeyedServices(AccelerationDIKey)]IEditableSettingSpecific<double> acceleration,
             [FromKeyedServices(ExponentDIKey)]IEditableSettingSpecific<double> exponent,
             [FromKeyedServices(OffsetDIKey)]IEditableSettingSpecific<double> offset,
             [FromKeyedServices(CapDIKey)]IEditableSettingSpecific<double> cap)
-            : base([acceleration, exponent, offset, cap], [])
+            : base([acceleration, exponent, offset, cap])
         {
             Acceleration = acceleration;
             Exponent = exponent;
@@ -44,7 +44,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Cap { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override AccelArgs MapToDriver()
         {
             return new AccelArgs
             {
@@ -74,11 +74,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 & Exponent.TryUpdateModelDirectly(data.Exponent)
                 & Offset.TryUpdateModelDirectly(data.Offset)
                 & Cap.TryUpdateModelDirectly(data.Cap);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(ClassicAccel data)
-        {
-            return true;
         }
     }
 }

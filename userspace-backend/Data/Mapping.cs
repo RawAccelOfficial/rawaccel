@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -18,16 +18,16 @@ namespace userspace_backend.Data
 
         public override bool Equals(object? obj)
         {
-            bool isEqual = obj is Mapping mapping
-                && string.Equals(Name, mapping.Name, StringComparison.InvariantCultureIgnoreCase)
-                && mapping.GroupsToProfiles.Equals(this.GroupsToProfiles);
-
-            return isEqual;
+            return obj is Mapping mapping
+                && string.Equals(Name, mapping.Name, StringComparison.OrdinalIgnoreCase)
+                && (GroupsToProfiles?.Equals(mapping.GroupsToProfiles) ?? mapping.GroupsToProfiles is null);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name.ToUpperInvariant(), GroupsToProfiles);
+            return HashCode.Combine(
+                Name is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(Name),
+                GroupsToProfiles?.GetHashCode() ?? 0);
         }
 
         public class GroupsToProfilesMapping : Dictionary<string, string>
@@ -36,21 +36,27 @@ namespace userspace_backend.Data
             {
                 return obj is GroupsToProfilesMapping mapping &&
                        Count == mapping.Count &&
-                       this.All(kvp => 
-                           mapping.TryGetValue(kvp.Key, out string mappingValue)
-                           && string.Equals(mappingValue, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
+                       this.All(kvp =>
+                           mapping.TryGetValue(kvp.Key, out string? mappingValue)
+                           && string.Equals(mappingValue, kvp.Value, StringComparison.OrdinalIgnoreCase));
             }
 
             public override int GetHashCode()
             {
-                HashCode hash = new HashCode();
+                // XOR per-entry hashes so the result is order-independent,
+                // matching the order-independent Equals above. Keys use the
+                // dictionary's (ordinal) comparer; values are case-insensitive.
+                int hash = 0;
 
                 foreach (var kvp in this)
                 {
-                    hash.Add(kvp.GetHashCode());
+                    int valueHash = kvp.Value is null
+                        ? 0
+                        : StringComparer.OrdinalIgnoreCase.GetHashCode(kvp.Value);
+                    hash ^= HashCode.Combine(kvp.Key, valueHash);
                 }
 
-                return hash.ToHashCode();
+                return hash;
             }
         }
     }
@@ -59,6 +65,8 @@ namespace userspace_backend.Data
     {
         public bool Equals(Mapping? x, Mapping? y)
         {
+            if (ReferenceEquals(x, y)) return true;
+            if (x is null || y is null) return false;
             return x.Equals(y);
         }
 
@@ -77,16 +85,29 @@ namespace userspace_backend.Data
 
         public override bool Equals(object? obj)
         {
-            MappingSet test = obj as MappingSet;
-            return obj is MappingSet set
-            && set.Mappings.Length == this.Mappings.Length
-            && set.ActiveMappingIndex == this.ActiveMappingIndex
-            && !set.Mappings.Except(this.Mappings, Mapping.EqualityComparer).Any();
+            if (obj is not MappingSet set) return false;
+            if (ActiveMappingIndex != set.ActiveMappingIndex) return false;
+            if (ReferenceEquals(Mappings, set.Mappings)) return true;
+            if (Mappings is null || set.Mappings is null) return false;
+
+            return Mappings.Length == set.Mappings.Length
+                && !set.Mappings.Except(Mappings, Mapping.EqualityComparer).Any();
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Mappings, ActiveMappingIndex);
+            // XOR element hashes so the hash is order-independent, consistent
+            // with the set-based Equals; combine with the positional index.
+            int mappingsHash = 0;
+            if (Mappings is not null)
+            {
+                foreach (Mapping mapping in Mappings)
+                {
+                    mappingsHash ^= mapping?.GetHashCode() ?? 0;
+                }
+            }
+
+            return HashCode.Combine(mappingsHash, ActiveMappingIndex);
         }
     }
 }

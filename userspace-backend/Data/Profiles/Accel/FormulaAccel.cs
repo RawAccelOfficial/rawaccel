@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace userspace_backend.Data.Profiles.Accel
 {
-    public class FormulaAccel : Acceleration
+    public abstract class FormulaAccel : Acceleration
     {
         public enum AccelerationFormulaType
         {
@@ -18,9 +12,9 @@ namespace userspace_backend.Data.Profiles.Accel
             Jump = 5,
         }
 
-        public override AccelerationDefinitionType Type { get => AccelerationDefinitionType.Formula; }
+        public override AccelerationDefinitionType Type => AccelerationDefinitionType.Formula;
 
-        public virtual AccelerationFormulaType FormulaType { get; }
+        public abstract AccelerationFormulaType FormulaType { get; }
 
         public bool Gain { get; set; }
     }

@@ -19,7 +19,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class SynchronousAccelerationDefinitionModel
-        : EditableSettingsSelectable<SynchronousAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<SynchronousAccel>,
         ISynchronousAccelerationDefinitionModel
     {
         public const string SyncSpeedDIKey = $"{nameof(SynchronousAccelerationDefinitionModel)}.{nameof(SyncSpeed)}";
@@ -32,7 +32,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             [FromKeyedServices(MotivityDIKey)]IEditableSettingSpecific<double> motivity,
             [FromKeyedServices(GammaDIKey)]IEditableSettingSpecific<double> gamma,
             [FromKeyedServices(SmoothnessDIKey)]IEditableSettingSpecific<double> smoothness)
-            : base([syncSpeed, motivity, gamma, smoothness], [])
+            : base([syncSpeed, motivity, gamma, smoothness])
         {
             SyncSpeed = syncSpeed;
             Motivity = motivity;
@@ -48,7 +48,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Smoothness { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override AccelArgs MapToDriver()
         {
             return new AccelArgs
             {
@@ -77,11 +77,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 & Motivity.TryUpdateModelDirectly(data.Motivity)
                 & Gamma.TryUpdateModelDirectly(data.Gamma)
                 & Smoothness.TryUpdateModelDirectly(data.Smoothness);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(SynchronousAccel data)
-        {
-            return true;
         }
     }
 }

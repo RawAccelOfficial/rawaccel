@@ -73,6 +73,8 @@
 
 				<ContentControl Content="{Binding LPNorm}" HorizontalAlignment="Center"/>
 
+				<ContentControl Content="{Binding CombineXY}" HorizontalAlignment="Stretch"/>
+
 			</StackPanel>
 		</controls:EditableExpanderView.ExpanderContent>
 	</controls:EditableExpanderView>

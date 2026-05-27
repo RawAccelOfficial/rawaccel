@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,91 +6,8 @@ using System.Linq;
 
 namespace userspace_backend.Model.EditableSettings
 {
-    public abstract class EditableSettingsCollection<T> : ObservableObject, IEditableSettingsCollectionV2
-    {
-        public EditableSettingsCollection(T dataObject)
-        {
-            InitEditableSettingsAndCollections(dataObject);
-            GatherEditableSettings();
-            GatherEditableSettingsCollections();
-        }
-
-        public EventHandler AnySettingChanged { get; set; }
-
-        public IEnumerable<IEditableSetting> AllContainedEditableSettings { get; set; }
-
-        public IEnumerable<IEditableSettingsCollectionV2> AllContainedEditableSettingsCollections { get; set; }
-
-        public bool HasChanged { get; protected set; }
-
-        public void EvaluateWhetherHasChanged()
-        {
-            if (AllContainedEditableSettings.Any(s => s.HasChanged()) ||
-                AllContainedEditableSettingsCollections.Any(c => c.HasChanged))
-            {
-                HasChanged = true;
-            }
-            else
-            {
-                HasChanged = false;
-            }
-        }
-
-        public void GatherEditableSettings()
-        {
-            AllContainedEditableSettings = EnumerateEditableSettings();
-
-            foreach (var setting in AllContainedEditableSettings)
-            {
-                // TODO: revisit settings composition so that this null check is unnecessary
-                if (setting != null)
-                {
-                    setting.PropertyChanged += EditableSettingChangedEventHandler;
-                }
-            }
-        }
-        public void GatherEditableSettingsCollections()
-        {
-            AllContainedEditableSettingsCollections = EnumerateEditableSettingsCollections();
-
-            // TODO: separate "All" and "currently selected" settings collections
-            // so that incorrect assignment is not done here for collections that alter this through use
-            foreach (var settingsCollection in AllContainedEditableSettingsCollections)
-            {
-                settingsCollection.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
-            }
-        }
-
-        protected void EditableSettingChangedEventHandler(object? sender, PropertyChangedEventArgs e)
-        {
-            if (string.Equals(e.PropertyName, nameof(IEditableSettingSpecific<IComparable>.ModelValue)))
-            {
-                OnAnySettingChanged();
-            }
-        }
-
-        protected void EditableSettingsCollectionChangedEventHandler(object? sender, EventArgs e)
-        {
-            OnAnySettingChanged();
-        }
-
-        protected void OnAnySettingChanged()
-        {
-            AnySettingChanged?.Invoke(this, new EventArgs());
-        }
-
-        protected abstract void InitEditableSettingsAndCollections(T dataObject);
-
-        protected abstract IEnumerable<IEditableSetting> EnumerateEditableSettings();
-
-        protected abstract IEnumerable<IEditableSettingsCollectionV2> EnumerateEditableSettingsCollections();
-
-        public abstract T MapToData();
-    }
-
     /// <summary>
-    /// Collection of editable settings and other collections.
-    /// Internal node of settings tree.
+    /// Internal node of the settings tree.
     /// </summary>
     /// <remarks>
     /// The settings model for this backend is a composed object containing other composed objects and settings.
@@ -119,6 +36,91 @@ namespace userspace_backend.Model.EditableSettings
     }
 
     /// <summary>
+    /// Shared base for the settings-collection internal nodes. Holds the change-tracking
+    /// state and the event plumbing common to both the original (<see cref="EditableSettingsCollection{T}"/>)
+    /// and the dependency-injected (<see cref="EditableSettingsCollectionV2{T}"/>) flavors.
+    /// Subclasses are responsible for populating <see cref="AllContainedEditableSettings"/> and
+    /// <see cref="AllContainedEditableSettingsCollections"/> and for subscribing the change handlers.
+    /// </summary>
+    public abstract class EditableSettingsCollectionBase<T> : ObservableObject, IEditableSettingsCollectionV2
+    {
+        public EventHandler AnySettingChanged { get; set; }
+
+        public IEnumerable<IEditableSetting> AllContainedEditableSettings { get; protected set; }
+
+        public IEnumerable<IEditableSettingsCollectionV2> AllContainedEditableSettingsCollections { get; protected set; }
+
+        public bool HasChanged { get; protected set; }
+
+        public void EvaluateWhetherHasChanged()
+        {
+            HasChanged = AllContainedEditableSettings.Any(s => s.HasChanged())
+                || AllContainedEditableSettingsCollections.Any(c => c.HasChanged);
+        }
+
+        protected void EditableSettingChangedEventHandler(object? sender, PropertyChangedEventArgs e)
+        {
+            if (string.Equals(e.PropertyName, nameof(IEditableSettingSpecific<IComparable>.ModelValue)))
+            {
+                OnAnySettingChanged();
+            }
+        }
+
+        protected void EditableSettingsCollectionChangedEventHandler(object? sender, EventArgs e)
+        {
+            OnAnySettingChanged();
+        }
+
+        protected void OnAnySettingChanged()
+        {
+            AnySettingChanged?.Invoke(this, new EventArgs());
+        }
+
+        public abstract T MapToData();
+    }
+
+    public abstract class EditableSettingsCollection<T> : EditableSettingsCollectionBase<T>
+    {
+        public EditableSettingsCollection(T dataObject)
+        {
+            InitEditableSettingsAndCollections(dataObject);
+            GatherEditableSettings();
+            GatherEditableSettingsCollections();
+        }
+
+        public void GatherEditableSettings()
+        {
+            AllContainedEditableSettings = EnumerateEditableSettings();
+
+            foreach (var setting in AllContainedEditableSettings)
+            {
+                // TODO: revisit settings composition so that this null check is unnecessary
+                if (setting != null)
+                {
+                    setting.PropertyChanged += EditableSettingChangedEventHandler;
+                }
+            }
+        }
+        public void GatherEditableSettingsCollections()
+        {
+            AllContainedEditableSettingsCollections = EnumerateEditableSettingsCollections();
+
+            // TODO: separate "All" and "currently selected" settings collections
+            // so that incorrect assignment is not done here for collections that alter this through use
+            foreach (var settingsCollection in AllContainedEditableSettingsCollections)
+            {
+                settingsCollection.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
+            }
+        }
+
+        protected abstract void InitEditableSettingsAndCollections(T dataObject);
+
+        protected abstract IEnumerable<IEditableSetting> EnumerateEditableSettings();
+
+        protected abstract IEnumerable<IEditableSettingsCollectionV2> EnumerateEditableSettingsCollections();
+    }
+
+    /// <summary>
     /// Base class for settings collections.
     /// </summary>
     /// <remarks>
@@ -128,7 +130,7 @@ namespace userspace_backend.Model.EditableSettings
     /// The actual settings collections in the model do not need to each be tested beyond composition.
     /// </remarks>
     /// <typeparam name="T"></typeparam>
-    public abstract class EditableSettingsCollectionV2<T> : ObservableObject, IEditableSettingsCollectionSpecific<T>
+    public abstract class EditableSettingsCollectionV2<T> : EditableSettingsCollectionBase<T>, IEditableSettingsCollectionSpecific<T>
     {
         public EditableSettingsCollectionV2(
             IEnumerable<IEditableSetting> editableSettings,
@@ -154,14 +156,6 @@ namespace userspace_backend.Model.EditableSettings
             }
         }
 
-        public EventHandler AnySettingChanged { get; set; }
-
-        public IEnumerable<IEditableSetting> AllContainedEditableSettings { get; set; }
-
-        public IEnumerable<IEditableSettingsCollectionV2> AllContainedEditableSettingsCollections { get; set; }
-
-        public bool HasChanged { get; protected set; }
-
         public bool TryMapFromData(T data)
         {
             bool result = true;
@@ -171,39 +165,6 @@ namespace userspace_backend.Model.EditableSettings
 
             return result;
         }
-
-        public void EvaluateWhetherHasChanged()
-        {
-            if (AllContainedEditableSettings.Any(s => s.HasChanged()) ||
-                AllContainedEditableSettingsCollections.Any(c => c.HasChanged))
-            {
-                HasChanged = true;
-            }
-            else
-            {
-                HasChanged = false;
-            }
-        }
-
-        protected void EditableSettingChangedEventHandler(object? sender, PropertyChangedEventArgs e)
-        {
-            if (string.Equals(e.PropertyName, nameof(IEditableSettingSpecific<IComparable>.ModelValue)))
-            {
-                OnAnySettingChanged();
-            }
-        }
-
-        protected void EditableSettingsCollectionChangedEventHandler(object? sender, EventArgs e)
-        {
-            OnAnySettingChanged();
-        }
-
-        protected void OnAnySettingChanged()
-        {
-            AnySettingChanged?.Invoke(this, new EventArgs());
-        }
-
-        public abstract T MapToData();
 
         protected abstract bool TryMapEditableSettingsFromData(T data);
 

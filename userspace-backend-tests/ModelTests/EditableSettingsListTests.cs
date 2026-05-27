@@ -222,6 +222,36 @@ namespace userspace_backend_tests.ModelTests
             Assert.AreEqual(2, testObject.Elements.Count);
         }
 
+        [TestMethod]
+        public void EditableSettingsList_MapFromData_RemovesStaleElementsAndUpdatesKept()
+        {
+            // Regression: the list previously only added/updated on data load and
+            // never removed elements that the new data no longer contained.
+            (IEditableSettingsTestList testObject, _) = InitTestObject("Property", 2, "Name", "seed");
+
+            testObject.TryMapFromData(new[]
+            {
+                new TestData { Name = "A", Property = 1 },
+                new TestData { Name = "B", Property = 2 },
+                new TestData { Name = "C", Property = 3 },
+            });
+            Assert.AreEqual(3, testObject.Elements.Count);
+
+            // Reload with a subset: C must be dropped, A and B kept and updated.
+            testObject.TryMapFromData(new[]
+            {
+                new TestData { Name = "A", Property = 10 },
+                new TestData { Name = "B", Property = 20 },
+            });
+
+            Assert.AreEqual(2, testObject.Elements.Count);
+            CollectionAssert.AreEquivalent(
+                new[] { "A", "B" },
+                testObject.Elements.Select(e => e.NameSetting.ModelValue).ToList());
+            Assert.IsFalse(testObject.TryGetElement("C", out _), "Stale element C should have been removed.");
+            Assert.IsTrue(testObject.TryGetElement("A", out var a) && a!.PropertySetting.ModelValue == 10);
+        }
+
         #endregion Tests
     }
 }

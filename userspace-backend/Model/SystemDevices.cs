@@ -51,8 +51,9 @@ namespace userspace_backend.Model
 
     /// <summary>
     /// Retrieves list of devices from operating system. Concrete impls are
-    /// per-platform; WindowsSystemDevicesRetriever reads RawInput via
-    /// wrapper.dll.
+    /// per-platform: WindowsSystemDevicesRetriever (RawInput via wrapper.dll)
+    /// or LinuxSystemDevicesRetriever (currently a stub; future: query the
+    /// agent or read /dev/input directly).
     /// </summary>
     public interface ISystemDevicesRetriever
     {

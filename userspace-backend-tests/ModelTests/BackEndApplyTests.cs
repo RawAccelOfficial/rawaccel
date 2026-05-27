@@ -13,6 +13,7 @@ using userspace_backend.IO;
 using userspace_backend.Model;
 using userspace_backend.Model.AccelDefinitions;
 using userspace_backend.Model.AccelDefinitions.Formula;
+using userspace_backend.Model.EditableSettings;
 using DATA = userspace_backend.Data;
 
 namespace userspace_backend_tests.ModelTests
@@ -59,9 +60,9 @@ namespace userspace_backend_tests.ModelTests
             public string HWID { get; init; } = string.Empty;
         }
 
-        // Captures whatever the BackEnd hands to its driver. Implements
-        // IRawAccelDriver so these tests exercise the apply path without
-        // touching wrapper.dll or a real backend.
+        // Captures whatever the BackEnd hands to its driver. Cross-platform:
+        // implements IRawAccelDriver so the same tests run on Windows and Linux
+        // builds without touching wrapper.dll or the agent socket.
         private sealed class CapturingDriver : IRawAccelDriver
         {
             public RawAccelConfig? CapturedConfig { get; private set; }
@@ -80,7 +81,7 @@ namespace userspace_backend_tests.ModelTests
 
             public void Deactivate() { }
 
-            public double GetCurrentMouseSpeed() => 0;
+            public MouseSpeedSample GetCurrentMouseSpeedSample() => MouseSpeedSample.Zero;
         }
 
         private static (IBackEnd backEnd, CapturingDriver driver) BuildBackEndWithDefaults(
@@ -107,6 +108,62 @@ namespace userspace_backend_tests.ModelTests
             backEnd.Apply();
             Assert.IsNotNull(driver.CapturedConfig, "Apply should have handed a RawAccelConfig to the driver.");
             return driver.CapturedConfig!;
+        }
+
+        [TestMethod]
+        public void FormulaDIKeys_AreDistinctPerFormula_SoExponentDefaultsDoNotCollide()
+        {
+            // Regression: Power (and Jump) prefixed their DI keys with
+            // nameof(ClassicAccelerationDefinitionModel), so Power.ExponentDIKey
+            // equalled Classic.ExponentDIKey. AddEditableSetting uses
+            // AddKeyedTransient (last registration wins), so Classic's Exponent
+            // silently resolved to Power's default (0.05) instead of its own (2).
+            Assert.AreNotEqual(
+                ClassicAccelerationDefinitionModel.ExponentDIKey,
+                PowerAccelerationDefinitionModel.ExponentDIKey,
+                "Classic and Power exponent DI keys must be distinct.");
+            Assert.AreNotEqual(
+                ClassicAccelerationDefinitionModel.CapDIKey,
+                PowerAccelerationDefinitionModel.CapDIKey,
+                "Classic and Power cap DI keys must be distinct.");
+
+            var services = new ServiceCollection();
+            services.AddSingleton<IBackEndLoader>(new StubBackEndLoader());
+            services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
+            services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            var sp = BackEndComposer.Compose(services);
+
+            var classicExponent = sp.GetRequiredKeyedService<IEditableSettingSpecific<double>>(
+                ClassicAccelerationDefinitionModel.ExponentDIKey);
+            var powerExponent = sp.GetRequiredKeyedService<IEditableSettingSpecific<double>>(
+                PowerAccelerationDefinitionModel.ExponentDIKey);
+
+            Assert.AreEqual(2.0, classicExponent.ModelValue, "Classic exponent default should be 2.");
+            Assert.AreEqual(0.05, powerExponent.ModelValue, "Power exponent default should be 0.05.");
+        }
+
+        [TestMethod]
+        public void RemovingReferencedProfile_ReassignsMappingToDefault()
+        {
+            var (backEnd, _) = BuildBackEndWithDefaults();
+
+            Assert.IsTrue(backEnd.Profiles.TryAddNewDefaultProfile("Gaming"));
+            backEnd.Devices.DeviceGroups.AddOrGetDeviceGroup("MyGroup");
+
+            MappingModel mapping = backEnd.Mappings.GetActiveMapping()!;
+            Assert.IsNotNull(mapping);
+            Assert.IsTrue(mapping.TryAddMapping("MyGroup", "Gaming"));
+
+            MappingGroup group = mapping.IndividualMappings.Single(g =>
+                string.Equals(g.DeviceGroup, "MyGroup", StringComparison.InvariantCultureIgnoreCase));
+            Assert.AreEqual("Gaming", group.Profile.Name.ModelValue);
+
+            // Delete the referenced profile.
+            Assert.IsTrue(backEnd.Profiles.TryGetProfile("Gaming", out IProfileModel? gaming) && gaming != null);
+            Assert.IsTrue(backEnd.Profiles.RemoveProfile(gaming!));
+
+            // The mapping entry must fall back to the default profile, not keep a dangling reference.
+            Assert.AreEqual("Default", group.Profile.Name.ModelValue);
         }
 
         [TestMethod]
@@ -359,6 +416,53 @@ namespace userspace_backend_tests.ModelTests
                 "DriverConfig should reflect the tweaked Classic.Acceleration coefficient. " +
                 "If this fails with the default coefficient, EditableSettingsSelector is not " +
                 "propagating nested sub-model changes up to ProfileModel.");
+        }
+
+        [TestMethod]
+        public void Apply_SingleCurve_PopulatesBothAxes()
+        {
+            // Regression: ProfileModel.MapToDriver used to set only argsX, leaving argsY
+            // at its noaccel default. With the default by-component anisotropy mode
+            // (CombineXYComponents == false) the native math indexes Y through argsY,
+            // so vertical acceleration was silently dead while horizontal worked and
+            // the flat sens multipliers still applied. The single model curve must
+            // drive BOTH argsX and argsY.
+            var (backEnd, driver) = BuildBackEndWithDefaults();
+            var profile = backEnd.Profiles.Elements[0];
+
+            Assert.IsTrue(
+                profile.Acceleration.DefinitionType.TryUpdateModelDirectly(
+                    Acceleration.AccelerationDefinitionType.Formula),
+                "Flipping DefinitionType to Formula should succeed.");
+
+            var formulaAccel = (FormulaAccelModel)profile.Acceleration.GetSelectable(
+                Acceleration.AccelerationDefinitionType.Formula);
+
+            Assert.IsTrue(
+                formulaAccel.FormulaType.TryUpdateModelDirectly(
+                    FormulaAccel.AccelerationFormulaType.Classic),
+                "Flipping FormulaType to Classic should succeed.");
+
+            var classic = (ClassicAccelerationDefinitionModel)formulaAccel.GetSelectable(
+                FormulaAccel.AccelerationFormulaType.Classic);
+
+            const double expectedAcceleration = 0.123;
+            Assert.IsTrue(
+                classic.Acceleration.TryUpdateModelDirectly(expectedAcceleration),
+                "Classic.Acceleration update should succeed.");
+
+            var cfg = ApplyAndCapture(backEnd, driver);
+
+            // X is the historically-tested axis; Y is the regression guard.
+            Assert.AreEqual(AccelMode.classic, cfg.profiles[0].argsY.mode,
+                "argsY must carry the same accel mode as argsX, or vertical acceleration " +
+                "is dead in by-component mode (argsY left at the noaccel default).");
+            Assert.AreEqual(expectedAcceleration, cfg.profiles[0].argsY.acceleration,
+                "argsY must carry the same curve coefficient as argsX.");
+            Assert.AreEqual(cfg.profiles[0].argsX.mode, cfg.profiles[0].argsY.mode,
+                "The single model curve must drive both axes identically.");
+            Assert.AreEqual(cfg.profiles[0].argsX.acceleration, cfg.profiles[0].argsY.acceleration,
+                "The single model curve must drive both axes identically.");
         }
 
         // Regression: a saved ClassicAccel used to StackOverflow on Load via

@@ -13,6 +13,7 @@ namespace userspace_backend.Driver.Windows
     {
         public IAccelInstance CreateInstance(RawAccelProfile profile)
         {
+            if (profile == null) throw new ArgumentNullException(nameof(profile));
             var json = JsonConvert.SerializeObject(profile);
             var nativeProfile = JsonConvert.DeserializeObject<Profile>(json)
                 ?? throw new InvalidOperationException(
@@ -36,6 +37,9 @@ namespace userspace_backend.Driver.Windows
                 var t = accel.Accelerate(x, y, dpiFactor, timeMs);
                 return (t.Item1, t.Item2);
             }
+
+            // ManagedAccel is a C++/CLI ref type; dispose it if it owns native state.
+            public void Dispose() => (accel as IDisposable)?.Dispose();
         }
     }
 }

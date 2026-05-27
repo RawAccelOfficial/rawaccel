@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,7 @@ namespace userspace_backend.Logging
         internal void Append(string categoryName, LogLevel level, string message, Exception? exception)
         {
             var sb = new StringBuilder();
-            sb.Append('[').Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")).Append("] ");
+            sb.Append('[').Append(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fffZ")).Append("] ");
             sb.Append('[').Append(level).Append("] ");
             sb.Append('[').Append(categoryName).Append("] ");
             sb.Append(message);
@@ -47,9 +48,11 @@ namespace userspace_backend.Logging
                 {
                     File.AppendAllText(filePath, sb.ToString(), Encoding.UTF8);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Never crash the app because of a log write failure.
+                    // Never crash the app because of a log write failure, but make the
+                    // failure observable instead of silently losing log output.
+                    Debug.WriteLine($"FileLoggerProvider failed to write to '{filePath}': {ex}");
                 }
             }
         }

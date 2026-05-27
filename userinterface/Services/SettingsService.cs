@@ -83,11 +83,7 @@ public class SettingsService : ISettingsService
         errorMessage = null;
         try
         {
-            if (!backEnd.Apply())
-            {
-                errorMessage = "Failed to apply settings to driver.";
-                return false;
-            }
+            backEnd.SaveToDisk();
             return true;
         }
         catch (Exception ex)

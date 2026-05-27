@@ -11,7 +11,7 @@ namespace userspace_backend.Model.EditableSettings
 
         string DisplayText { get; }
 
-        string EditedValueForDiplay { get; }
+        string EditedValueForDisplay { get; }
 
         string InterfaceValue { get; set; }
 

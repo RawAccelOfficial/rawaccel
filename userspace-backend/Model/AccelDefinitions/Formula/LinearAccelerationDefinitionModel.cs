@@ -14,18 +14,18 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class LinearAccelerationDefinitionModel
-        : EditableSettingsSelectable<LinearAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<LinearAccel>,
         ILinearAccelerationDefinitionModel
     {
         public const string AccelerationDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(Acceleration)}";
         public const string OffsetDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(Offset)}";
-        public const string CapDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(CapDIKey)}";
+        public const string CapDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(Cap)}";
 
         public LinearAccelerationDefinitionModel(
             [FromKeyedServices(AccelerationDIKey)]IEditableSettingSpecific<double> acceleration,
             [FromKeyedServices(OffsetDIKey)]IEditableSettingSpecific<double> offset,
             [FromKeyedServices(CapDIKey)]IEditableSettingSpecific<double> cap)
-            : base([acceleration, offset, cap], [])
+            : base([acceleration, offset, cap])
         {
             Acceleration = acceleration;
             Offset = offset;
@@ -38,7 +38,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Cap { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override AccelArgs MapToDriver()
         {
             return new AccelArgs
             {
@@ -66,11 +66,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             return Acceleration.TryUpdateModelDirectly(data.Acceleration)
                 & Offset.TryUpdateModelDirectly(data.Offset)
                 & Cap.TryUpdateModelDirectly(data.Cap);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(LinearAccel data)
-        {
-            return true;
         }
     }
 }

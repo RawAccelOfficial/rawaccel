@@ -183,12 +183,12 @@ namespace userspace_backend_tests.SerializationTests
                   ],
                   "Anisotropy": {
                     "Domain": {
-                      "X": 0,
-                      "Y": 0
+                      "X": 1,
+                      "Y": 1
                     },
                     "Range": {
-                      "X": 0,
-                      "Y": 0
+                      "X": 1,
+                      "Y": 1
                     },
                     "LPNorm": 2,
                     "CombineXYComponents": false

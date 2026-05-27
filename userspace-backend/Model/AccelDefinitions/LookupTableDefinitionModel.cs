@@ -39,8 +39,12 @@ namespace userspace_backend.Model.AccelDefinitions
         public AccelArgs MapToDriver()
         {
             // data in driver profile must be predefined length for marshalling purposes
+            double[] lutData = Data.ModelValue.Data;
             var accelArgsData = new float[AccelArgs.MaxLutPoints*2];
-            Data.ModelValue.Data.Select(Convert.ToSingle).ToArray().CopyTo(accelArgsData, 0);
+            for (int i = 0; i < lutData.Length; i++)
+            {
+                accelArgsData[i] = (float)lutData[i];
+            }
 
             return new AccelArgs
             {
@@ -82,20 +86,13 @@ namespace userspace_backend.Model.AccelDefinitions
 
         public int CompareTo(object? obj)
         {
-            if (obj == null)
-            {
-                return -1;
-            }
-
-            double[]? compareTo = obj as double[];
-
-            if (compareTo == null)
+            if (obj is not LookupTableData other)
             {
                 return -1;
             }
 
             // We are using CompareTo as a stand-in for equality
-            return Data.SequenceEqual(compareTo) ? 0 : -1;
+            return Data.SequenceEqual(other.Data) ? 0 : -1;
         }
     }
 }

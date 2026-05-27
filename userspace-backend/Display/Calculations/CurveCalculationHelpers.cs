@@ -1,26 +1,25 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace userspace_backend.Display.Calculations
 {
+    // TODO: Replace with curvature-adaptive sampling or adjacent.
     public static class CurveCalculationHelpers
     {
+        // Non-zero floor: CurvePreview divides output by MouseSpeed, and any log grid
+        // needs a positive minimum. Do not lower this to 0.
         public const double SlowestHandSpeed = 0.05;
-        public const double FastestHandSpeed = 200;
-        public const double CurvePointsResolution = 256;
+        public const double FastestHandSpeed = 200;   // max charted hand speed
+        public const int CurvePointsResolution = 256;
 
-        public static ICollection<double> CalculateCurvePointSpeeds()
+        public static IReadOnlyList<double> CalculateCurvePointSpeeds()
         {
-            int count = (int)CurvePointsResolution;
+            int count = CurvePointsResolution;
             List<double> curvePointSpeeds = new List<double>(count);
 
-            double step = (FastestHandSpeed - SlowestHandSpeed) / (count - 1);
             for (int i = 0; i < count; i++)
             {
-                curvePointSpeeds.Add(SlowestHandSpeed + i * step);
+                double t = (double)i / (count - 1);
+                curvePointSpeeds.Add(SlowestHandSpeed + t * (FastestHandSpeed - SlowestHandSpeed));
             }
 
             return curvePointSpeeds;

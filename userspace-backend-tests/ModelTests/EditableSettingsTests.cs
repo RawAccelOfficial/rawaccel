@@ -138,6 +138,20 @@ namespace userspace_backend_tests.ModelTests
             Assert.AreEqual(0, propertyChangedHookCalls);
         }
 
+        [TestMethod]
+        public void EditableSetting_HasChanged_ReflectsWhetherValueDiffersFromLastWritten()
+        {
+            // Regression: HasChanged() previously returned CompareTo == 0, i.e. true
+            // when the value was UNCHANGED (inverted relative to its name).
+            EditableSettingV2<int> testObject = InitTestObject("Test Setting", 0);
+
+            Assert.IsFalse(testObject.HasChanged(), "An untouched setting must not report as changed.");
+
+            Assert.IsTrue(testObject.TryUpdateModelDirectly(500));
+
+            Assert.IsTrue(testObject.HasChanged(), "After changing away from the initial value, must report as changed.");
+        }
+
         #endregion Tests
     }
 }
