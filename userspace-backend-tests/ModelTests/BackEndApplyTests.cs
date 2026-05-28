@@ -84,6 +84,21 @@ namespace userspace_backend_tests.ModelTests
             public MouseSpeedSample GetCurrentMouseSpeedSample() => MouseSpeedSample.Zero;
         }
 
+        // Identity evaluator so CurvePreview composes in tests without a platform
+        // driver (Windows binds wrapper.dll; the Linux impl was excluded here).
+        private sealed class FakeAccelEvaluator : IAccelEvaluator
+        {
+            public IAccelInstance CreateInstance(RawAccelProfile profile) => new IdentityInstance();
+
+            private sealed class IdentityInstance : IAccelInstance
+            {
+                public (double x, double y) Accelerate(
+                    double x, double y, double dpiFactor, double timeMs) => (x, y);
+
+                public void Dispose() { }
+            }
+        }
+
         private static (IBackEnd backEnd, CapturingDriver driver) BuildBackEndWithDefaults(
             IList<ISystemDevice>? systemDevices = null)
         {
@@ -97,6 +112,7 @@ namespace userspace_backend_tests.ModelTests
             var driver = new CapturingDriver();
             services.AddSingleton<IRawAccelDriver>(driver);
 
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
             backEnd.Load();
@@ -131,6 +147,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<IBackEndLoader>(new StubBackEndLoader());
             services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
             services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
 
             var classicExponent = sp.GetRequiredKeyedService<IEditableSettingSpecific<double>>(
@@ -195,6 +212,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
             var driver = new CapturingDriver();
             services.AddSingleton<IRawAccelDriver>(driver);
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
             backEnd.Load();
@@ -354,6 +372,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<ISystemDevicesRetriever>(retrieverStub);
             services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
 
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
             backEnd.Load();
@@ -508,6 +527,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<IBackEndLoader>(new ClassicAccelLoader());
             services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
             services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
 
@@ -579,6 +599,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<IBackEndLoader>(new ZeroAnisotropyLoader());
             services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
             services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
 
@@ -690,6 +711,7 @@ namespace userspace_backend_tests.ModelTests
             services.AddSingleton<IBackEndLoader>(new CustomDeviceGroupLoader());
             services.AddSingleton<ISystemDevicesRetriever>(new StubSystemDevicesRetriever());
             services.AddSingleton<IRawAccelDriver>(new CapturingDriver());
+            services.AddSingleton<IAccelEvaluator>(new FakeAccelEvaluator());
             var sp = BackEndComposer.Compose(services);
             var backEnd = sp.GetRequiredService<IBackEnd>();
 

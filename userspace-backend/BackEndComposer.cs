@@ -351,11 +351,11 @@ namespace userspace_backend
                 // method can compile on Linux where those types do not exist.
                 RegisterWindowsServicesByReflection(services);
             }
-            else
-            {
-                throw new PlatformNotSupportedException(
-                    $"Raw Accel backend supports Windows only; current platform: {RuntimeInformation.OSDescription}");
-            }
+            // On non-Windows no platform driver is bundled (the Windows impls bind
+            // to wrapper.dll). Callers that need a driver/evaluator/devices
+            // retriever must register their own before Compose (the test fixtures
+            // do); an unregistered service surfaces a clear DI error at point of
+            // use rather than failing the whole composition up front.
         }
 
         private static void RegisterWindowsServicesByReflection(IServiceCollection services)
