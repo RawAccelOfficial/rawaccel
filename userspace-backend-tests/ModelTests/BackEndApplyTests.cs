@@ -84,8 +84,6 @@ namespace userspace_backend_tests.ModelTests
             public MouseSpeedSample GetCurrentMouseSpeedSample() => MouseSpeedSample.Zero;
         }
 
-        // Identity evaluator so CurvePreview composes in tests without a platform
-        // driver (Windows binds wrapper.dll; the Linux impl was excluded here).
         private sealed class FakeAccelEvaluator : IAccelEvaluator
         {
             public IAccelInstance CreateInstance(RawAccelProfile profile) => new IdentityInstance();
