@@ -340,6 +340,16 @@ namespace userspace_backend
         // non-Windows. Once wrapper is migrated to net8.0-windows
         // (<CLRSupport>NetCore</CLRSupport>), replace this with
         // compile safe registration and delete RegisterWindowsServicesByReflection
+        //
+        // TODO: While migrating the wrapper, also fix the root cause of the
+        // RaProfile/RaAccelArgs/etc. alias renames in this project: wrapper.cpp
+        // declares its public C++/CLI types (Profile, AccelArgs, DeviceSettings,
+        // DeviceConfig, AccelMode, CapMode, SpeedArgs) in the GLOBAL namespace,
+        // which collides with the Contracts aliases on Windows (CS0576) and lets
+        // bare references silently bind to the wrapper globals. Wrap those types
+        // in a namespace (e.g. namespace RawAccel) and update consumers
+        // (grapher, writer, wrapper-tests, wrapper-deps, this backend) so the
+        // Ra-prefixed aliases can revert to clean names.
         private static void RegisterPlatformServices(IServiceCollection services)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
