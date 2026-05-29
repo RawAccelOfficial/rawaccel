@@ -105,8 +105,7 @@ namespace userspace_backend.Model
 
         protected override void InitEditableSettingsAndCollections(IEnumerable<string> dataObject)
         {
-            // This initialization does not set up all device group models.
-            // That is done in backend construction in order to point the devices to their groups.
+            // Backend construction sets up the rest, pointing devices at their groups.
             DeviceGroupModels = new ObservableCollection<string>() { DefaultDeviceGroup };
         }
     }

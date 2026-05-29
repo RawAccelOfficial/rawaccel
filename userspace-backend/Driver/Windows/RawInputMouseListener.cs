@@ -9,20 +9,20 @@ using RawAccel.Contracts;
 
 namespace userspace_backend.Driver.Windows
 {
-    // Captures live mouse speed via Win32 raw input on its own message-only window
-    // and thread (the Avalonia UI exposes no WndProc to hook). Reports speed in the
-    // chart's units: counts/ms normalized to 1000 DPI, matching the curve math.
+    // Captures live mouse speed via Win32 raw input on its own message-only
+    // window + thread (Avalonia exposes no WndProc to hook). Reports in chart
+    // units: counts/ms normalized to 1000 DPI.
     //
-    // Raw input identifies devices by HANDLE; config keys DPI by hardware-id. We map
-    // handle -> hardware-id via wrapper.dll's MultiHandleDevice to pick the per-mouse
-    // normalization factor, defaulting for handles absent from the config.
+    // Raw input keys devices by HANDLE; config keys DPI by hardware-id. We map
+    // handle -> id via wrapper.dll's MultiHandleDevice; unmapped handles use the
+    // default factor.
     internal sealed class RawInputMouseListener : IDisposable
     {
-        // No movement for this long => report Zero (line eases back to rest).
+        // No movement for this long => Zero (line eases back to rest).
         private const double FreshnessMs = 150.0;
 
-        // Clamp the inter-event interval so bursts/stalls can't spike or flatline
-        // the speed. 0.1 ms is a 10 kHz ceiling, above any real polling rate.
+        // Clamp inter-event interval so bursts/stalls don't spike or flatline.
+        // 0.1 ms = 10 kHz ceiling, above any real polling rate.
         private const double MinIntervalMs = 0.1;
         private const double MaxIntervalMs = 100.0;
 
@@ -42,8 +42,8 @@ namespace userspace_backend.Driver.Windows
         private const uint RAWINPUT_ERROR = unchecked((uint)-1);
         private static readonly IntPtr HWND_MESSAGE = new(-3);
 
-        // Distinct window-class name per instance, so a re-created listener never
-        // collides with a not-yet-freed class name.
+        // Distinct class name per instance: a re-created listener can't collide
+        // with a not-yet-freed class.
         private static int instanceCounter;
 
         private readonly ILogger logger;
@@ -59,17 +59,17 @@ namespace userspace_backend.Driver.Windows
         private volatile bool running;
         private volatile bool disposed;
 
-        // Latest speed (guarded by gate); lastEventTimestamp is the freshness/
+        // Latest speed (under gate); lastEventTimestamp is the freshness +
         // inter-event clock (Interlocked).
         private double lastX, lastY, lastCombined;
         private long lastEventTimestamp;
 
-        // handle -> normalization factor (NormalizedDpi / dpi); defaultFactor for the rest.
-        // Volatile + build-once-publish lets HandleRawInput read lock-free on the hot path.
+        // handle -> NormalizedDpi/dpi; defaultFactor for the rest. Volatile +
+        // build-once-publish keeps HandleRawInput lock-free on the hot path.
         private volatile Dictionary<IntPtr, double> handleFactors = new();
         private double defaultFactor = 1.0;
 
-        // Applied config's DPI-by-hardware-id, used to rebuild handleFactors.
+        // Applied config's DPI-by-id, used to rebuild handleFactors.
         private Dictionary<string, int> dpiById = new(StringComparer.OrdinalIgnoreCase);
         private int defaultDpi = (int)RawAccelConstants.NormalizedDpi;
 
@@ -80,7 +80,7 @@ namespace userspace_backend.Driver.Windows
             className = $"RawAccelRawInputSink_{Environment.ProcessId}_{id}";
         }
 
-        // Starts the capture thread. Idempotent. Blocks briefly until setup is done.
+        // Starts the capture thread. Idempotent. Blocks briefly until ready.
         public void Start()
         {
             lock (lifecycleGate)
@@ -96,7 +96,7 @@ namespace userspace_backend.Driver.Windows
             ready.Wait(LifecycleTimeoutMs);
         }
 
-        // Feeds the applied config for per-device DPI. Safe to call before Start.
+        // Feeds per-device DPI from the applied config. Safe before Start.
         public void UpdateDevices(RawAccelConfig config)
         {
             int defDpi = config.defaultDeviceConfig?.dpi ?? (int)RawAccelConstants.NormalizedDpi;
@@ -120,7 +120,7 @@ namespace userspace_backend.Driver.Windows
             RebuildHandleMap();
         }
 
-        // The current normalized input speed, or Zero when idle/unavailable.
+        // Current normalized input speed; Zero if idle/unavailable.
         public MouseSpeedSample CurrentSample()
         {
             if (!running) return MouseSpeedSample.Zero;
@@ -146,7 +146,7 @@ namespace userspace_backend.Driver.Windows
                 running = false;
             }
 
-            // Paired Volatile.Read/Write: ThreadMain writes nativeThreadId outside any lock.
+            // Paired with ThreadMain's Volatile.Write outside any lock.
             uint tid = Volatile.Read(ref nativeThreadId);
             if (tid != 0)
             {
@@ -273,7 +273,7 @@ namespace userspace_backend.Driver.Windows
             }
         }
 
-        // Cached; Marshal reflection per WM_INPUT would burn the hot path.
+        // Cached: Marshal reflection per WM_INPUT would burn the hot path.
         private static readonly uint RawInputMouseSize = (uint)Marshal.SizeOf<RAWINPUTMOUSE>();
         private static readonly uint RawInputHeaderSize =
             (uint)Marshal.OffsetOf<RAWINPUTMOUSE>(nameof(RAWINPUTMOUSE.MouseFlags));
@@ -324,7 +324,7 @@ namespace userspace_backend.Driver.Windows
             return map.TryGetValue(handle, out double f) ? f : Volatile.Read(ref defaultFactor);
         }
 
-        // Rebuilds handle -> normalization-factor from the live device list and config.
+        // Rebuilds handle -> factor from the live device list + config.
         private void RebuildHandleMap()
         {
             var map = new Dictionary<IntPtr, double>();
@@ -402,8 +402,8 @@ namespace userspace_backend.Driver.Windows
             public IntPtr hwndTarget;
         }
 
-        // Flattened RAWINPUTHEADER + RAWMOUSE; Padding mirrors the native union's
-        // 4-byte alignment after MouseFlags.
+        // Flattened RAWINPUTHEADER + RAWMOUSE; Padding mirrors the native
+        // union's 4-byte alignment after MouseFlags.
         [StructLayout(LayoutKind.Sequential)]
         private struct RAWINPUTMOUSE
         {

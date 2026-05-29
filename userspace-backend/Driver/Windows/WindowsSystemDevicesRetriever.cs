@@ -4,7 +4,7 @@ using userspace_backend.Model;
 
 namespace userspace_backend.Driver.Windows
 {
-    // Windows device enumeration. Uses the wrapper.dll's MultiHandleDevice.
+    // Windows device enumeration via wrapper.dll's MultiHandleDevice.
     public sealed class WindowsSystemDevicesRetriever : ISystemDevicesRetriever
     {
         public IList<ISystemDevice> GetSystemDevices()

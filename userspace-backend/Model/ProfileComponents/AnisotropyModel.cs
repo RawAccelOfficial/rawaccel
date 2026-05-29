@@ -87,9 +87,9 @@ namespace userspace_backend.Model.ProfileComponents
         {
             if (data == null) return false;
 
-            // Identity weights ((1,1),(1,1)) are the only meaningful defaults; a (0,0) vector
-            // was written by an older buggy fallback and produces a degenerate flat curve.
-            // Substitute identity for that specific corrupted shape on load.
+            // Identity ((1,1),(1,1)) is the only meaningful default; (0,0) was
+            // written by an older buggy fallback and produces a flat curve.
+            // Substitute identity for that shape on load.
             Vector2 domain = (data.Domain == null || (data.Domain.X == 0 && data.Domain.Y == 0))
                 ? new Vector2 { X = 1, Y = 1 }
                 : data.Domain;

@@ -10,11 +10,9 @@ namespace userspace_backend.Model.EditableSettings
     /// Internal node of the settings tree.
     /// </summary>
     /// <remarks>
-    /// The settings model for this backend is a composed object containing other composed objects and settings.
-    /// In this way, the objects form a tree. The root node is the base model class, the internal nodes are objects containing other objects
-    /// and settings, and the settings themselves are the leaf nodes.
-    /// This interface is then an internal node of the tree. It can contain other settings collections (internal nodes) and also contain
-    /// settings themselves.
+    /// Settings form a tree: the root model is the root node, collections are internal
+    /// nodes (this interface), and individual settings are leaves. Collections may hold
+    /// other collections and/or settings.
     /// </remarks>
     public interface IEditableSettingsCollectionV2
     {
@@ -36,11 +34,11 @@ namespace userspace_backend.Model.EditableSettings
     }
 
     /// <summary>
-    /// Shared base for the settings-collection internal nodes. Holds the change-tracking
-    /// state and the event plumbing common to both the original (<see cref="EditableSettingsCollection{T}"/>)
-    /// and the dependency-injected (<see cref="EditableSettingsCollectionV2{T}"/>) flavors.
-    /// Subclasses are responsible for populating <see cref="AllContainedEditableSettings"/> and
-    /// <see cref="AllContainedEditableSettingsCollections"/> and for subscribing the change handlers.
+    /// Shared base for settings-collection internal nodes. Holds change tracking
+    /// and event plumbing common to <see cref="EditableSettingsCollection{T}"/>
+    /// and <see cref="EditableSettingsCollectionV2{T}"/>. Subclasses populate
+    /// <see cref="AllContainedEditableSettings"/> and
+    /// <see cref="AllContainedEditableSettingsCollections"/> and wire the change handlers.
     /// </summary>
     public abstract class EditableSettingsCollectionBase<T> : ObservableObject, IEditableSettingsCollectionV2
     {
@@ -105,8 +103,8 @@ namespace userspace_backend.Model.EditableSettings
         {
             AllContainedEditableSettingsCollections = EnumerateEditableSettingsCollections();
 
-            // TODO: separate "All" and "currently selected" settings collections
-            // so that incorrect assignment is not done here for collections that alter this through use
+            // TODO: split "All" vs "currently selected" so collections that mutate
+            // this via use don't get wired up incorrectly here.
             foreach (var settingsCollection in AllContainedEditableSettingsCollections)
             {
                 settingsCollection.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
@@ -124,10 +122,9 @@ namespace userspace_backend.Model.EditableSettings
     /// Base class for settings collections.
     /// </summary>
     /// <remarks>
-    /// Each unique set of collection logic should be generalized into a class that is either this class or a child of this class,
-    /// but not the actual class in the model.
-    /// This class, and any child class that is a parent to actual settings collections in the model, requires unit tests.
-    /// The actual settings collections in the model do not need to each be tested beyond composition.
+    /// Unique collection logic belongs in this class or a child of it, not in
+    /// concrete model collections. This class and any such parent requires unit
+    /// tests; concrete model collections only need composition tests.
     /// </remarks>
     /// <typeparam name="T"></typeparam>
     public abstract class EditableSettingsCollectionV2<T> : EditableSettingsCollectionBase<T>, IEditableSettingsCollectionSpecific<T>
@@ -148,8 +145,8 @@ namespace userspace_backend.Model.EditableSettings
                 }
             }
 
-            // TODO: separate "All" and "currently selected" settings collections
-            // so that incorrect assignment is not done here for collections that alter this through use
+            // TODO: split "All" vs "currently selected" so collections that mutate
+            // this via use don't get wired up incorrectly here.
             foreach (var settingsCollection in AllContainedEditableSettingsCollections)
             {
                 settingsCollection.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;

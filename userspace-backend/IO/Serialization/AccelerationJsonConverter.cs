@@ -147,19 +147,17 @@ namespace userspace_backend.IO.Serialization
 
         public override void Write(Utf8JsonWriter writer, Acceleration value, JsonSerializerOptions options)
         {
-            // Serialize the runtime type's own fields, then patch the "Type"
-            // property to the discriminator string the Read side expects
-            // (e.g. "Formula/Classic", "LookupTable", "None"). Using a fresh
-            // options instance that excludes this converter avoids recursing
-            // into ourselves and hanging.
+            // Serialize the runtime type's fields, then overwrite "Type" with
+            // the discriminator Read expects (e.g. "Formula/Classic", "LookupTable",
+            // "None"). The fresh options instance excludes this converter to
+            // avoid recursing into ourselves.
             JsonNode? node = JsonSerializer.SerializeToNode(
                 value, value.GetType(), WriteOptionsWithoutSelf(options));
 
             if (node is JsonObject obj)
             {
                 obj["Type"] = GetDiscriminator(value);
-                // FormulaType is encoded inside the Type discriminator
-                // ("Formula/Classic"), so do not also emit it as a sibling.
+                // FormulaType is folded into Type ("Formula/Classic"); don't emit twice.
                 obj.Remove("FormulaType");
             }
             node?.WriteTo(writer);
@@ -173,11 +171,10 @@ namespace userspace_backend.IO.Serialization
             _ => v.Type.ToString(),
         };
 
-        // Cache the derived options keyed by the source instance so we do not
-        // rebuild a copy on every Write. The same JsonSerializerOptions instance
-        // is reused for the lifetime of a reader/writer, so this is a near-perfect
-        // hit; if a different source ever arrives we simply re-derive. A concurrent
-        // first-call race only wastes one redundant copy, so no locking is needed.
+        // Cache derived options keyed by source identity. A reader/writer reuses
+        // one JsonSerializerOptions for its lifetime, so this is a near-perfect hit;
+        // a different source just re-derives. The first-call race wastes at most
+        // one copy -- no locking needed.
         private JsonSerializerOptions? cachedSource;
         private JsonSerializerOptions? cachedWriteOptions;
 

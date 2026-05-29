@@ -46,7 +46,7 @@ namespace userspace_backend.Model.EditableSettings
         public bool TryMapFromData(U data)
         {
             T dataCasted = data as T;
-            // base. avoids re-binding to this U overload (T converts to U).
+            // base. avoids re-binding to the U overload (T converts to U).
             return dataCasted == null ? false : base.TryMapFromData(dataCasted);
         }
 
@@ -88,9 +88,8 @@ namespace userspace_backend.Model.EditableSettings
                 var subModel = serviceProvider.GetRequiredKeyedService<IEditableSettingsCollectionSpecific<U>>(key);
                 SelectionLookup.Add(value, subModel);
 
-                // Bubble AnySettingChanged from every sub model up through this selector so
-                // enclosing models (e.g. ProfileModel) recompute derived state when nested
-                // parameters change.
+                // Bubble AnySettingChanged so enclosing models (e.g. ProfileModel)
+                // recompute derived state when nested params change.
                 subModel.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
             }
         }
@@ -117,7 +116,7 @@ namespace userspace_backend.Model.EditableSettings
         public bool TryMapFromData(V data)
         {
             U dataCasted = data as U;
-            // base. avoids re-binding to this V overload (U converts to V).
+            // base. avoids re-binding to the V overload (U converts to V).
             return dataCasted == null ? false : base.TryMapFromData(dataCasted);
         }
 

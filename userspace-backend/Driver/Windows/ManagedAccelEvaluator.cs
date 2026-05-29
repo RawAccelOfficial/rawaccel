@@ -4,11 +4,9 @@ using RawAccel.Contracts;
 
 namespace userspace_backend.Driver.Windows
 {
-    // IAccelEvaluator backed by wrapper.ManagedAccel against the same
-    // common/ math the kernel driver runs. Converts the RawAccelProfile
-    // POCO into a wrapper.Profile via JSON round-trip (matching JsonProperty
-    // names on both sides) so this evaluator stays in lockstep with whatever
-    // the apply path produces.
+    // IAccelEvaluator over wrapper.ManagedAccel (same common/ math as the driver).
+    // POCO -> wrapper.Profile via JSON round-trip (JsonProperty names match on
+    // both sides), so this stays in lockstep with the apply path.
     public sealed class ManagedAccelEvaluator : IAccelEvaluator
     {
         public IAccelInstance CreateInstance(RawAccelProfile profile)
@@ -18,7 +16,7 @@ namespace userspace_backend.Driver.Windows
             var nativeProfile = JsonConvert.DeserializeObject<Profile>(json)
                 ?? throw new InvalidOperationException(
                     "POCO -> wrapper.Profile deserialization returned null");
-            // Dispose the seed; CreateStatelessCopy allocates a fresh native pair.
+            // Seed is disposed; CreateStatelessCopy allocates a fresh native pair.
             using var seed = new ManagedAccel(nativeProfile);
             var accel = seed.CreateStatelessCopy();
             return new ManagedAccelInstance(accel);

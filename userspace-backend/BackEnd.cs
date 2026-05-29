@@ -141,15 +141,15 @@ namespace userspace_backend
                 return;
             }
 
-            // When the OS reports connected input devices, skip the placeholder:
-            // ImportSystemDevices will populate real devices instead.
+            // OS reported devices => skip the placeholder; ImportSystemDevices
+            // populates real ones.
             if (Devices.SystemDevices.SystemDevices.Count > 0)
             {
                 return;
             }
 
-            // TODO: This case is very niche, considering just not adding a
-            // default at all to show that something is wrong.
+            // TODO: Niche case -- maybe skip the default entirely to surface
+            // that something is wrong.
             var defaultDevice = ServiceProvider.GetRequiredService<IDeviceModel>();
             defaultDevice.Name.TryUpdateModelDirectly("Default");
             defaultDevice.HardwareID.TryUpdateModelDirectly("DEFAULT_DEVICE_ID");
@@ -228,9 +228,8 @@ namespace userspace_backend
                 });
             }
 
-            // Self-heal: a Default mapping that exists but lacks the DefaultDeviceGroup
-            // entry (e.g. a stale mappings.json with an empty GroupsToProfiles) must get
-            // one. TryAddMapping is idempotent, so this no-ops when it is already mapped.
+            // Self-heal: an existing Default mapping missing the DefaultDeviceGroup
+            // entry (e.g. stale mappings.json) gets one. TryAddMapping is idempotent.
             if (Mappings.TryGetMapping("Default", out MappingModel? defaultMapping) && defaultMapping != null)
             {
                 defaultMapping.TryAddMapping(DeviceGroups.DefaultDeviceGroup, "Default");
@@ -411,11 +410,10 @@ namespace userspace_backend
                     disable = deviceModel.Ignore.ModelValue,
                     dpi = deviceModel.DPI.ModelValue,
                     pollingRate = deviceModel.PollRate.ModelValue,
-                    // Not yet surfaced in the UI/device model: these are the driver's
-                    // expected defaults for poll-time clamping and extra-info passthrough.
-                    // maximumTime/minimumTime bound the per-packet time delta (ms) the
-                    // driver will trust. Keep in sync with the driver-side defaults if
-                    // they ever become user-configurable.
+                    // Driver defaults for poll-time clamping + extra-info passthrough,
+                    // not yet exposed in the UI. maximumTime/minimumTime bound the
+                    // per-packet time delta (ms) the driver trusts. Keep in sync if
+                    // these ever become user-configurable.
                     pollTimeLock = false,
                     setExtraInfo = false,
                     maximumTime = 200,

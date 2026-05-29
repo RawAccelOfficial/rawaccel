@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace userspace_backend.Model
 {
     /// <summary>
-    /// Holds system devices in observable collection and refreshes list when desired.
+    /// Observable system-device collection with on-demand refresh.
     /// </summary>
     public interface ISystemDevicesProvider
     {
@@ -50,10 +50,8 @@ namespace userspace_backend.Model
     }
 
     /// <summary>
-    /// Retrieves list of devices from operating system. Concrete impls are
-    /// per-platform: WindowsSystemDevicesRetriever (RawInput via wrapper.dll)
-    /// or LinuxSystemDevicesRetriever (currently a stub; future: query the
-    /// agent or read /dev/input directly).
+    /// Per-OS device enumeration. Windows: RawInput via wrapper.dll. Linux:
+    /// stub (TODO: query the agent or read /dev/input).
     /// </summary>
     public interface ISystemDevicesRetriever
     {
@@ -61,8 +59,7 @@ namespace userspace_backend.Model
     }
 
     /// <summary>
-    /// Interface to represent devices as they come from the operating system.
-    /// Backing impls live next to their per-platform retrievers.
+    /// OS-supplied device. Backing impls live next to their per-platform retrievers.
     /// </summary>
     public interface ISystemDevice
     {

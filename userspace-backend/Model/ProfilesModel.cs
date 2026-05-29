@@ -6,22 +6,12 @@ using System.Linq;
 using userspace_backend.Model.EditableSettings;
 using DATA = userspace_backend.Data;
 
-/**
- * TODO: Fix circular dependency and initialization order issues with ProfileNameValidator
- * 
- * - ProfilesModel needs ProfileNameValidator to create ProfileModel instances
- * - ProfileNameValidator needs ProfilesModel to check for duplicate names
- * 
- *  - Base constructor calls InitEditableSettingsAndCollections() BEFORE derived constructor can set NameValidator property, causing validator to be null
- *  
- *  - SOLUTION (Implement after DI PR from _m00se):
- *  
- *  Create IProfileNameChecker interface for duplicate name validation
- *  Have ProfilesModel implement IProfileNameChecker
- *  Inject IProfileNameChecker into ProfileNameValidator constructor
- *  Register ProfileNameValidator in DI container
- *  Inject ProfileNameValidator into ProfilesModel constructor
- */
+// TODO: Break circular dep between ProfilesModel and ProfileNameValidator.
+// (Base ctor's InitEditableSettingsAndCollections runs before derived ctors
+// can set NameValidator, so the validator is null at init.) Plan, after the
+// DI PR from _m00se: add IProfileNameChecker (implemented by ProfilesModel),
+// inject into ProfileNameValidator, register ProfileNameValidator in DI, and
+// inject it into ProfilesModel.
 
 namespace userspace_backend.Model
 {
@@ -40,7 +30,7 @@ namespace userspace_backend.Model
 
     public class ProfilesModel : EditableSettingsList<IProfileModel, DATA.Profile>, IProfilesModel
     {
-        // Default profile is created during BackEnd.Load() if it doesn't exist
+        // Default profile is created by BackEnd.Load() if absent.
 
         public ProfilesModel(IServiceProvider serviceProvider)
             : base(serviceProvider, [], [])

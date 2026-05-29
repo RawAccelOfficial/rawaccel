@@ -2,14 +2,13 @@ using RawAccel.Contracts;
 
 namespace userspace_backend.Driver
 {
-    // Platform-agnostic apply/read/deactivate surface for the driver.
+    // Platform-agnostic driver surface.
     //
-    // Error contract (mirrored by both the Windows and Linux implementations):
-    // - Apply returns false on failure (logged); it does not throw.
-    // - Read and Deactivate throw on failure (they are expected to succeed once
-    //   IsAvailable is true).
-    // - GetCurrentMouseSpeedSample returns MouseSpeedSample.Zero on error; it
-    //   never throws, so callers can't distinguish "idle" from "unavailable".
+    // Error contract (Windows and Linux impls both):
+    // - Apply: returns false on failure, logs, never throws.
+    // - Read, Deactivate: throw on failure (expected to succeed once IsAvailable).
+    // - GetCurrentMouseSpeedSample: Zero on error, never throws -- callers
+    //   can't distinguish idle from unavailable.
     public interface IRawAccelDriver
     {
         // UI gates Apply on this.

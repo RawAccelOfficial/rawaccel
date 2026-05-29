@@ -6,10 +6,9 @@ using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
     /// <summary>
-    /// Shared base for the per-formula definition models (Classic, Jump, Linear,
-    /// Natural, Power, Synchronous). Every formula is a flat set of leaf
-    /// double settings with no nested collections, so the collection mapping is a
-    /// no-op for all of them. Subclasses supply the formula-specific
+    /// Shared base for per-formula definition models (Classic, Jump, Linear,
+    /// Natural, Power, Synchronous). Each formula is a flat set of leaf double
+    /// settings, so collection mapping is a no-op. Subclasses supply
     /// <see cref="MapToDriver"/>, MapToData, and per-field MapFromData.
     /// </summary>
     public abstract class FormulaAccelerationDefinitionModel<TData>
@@ -23,7 +22,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public abstract RaAccelArgs MapToDriver();
 
-        // No formula has nested settings collections; its parameters are all leaf settings.
+        // No formula has nested collections -- params are all leaf settings.
         protected sealed override bool TryMapEditableSettingsCollectionsFromData(TData data) => true;
     }
 }

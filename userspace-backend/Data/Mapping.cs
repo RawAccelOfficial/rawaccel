@@ -43,9 +43,8 @@ namespace userspace_backend.Data
 
             public override int GetHashCode()
             {
-                // XOR per-entry hashes so the result is order-independent,
-                // matching the order-independent Equals above. Keys use the
-                // dictionary's (ordinal) comparer; values are case-insensitive.
+                // XOR per-entry hashes for order-independence (matches Equals).
+                // Keys: dictionary's ordinal comparer; values: case-insensitive.
                 int hash = 0;
 
                 foreach (var kvp in this)

@@ -169,8 +169,7 @@ namespace userspace_backend
             }
         }
 
-        // Write via a temp file then rename so a crash mid-write cannot leave a
-        // half-written (corrupt) file in place of the previous good one.
+        // Temp-then-rename so a crash mid-write can't corrupt the previous good file.
         private static void WriteFileAtomic(string path, string contents)
         {
             string tempPath = path + ".tmp";
@@ -186,10 +185,9 @@ namespace userspace_backend
 
         protected static string GetProfileFile(string profileDirectory, string profileName) => Path.Combine(profileDirectory, $"{SanitizeFileName(profileName)}.json");
 
-        // Profile names are user-supplied and may contain characters that are
-        // illegal in a filename (e.g. '/', '\\', ':'); replace those so the
-        // write does not throw. The on-disk name is not authoritative: load
-        // reads the profile's Name from the file contents, not the filename.
+        // User-supplied profile names may contain filename-illegal chars
+        // ('/', '\\', ':', ...); replace so the write doesn't throw. The on-disk
+        // name isn't authoritative -- load reads Name from the file body.
         private static string SanitizeFileName(string name)
         {
             foreach (char invalid in Path.GetInvalidFileNameChars())

@@ -12,11 +12,11 @@ namespace userspace_backend.Driver.Windows
         private readonly ILogger<WindowsRawAccelDriver> logger;
         private readonly object listenerGate = new();
 
-        // Speed-line capture, created lazily on first poll so unused paths never
-        // spin up a window + thread. Volatile for EnsureListener's lock-free fast path.
+        // Lazy: unused paths skip the window + thread.
+        // Volatile for EnsureListener's lock-free fast path.
         private volatile RawInputMouseListener? listener;
 
-        // Last applied config, replayed into the listener for per-device DPI.
+        // Replayed into the listener for per-device DPI.
         // Volatile: written by Apply, read by EnsureListener under a different lock.
         private volatile RawAccelConfig? lastConfig;
 
@@ -65,7 +65,7 @@ namespace userspace_backend.Driver.Windows
                 return false;
             }
 
-            // Driver is already active; don't fail Apply for a listener-side hiccup.
+            // Driver is already active; don't fail Apply for a listener hiccup.
             try { listener?.UpdateDevices(config); }
             catch (Exception ex) { logger.LogDebug(ex, "listener device update failed after apply"); }
 
@@ -129,7 +129,7 @@ namespace userspace_backend.Driver.Windows
                 toDispose = listener;
                 listener = null;
             }
-            // Disposed outside the lock so the thread-join can't block EnsureListener.
+            // Outside the lock so thread-join can't block EnsureListener.
             toDispose?.Dispose();
         }
     }

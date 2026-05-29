@@ -67,11 +67,11 @@ namespace userspace_backend.Model
             XCurvePreview = xCurvePreview;
             YCurvePreview = yCurvePreview;
 
-            // Name and Output DPI do not need to generate a new curve preview
+            // Name + OutputDPI don't affect the curve preview.
             Name!.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
             OutputDPI.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
 
-            // The rest of settings should generate a new curve preview
+            // Everything else does.
             YXRatio.PropertyChanged += AnyCurvePreviewPropertyChangedEventHandler;
             Acceleration.AnySettingChanged += AnyCurveSettingCollectionChangedEventHandler;
             Hidden.AnySettingChanged += AnyCurveSettingCollectionChangedEventHandler;
@@ -118,10 +118,10 @@ namespace userspace_backend.Model
                 outputDPI = OutputDPI.ModelValue,
                 yxOutputDPIRatio = YXRatio.ModelValue,
 
-                // Both axes get the same single UI curve, but argsX and argsY MUST be independent
-                // instances: the native wrapper mutates each axis's data array separately, so sharing
-                // one reference would corrupt it. Do not collapse these two calls into a shared
-                // variable. Pinned by BackEndApplyTests.Apply_SingleCurve_PopulatesBothAxes.
+                // Both axes use the same UI curve, but argsX and argsY MUST be distinct
+                // instances -- the native wrapper mutates each axis's data array in place.
+                // Don't collapse to a shared variable. Pinned by
+                // BackEndApplyTests.Apply_SingleCurve_PopulatesBothAxes.
                 argsX = Acceleration.MapToDriver(),
                 argsY = Acceleration.MapToDriver(),
 
@@ -133,8 +133,8 @@ namespace userspace_backend.Model
                 snap = Hidden.AngleSnappingDegrees.ModelValue,
                 maximumSpeed = Hidden.SpeedCap.ModelValue,
 
-                // The driver supports a speed floor (common/rawaccel-base.hpp), but the UI
-                // deliberately does not expose one; keep it pinned at 0.
+                // Driver supports a speed floor (common/rawaccel-base.hpp); UI doesn't
+                // expose one, keep pinned at 0.
                 minimumSpeed = 0,
                 inputSpeedArgs = new RaSpeedArgs
                 {
@@ -168,7 +168,7 @@ namespace userspace_backend.Model
         protected void AnyCurveSettingCollectionChangedEventHandler(object? sender, EventArgs e)
         {
             logger.LogDebug("Curve-setting collection changed: {Sender}", sender?.GetType().Name);
-            // All settings collections currently require curve preview to be re-generated
+            // All settings collections currently force a preview regen.
             RecalculateDriverDataAndCurvePreview();
         }
 
@@ -187,10 +187,8 @@ namespace userspace_backend.Model
         {
             RecalculateDriverData();
 
-            // Generate X curve points (original behavior)
             XCurvePreview.GeneratePoints(CurrentValidatedDriverProfile);
-
-            // Generate Y curve points by multiplying X curve outputs by YX ratio
+            // Y points = X outputs * YX ratio.
             GenerateYCurvePoints();
         }
 
