@@ -53,8 +53,9 @@ namespace userspace_backend
             services.AddKeyedSingleton<IModelValueValidator<string>, DefaultModelValueValidator<string>>(
                 DefaultModelValueValidator<string>.AllChangeInvalidDIKey);
 
-            services.AddKeyedSingleton<IModelValueValidator<string>, MaxNameLengthValidator>(
-                ProfileModel.NameDIKey);
+            services.AddKeyedSingleton<IModelValueValidator<string>>(
+                ProfileModel.NameDIKey,
+                (sp, key) => new ProfileNameValidator(sp.GetRequiredService<IProfilesModel>()));
 
             #endregion Validators
 

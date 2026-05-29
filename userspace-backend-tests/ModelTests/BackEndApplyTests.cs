@@ -182,6 +182,39 @@ namespace userspace_backend_tests.ModelTests
         }
 
         [TestMethod]
+        public void RenamingProfileToExistingName_IsRejected_CaseInsensitive()
+        {
+            // ProfileNameValidator enforces uniqueness across profiles. A "Default"
+            // profile already exists after Load.
+            var (backEnd, _) = BuildBackEndWithDefaults();
+            Assert.IsTrue(backEnd.Profiles.TryAddNewDefaultProfile("Gaming"));
+            Assert.IsTrue(backEnd.Profiles.TryGetProfile("Gaming", out IProfileModel? gaming) && gaming != null);
+
+            Assert.IsFalse(gaming!.Name.TryUpdateModelDirectly("Default"), "Renaming onto an existing name must be rejected.");
+            Assert.IsFalse(gaming.Name.TryUpdateModelDirectly("default"), "Uniqueness must be case-insensitive.");
+            Assert.AreEqual("Gaming", gaming.Name.ModelValue);
+
+            // A genuinely unique name is still accepted.
+            Assert.IsTrue(gaming.Name.TryUpdateModelDirectly("Gaming2"));
+            Assert.AreEqual("Gaming2", gaming.Name.ModelValue);
+        }
+
+        [TestMethod]
+        public void ProfileName_EmptyOrTooLong_IsRejected()
+        {
+            // ProfileNameValidator keeps the prior non-empty / max-length guard.
+            var (backEnd, _) = BuildBackEndWithDefaults();
+            Assert.IsTrue(backEnd.Profiles.TryAddNewDefaultProfile("Gaming"));
+            Assert.IsTrue(backEnd.Profiles.TryGetProfile("Gaming", out IProfileModel? gaming) && gaming != null);
+
+            Assert.IsFalse(gaming!.Name.TryUpdateModelDirectly(string.Empty), "Empty name must be rejected.");
+            Assert.IsFalse(
+                gaming.Name.TryUpdateModelDirectly(new string('a', MaxNameLengthValidator.MaxNameLength + 1)),
+                "Name longer than the max length must be rejected.");
+            Assert.AreEqual("Gaming", gaming.Name.ModelValue);
+        }
+
+        [TestMethod]
         public void EnsureDefaultMapping_FreshInstall_CreatesMappingWithDefaultEntry()
         {
             var (backEnd, driver) = BuildBackEndWithDefaults();

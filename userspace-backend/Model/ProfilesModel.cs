@@ -6,13 +6,6 @@ using System.Linq;
 using userspace_backend.Model.EditableSettings;
 using DATA = userspace_backend.Data;
 
-// TODO: Break circular dep between ProfilesModel and ProfileNameValidator.
-// (Base ctor's InitEditableSettingsAndCollections runs before derived ctors
-// can set NameValidator, so the validator is null at init.) Plan, after the
-// DI PR from _m00se: add IProfileNameChecker (implemented by ProfilesModel),
-// inject into ProfileNameValidator, register ProfileNameValidator in DI, and
-// inject it into ProfilesModel.
-
 namespace userspace_backend.Model
 {
     public interface IProfilesModel : IEditableSettingsList<IProfileModel, DATA.Profile>
@@ -78,6 +71,18 @@ namespace userspace_backend.Model
         protected override string GetNameFromData(DATA.Profile data)
         {
             return data.Name;
+        }
+    }
+
+    public class ProfileNameValidator(IProfilesModel profiles) : IModelValueValidator<string>
+    {
+        protected IProfilesModel Profiles { get; } = profiles;
+
+        public bool Validate(string value)
+        {
+            return !string.IsNullOrEmpty(value)
+                && value.Length <= MaxNameLengthValidator.MaxNameLength
+                && !Profiles.TryGetProfile(value, out _);
         }
     }
 }
