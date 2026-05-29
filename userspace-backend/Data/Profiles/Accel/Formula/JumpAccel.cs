@@ -4,10 +4,10 @@ namespace userspace_backend.Data.Profiles.Accel.Formula
     {
         public override AccelerationFormulaType FormulaType => AccelerationFormulaType.Jump;
 
-        public double Smooth { get; set; }
+        public double Smooth { get; set; } = FormulaDefaults.JumpSmooth;
 
-        public double Input { get; set; }
+        public double Input { get; set; } = FormulaDefaults.JumpInput;
 
-        public double Output { get; set; }
+        public double Output { get; set; } = FormulaDefaults.JumpOutput;
     }
 }

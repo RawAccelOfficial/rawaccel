@@ -4,12 +4,12 @@ namespace userspace_backend.Data.Profiles.Accel.Formula
     {
         public override AccelerationFormulaType FormulaType => AccelerationFormulaType.Classic;
 
-        public double Acceleration { get; set; }
+        public double Acceleration { get; set; } = FormulaDefaults.ClassicAcceleration;
 
-        public double Exponent { get; set; }
+        public double Exponent { get; set; } = FormulaDefaults.ClassicExponent;
 
-        public double Offset { get; set; }
+        public double Offset { get; set; } = FormulaDefaults.ClassicOffset;
 
-        public double Cap { get; set; }
+        public double Cap { get; set; } = FormulaDefaults.ClassicCap;
     }
 }

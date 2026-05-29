@@ -4,10 +4,10 @@ namespace userspace_backend.Data.Profiles.Accel.Formula
     {
         public override AccelerationFormulaType FormulaType => AccelerationFormulaType.Natural;
 
-        public double DecayRate { get; set; } = 0.1;
+        public double DecayRate { get; set; } = FormulaDefaults.NaturalDecayRate;
 
-        public double InputOffset { get; set; }
+        public double InputOffset { get; set; } = FormulaDefaults.NaturalInputOffset;
 
-        public double Limit { get; set; } = 1.5;
+        public double Limit { get; set; } = FormulaDefaults.NaturalLimit;
     }
 }

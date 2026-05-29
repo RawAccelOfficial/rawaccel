@@ -12,6 +12,7 @@ using userspace_backend.Model.AccelDefinitions;
 using userspace_backend.Model.AccelDefinitions.Formula;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
+using userspace_backend.Data.Profiles.Accel.Formula;
 using static userspace_backend.Data.Profiles.Accel.FormulaAccel;
 using static userspace_backend.Data.Profiles.Accel.LookupTableAccel;
 using static userspace_backend.Data.Profiles.Acceleration;
@@ -160,57 +161,57 @@ namespace userspace_backend
             #region SynchronousAccel
 
             services.AddTransient<ISynchronousAccelerationDefinitionModel, SynchronousAccelerationDefinitionModel>();
-            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.SyncSpeedDIKey, "Sync Speed", 15);
-            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.MotivityDIKey, "Motivity", 1.4);
-            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.GammaDIKey, "Gamma", 1);
-            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.SmoothnessDIKey, "Smoothness", 0.5);
+            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.SyncSpeedDIKey, "Sync Speed", FormulaDefaults.SyncSpeed);
+            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.MotivityDIKey, "Motivity", FormulaDefaults.Motivity);
+            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.GammaDIKey, "Gamma", FormulaDefaults.Gamma);
+            AddEditableSetting<double>(services, SynchronousAccelerationDefinitionModel.SmoothnessDIKey, "Smoothness", FormulaDefaults.Smoothness);
 
             #endregion SynchronousAccel
 
             #region LinearAccel
 
             services.AddTransient<ILinearAccelerationDefinitionModel, LinearAccelerationDefinitionModel>();
-            AddEditableSetting<double>(services, LinearAccelerationDefinitionModel.AccelerationDIKey, "Acceleration", 0.01);
-            AddEditableSetting<double>(services, LinearAccelerationDefinitionModel.OffsetDIKey, "Offset", 0);
-            AddEditableSetting<double>(services, LinearAccelerationDefinitionModel.CapDIKey, "Cap", 0);
+            AddEditableSetting<double>(services, LinearAccelerationDefinitionModel.AccelerationDIKey, "Acceleration", FormulaDefaults.LinearAcceleration);
+            AddEditableSetting<double>(services, LinearAccelerationDefinitionModel.OffsetDIKey, "Offset", FormulaDefaults.LinearOffset);
+            AddEditableSetting<double>(services, LinearAccelerationDefinitionModel.CapDIKey, "Cap", FormulaDefaults.LinearCap);
 
             #endregion LinearAccel
 
             #region ClassicAccel
 
             services.AddTransient<IClassicAccelerationDefinitionModel, ClassicAccelerationDefinitionModel>();
-            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.AccelerationDIKey, "Acceleration", 0.01);
-            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.ExponentDIKey, "Exponent", 2);
-            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.OffsetDIKey, "Offset", 0);
-            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.CapDIKey, "Cap", 0);
+            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.AccelerationDIKey, "Acceleration", FormulaDefaults.ClassicAcceleration);
+            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.ExponentDIKey, "Exponent", FormulaDefaults.ClassicExponent);
+            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.OffsetDIKey, "Offset", FormulaDefaults.ClassicOffset);
+            AddEditableSetting<double>(services, ClassicAccelerationDefinitionModel.CapDIKey, "Cap", FormulaDefaults.ClassicCap);
 
             #endregion ClassicAccel
 
             #region PowerAccel
 
             services.AddTransient<IPowerAccelerationDefinitionModel, PowerAccelerationDefinitionModel>();
-            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.ScaleDIKey, "Scale", 1);
-            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.ExponentDIKey, "Exponent", 0.05);
-            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.OutputOffsetDIKey, "Output Offset", 0);
-            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.CapDIKey, "Cap", 0);
+            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.ScaleDIKey, "Scale", FormulaDefaults.PowerScale);
+            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.ExponentDIKey, "Exponent", FormulaDefaults.PowerExponent);
+            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.OutputOffsetDIKey, "Output Offset", FormulaDefaults.PowerOutputOffset);
+            AddEditableSetting<double>(services, PowerAccelerationDefinitionModel.CapDIKey, "Cap", FormulaDefaults.PowerCap);
 
             #endregion PowerAccel
 
             #region JumpAccel
 
             services.AddTransient<IJumpAccelerationDefinitionModel, JumpAccelerationDefinitionModel>();
-            AddEditableSetting<double>(services, JumpAccelerationDefinitionModel.SmoothDIKey, "Smooth", 0.5);
-            AddEditableSetting<double>(services, JumpAccelerationDefinitionModel.InputDIKey, "Input", 15);
-            AddEditableSetting<double>(services, JumpAccelerationDefinitionModel.OutputDIKey, "Output", 1.5);
+            AddEditableSetting<double>(services, JumpAccelerationDefinitionModel.SmoothDIKey, "Smooth", FormulaDefaults.JumpSmooth);
+            AddEditableSetting<double>(services, JumpAccelerationDefinitionModel.InputDIKey, "Input", FormulaDefaults.JumpInput);
+            AddEditableSetting<double>(services, JumpAccelerationDefinitionModel.OutputDIKey, "Output", FormulaDefaults.JumpOutput);
 
             #endregion JumpAccel
 
             #region NaturalAccel
 
             services.AddTransient<INaturalAccelerationDefinitionModel, NaturalAccelerationDefinitionModel>();
-            AddEditableSetting<double>(services, NaturalAccelerationDefinitionModel.DecayRateDIKey, "Decay Rate", 0.1);
-            AddEditableSetting<double>(services, NaturalAccelerationDefinitionModel.InputOffsetDIKey, "Input Offset", 0);
-            AddEditableSetting<double>(services, NaturalAccelerationDefinitionModel.LimitDIKey, "Limit", 1.5);
+            AddEditableSetting<double>(services, NaturalAccelerationDefinitionModel.DecayRateDIKey, "Decay Rate", FormulaDefaults.NaturalDecayRate);
+            AddEditableSetting<double>(services, NaturalAccelerationDefinitionModel.InputOffsetDIKey, "Input Offset", FormulaDefaults.NaturalInputOffset);
+            AddEditableSetting<double>(services, NaturalAccelerationDefinitionModel.LimitDIKey, "Limit", FormulaDefaults.NaturalLimit);
 
             #endregion NaturalAccel
 
