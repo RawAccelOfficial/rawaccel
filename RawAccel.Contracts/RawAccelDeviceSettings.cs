@@ -1,9 +1,7 @@
 namespace RawAccel.Contracts
 {
-    // Mirrors DeviceSettings in wrapper/wrapper.cpp. The native side enforces
-    // length limits via fixed-size buffers; we keep them as plain strings here
-    // and let the conversion layer truncate/validate against
-    // RawAccelConstants.MaxNameLen / MaxDevIdLen.
+    // Mirrors DeviceSettings in wrapper.cpp. Length limits (MaxNameLen /
+    // MaxDevIdLen) are enforced by the conversion layer, not here.
     public class RawAccelDeviceSettings
     {
         public string name { get; set; } = string.Empty;

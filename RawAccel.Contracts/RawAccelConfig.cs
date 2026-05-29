@@ -2,9 +2,10 @@ using System.Collections.Generic;
 
 namespace RawAccel.Contracts
 {
-    // Root JSON contract. Mirrors DriverConfig in wrapper/wrapper.cpp.
-    // Both the Windows wrapper IOCTL path and the Linux agent unix-socket
-    // path consume this exact shape; do not introduce divergent fields.
+    // Root JSON contract, consumed unchanged by both the Windows wrapper
+    // (IOCTL) and Linux agent (socket) paths. These POCOs mirror the
+    // wrapper.cpp types; the JsonProperty names are the wire format
+    // (settings.json + driver), so renaming a field breaks compatibility.
     public class RawAccelConfig
     {
         public string version { get; set; } = string.Empty;

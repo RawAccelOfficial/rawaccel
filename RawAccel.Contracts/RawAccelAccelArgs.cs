@@ -2,13 +2,10 @@ using Newtonsoft.Json;
 
 namespace RawAccel.Contracts
 {
-    // Mirrors AccelArgs in wrapper/wrapper.cpp. JsonProperty names are the
-    // contract; do not rename without bumping settings.json compatibility.
+    // Mirrors AccelArgs in wrapper.cpp.
     public class RawAccelAccelArgs
     {
-        // Maximum number of LUT (input, output) sample pairs the native side
-        // accepts; mirrors wrapper.cpp's literal AccelArgs.MaxLutPoints which
-        // resolves to ra::LUT_POINTS_CAPACITY.
+        // Max LUT (input, output) pairs; resolves to ra::LUT_POINTS_CAPACITY.
         public const int MaxLutPoints = RawAccelConstants.LutPointsCapacity;
 
         public AccelMode mode { get; set; } = AccelMode.noaccel;
@@ -35,14 +32,12 @@ namespace RawAccel.Contracts
         [JsonProperty("Cap mode")]
         public CapMode capMode { get; set; } = CapMode.output;
 
-        // length is internal bookkeeping for native marshalling; not in JSON.
+        // Native marshalling bookkeeping; not serialized.
         [JsonIgnore]
         public int length { get; set; }
 
-        // Raw LUT data. On the wire this carries only the populated points
-        // (length samples); native side resizes to LUT_RAW_DATA_CAPACITY.
-        // Defaulted to empty (not null) because wrapper.cpp's OnDeserialized
-        // dereferences data->Length without a null check.
+        // Carries only the populated points (length samples); native resizes
+        // to capacity. Empty not null: wrapper's OnDeserialized derefs Length.
         public float[] data { get; set; } = System.Array.Empty<float>();
     }
 }

@@ -2,10 +2,8 @@ using Newtonsoft.Json;
 
 namespace RawAccel.Contracts
 {
-    // Mirrors Profile in wrapper/wrapper.cpp. JsonObject(ItemRequired=Always)
-    // on the wrapper side enforces all-fields-present on read; we relax that
-    // here so a partial JSON can be tolerated client-side and the native side
-    // does the strict validation.
+    // Mirrors Profile in wrapper.cpp. Relaxed here (partial JSON tolerated);
+    // the native side does the strict all-fields-present validation.
     public class RawAccelProfile
     {
         public string name { get; set; } = "default";

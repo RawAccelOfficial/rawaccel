@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace RawAccel.Contracts
 {
-    // Mirrors SpeedArgs in wrapper/wrapper.cpp.
+    // Mirrors SpeedArgs in wrapper.cpp.
     public class RawAccelSpeedArgs
     {
         [JsonProperty("Whole/combined accel (set false for 'by component' mode)")]

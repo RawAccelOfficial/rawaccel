@@ -2,9 +2,8 @@ using Newtonsoft.Json;
 
 namespace RawAccel.Contracts
 {
-    // Mirrors DeviceConfig in wrapper/wrapper.cpp. ShouldSerialize* methods
-    // hide default-valued fields so the JSON stays compact and matches what
-    // the wrapper produces today.
+    // Mirrors DeviceConfig in wrapper.cpp. ShouldSerialize* hide default
+    // values to keep the JSON compact.
     public class RawAccelDeviceConfig
     {
         public bool disable { get; set; }

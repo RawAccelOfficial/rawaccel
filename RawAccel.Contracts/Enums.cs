@@ -3,9 +3,7 @@ using Newtonsoft.Json.Converters;
 
 namespace RawAccel.Contracts
 {
-    // JSON values: classic, jump, natural, synchronous, power, lut, noaccel.
-    // Names match wrapper/wrapper.cpp exactly so existing settings.json files
-    // round-trip unchanged.
+    // JSON names match wrapper.cpp so settings.json round-trips unchanged.
     [JsonConverter(typeof(StringEnumConverter))]
     public enum AccelMode
     {
@@ -18,7 +16,6 @@ namespace RawAccel.Contracts
         noaccel,
     }
 
-    // JSON values: in_out, input, output. Same shape as wrapper/wrapper.cpp.
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CapMode
     {

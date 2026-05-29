@@ -1,14 +1,12 @@
 namespace RawAccel.Contracts
 {
-    // Mirrors common/rawaccel-base.hpp. Values must stay in sync with the
-    // native side; see common/rawaccel-base.hpp and wrapper/wrapper.cpp.
+    // Mirrors common/rawaccel-base.hpp; keep values in sync with the native side.
     public static class RawAccelConstants
     {
         public const int PollRateMin = 125;
         public const int PollRateMax = 8000;
 
-        // Mirrors NORMALIZED_DPI in common/rawaccel-base.hpp; the unit all
-        // curve math is expressed in (counts/ms at 1000 DPI).
+        // NORMALIZED_DPI: the unit curve math uses (counts/ms at 1000 DPI).
         public const double NormalizedDpi = 1000.0;
 
         public const double DefaultTimeMin = 1000.0 / PollRateMax / 2.0;
@@ -24,8 +22,8 @@ namespace RawAccel.Contracts
 
         public const string SettingsKey = "Driver settings";
 
-        // Mirrors RA_VER_* in common/rawaccel-version.h. Bump when the
-        // settings shape or wire protocol changes incompatibly.
+        // TODO: make a versioning system to update all of the versions so
+        // 1.7.1 issue where driver is still on 1.7.0 doesnt happen again.
         public const int VersionMajor = 1;
         public const int VersionMinor = 7;
         public const int VersionPatch = 0;
