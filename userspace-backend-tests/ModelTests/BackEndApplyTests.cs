@@ -60,9 +60,8 @@ namespace userspace_backend_tests.ModelTests
             public string HWID { get; init; } = string.Empty;
         }
 
-        // Captures whatever the BackEnd hands to its driver. Cross-platform:
-        // implements IRawAccelDriver so the same tests run on Windows and Linux
-        // builds without touching wrapper.dll or the agent socket.
+        // Captures what BackEnd hands its driver. Cross-platform IRawAccelDriver so
+        // tests run on Windows and Linux without wrapper.dll or the agent socket.
         private sealed class CapturingDriver : IRawAccelDriver
         {
             public RawAccelConfig? CapturedConfig { get; private set; }
@@ -127,11 +126,9 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void FormulaDIKeys_AreDistinctPerFormula_SoExponentDefaultsDoNotCollide()
         {
-            // Regression: Power (and Jump) prefixed their DI keys with
-            // nameof(ClassicAccelerationDefinitionModel), so Power.ExponentDIKey
-            // equalled Classic.ExponentDIKey. AddEditableSetting uses
-            // AddKeyedTransient (last registration wins), so Classic's Exponent
-            // silently resolved to Power's default (0.05) instead of its own (2).
+            // Regression: Power/Jump keyed their DI settings under
+            // nameof(ClassicAccelerationDefinitionModel), so last-registration-wins
+            // made Classic's Exponent resolve to Power's default (0.05, not 2).
             Assert.AreNotEqual(
                 ClassicAccelerationDefinitionModel.ExponentDIKey,
                 PowerAccelerationDefinitionModel.ExponentDIKey,
@@ -430,11 +427,9 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void Apply_ProfileCurveCoefficientEdit_FlowsIntoDriverConfig()
         {
-            // Regression for the "stale curve on Apply" bug: editing a coefficient inside
-            // the currently-selected curve sub-model (Formula -> Classic -> Acceleration)
-            // must propagate through EditableSettingsSelector.AnySettingChanged up to
-            // ProfileModel.RecalculateDriverData so CurrentValidatedDriverProfile refreshes
-            // before BackEnd.Apply() reads it via MapToDriverConfig.
+            // Regression ("stale curve on Apply"): editing a coefficient in the selected
+            // sub-model must propagate via AnySettingChanged to RecalculateDriverData so
+            // CurrentValidatedDriverProfile refreshes before Apply reads it.
             var (backEnd, driver) = BuildBackEndWithDefaults();
             var profile = backEnd.Profiles.Elements[0];
 
@@ -471,12 +466,9 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void Apply_SingleCurve_PopulatesBothAxes()
         {
-            // Regression: ProfileModel.MapToDriver used to set only argsX, leaving argsY
-            // at its noaccel default. With the default by-component anisotropy mode
-            // (CombineXYComponents == false) the native math indexes Y through argsY,
-            // so vertical acceleration was silently dead while horizontal worked and
-            // the flat sens multipliers still applied. The single model curve must
-            // drive BOTH argsX and argsY.
+            // Regression: MapToDriver set only argsX, leaving argsY at noaccel. In the
+            // default by-component mode the native math reads Y from argsY, so vertical
+            // accel was dead. The single model curve must drive both argsX and argsY.
             var (backEnd, driver) = BuildBackEndWithDefaults();
             var profile = backEnd.Profiles.Elements[0];
 
@@ -579,13 +571,9 @@ namespace userspace_backend_tests.ModelTests
             Assert.AreEqual(4.0, classic.Cap.ModelValue);
         }
 
-        // Regression: an older AccelerationModel fallback wrote
-        // Anisotropy.Domain={0,0} / Range={0,0} when the on-disk profile had a
-        // missing Anisotropy block. Those zeros then round-tripped back to disk
-        // and degenerated the preview curve to a flat line (domain=0 collapses
-        // input speed to 0; range=0 collapses scale to 1). Loading a profile
-        // with the legacy all-zero Anisotropy must sanitize back to identity
-        // weights so the curve preview is meaningful.
+        // Regression: an old fallback wrote Anisotropy Domain/Range = {0,0} for a
+        // missing block, flattening the preview curve (domain=0 -> input 0, range=0
+        // -> scale 1). Loading legacy all-zero Anisotropy must sanitize to identity.
         private sealed class ZeroAnisotropyLoader : IBackEndLoader
         {
             public IEnumerable<DATA.Device> LoadDevices() => Array.Empty<DATA.Device>();
@@ -645,10 +633,9 @@ namespace userspace_backend_tests.ModelTests
             Assert.AreEqual(1.0, aniso.RangeY.ModelValue);
         }
 
-        // Simulates the user-reported flow: app boots with a Default profile of
-        // Type=None on disk, user switches DefinitionType to Formula then picks
-        // Classic and edits a coefficient. The chained Apply must see the
-        // Classic args in the RawAccelConfig the driver receives.
+        // User-reported flow: boot with a Default profile of Type=None, switch
+        // DefinitionType to Formula, pick Classic, edit a coefficient. The chained
+        // Apply must see the Classic args in the driver's RawAccelConfig.
         [TestMethod]
         public void TypeChange_FromNoneToClassic_FlowsThroughApply()
         {
@@ -679,14 +666,10 @@ namespace userspace_backend_tests.ModelTests
                 "Apply must see the edited Classic coefficient, not stale state.");
         }
 
-        // Regression: a user-created device group (e.g. "DeviceGroup0") was lost
-        // on reload because DeviceGroups.DeviceGroupModels is the master list
-        // backing the UI dropdown and MappingModel.TryAddMapping, but is never
-        // rehydrated from devices.json or mappings.json. Symptoms:
-        //   1. devices.json keeps device.DeviceGroup="DeviceGroup0" - this part
-        //      survives, but the UI dropdown only shows "Default".
-        //   2. mappings.json has DeviceGroup0 -> Some Profile, but TryAddMapping
-        //      rejects the row because "DeviceGroup0" isn't registered.
+        // Regression: a user-created device group (e.g. "DeviceGroup0") was lost on
+        // reload because DeviceGroupModels (the master list behind the UI dropdown and
+        // TryAddMapping) is never rehydrated from devices.json/mappings.json. The
+        // dropdown showed only "Default" and TryAddMapping rejected the saved mapping.
         private sealed class CustomDeviceGroupLoader : IBackEndLoader
         {
             public IEnumerable<DATA.Device> LoadDevices() => new[]
@@ -767,10 +750,9 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void ImportSystemDevices_SyncsInterfaceValueSoUiReflectsRealValues()
         {
-            // Regression: EditableSettingV2.TryUpdateModelDirectly used to update ModelValue
-            // but not InterfaceValue. The UI binds to InterfaceValue via EditableFieldViewModel,
-            // so imported devices showed the DI placeholder ("name", "hwid") even though
-            // ModelValue was correct. Guard against that by asserting both properties update.
+            // Regression: TryUpdateModelDirectly updated ModelValue but not InterfaceValue,
+            // which the UI binds to, so imported devices showed the DI placeholder. Assert
+            // both properties update.
             var systemDevices = new List<ISystemDevice>
             {
                 new StubSystemDevice { Name = "RealMouseName", HWID = @"HID\VID_1234&PID_5678" },

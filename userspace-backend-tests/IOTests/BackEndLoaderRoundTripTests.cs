@@ -11,11 +11,9 @@ using userspace_backend.IO;
 
 namespace userspace_backend_tests.IOTests
 {
-    // End-to-end: write devices/mappings/profiles/settings via BackEndLoader,
-    // verify the files actually land in the target directory, then read them
-    // back with a fresh BackEndLoader and verify values survive the trip.
-    // Catches regressions where a file silently fails to write (path missing,
-    // wrong format) or fields are dropped by the serializer.
+    // End-to-end: write devices/mappings/profiles/settings via BackEndLoader, then
+    // read them back with a fresh loader and verify values survive. Catches files
+    // that silently fail to write or fields dropped by the serializer.
     [TestClass]
     public class BackEndLoaderRoundTripTests
     {
@@ -190,12 +188,9 @@ namespace userspace_backend_tests.IOTests
             Assert.IsNull(loader.LoadSettings());
         }
 
-        // Regression probe: prove that a ClassicAccel serialized via the
-        // ProfileReaderWriter actually round-trips with its curve-specific
-        // fields intact. The previous behavior was that Profile.Acceleration
-        // serialized as the *base* class (no curve params, no formula
-        // discriminator), so a Classic profile written to disk and read back
-        // came back as NoAcceleration with all settings lost.
+        // Regression: Profile.Acceleration serialized as the base class (no curve
+        // params or formula discriminator), so a Classic profile round-tripped back
+        // as NoAcceleration with all settings lost. Prove the fields now survive.
         [TestMethod]
         public void Profile_ClassicAccel_SurvivesRoundTrip()
         {

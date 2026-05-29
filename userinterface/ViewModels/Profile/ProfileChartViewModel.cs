@@ -47,11 +47,9 @@ namespace userinterface.ViewModels.Profile
         private const int StandardStrokeThickness = 1;
         private const float SubStrokeThickness = 0.5f;
 
-        // Speed-line smoothing: the poller delivers ~30 Hz targets; a UI-thread
-        // timer eases the displayed line position toward the latest target so it
-        // glides instead of teleporting. TimeConstant sets the glide speed (a
-        // larger value is smoother/laggier); Settle is the chart-unit threshold
-        // at which a line is treated as arrived (and a fading line snaps to 0).
+        // Speed-line smoothing: a UI-thread timer eases the displayed line toward
+        // the latest ~30 Hz poll target. TimeConstant = glide speed (larger is
+        // smoother/laggier); SettleEpsilon = chart-unit "arrived" threshold.
         private const int TweenIntervalMs = 16;            // ~60 Hz
         private const double TweenTimeConstantMs = 60.0;
         private const double SpeedSettleEpsilon = 0.05;
@@ -79,9 +77,8 @@ namespace userinterface.ViewModels.Profile
         private readonly MouseSpeedPollingService speedPoller;
         private BE.IProfileModel currentProfileModel = null!;
 
-        // Speed-line tween state. target* is the latest poller sample; disp* is the
-        // eased position actually rendered. The tweenTimer pumps disp -> target and
-        // self-stops once settled (restarted by ApplySpeedSample on a new target).
+        // Tween state: target* is the latest poll sample, disp* the eased position
+        // rendered. tweenTimer pumps disp -> target and self-stops once settled.
         private DispatcherTimer? tweenTimer;
         private DateTime lastTweenTick;
         private double targetSpeedX, targetSpeedY, targetSpeedCombined;
@@ -91,10 +88,8 @@ namespace userinterface.ViewModels.Profile
         private SolidColorPaint? cachedXStroke;
         private SolidColorPaint? cachedYStroke;
 
-        // Anisotropy "combine X and Y" flag for the active profile: drives whether
-        // one (combined) or two (per-axis) current-speed lines are shown. The
-        // section instances and their paints are rebuilt fresh each update so
-        // reassigning the bound Sections collection forces a chart redraw.
+        // Active profile's "combine X and Y" flag: one (combined) or two (per-axis)
+        // current-speed lines.
         private IEditableSettingSpecific<bool> CombineXY { get; set; } = null!;
 
         // Sync object for thread safety - single allocation
@@ -122,8 +117,7 @@ namespace userinterface.ViewModels.Profile
 
         private bool showSpeedLines = true;
 
-        // Whether the live current-speed indicator line(s) are shown. Toggled
-        // from the chart's button bar; hides/restores the lines immediately.
+        // Whether the live current-speed line(s) are shown; toggled from the button bar.
         public bool ShowSpeedLines
         {
             get => showSpeedLines;
@@ -189,9 +183,7 @@ namespace userinterface.ViewModels.Profile
         }
 
 
-        // ================================================================================================
-        // INITIALIZATION & SETUP
-        // ================================================================================================
+        // --- Initialization & setup ---
 
         public Task InitializeAsync()
         {
@@ -394,11 +386,9 @@ namespace userinterface.ViewModels.Profile
 
         public ObservableCollection<ISeries> Series { get; set; } = new ObservableCollection<ISeries>();
 
-        // Vertical current-speed indicator line(s). One section in combined mode,
-        // two (X and Y) in separate mode. Bound to CartesianChart.Sections.
-        // Reassigned (not mutated in place) on every update so the chart's
-        // property-change path re-renders: LiveCharts does not reliably redraw
-        // when a section already in the collection has its Xi/Xj mutated.
+        // Vertical current-speed line(s) bound to CartesianChart.Sections: one in
+        // combined mode, two (X/Y) in separate. Reassigned fresh each update because
+        // LiveCharts won't redraw a section mutated in place.
         public IEnumerable<RectangularSection> Sections { get; private set; } = Array.Empty<RectangularSection>();
 
         public Axis[] XAxes { get; set; } = new Axis[] { new Axis { Name = "Loading...", MinLimit = 0, MaxLimit = 1 } };
@@ -415,9 +405,7 @@ namespace userinterface.ViewModels.Profile
 
         public ICommand ToggleSpeedLinesCommand { get; }
 
-        // ================================================================================================
-        // PUBLIC METHODS
-        // ================================================================================================
+        // --- Public methods ---
 
         public void FitToData()
         {
@@ -454,9 +442,7 @@ namespace userinterface.ViewModels.Profile
             OnPropertyChanged(nameof(YAxes));
         }
 
-        // ================================================================================================
-        // CLEANUP & DISPOSAL
-        // ================================================================================================
+        // --- Cleanup & disposal ---
 
         public void Dispose()
         {
@@ -492,9 +478,7 @@ namespace userinterface.ViewModels.Profile
             previewRenderer.ClearCache();
         }
 
-        // ================================================================================================
-        // CHART DATA MANAGEMENT
-        // ================================================================================================
+        // --- Chart data management ---
 
         private ISeries[] CreateSeriesData()
         {
@@ -576,16 +560,11 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // ================================================================================================
-        // LIVE CURRENT-SPEED INDICATOR LINES
-        // ================================================================================================
+        // --- Live current-speed indicator lines ---
 
-        // Builds a vertical line at the given speed: a zero-width section
-        // (Xi == Xj) stroked at the same thickness as the curve lines. A
-        // non-positive speed yields NaN bounds, which render nothing (hidden).
-        // A FRESH paint is created per call on purpose: reusing a paint across
-        // Sections reassignments makes LiveCharts dispose it when the previous
-        // section is removed, so a shared paint stops drawing after one frame.
+        // Vertical zero-width line (Xi == Xj) at the given speed; non-positive
+        // speed -> NaN bounds, which render nothing. Fresh paint per call: a shared
+        // one gets disposed by LiveCharts when its section is removed.
         private static RectangularSection MakeSpeedLine(double speed, SKColor color)
         {
             double x = speed > 0 ? speed : double.NaN;
@@ -598,10 +577,7 @@ namespace userinterface.ViewModels.Profile
             };
         }
 
-        // Builds the indicator line(s) for the given sample and reassigns the
-        // bound Sections collection. We hand the chart FRESH section instances
-        // each update because LiveCharts does not redraw when an existing
-        // section's Xi/Xj are mutated in place.
+        // Builds the indicator line(s) for the sample and reassigns Sections.
         private void PublishSpeedSections(MouseSpeedSample sample)
         {
             if (!ShowSpeedLines)
@@ -624,14 +600,12 @@ namespace userinterface.ViewModels.Profile
             OnPropertyChanged(nameof(Sections));
         }
 
-        // Republishes the section(s) for the current mode at the current displayed
-        // (eased) positions. Called on init (disp* are 0, so hidden) and when the
-        // combine-X/Y mode or the show toggle changes, so the switch is seamless.
+        // Republishes section(s) at the current eased positions. Called on init and
+        // when the combine-X/Y mode or show toggle changes.
         private void RebuildSpeedSections() =>
             PublishSpeedSections(new MouseSpeedSample(dispSpeedX, dispSpeedY, dispSpeedCombined));
 
-        // Called on the UI thread by the poller: record the new target and let the
-        // tween timer ease the displayed line(s) toward it (no direct publish).
+        // Poller callback (UI thread): record the new target; the tween eases toward it.
         private void ApplySpeedSample(MouseSpeedSample sample)
         {
             targetSpeedX = sample.X;
@@ -640,8 +614,7 @@ namespace userinterface.ViewModels.Profile
             EnsureTweenRunning();
         }
 
-        // Starts the tween pump if there is anything to animate and the lines are
-        // visible/interactive. Cheap to call every poll: a no-op once settled.
+        // Starts the tween pump if there's anything to animate; no-op once settled.
         private void EnsureTweenRunning()
         {
             if (!IsInteractiveMode || !ShowSpeedLines) return;
@@ -670,8 +643,8 @@ namespace userinterface.ViewModels.Profile
         private static bool SpeedAxisSettled(double disp, double target) =>
             Math.Abs(disp - target) < SpeedSettleEpsilon;
 
-        // Frame-rate-independent exponential ease toward the target. A line fading
-        // out (target <= 0) snaps to 0 once close so MakeSpeedLine hides it cleanly.
+        // Frame-rate-independent exponential ease toward target; a fading line
+        // (target <= 0) snaps to 0 so MakeSpeedLine hides it.
         private static double EaseSpeedAxis(double disp, double target, double alpha)
         {
             double next = disp + (target - disp) * alpha;
@@ -714,9 +687,7 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // ================================================================================================
-        // EVENT HANDLERS
-        // ================================================================================================
+        // --- Event handlers ---
 
         private void OnYXRatioChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -737,9 +708,7 @@ namespace userinterface.ViewModels.Profile
             Avalonia.Threading.Dispatcher.UIThread.Post(RebuildSpeedSections);
         }
 
-        // ================================================================================================
-        // CHART AXES CREATION
-        // ================================================================================================
+        // --- Chart axes creation ---
 
         private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null)
         {
@@ -794,9 +763,7 @@ namespace userinterface.ViewModels.Profile
         }
 
 
-        // ================================================================================================
-        // AXIS LIMITS MANAGEMENT
-        // ================================================================================================
+        // --- Axis limits management ---
 
         private void SetDefaultLimits()
         {

@@ -7,8 +7,7 @@ using userspace_backend.Model;
 namespace userspace_backend_tests.ModelTests
 {
     // Cross-platform tests for the SystemDevices abstraction. The Windows-only
-    // SystemDevicesRetriever (RawInput-based) is exercised in
-    // WindowsSystemDevicesTests, which is excluded from non-Windows builds.
+    // RawInput retriever is covered by WindowsSystemDevicesTests.
     [TestClass]
     public class SystemDevicesTests
     {

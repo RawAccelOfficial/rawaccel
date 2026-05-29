@@ -2,11 +2,7 @@ using userspace_backend.Model.EditableSettings;
 
 namespace userspace_backend_tests.ModelTests
 {
-    /// <summary>
-    /// Shared parser instances for model tests. These were lost during the DI
-    /// refactor, which left the EditableSettings* test files uncompilable (and
-    /// therefore excluded from the build). Restoring them revives that coverage.
-    /// </summary>
+    /// <summary>Shared parser instances for model tests.</summary>
     internal static class UserInputParsers
     {
         public static IUserInputParser<int> IntParser { get; } = new IntParser();

@@ -13,9 +13,8 @@ namespace userinterface.ViewModels.Controls
 
         private readonly LocalizationService localizationService;
 
-        // When true, toggling the checkbox commits straight to the backend
-        // setting (so dependent logic, e.g. the chart, reacts immediately).
-        // Default false preserves the deferred-commit behavior other callers rely on.
+        // When true, toggling commits straight to the backend (so the chart reacts
+        // immediately). Default false keeps the deferred-commit behavior.
         private readonly bool autoCommit;
         private bool suppressAutoCommit;
 
@@ -49,9 +48,8 @@ namespace userinterface.ViewModels.Controls
 
         private void ResetValueFromBackEnd()
         {
-            // Suppress auto-commit while we mirror the backend value into the
-            // display property, otherwise the resulting change event would
-            // re-commit (and recurse).
+            // Suppress auto-commit while mirroring the backend value in, or the
+            // change event would re-commit and recurse.
             suppressAutoCommit = true;
             ValueInDisplay = bool.TryParse(SettingBE.InterfaceValue, out bool result) && result;
             suppressAutoCommit = false;

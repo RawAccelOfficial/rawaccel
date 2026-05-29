@@ -7,14 +7,9 @@ using userspace_backend.Driver;
 
 namespace userspace_backend_tests.DisplayTests
 {
-    // Regression tests for the IAccelInstance disposal contract.
-    //
-    // The bug: IAccelInstance had no IDisposable, so CurvePreview.GeneratePoints
-    // created a fresh instance on every refresh and could not free it. On Linux
-    // that instance (ShimInstance) holds a native ra_curve handle, so the preview
-    // leaked one handle per refresh until finalization. These tests lock in that
-    // GeneratePoints disposes what it creates and that the contract stays on the
-    // interface, with no native shim or GUI required.
+    // Regression tests for the IAccelInstance disposal contract. With no IDisposable,
+    // CurvePreview.GeneratePoints leaked a native ra_curve handle (Linux ShimInstance)
+    // per refresh. These pin dispose-what-you-create and that IDisposable stays.
     [TestClass]
     public class CurvePreviewDisposalTests
     {

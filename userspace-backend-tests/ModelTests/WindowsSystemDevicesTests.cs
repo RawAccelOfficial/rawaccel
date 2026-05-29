@@ -6,12 +6,9 @@ using userspace_backend.Model;
 
 namespace userspace_backend_tests.ModelTests
 {
-    // Windows-only retriever test. Lives in a separate file from
-    // SystemDevicesTests so the cross-platform provider test can run on Linux.
-    // Excluded from non-Windows builds via the same csproj Compile Remove rule
-    // that hides BackEndApplyTests.cs (kept Windows-only originally).
-    // Asserts the Windows RawInput-based retriever returns at least one mouse;
-    // skip on a headless build server where no mouse is connected.
+    // Windows-only RawInput retriever test, split from SystemDevicesTests so the
+    // cross-platform test runs on Linux (excluded from non-Windows builds via csproj).
+    // Asserts at least one mouse is returned; skip on headless build servers.
     [TestClass]
     public class WindowsSystemDevicesTests
     {

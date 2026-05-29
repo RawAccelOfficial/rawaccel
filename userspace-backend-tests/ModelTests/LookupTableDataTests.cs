@@ -6,9 +6,8 @@ namespace userspace_backend_tests.ModelTests
     [TestClass]
     public class LookupTableDataTests
     {
-        // Regression: CompareTo previously did `obj as double[]`, but the value
-        // passed in is always a LookupTableData, so the cast was always null and
-        // CompareTo always returned -1 ("not equal"), even for identical tables.
+        // Regression: CompareTo did `obj as double[]` on a LookupTableData, so the
+        // cast was always null and it returned -1 even for identical tables.
         [TestMethod]
         public void CompareTo_EqualData_ReportsEqual()
         {

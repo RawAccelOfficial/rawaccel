@@ -60,10 +60,8 @@ public partial class App : Application
 
     private static void AttachConsoleStreams()
     {
-        // After AllocConsole, open CONOUT$ / CONIN$ directly. Bypasses the CLR's cached
-        // Stream.Null for Console.Out that was set when we started as a WinExe with no
-        // attached console. Console.SetOut with a writer over CONOUT$ is the canonical
-        // workaround for GUI-process logging.
+        // After AllocConsole, open CONOUT$ / CONIN$ directly: the CLR cached Stream.Null
+        // for Console.Out at WinExe startup. Writing over CONOUT$ is the standard fix.
         var stdoutPtr = CreateFile("CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, IntPtr.Zero,
             OPEN_EXISTING, 0, IntPtr.Zero);
         if (stdoutPtr != IntPtr.Zero && stdoutPtr.ToInt64() != -1)
@@ -172,11 +170,9 @@ public partial class App : Application
                 }
             };
 
-            // Avalonia's ShutdownRequested only fires when the window closes
-            // normally. Under `dotnet run` a Ctrl+C in the terminal sends
-            // SIGINT, which bypasses the window lifecycle but still triggers
-            // .NET's ProcessExit. Mirror the save there so dev sessions do
-            // not silently drop unsaved edits.
+            // ShutdownRequested only fires on a normal window close. A Ctrl+C under
+            // `dotnet run` sends SIGINT, which skips that but still hits ProcessExit;
+            // mirror the save there so dev sessions don't drop unsaved edits.
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             {
                 try
@@ -384,17 +380,9 @@ public partial class App : Application
         }
     }
 
-    /* 
-     * This was originally intended to preload libraries that cause stutter 
-     * but it seems to not have much effect. Will leave it here for now.
-     * 
-     * Could also do these
-     * System.Runtime.Intrinsics
-     * System.Text.Json
-     * System.Text.Encodings.Web
-     * System.Text.Encoding.Extensions
-     * System.IO.Pipelines
-    */
+    // Preloads libraries that can cause first-use stutter. Limited effect in
+    // practice; kept for now. Candidates: System.Runtime.Intrinsics,
+    // System.Text.Json/Encodings.Web/Encoding.Extensions, System.IO.Pipelines.
     private async Task PreloadLibrariesAsync()
     {
         try
@@ -433,9 +421,8 @@ public partial class App : Application
         }
     }
 
-    // On Linux, settings live under $XDG_CONFIG_HOME/rawaccel (or
-    // $HOME/.config/rawaccel when XDG_CONFIG_HOME is unset/empty). On other
-    // OSes we keep the original behavior of writing next to the executable.
+    // On Linux, settings live under $XDG_CONFIG_HOME/rawaccel ($HOME/.config/rawaccel
+    // if unset); other OSes write next to the executable.
     private static string ResolveSettingsDirectory()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
