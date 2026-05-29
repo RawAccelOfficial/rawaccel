@@ -1,0 +1,465 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using RawAccel.Contracts;
+
+namespace userspace_backend.Driver.Windows
+{
+    // Captures live mouse speed via Win32 raw input on its own message-only window
+    // and thread (the Avalonia UI exposes no WndProc to hook). Reports speed in the
+    // chart's units: counts/ms normalized to 1000 DPI, matching the curve math.
+    //
+    // Raw input identifies devices by HANDLE; config keys DPI by hardware-id. We map
+    // handle -> hardware-id via wrapper.dll's MultiHandleDevice to pick the per-mouse
+    // normalization factor, defaulting for handles absent from the config.
+    internal sealed class RawInputMouseListener : IDisposable
+    {
+        private const double NormalizedDpi = 1000.0;
+
+        // No movement for this long => report Zero (line eases back to rest).
+        private const double FreshnessMs = 150.0;
+
+        // Clamp the inter-event interval so bursts/stalls can't spike or flatline
+        // the speed. 0.1 ms is a 10 kHz ceiling, above any real polling rate.
+        private const double MinIntervalMs = 0.1;
+        private const double MaxIntervalMs = 100.0;
+
+        // Win32 constants.
+        private const uint WM_DESTROY = 0x0002;
+        private const uint WM_CLOSE = 0x0010;
+        private const uint WM_QUIT = 0x0012;
+        private const uint WM_INPUT = 0x00FF;
+        private const uint WM_INPUT_DEVICE_CHANGE = 0x00FE;
+        private const uint RID_INPUT = 0x10000003;
+        private const uint RIDEV_INPUTSINK = 0x00000100;
+        private const uint RIDEV_DEVNOTIFY = 0x00002000;
+        private const uint RIM_TYPEMOUSE = 0;
+        private const ushort MOUSE_MOVE_ABSOLUTE = 0x01;
+        private const uint RAWINPUT_ERROR = unchecked((uint)-1);
+        private static readonly IntPtr HWND_MESSAGE = new(-3);
+
+        // Distinct window-class name per instance, so a re-created listener never
+        // collides with a not-yet-freed class name.
+        private static int instanceCounter;
+
+        private readonly ILogger logger;
+        private readonly string className;
+        private readonly object gate = new();
+        private readonly object lifecycleGate = new();
+        private readonly ManualResetEventSlim ready = new(false);
+
+        private Thread? thread;
+        private uint nativeThreadId;
+        private IntPtr hwnd;
+        private WndProcDelegate? wndProc; // kept alive against GC for RegisterClass
+        private volatile bool running;
+        private volatile bool disposed;
+
+        // Latest speed (guarded by gate); lastEventTimestamp is the freshness/
+        // inter-event clock (Interlocked).
+        private double lastX, lastY, lastCombined;
+        private long lastEventTimestamp;
+
+        // handle -> normalization factor (1000 / dpi); defaultFactor for the rest.
+        private Dictionary<IntPtr, double> handleFactors = new();
+        private double defaultFactor = 1.0;
+
+        // Applied config's DPI-by-hardware-id, used to rebuild handleFactors.
+        private Dictionary<string, int> dpiById = new(StringComparer.OrdinalIgnoreCase);
+        private int defaultDpi = 1000;
+
+        public RawInputMouseListener(ILogger? logger = null)
+        {
+            this.logger = logger ?? NullLogger.Instance;
+            int id = Interlocked.Increment(ref instanceCounter);
+            className = $"RawAccelRawInputSink_{Environment.ProcessId}_{id}";
+        }
+
+        // Starts the capture thread. Idempotent. Blocks briefly until setup is done.
+        public void Start()
+        {
+            lock (lifecycleGate)
+            {
+                if (disposed || thread != null) return;
+                thread = new Thread(ThreadMain)
+                {
+                    IsBackground = true,
+                    Name = "RawAccelRawInput",
+                };
+                thread.Start();
+            }
+            ready.Wait(2000);
+        }
+
+        // Feeds the applied config for per-device DPI. Safe to call before Start.
+        public void UpdateDevices(RawAccelConfig config)
+        {
+            var byId = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            if (config.devices != null)
+            {
+                foreach (var dev in config.devices)
+                {
+                    if (string.IsNullOrEmpty(dev.id)) continue;
+                    byId[dev.id] = dev.config?.dpi ?? defaultDpi;
+                }
+            }
+            int defDpi = config.defaultDeviceConfig?.dpi ?? 1000;
+
+            lock (gate)
+            {
+                dpiById = byId;
+                defaultDpi = defDpi > 0 ? defDpi : 1000;
+            }
+            RebuildHandleMap();
+        }
+
+        // The current normalized input speed, or Zero when idle/unavailable.
+        public MouseSpeedSample CurrentSample()
+        {
+            if (!running) return MouseSpeedSample.Zero;
+
+            long last = Interlocked.Read(ref lastEventTimestamp);
+            if (last == 0) return MouseSpeedSample.Zero;
+
+            double sinceMs = (Stopwatch.GetTimestamp() - last) * 1000.0 / Stopwatch.Frequency;
+            if (sinceMs > FreshnessMs) return MouseSpeedSample.Zero;
+
+            lock (gate)
+            {
+                return new MouseSpeedSample(lastX, lastY, lastCombined);
+            }
+        }
+
+        public void Dispose()
+        {
+            lock (lifecycleGate)
+            {
+                if (disposed) return;
+                disposed = true;
+                running = false;
+            }
+
+            uint tid = nativeThreadId;
+            if (tid != 0)
+            {
+                // Wake the loop; the thread tears down its own window/class.
+                PostThreadMessageW(tid, WM_QUIT, IntPtr.Zero, IntPtr.Zero);
+            }
+            thread?.Join(2000);
+            ready.Dispose();
+        }
+
+        // ----------------------------------------------------------------------------
+        // Capture thread
+        // ----------------------------------------------------------------------------
+
+        private void ThreadMain()
+        {
+            // Captured first so Dispose can always signal WM_QUIT.
+            nativeThreadId = GetCurrentThreadId();
+
+            IntPtr hInstance = GetModuleHandleW(null);
+            wndProc = WindowProc;
+
+            var wc = new WNDCLASS
+            {
+                lpfnWndProc = wndProc,
+                hInstance = hInstance,
+                lpszClassName = className,
+            };
+
+            try
+            {
+                if (RegisterClassW(ref wc) == 0)
+                {
+                    logger.LogDebug("RegisterClass failed (err {Err}); speed line disabled",
+                        Marshal.GetLastWin32Error());
+                    ready.Set();
+                    return;
+                }
+
+                hwnd = CreateWindowExW(0, className, string.Empty, 0, 0, 0, 0, 0,
+                    HWND_MESSAGE, IntPtr.Zero, hInstance, IntPtr.Zero);
+                if (hwnd == IntPtr.Zero)
+                {
+                    logger.LogDebug("CreateWindowEx failed (err {Err}); speed line disabled",
+                        Marshal.GetLastWin32Error());
+                    UnregisterClassW(className, hInstance);
+                    ready.Set();
+                    return;
+                }
+
+                var devices = new[]
+                {
+                    new RAWINPUTDEVICE
+                    {
+                        UsagePage = 0x01, // generic desktop
+                        Usage = 0x02,     // mouse
+                        Flags = RIDEV_INPUTSINK | RIDEV_DEVNOTIFY,
+                        hwndTarget = hwnd,
+                    },
+                };
+                if (!RegisterRawInputDevices(devices, 1, (uint)Marshal.SizeOf<RAWINPUTDEVICE>()))
+                {
+                    logger.LogDebug("RegisterRawInputDevices failed (err {Err}); speed line disabled",
+                        Marshal.GetLastWin32Error());
+                }
+
+                RebuildHandleMap();
+                running = true;
+                ready.Set();
+
+                logger.LogDebug(
+                    "raw input listener active: hwnd=0x{Hwnd:x}, mapped handles={Count}",
+                    hwnd.ToInt64(), handleFactors.Count);
+
+                while (GetMessageW(out MSG msg, IntPtr.Zero, 0, 0) > 0)
+                {
+                    TranslateMessage(ref msg);
+                    DispatchMessageW(ref msg);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "raw input listener thread failed");
+                ready.Set();
+            }
+            finally
+            {
+                running = false;
+                if (hwnd != IntPtr.Zero)
+                {
+                    DestroyWindow(hwnd);
+                    hwnd = IntPtr.Zero;
+                }
+                UnregisterClassW(className, hInstance);
+            }
+        }
+
+        private IntPtr WindowProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        {
+            switch (msg)
+            {
+                case WM_INPUT:
+                    try { HandleRawInput(lParam); }
+                    catch (Exception ex) { logger.LogTrace(ex, "WM_INPUT handling failed"); }
+                    return DefWindowProcW(hWnd, msg, wParam, lParam);
+
+                case WM_INPUT_DEVICE_CHANGE:
+                    try { RebuildHandleMap(); }
+                    catch (Exception ex) { logger.LogTrace(ex, "device map rebuild failed"); }
+                    return IntPtr.Zero;
+
+                case WM_CLOSE:
+                    DestroyWindow(hWnd);
+                    return IntPtr.Zero;
+
+                case WM_DESTROY:
+                    PostQuitMessage(0);
+                    return IntPtr.Zero;
+
+                default:
+                    return DefWindowProcW(hWnd, msg, wParam, lParam);
+            }
+        }
+
+        private void HandleRawInput(IntPtr hRawInput)
+        {
+            uint size = (uint)Marshal.SizeOf<RAWINPUTMOUSE>();
+            uint headerSize = (uint)(2 * sizeof(uint) + 2 * IntPtr.Size);
+            if (GetRawInputData(hRawInput, RID_INPUT, out RAWINPUTMOUSE data, ref size, headerSize)
+                == RAWINPUT_ERROR)
+            {
+                return;
+            }
+
+            if (data.Type != RIM_TYPEMOUSE) return;
+            if ((data.MouseFlags & MOUSE_MOVE_ABSOLUTE) != 0) return; // only relative motion
+            if (data.LastX == 0 && data.LastY == 0) return;
+
+            double factor = FactorForHandle(data.Device);
+
+            long now = Stopwatch.GetTimestamp();
+            long prev = Interlocked.Exchange(ref lastEventTimestamp, now);
+            double dtMs = prev == 0
+                ? MaxIntervalMs
+                : (now - prev) * 1000.0 / Stopwatch.Frequency;
+            if (dtMs < MinIntervalMs) dtMs = MinIntervalMs;
+            else if (dtMs > MaxIntervalMs) dtMs = MaxIntervalMs;
+
+            double dx = data.LastX;
+            double dy = data.LastY;
+            double speedX = Math.Abs(dx) * factor / dtMs;
+            double speedY = Math.Abs(dy) * factor / dtMs;
+            double speedCombined = Math.Sqrt(dx * dx + dy * dy) * factor / dtMs;
+
+            lock (gate)
+            {
+                lastX = speedX;
+                lastY = speedY;
+                lastCombined = speedCombined;
+            }
+        }
+
+        private double FactorForHandle(IntPtr handle)
+        {
+            lock (gate)
+            {
+                return handleFactors.TryGetValue(handle, out double f) ? f : defaultFactor;
+            }
+        }
+
+        // Rebuilds handle -> normalization-factor from the live device list and config.
+        private void RebuildHandleMap()
+        {
+            var map = new Dictionary<IntPtr, double>();
+            Dictionary<string, int> byId;
+            int defDpi;
+            lock (gate)
+            {
+                byId = dpiById;
+                defDpi = defaultDpi;
+            }
+            double defFactor = defDpi > 0 ? NormalizedDpi / defDpi : 1.0;
+
+            try
+            {
+                foreach (MultiHandleDevice device in MultiHandleDevice.GetList())
+                {
+                    int dpi = (device.id != null && byId.TryGetValue(device.id, out int d) && d > 0)
+                        ? d
+                        : defDpi;
+                    double factor = dpi > 0 ? NormalizedDpi / dpi : 1.0;
+                    foreach (IntPtr handle in device.handles)
+                    {
+                        map[handle] = factor;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "enumerating raw input devices failed");
+            }
+
+            lock (gate)
+            {
+                handleFactors = map;
+                defaultFactor = defFactor;
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+        // P/Invoke
+        // ----------------------------------------------------------------------------
+
+        private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private struct WNDCLASS
+        {
+            public uint style;
+            public WndProcDelegate lpfnWndProc;
+            public int cbClsExtra;
+            public int cbWndExtra;
+            public IntPtr hInstance;
+            public IntPtr hIcon;
+            public IntPtr hCursor;
+            public IntPtr hbrBackground;
+            [MarshalAs(UnmanagedType.LPWStr)] public string? lpszMenuName;
+            [MarshalAs(UnmanagedType.LPWStr)] public string lpszClassName;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MSG
+        {
+            public IntPtr hwnd;
+            public uint message;
+            public IntPtr wParam;
+            public IntPtr lParam;
+            public uint time;
+            public int ptX;
+            public int ptY;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RAWINPUTDEVICE
+        {
+            public ushort UsagePage;
+            public ushort Usage;
+            public uint Flags;
+            public IntPtr hwndTarget;
+        }
+
+        // Flattened RAWINPUTHEADER + RAWMOUSE; Padding mirrors the native union's
+        // 4-byte alignment after MouseFlags.
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RAWINPUTMOUSE
+        {
+            // RAWINPUTHEADER
+            public uint Type;
+            public uint Size;
+            public IntPtr Device;
+            public IntPtr wParam;
+            // RAWMOUSE
+            public ushort MouseFlags;
+            public ushort Padding;
+            public ushort ButtonFlags;
+            public ushort ButtonData;
+            public uint RawButtons;
+            public int LastX;
+            public int LastY;
+            public uint ExtraInformation;
+        }
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern ushort RegisterClassW(ref WNDCLASS lpWndClass);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool UnregisterClassW(string lpClassName, IntPtr hInstance);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern IntPtr CreateWindowExW(uint dwExStyle, string lpClassName,
+            string lpWindowName, uint dwStyle, int x, int y, int nWidth, int nHeight,
+            IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool DestroyWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr DefWindowProcW(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetMessageW(out MSG lpMsg, IntPtr hWnd,
+            uint wMsgFilterMin, uint wMsgFilterMax);
+
+        [DllImport("user32.dll")]
+        private static extern bool TranslateMessage(ref MSG lpMsg);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr DispatchMessageW(ref MSG lpMsg);
+
+        [DllImport("user32.dll")]
+        private static extern void PostQuitMessage(int nExitCode);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool PostThreadMessageW(uint idThread, uint msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool RegisterRawInputDevices(
+            [In] RAWINPUTDEVICE[] pRawInputDevices, uint uiNumDevices, uint cbSize);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetRawInputData(IntPtr hRawInput, uint uiCommand,
+            out RAWINPUTMOUSE pData, ref uint pcbSize, uint cbSizeHeader);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr GetModuleHandleW(string? lpModuleName);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+    }
+}

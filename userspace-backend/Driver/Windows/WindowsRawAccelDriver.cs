@@ -7,9 +7,17 @@ using RawAccel.Contracts;
 
 namespace userspace_backend.Driver.Windows
 {
-    public sealed class WindowsRawAccelDriver : IRawAccelDriver
+    public sealed class WindowsRawAccelDriver : IRawAccelDriver, IDisposable
     {
         private readonly ILogger<WindowsRawAccelDriver> logger;
+        private readonly object listenerGate = new();
+
+        // Speed-line capture, created lazily on first poll so unused paths never
+        // spin up a window + thread.
+        private RawInputMouseListener? listener;
+
+        // Last applied config, replayed into the listener for per-device DPI.
+        private RawAccelConfig? lastConfig;
 
         public WindowsRawAccelDriver(ILogger<WindowsRawAccelDriver>? logger = null)
         {
@@ -46,6 +54,10 @@ namespace userspace_backend.Driver.Windows
                     return false;
                 }
                 native.Activate();
+
+                lastConfig = config;
+                listener?.UpdateDevices(config);
+
                 return true;
             }
             catch (Exception ex)
@@ -69,7 +81,41 @@ namespace userspace_backend.Driver.Windows
             DriverConfig.Deactivate();
         }
 
-        // TODO: plug in mouse speeds from the OS layer.
-        public MouseSpeedSample GetCurrentMouseSpeedSample() => MouseSpeedSample.Zero;
+        public MouseSpeedSample GetCurrentMouseSpeedSample()
+        {
+            try
+            {
+                return EnsureListener().CurrentSample();
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "mouse speed sample failed");
+                return MouseSpeedSample.Zero;
+            }
+        }
+
+        private RawInputMouseListener EnsureListener()
+        {
+            var existing = listener;
+            if (existing != null) return existing;
+
+            lock (listenerGate)
+            {
+                if (listener == null)
+                {
+                    var created = new RawInputMouseListener(logger);
+                    created.Start();
+                    if (lastConfig != null) created.UpdateDevices(lastConfig);
+                    listener = created;
+                }
+                return listener;
+            }
+        }
+
+        public void Dispose()
+        {
+            listener?.Dispose();
+            listener = null;
+        }
     }
 }
