@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
 using static userspace_backend.Data.Profiles.Acceleration;
-using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
 
 namespace userspace_backend.Model.AccelDefinitions
 {
@@ -16,7 +16,7 @@ namespace userspace_backend.Model.AccelDefinitions
 
         ICoalescionModel Coalescion { get; }
 
-        AccelArgs MapToDriver();
+        RaAccelArgs MapToDriver();
     }
 
     public class AccelerationModel : EditableSettingsSelector<AccelerationDefinitionType, Acceleration>, IAccelerationModel
@@ -62,7 +62,7 @@ namespace userspace_backend.Model.AccelDefinitions
             return acceleration;
         }
 
-        public AccelArgs MapToDriver() => ((IAccelDefinitionModel)Selected)?.MapToDriver() ?? new AccelArgs();
+        public RaAccelArgs MapToDriver() => ((IAccelDefinitionModel)Selected)?.MapToDriver() ?? new RaAccelArgs();
 
         protected override bool TryMapEditableSettingsFromData(Acceleration data)
         {

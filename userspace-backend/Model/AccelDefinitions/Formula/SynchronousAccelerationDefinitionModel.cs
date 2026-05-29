@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
-using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
-using AccelMode = RawAccel.Contracts.AccelMode;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -48,11 +48,11 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Smoothness { get; set; }
 
-        public override AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.synchronous,
+                mode = RaAccelMode.synchronous,
                 syncSpeed = SyncSpeed.ModelValue,
                 motivity = Motivity.ModelValue,
                 gamma = Gamma.ModelValue,

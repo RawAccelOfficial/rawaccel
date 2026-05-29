@@ -72,7 +72,7 @@ namespace userspace_backend_tests.IOTests
         public void WriteProfiles_LandsOnDisk_WithClassicAccel()
         {
             var loader = MakeLoader();
-            var profile = new Profile
+            var profile = new userspace_backend.Data.Profile
             {
                 Name = "TestProfile",
                 OutputDPI = 1600,
@@ -199,7 +199,7 @@ namespace userspace_backend_tests.IOTests
         [TestMethod]
         public void Profile_ClassicAccel_SurvivesRoundTrip()
         {
-            var profile = new Profile
+            var profile = new userspace_backend.Data.Profile
             {
                 Name = "Classic",
                 OutputDPI = 1600,

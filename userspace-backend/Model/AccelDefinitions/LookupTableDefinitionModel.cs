@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Model.EditableSettings;
 using static userspace_backend.Data.Profiles.Accel.LookupTableAccel;
-using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
-using AccelMode = RawAccel.Contracts.AccelMode;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions
 {
@@ -36,19 +36,19 @@ namespace userspace_backend.Model.AccelDefinitions
 
         public IEditableSettingSpecific<LookupTableData> Data { get; set; }
 
-        public AccelArgs MapToDriver()
+        public RaAccelArgs MapToDriver()
         {
             // data in driver profile must be predefined length for marshalling purposes
             double[] lutData = Data.ModelValue.Data;
-            var accelArgsData = new float[AccelArgs.MaxLutPoints*2];
+            var accelArgsData = new float[RaAccelArgs.MaxLutPoints*2];
             for (int i = 0; i < lutData.Length; i++)
             {
                 accelArgsData[i] = (float)lutData[i];
             }
 
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.lut,
+                mode = RaAccelMode.lut,
                 data = accelArgsData,
                 length = Data.ModelValue.Data.Length,
             };

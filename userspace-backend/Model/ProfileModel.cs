@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,8 +11,8 @@ using userspace_backend.Model.AccelDefinitions;
 using userspace_backend.Model.EditableSettings;
 using userspace_backend.Model.ProfileComponents;
 using DATA = userspace_backend.Data;
-using Profile = RawAccel.Contracts.RawAccelProfile;
-using SpeedArgs = RawAccel.Contracts.RawAccelSpeedArgs;
+using RaProfile = RawAccel.Contracts.RawAccelProfile;
+using RaSpeedArgs = RawAccel.Contracts.RawAccelSpeedArgs;
 
 namespace userspace_backend.Model
 {
@@ -37,7 +37,7 @@ namespace userspace_backend.Model
 
         string CurrentNameForDisplay { get; }
 
-        Profile CurrentValidatedDriverProfile { get; }
+        RaProfile CurrentValidatedDriverProfile { get; }
     }
 
     public class ProfileModel : NamedEditableSettingsCollection<DATA.Profile>, IProfileModel
@@ -89,7 +89,7 @@ namespace userspace_backend.Model
 
         public IHiddenModel Hidden { get; set; }
 
-        public Profile CurrentValidatedDriverProfile { get; protected set; }
+        public RaProfile CurrentValidatedDriverProfile { get; protected set; }
 
         public ICurvePreview XCurvePreview { get; protected set; }
 
@@ -110,9 +110,9 @@ namespace userspace_backend.Model
             };
         }
 
-        public Profile MapToDriver()
+        public RaProfile MapToDriver()
         {
-            return new Profile()
+            return new RaProfile()
             {
                 name = Name.ModelValue,
                 outputDPI = OutputDPI.ModelValue,
@@ -136,7 +136,7 @@ namespace userspace_backend.Model
                 // The driver supports a speed floor (common/rawaccel-base.hpp), but the UI
                 // deliberately does not expose one; keep it pinned at 0.
                 minimumSpeed = 0,
-                inputSpeedArgs = new SpeedArgs
+                inputSpeedArgs = new RaSpeedArgs
                 {
                     combineMagnitudes = Acceleration.Anisotropy.CombineXYComponents.ModelValue,
                     lpNorm = Acceleration.Anisotropy.LPNorm.ModelValue,

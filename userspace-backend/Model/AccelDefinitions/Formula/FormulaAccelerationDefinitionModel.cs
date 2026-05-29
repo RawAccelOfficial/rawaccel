@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Model.EditableSettings;
-using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -21,7 +21,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
         {
         }
 
-        public abstract AccelArgs MapToDriver();
+        public abstract RaAccelArgs MapToDriver();
 
         // No formula has nested settings collections; its parameters are all leaf settings.
         protected sealed override bool TryMapEditableSettingsCollectionsFromData(TData data) => true;

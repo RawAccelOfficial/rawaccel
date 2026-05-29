@@ -66,7 +66,7 @@ namespace userspace_backend.Driver.Windows
 
         public void Deactivate()
         {
-            DriverConfig.GetDefault().Deactivate();
+            DriverConfig.Deactivate();
         }
 
         // TODO: plug in mouse speeds from the OS layer.

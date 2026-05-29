@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
-using AccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
-using AccelMode = RawAccel.Contracts.AccelMode;
-using CapMode = RawAccel.Contracts.CapMode;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
+using RaCapMode = RawAccel.Contracts.CapMode;
 using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
@@ -38,16 +38,16 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Cap { get; set; }
 
-        public override AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.classic,
+                mode = RaAccelMode.classic,
                 acceleration = Acceleration.ModelValue,
                 exponentClassic = 2,
                 inputOffset = Offset.ModelValue,
                 cap = new Vec2D { x = 0, y = Cap.ModelValue },
-                capMode = CapMode.output,
+                capMode = RaCapMode.output,
             };
         }
 

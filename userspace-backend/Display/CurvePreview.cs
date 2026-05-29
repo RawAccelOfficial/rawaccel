@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using userspace_backend.Display.Calculations;
 using userspace_backend.Driver;
-using Profile = RawAccel.Contracts.RawAccelProfile;
+using RaProfile = RawAccel.Contracts.RawAccelProfile;
 
 namespace userspace_backend.Display
 {
@@ -12,7 +12,7 @@ namespace userspace_backend.Display
     {
         ObservableCollection<CurvePoint> Points { get; }
 
-        void GeneratePoints(Profile profile);
+        void GeneratePoints(RaProfile profile);
 
         void SetPoints(IEnumerable<CurvePoint> points);
     }
@@ -30,7 +30,7 @@ namespace userspace_backend.Display
 
         public ObservableCollection<CurvePoint> Points { get; }
 
-        public void GeneratePoints(Profile profile)
+        public void GeneratePoints(RaProfile profile)
         {
             using IAccelInstance instance = evaluator.CreateInstance(profile);
 

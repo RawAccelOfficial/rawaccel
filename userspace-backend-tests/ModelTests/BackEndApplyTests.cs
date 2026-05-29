@@ -427,7 +427,7 @@ namespace userspace_backend_tests.ModelTests
                 "Classic.Acceleration update should succeed.");
 
             var cfg = ApplyAndCapture(backEnd, driver);
-            Assert.AreEqual(AccelMode.classic, cfg.profiles[0].argsX.mode,
+            Assert.AreEqual(RawAccel.Contracts.AccelMode.classic, cfg.profiles[0].argsX.mode,
                 "DriverConfig should reflect the chosen Classic formula.");
             Assert.AreEqual(expectedAcceleration, cfg.profiles[0].argsX.acceleration,
                 "DriverConfig should reflect the tweaked Classic.Acceleration coefficient. " +
@@ -471,7 +471,7 @@ namespace userspace_backend_tests.ModelTests
             var cfg = ApplyAndCapture(backEnd, driver);
 
             // X is the historically-tested axis; Y is the regression guard.
-            Assert.AreEqual(AccelMode.classic, cfg.profiles[0].argsY.mode,
+            Assert.AreEqual(RawAccel.Contracts.AccelMode.classic, cfg.profiles[0].argsY.mode,
                 "argsY must carry the same accel mode as argsX, or vertical acceleration " +
                 "is dead in by-component mode (argsY left at the noaccel default).");
             Assert.AreEqual(expectedAcceleration, cfg.profiles[0].argsY.acceleration,

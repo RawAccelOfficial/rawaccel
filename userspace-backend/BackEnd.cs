@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,9 +8,9 @@ using RawAccel.Contracts;
 using userspace_backend.Driver;
 using userspace_backend.Model;
 using DATA = userspace_backend.Data;
-using Profile = RawAccel.Contracts.RawAccelProfile;
-using DeviceSettings = RawAccel.Contracts.RawAccelDeviceSettings;
-using DeviceConfig = RawAccel.Contracts.RawAccelDeviceConfig;
+using RaProfile = RawAccel.Contracts.RawAccelProfile;
+using RaDeviceSettings = RawAccel.Contracts.RawAccelDeviceSettings;
+using RaDeviceConfig = RawAccel.Contracts.RawAccelDeviceConfig;
 
 namespace userspace_backend
 {
@@ -305,7 +305,7 @@ namespace userspace_backend
 
             if (config.profiles != null)
             {
-                foreach (Profile p in config.profiles)
+                foreach (RaProfile p in config.profiles)
                 {
                     logger.LogInformation(
                         "  profile: name={Name} outputDPI={OutputDPI} yxRatio={YxRatio} rotation={Rotation} " +
@@ -318,7 +318,7 @@ namespace userspace_backend
 
             if (config.devices != null)
             {
-                foreach (DeviceSettings d in config.devices)
+                foreach (RaDeviceSettings d in config.devices)
                 {
                     logger.LogInformation(
                         "  device: id={Id} name={Name} profile={Profile} disable={Disable} dpi={Dpi} pollingRate={PollingRate}",
@@ -369,44 +369,44 @@ namespace userspace_backend
 
         protected RawAccelConfig MapToDriverConfig(MappingModel mappingModel)
         {
-            IEnumerable<DeviceSettings> configDevices = MapToDriverDevices(mappingModel);
-            IEnumerable<Profile> configProfiles = MapToDriverProfiles(mappingModel);
+            IEnumerable<RaDeviceSettings> configDevices = MapToDriverDevices(mappingModel);
+            IEnumerable<RaProfile> configProfiles = MapToDriverProfiles(mappingModel);
 
             return new RawAccelConfig
             {
                 version = RawAccelConstants.VersionString,
-                defaultDeviceConfig = new DeviceConfig(),
+                defaultDeviceConfig = new RaDeviceConfig(),
                 profiles = configProfiles.ToList(),
                 devices = configDevices.ToList(),
             };
         }
 
-        protected IEnumerable<DeviceSettings> MapToDriverDevices(MappingModel mapping)
+        protected IEnumerable<RaDeviceSettings> MapToDriverDevices(MappingModel mapping)
         {
             return mapping.IndividualMappings.SelectMany(
                 dg => MapToDriverDevices(dg.DeviceGroup, dg.Profile.Name.ModelValue));
         }
 
-        protected IEnumerable<Profile> MapToDriverProfiles(MappingModel mapping)
+        protected IEnumerable<RaProfile> MapToDriverProfiles(MappingModel mapping)
         {
             IEnumerable<IProfileModel> ProfilesToMap = mapping.IndividualMappings.Select(m => m.Profile).Distinct();
             return ProfilesToMap.Select(p => p.CurrentValidatedDriverProfile);
         }
 
-        protected IEnumerable<DeviceSettings> MapToDriverDevices(string dg, string profileName)
+        protected IEnumerable<RaDeviceSettings> MapToDriverDevices(string dg, string profileName)
         {
             IEnumerable<IDeviceModel> deviceModels = Devices.Elements.Where(d => d.DeviceGroup.ModelValue.Equals(dg));
             return deviceModels.Select(dm => MapToDriverDevice(dm, profileName));
         }
 
-        protected DeviceSettings MapToDriverDevice(IDeviceModel deviceModel, string profileName)
+        protected RaDeviceSettings MapToDriverDevice(IDeviceModel deviceModel, string profileName)
         {
-            return new DeviceSettings()
+            return new RaDeviceSettings()
             {
                 id = deviceModel.HardwareID.ModelValue,
                 name = deviceModel.Name.ModelValue,
                 profile = profileName,
-                config = new DeviceConfig()
+                config = new RaDeviceConfig()
                 {
                     disable = deviceModel.Ignore.ModelValue,
                     dpi = deviceModel.DPI.ModelValue,
