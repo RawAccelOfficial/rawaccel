@@ -18,13 +18,12 @@ namespace userspace_backend.Driver.Windows
     {
         public WindowsSystemDevice(MultiHandleDevice multiHandleDevice)
         {
-            RawDevice = multiHandleDevice;
+            Name = multiHandleDevice.name ?? string.Empty;
+            HWID = multiHandleDevice.id ?? string.Empty;
         }
 
-        public string Name => RawDevice.name;
+        public string Name { get; }
 
-        public string HWID => RawDevice.id;
-
-        private MultiHandleDevice RawDevice { get; }
+        public string HWID { get; }
     }
 }

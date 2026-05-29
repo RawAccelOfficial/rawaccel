@@ -18,8 +18,6 @@ namespace userspace_backend.Driver.Windows
     // normalization factor, defaulting for handles absent from the config.
     internal sealed class RawInputMouseListener : IDisposable
     {
-        private const double NormalizedDpi = 1000.0;
-
         // No movement for this long => report Zero (line eases back to rest).
         private const double FreshnessMs = 150.0;
 
@@ -27,6 +25,8 @@ namespace userspace_backend.Driver.Windows
         // the speed. 0.1 ms is a 10 kHz ceiling, above any real polling rate.
         private const double MinIntervalMs = 0.1;
         private const double MaxIntervalMs = 100.0;
+
+        private const int LifecycleTimeoutMs = 2000;
 
         // Win32 constants.
         private const uint WM_DESTROY = 0x0002;
@@ -64,13 +64,14 @@ namespace userspace_backend.Driver.Windows
         private double lastX, lastY, lastCombined;
         private long lastEventTimestamp;
 
-        // handle -> normalization factor (1000 / dpi); defaultFactor for the rest.
-        private Dictionary<IntPtr, double> handleFactors = new();
+        // handle -> normalization factor (NormalizedDpi / dpi); defaultFactor for the rest.
+        // Volatile + build-once-publish lets HandleRawInput read lock-free on the hot path.
+        private volatile Dictionary<IntPtr, double> handleFactors = new();
         private double defaultFactor = 1.0;
 
         // Applied config's DPI-by-hardware-id, used to rebuild handleFactors.
         private Dictionary<string, int> dpiById = new(StringComparer.OrdinalIgnoreCase);
-        private int defaultDpi = 1000;
+        private int defaultDpi = (int)RawAccelConstants.NormalizedDpi;
 
         public RawInputMouseListener(ILogger? logger = null)
         {
@@ -92,27 +93,29 @@ namespace userspace_backend.Driver.Windows
                 };
                 thread.Start();
             }
-            ready.Wait(2000);
+            ready.Wait(LifecycleTimeoutMs);
         }
 
         // Feeds the applied config for per-device DPI. Safe to call before Start.
         public void UpdateDevices(RawAccelConfig config)
         {
+            int defDpi = config.defaultDeviceConfig?.dpi ?? (int)RawAccelConstants.NormalizedDpi;
+            if (defDpi <= 0) defDpi = (int)RawAccelConstants.NormalizedDpi;
+
             var byId = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             if (config.devices != null)
             {
                 foreach (var dev in config.devices)
                 {
                     if (string.IsNullOrEmpty(dev.id)) continue;
-                    byId[dev.id] = dev.config?.dpi ?? defaultDpi;
+                    byId[dev.id] = dev.config?.dpi ?? defDpi;
                 }
             }
-            int defDpi = config.defaultDeviceConfig?.dpi ?? 1000;
 
             lock (gate)
             {
                 dpiById = byId;
-                defaultDpi = defDpi > 0 ? defDpi : 1000;
+                defaultDpi = defDpi;
             }
             RebuildHandleMap();
         }
@@ -143,13 +146,14 @@ namespace userspace_backend.Driver.Windows
                 running = false;
             }
 
-            uint tid = nativeThreadId;
+            // Paired Volatile.Read/Write: ThreadMain writes nativeThreadId outside any lock.
+            uint tid = Volatile.Read(ref nativeThreadId);
             if (tid != 0)
             {
                 // Wake the loop; the thread tears down its own window/class.
                 PostThreadMessageW(tid, WM_QUIT, IntPtr.Zero, IntPtr.Zero);
             }
-            thread?.Join(2000);
+            thread?.Join(LifecycleTimeoutMs);
             ready.Dispose();
         }
 
@@ -159,8 +163,7 @@ namespace userspace_backend.Driver.Windows
 
         private void ThreadMain()
         {
-            // Captured first so Dispose can always signal WM_QUIT.
-            nativeThreadId = GetCurrentThreadId();
+            Volatile.Write(ref nativeThreadId, GetCurrentThreadId());
 
             IntPtr hInstance = GetModuleHandleW(null);
             wndProc = WindowProc;
@@ -172,23 +175,25 @@ namespace userspace_backend.Driver.Windows
                 lpszClassName = className,
             };
 
+            bool classRegistered = false;
+
             try
             {
                 if (RegisterClassW(ref wc) == 0)
                 {
-                    logger.LogDebug("RegisterClass failed (err {Err}); speed line disabled",
+                    logger.LogWarning("RegisterClass failed (err {Err}); speed line disabled",
                         Marshal.GetLastWin32Error());
                     ready.Set();
                     return;
                 }
+                classRegistered = true;
 
                 hwnd = CreateWindowExW(0, className, string.Empty, 0, 0, 0, 0, 0,
                     HWND_MESSAGE, IntPtr.Zero, hInstance, IntPtr.Zero);
                 if (hwnd == IntPtr.Zero)
                 {
-                    logger.LogDebug("CreateWindowEx failed (err {Err}); speed line disabled",
+                    logger.LogWarning("CreateWindowEx failed (err {Err}); speed line disabled",
                         Marshal.GetLastWin32Error());
-                    UnregisterClassW(className, hInstance);
                     ready.Set();
                     return;
                 }
@@ -205,8 +210,10 @@ namespace userspace_backend.Driver.Windows
                 };
                 if (!RegisterRawInputDevices(devices, 1, (uint)Marshal.SizeOf<RAWINPUTDEVICE>()))
                 {
-                    logger.LogDebug("RegisterRawInputDevices failed (err {Err}); speed line disabled",
+                    logger.LogWarning("RegisterRawInputDevices failed (err {Err}); speed line disabled",
                         Marshal.GetLastWin32Error());
+                    ready.Set();
+                    return;
                 }
 
                 RebuildHandleMap();
@@ -219,13 +226,12 @@ namespace userspace_backend.Driver.Windows
 
                 while (GetMessageW(out MSG msg, IntPtr.Zero, 0, 0) > 0)
                 {
-                    TranslateMessage(ref msg);
                     DispatchMessageW(ref msg);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogDebug(ex, "raw input listener thread failed");
+                logger.LogError(ex, "raw input listener thread failed");
                 ready.Set();
             }
             finally
@@ -236,7 +242,7 @@ namespace userspace_backend.Driver.Windows
                     DestroyWindow(hwnd);
                     hwnd = IntPtr.Zero;
                 }
-                UnregisterClassW(className, hInstance);
+                if (classRegistered) UnregisterClassW(className, hInstance);
             }
         }
 
@@ -267,11 +273,15 @@ namespace userspace_backend.Driver.Windows
             }
         }
 
+        // Cached; Marshal reflection per WM_INPUT would burn the hot path.
+        private static readonly uint RawInputMouseSize = (uint)Marshal.SizeOf<RAWINPUTMOUSE>();
+        private static readonly uint RawInputHeaderSize =
+            (uint)Marshal.OffsetOf<RAWINPUTMOUSE>(nameof(RAWINPUTMOUSE.MouseFlags));
+
         private void HandleRawInput(IntPtr hRawInput)
         {
-            uint size = (uint)Marshal.SizeOf<RAWINPUTMOUSE>();
-            uint headerSize = (uint)(2 * sizeof(uint) + 2 * IntPtr.Size);
-            if (GetRawInputData(hRawInput, RID_INPUT, out RAWINPUTMOUSE data, ref size, headerSize)
+            uint size = RawInputMouseSize;
+            if (GetRawInputData(hRawInput, RID_INPUT, out RAWINPUTMOUSE data, ref size, RawInputHeaderSize)
                 == RAWINPUT_ERROR)
             {
                 return;
@@ -305,12 +315,13 @@ namespace userspace_backend.Driver.Windows
             }
         }
 
+        private static double FactorFor(int dpi) =>
+            dpi > 0 ? RawAccelConstants.NormalizedDpi / dpi : 1.0;
+
         private double FactorForHandle(IntPtr handle)
         {
-            lock (gate)
-            {
-                return handleFactors.TryGetValue(handle, out double f) ? f : defaultFactor;
-            }
+            var map = handleFactors;
+            return map.TryGetValue(handle, out double f) ? f : Volatile.Read(ref defaultFactor);
         }
 
         // Rebuilds handle -> normalization-factor from the live device list and config.
@@ -324,7 +335,7 @@ namespace userspace_backend.Driver.Windows
                 byId = dpiById;
                 defDpi = defaultDpi;
             }
-            double defFactor = defDpi > 0 ? NormalizedDpi / defDpi : 1.0;
+            double defFactor = FactorFor(defDpi);
 
             try
             {
@@ -333,7 +344,7 @@ namespace userspace_backend.Driver.Windows
                     int dpi = (device.id != null && byId.TryGetValue(device.id, out int d) && d > 0)
                         ? d
                         : defDpi;
-                    double factor = dpi > 0 ? NormalizedDpi / dpi : 1.0;
+                    double factor = FactorFor(dpi);
                     foreach (IntPtr handle in device.handles)
                     {
                         map[handle] = factor;
@@ -345,11 +356,8 @@ namespace userspace_backend.Driver.Windows
                 logger.LogDebug(ex, "enumerating raw input devices failed");
             }
 
-            lock (gate)
-            {
-                handleFactors = map;
-                defaultFactor = defFactor;
-            }
+            Volatile.Write(ref defaultFactor, defFactor);
+            handleFactors = map; // volatile store publishes the new map
         }
 
         // ----------------------------------------------------------------------------
@@ -435,9 +443,6 @@ namespace userspace_backend.Driver.Windows
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern int GetMessageW(out MSG lpMsg, IntPtr hWnd,
             uint wMsgFilterMin, uint wMsgFilterMax);
-
-        [DllImport("user32.dll")]
-        private static extern bool TranslateMessage(ref MSG lpMsg);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr DispatchMessageW(ref MSG lpMsg);

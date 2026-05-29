@@ -13,11 +13,14 @@ namespace userspace_backend.Driver.Windows
         private readonly object listenerGate = new();
 
         // Speed-line capture, created lazily on first poll so unused paths never
-        // spin up a window + thread.
-        private RawInputMouseListener? listener;
+        // spin up a window + thread. Volatile for EnsureListener's lock-free fast path.
+        private volatile RawInputMouseListener? listener;
 
         // Last applied config, replayed into the listener for per-device DPI.
-        private RawAccelConfig? lastConfig;
+        // Volatile: written by Apply, read by EnsureListener under a different lock.
+        private volatile RawAccelConfig? lastConfig;
+
+        private volatile bool disposed;
 
         public WindowsRawAccelDriver(ILogger<WindowsRawAccelDriver>? logger = null)
         {
@@ -48,23 +51,25 @@ namespace userspace_backend.Driver.Windows
                 var json = JsonConvert.SerializeObject(config);
 
                 var (native, errors) = DriverConfig.Convert(json);
-                if (errors != null)
+                if (!string.IsNullOrEmpty(errors))
                 {
                     logger.LogError("driver rejected settings: {Errors}", errors);
                     return false;
                 }
                 native.Activate();
-
                 lastConfig = config;
-                listener?.UpdateDevices(config);
-
-                return true;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "driver apply failed");
                 return false;
             }
+
+            // Driver is already active; don't fail Apply for a listener-side hiccup.
+            try { listener?.UpdateDevices(config); }
+            catch (Exception ex) { logger.LogDebug(ex, "listener device update failed after apply"); }
+
+            return true;
         }
 
         public RawAccelConfig Read()
@@ -101,6 +106,8 @@ namespace userspace_backend.Driver.Windows
 
             lock (listenerGate)
             {
+                if (disposed)
+                    throw new ObjectDisposedException(nameof(WindowsRawAccelDriver));
                 if (listener == null)
                 {
                     var created = new RawInputMouseListener(logger);
@@ -114,8 +121,16 @@ namespace userspace_backend.Driver.Windows
 
         public void Dispose()
         {
-            listener?.Dispose();
-            listener = null;
+            RawInputMouseListener? toDispose;
+            lock (listenerGate)
+            {
+                if (disposed) return;
+                disposed = true;
+                toDispose = listener;
+                listener = null;
+            }
+            // Disposed outside the lock so the thread-join can't block EnsureListener.
+            toDispose?.Dispose();
         }
     }
 }

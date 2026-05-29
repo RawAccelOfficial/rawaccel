@@ -7,6 +7,10 @@ namespace RawAccel.Contracts
         public const int PollRateMin = 125;
         public const int PollRateMax = 8000;
 
+        // Mirrors NORMALIZED_DPI in common/rawaccel-base.hpp; the unit all
+        // curve math is expressed in (counts/ms at 1000 DPI).
+        public const double NormalizedDpi = 1000.0;
+
         public const double DefaultTimeMin = 1000.0 / PollRateMax / 2.0;
         public const double DefaultTimeMax = 100.0;
 

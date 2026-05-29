@@ -18,7 +18,9 @@ namespace userspace_backend.Driver.Windows
             var nativeProfile = JsonConvert.DeserializeObject<Profile>(json)
                 ?? throw new InvalidOperationException(
                     "POCO -> wrapper.Profile deserialization returned null");
-            var accel = new ManagedAccel(nativeProfile).CreateStatelessCopy();
+            // Dispose the seed; CreateStatelessCopy allocates a fresh native pair.
+            using var seed = new ManagedAccel(nativeProfile);
+            var accel = seed.CreateStatelessCopy();
             return new ManagedAccelInstance(accel);
         }
 
@@ -38,8 +40,7 @@ namespace userspace_backend.Driver.Windows
                 return (t.Item1, t.Item2);
             }
 
-            // ManagedAccel is a C++/CLI ref type; dispose it if it owns native state.
-            public void Dispose() => (accel as IDisposable)?.Dispose();
+            public void Dispose() => accel.Dispose();
         }
     }
 }
