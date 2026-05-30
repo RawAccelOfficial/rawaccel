@@ -82,10 +82,10 @@ namespace userspace_backend_tests.SerializationTests
             Assert.AreEqual(0.001, actualLinearAccel.Acceleration);
         }
 
-        // Regression: the converter only handled Linear and Classic. A Default profile
-        // saved as Type=Formula/Synchronous (the default formula) threw "Unknown formula
-        // type Synchronous" at startup, crashing on the next launch.
+        // Ensures all formula types deserialize to their expected runtime type.
         [TestMethod]
+        [DataRow("Classic", typeof(ClassicAccel))]
+        [DataRow("Linear", typeof(LinearAccel))]
         [DataRow("Synchronous", typeof(SynchronousAccel))]
         [DataRow("Power", typeof(PowerAccel))]
         [DataRow("Natural", typeof(NaturalAccel))]
