@@ -1,8 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
+using RaCapMode = RawAccel.Contracts.CapMode;
+using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -11,20 +15,20 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class PowerAccelerationDefinitionModel
-        : EditableSettingsSelectable<PowerAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<PowerAccel>,
         IPowerAccelerationDefinitionModel
     {
-        public const string ScaleDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Scale)}";
-        public const string ExponentDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Exponent)}";
-        public const string OutputOffsetDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(OutputOffset)}";
-        public const string CapDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(CapDIKey)}";
+        public const string ScaleDIKey = $"{nameof(PowerAccelerationDefinitionModel)}.{nameof(Scale)}";
+        public const string ExponentDIKey = $"{nameof(PowerAccelerationDefinitionModel)}.{nameof(Exponent)}";
+        public const string OutputOffsetDIKey = $"{nameof(PowerAccelerationDefinitionModel)}.{nameof(OutputOffset)}";
+        public const string CapDIKey = $"{nameof(PowerAccelerationDefinitionModel)}.{nameof(Cap)}";
 
         public PowerAccelerationDefinitionModel(
             [FromKeyedServices(ScaleDIKey)]IEditableSettingSpecific<double> scale,
             [FromKeyedServices(ExponentDIKey)]IEditableSettingSpecific<double> exponent,
             [FromKeyedServices(OutputOffsetDIKey)]IEditableSettingSpecific<double> outputOffset,
             [FromKeyedServices(CapDIKey)]IEditableSettingSpecific<double> cap)
-            : base([scale, exponent, outputOffset, cap], [])
+            : base([scale, exponent, outputOffset, cap])
         {
             Scale = scale;
             Exponent = exponent;
@@ -40,16 +44,16 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Cap { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.power,
+                mode = RaAccelMode.power,
                 scale = Scale.ModelValue,
                 exponentPower = Exponent.ModelValue,
                 outputOffset = OutputOffset.ModelValue,
-                cap = new Vec2<double> { x = 0, y = Cap.ModelValue },
-                capMode = CapMode.output,
+                cap = new Vec2D { x = 0, y = Cap.ModelValue },
+                capMode = RaCapMode.output,
             };
         }
 
@@ -70,11 +74,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 & Exponent.TryUpdateModelDirectly(data.Exponent)
                 & OutputOffset.TryUpdateModelDirectly(data.OutputOffset)
                 & Cap.TryUpdateModelDirectly(data.Cap);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(PowerAccel data)
-        {
-            return true;
         }
     }
 }

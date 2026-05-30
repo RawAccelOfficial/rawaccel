@@ -18,7 +18,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RawAccel.Contracts\RawAccel.Contracts.csproj" />
+  </ItemGroup>
+
+  <!-- The C++/CLI wrapper is Windows-only (MSVC /clr, .NET Framework 4.7.2);
+       Linux dotnet builds skip it. Windows-side files in Driver\Windows\ are
+       likewise excluded on non-Windows so net8.0 doesn't try to compile
+       references to wrapper types. -->
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <ProjectReference Include="..\wrapper\wrapper.vcxproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove="Driver\Windows\**\*.cs" />
   </ItemGroup>
 
 </Project>

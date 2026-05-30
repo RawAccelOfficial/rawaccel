@@ -1,7 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
+using RaCapMode = RawAccel.Contracts.CapMode;
+using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -10,18 +14,18 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class LinearAccelerationDefinitionModel
-        : EditableSettingsSelectable<LinearAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<LinearAccel>,
         ILinearAccelerationDefinitionModel
     {
         public const string AccelerationDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(Acceleration)}";
         public const string OffsetDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(Offset)}";
-        public const string CapDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(CapDIKey)}";
+        public const string CapDIKey = $"{nameof(LinearAccelerationDefinitionModel)}.{nameof(Cap)}";
 
         public LinearAccelerationDefinitionModel(
             [FromKeyedServices(AccelerationDIKey)]IEditableSettingSpecific<double> acceleration,
             [FromKeyedServices(OffsetDIKey)]IEditableSettingSpecific<double> offset,
             [FromKeyedServices(CapDIKey)]IEditableSettingSpecific<double> cap)
-            : base([acceleration, offset, cap], [])
+            : base([acceleration, offset, cap])
         {
             Acceleration = acceleration;
             Offset = offset;
@@ -34,16 +38,16 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Cap { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.classic,
+                mode = RaAccelMode.classic,
                 acceleration = Acceleration.ModelValue,
                 exponentClassic = 2,
                 inputOffset = Offset.ModelValue,
-                cap = new Vec2<double> { x = 0, y = Cap.ModelValue },
-                capMode = CapMode.output,
+                cap = new Vec2D { x = 0, y = Cap.ModelValue },
+                capMode = RaCapMode.output,
             };
         }
 
@@ -62,11 +66,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             return Acceleration.TryUpdateModelDirectly(data.Acceleration)
                 & Offset.TryUpdateModelDirectly(data.Offset)
                 & Cap.TryUpdateModelDirectly(data.Cap);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(LinearAccel data)
-        {
-            return true;
         }
     }
 }

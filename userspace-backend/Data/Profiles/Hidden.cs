@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace userspace_backend.Data.Profiles
 {
     public class Hidden
@@ -12,9 +6,9 @@ namespace userspace_backend.Data.Profiles
 
         public double AngleSnappingDegrees { get; set; }
 
-        public double LeftRightRatio { get; set; }
+        public double LeftRightRatio { get; set; } = 1.0;
 
-        public double UpDownRatio { get; set; }
+        public double UpDownRatio { get; set; } = 1.0;
 
         public double SpeedCap { get; set; }
 

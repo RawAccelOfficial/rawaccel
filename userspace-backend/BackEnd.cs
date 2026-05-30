@@ -1,13 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using userspace_backend.Data.Profiles;
-using userspace_backend.IO;
+using RawAccel.Contracts;
+using userspace_backend.Driver;
 using userspace_backend.Model;
 using DATA = userspace_backend.Data;
+using RaProfile = RawAccel.Contracts.RawAccelProfile;
+using RaDeviceSettings = RawAccel.Contracts.RawAccelDeviceSettings;
+using RaDeviceConfig = RawAccel.Contracts.RawAccelDeviceConfig;
 
 namespace userspace_backend
 {
@@ -15,7 +18,7 @@ namespace userspace_backend
     {
         void Load();
 
-        void Apply();
+        bool Apply();
 
         void SaveToDisk();
 
@@ -35,11 +38,11 @@ namespace userspace_backend
     public class BackEnd : IBackEnd
     {
         private readonly ILogger<BackEnd> logger;
-        private readonly IDriverConfigActivator driverConfigActivator;
+        private readonly IRawAccelDriver driver;
 
         public BackEnd(
             IBackEndLoader backEndLoader,
-            IDriverConfigActivator driverConfigActivator,
+            IRawAccelDriver driver,
             IProfilesModel profilesModel,
             DevicesModel devicesModel,
             MappingsModel mappingsModel,
@@ -47,7 +50,7 @@ namespace userspace_backend
             ILogger<BackEnd>? logger = null)
         {
             BackEndLoader = backEndLoader;
-            this.driverConfigActivator = driverConfigActivator;
+            this.driver = driver;
             Devices = devicesModel;
             Mappings = mappingsModel;
             Profiles = profilesModel;
@@ -69,13 +72,16 @@ namespace userspace_backend
 
         public void Load()
         {
-            IEnumerable<DATA.Device> devicesData = BackEndLoader.LoadDevices();
-            LoadDevicesFromData(devicesData);
+            List<DATA.Device> devicesData = BackEndLoader.LoadDevices().ToList();
+            Devices.TryMapFromData(devicesData);
 
-            IEnumerable<DATA.Profile> profilesData = BackEndLoader.LoadProfiles();
-            LoadProfilesFromData(profilesData);
+            List<DATA.Profile> profilesData = BackEndLoader.LoadProfiles().ToList();
+            Profiles.TryMapFromData(profilesData);
 
             DATA.MappingSet mappingData = BackEndLoader.LoadMappings();
+
+            RestoreDeviceGroupsFromData(devicesData, mappingData);
+
             LoadMappingsFromData(mappingData);
 
             Settings = BackEndLoader.LoadSettings() ?? new DATA.Settings();
@@ -86,19 +92,33 @@ namespace userspace_backend
             EnsureDefaultMappingExists();
         }
 
-        protected void LoadDevicesFromData(IEnumerable<DATA.Device> devicesData)
+        protected void RestoreDeviceGroupsFromData(
+            IEnumerable<DATA.Device> devicesData,
+            DATA.MappingSet mappingData)
         {
-            Devices.TryMapFromData(devicesData);
-        }
+            foreach (DATA.Device device in devicesData)
+            {
+                if (!string.IsNullOrEmpty(device.DeviceGroup))
+                {
+                    Devices.DeviceGroups.AddOrGetDeviceGroup(device.DeviceGroup);
+                }
+            }
 
-        protected void LoadProfilesFromData(IEnumerable<DATA.Profile> profileData)
-        {
-            Profiles.TryMapFromData(profileData);
+            foreach (DATA.Mapping mapping in mappingData?.Mappings ?? [])
+            {
+                foreach (string group in mapping.GroupsToProfiles.Keys)
+                {
+                    if (!string.IsNullOrEmpty(group))
+                    {
+                        Devices.DeviceGroups.AddOrGetDeviceGroup(group);
+                    }
+                }
+            }
         }
 
         protected void LoadMappingsFromData(DATA.MappingSet mappingData)
         {
-            // Clear existing mappings and reload from data
+            // Clear existing mappings and reload
             Mappings.Mappings.Clear();
             foreach (var mapping in mappingData.Mappings)
             {
@@ -108,7 +128,6 @@ namespace userspace_backend
 
         protected void EnsureDefaultDeviceGroupExists()
         {
-            // If no device groups exist, create a "Default" group
             if (Devices.DeviceGroups.DeviceGroupModels.Count == 0)
             {
                 Devices.DeviceGroups.AddOrGetDeviceGroup(DeviceGroups.DefaultDeviceGroup);
@@ -122,19 +141,20 @@ namespace userspace_backend
                 return;
             }
 
-            // When the OS reports connected input devices, skip the placeholder:
-            // ImportSystemDevices will populate real devices instead.
+            // OS reported devices => skip the placeholder; ImportSystemDevices
+            // populates real ones.
             if (Devices.SystemDevices.SystemDevices.Count > 0)
             {
                 return;
             }
 
+            // TODO: Niche case -- maybe skip the default entirely to surface
+            // that something is wrong.
             var defaultDevice = ServiceProvider.GetRequiredService<IDeviceModel>();
             defaultDevice.Name.TryUpdateModelDirectly("Default");
             defaultDevice.HardwareID.TryUpdateModelDirectly("DEFAULT_DEVICE_ID");
             defaultDevice.DeviceGroup.TryUpdateModelDirectly(DeviceGroups.DefaultDeviceGroup);
-            // DPI, PollRate, and Ignore already have sensible defaults from DI (1000, 1000, false)
-
+            
             Devices.TryInsert(0, defaultDevice);
         }
 
@@ -147,6 +167,7 @@ namespace userspace_backend
                     continue;
                 }
 
+                // When reloading new devices list this will trigger
                 bool alreadyPresent = Devices.Elements.Any(d =>
                     string.Equals(d.HardwareID.ModelValue, systemDevice.HWID, StringComparison.OrdinalIgnoreCase));
                 if (alreadyPresent)
@@ -158,7 +179,7 @@ namespace userspace_backend
                 device.Name.TryUpdateModelDirectly(systemDevice.Name);
                 device.HardwareID.TryUpdateModelDirectly(systemDevice.HWID);
                 device.DeviceGroup.TryUpdateModelDirectly(DeviceGroups.DefaultDeviceGroup);
-                // DPI / PollRate / Ignore keep their DI-provided defaults.
+                // DPI / PollRate / Use their DI-provided defaults.
                 Devices.TryAdd(device);
             }
         }
@@ -187,7 +208,6 @@ namespace userspace_backend
 
         protected void EnsureDefaultProfileExists()
         {
-            // If no profiles exist, create a default profile
             if (Profiles.Elements.Count == 0)
             {
                 var defaultProfile = ServiceProvider.GetRequiredService<IProfileModel>();
@@ -198,8 +218,8 @@ namespace userspace_backend
 
         protected void EnsureDefaultMappingExists()
         {
-            // Ensure a Default mapping object exists in the list.
-            if (!Mappings.TryGetMapping("Default", out _))
+            // Create a Default mapping when none exist at all (fresh install).
+            if (Mappings.Mappings.Count == 0)
             {
                 Mappings.TryAddMapping(new DATA.Mapping
                 {
@@ -208,7 +228,8 @@ namespace userspace_backend
                 });
             }
 
-            // Explicitly wire the DefaultDeviceGroup to "Default" profile entry.
+            // Self-heal: an existing Default mapping missing the DefaultDeviceGroup
+            // entry (e.g. stale mappings.json) gets one. TryAddMapping is idempotent.
             if (Mappings.TryGetMapping("Default", out MappingModel? defaultMapping) && defaultMapping != null)
             {
                 defaultMapping.TryAddMapping(DeviceGroups.DefaultDeviceGroup, "Default");
@@ -221,19 +242,19 @@ namespace userspace_backend
             }
         }
 
-        public void Apply()
+        public bool Apply()
         {
             logger.LogInformation("Apply clicked");
 
             MappingModel? mappingToApply = Mappings.GetMappingToSetActive();
             if (mappingToApply == null)
             {
-                logger.LogWarning("Apply: no active mapping to apply");
+                logger.LogError("Apply: Invalid state, no active mapping to apply");
                 WriteSettingsToDisk();
-                return;
+                return false;
             }
 
-            DriverConfig? config = null;
+            RawAccelConfig? config = null;
             try
             {
                 config = MapToDriverConfig(mappingToApply);
@@ -242,26 +263,35 @@ namespace userspace_backend
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Apply: error building DriverConfig");
+                logger.LogError(ex, "Apply: error building RawAccelConfig");
             }
 
+            bool driverApplied = false;
             if (config != null)
             {
                 try
                 {
-                    driverConfigActivator.Write(config);
-                    logger.LogInformation("Apply: driver.Activate() succeeded");
+                    driverApplied = driver.Apply(config);
+                    if (driverApplied)
+                    {
+                        logger.LogInformation("Apply: driver.Apply() succeeded");
+                    }
+                    else
+                    {
+                        logger.LogError("Apply: driver.Apply() failed");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Apply: driver.Activate() failed");
+                    logger.LogError(ex, "Apply: driver.Apply() threw");
                 }
             }
 
             WriteSettingsToDisk();
+            return driverApplied;
         }
 
-        private void LogDriverConfigSummary(MappingModel mapping, DriverConfig config)
+        private void LogDriverConfigSummary(MappingModel mapping, RawAccelConfig config)
         {
             int profileCount = config.profiles?.Count ?? 0;
             int deviceCount = config.devices?.Count ?? 0;
@@ -274,7 +304,7 @@ namespace userspace_backend
 
             if (config.profiles != null)
             {
-                foreach (Profile p in config.profiles)
+                foreach (RaProfile p in config.profiles)
                 {
                     logger.LogInformation(
                         "  profile: name={Name} outputDPI={OutputDPI} yxRatio={YxRatio} rotation={Rotation} " +
@@ -287,7 +317,7 @@ namespace userspace_backend
 
             if (config.devices != null)
             {
-                foreach (DeviceSettings d in config.devices)
+                foreach (RaDeviceSettings d in config.devices)
                 {
                     logger.LogInformation(
                         "  device: id={Id} name={Name} profile={Profile} disable={Disable} dpi={Dpi} pollingRate={PollingRate}",
@@ -296,21 +326,23 @@ namespace userspace_backend
             }
         }
 
-        private void LogDriverConfigJson(DriverConfig config)
+        private void LogDriverConfigJson(RawAccelConfig config)
         {
             try
             {
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(
                     config,
                     Newtonsoft.Json.Formatting.Indented);
-                logger.LogDebug("Apply: DriverConfig JSON{NewLine}{Json}", Environment.NewLine, json);
+                logger.LogDebug("Apply: RawAccelConfig JSON{NewLine}{Json}", Environment.NewLine, json);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Apply: could not serialize DriverConfig to JSON");
+                logger.LogWarning(ex, "Apply: could not serialize RawAccelConfig to JSON");
             }
         }
 
+        // TODO: These functions can be factored out later
+        // Leave here for test/debug
         protected void WriteSettingsToDisk()
         {
             BackEndLoader.WriteSettingsToDisk(
@@ -334,48 +366,54 @@ namespace userspace_backend
             }
         }
 
-        protected DriverConfig MapToDriverConfig(MappingModel mappingModel)
+        protected RawAccelConfig MapToDriverConfig(MappingModel mappingModel)
         {
-            IEnumerable<DeviceSettings> configDevices = MapToDriverDevices(mappingModel);
-            IEnumerable<Profile> configProfiles = MapToDriverProfiles(mappingModel);
+            IEnumerable<RaDeviceSettings> configDevices = MapToDriverDevices(mappingModel);
+            IEnumerable<RaProfile> configProfiles = MapToDriverProfiles(mappingModel);
 
-            DriverConfig config = DriverConfig.GetDefault();
-            config.profiles = configProfiles.ToList();
-            config.devices = configDevices.ToList();
-            config.accels = configProfiles.Select(p => new ManagedAccel(p)).ToList();
-            return config;
+            return new RawAccelConfig
+            {
+                version = RawAccelConstants.VersionString,
+                defaultDeviceConfig = new RaDeviceConfig(),
+                profiles = configProfiles.ToList(),
+                devices = configDevices.ToList(),
+            };
         }
 
-        protected IEnumerable<DeviceSettings> MapToDriverDevices(MappingModel mapping)
+        protected IEnumerable<RaDeviceSettings> MapToDriverDevices(MappingModel mapping)
         {
             return mapping.IndividualMappings.SelectMany(
                 dg => MapToDriverDevices(dg.DeviceGroup, dg.Profile.Name.ModelValue));
         }
 
-        protected IEnumerable<Profile> MapToDriverProfiles(MappingModel mapping)
+        protected IEnumerable<RaProfile> MapToDriverProfiles(MappingModel mapping)
         {
             IEnumerable<IProfileModel> ProfilesToMap = mapping.IndividualMappings.Select(m => m.Profile).Distinct();
             return ProfilesToMap.Select(p => p.CurrentValidatedDriverProfile);
         }
 
-        protected IEnumerable<DeviceSettings> MapToDriverDevices(string dg, string profileName)
+        protected IEnumerable<RaDeviceSettings> MapToDriverDevices(string dg, string profileName)
         {
             IEnumerable<IDeviceModel> deviceModels = Devices.Elements.Where(d => d.DeviceGroup.ModelValue.Equals(dg));
             return deviceModels.Select(dm => MapToDriverDevice(dm, profileName));
         }
 
-        protected DeviceSettings MapToDriverDevice(IDeviceModel deviceModel, string profileName)
+        protected RaDeviceSettings MapToDriverDevice(IDeviceModel deviceModel, string profileName)
         {
-            return new DeviceSettings()
+            return new RaDeviceSettings()
             {
                 id = deviceModel.HardwareID.ModelValue,
                 name = deviceModel.Name.ModelValue,
                 profile = profileName,
-                config = new DeviceConfig()
+                config = new RaDeviceConfig()
                 {
                     disable = deviceModel.Ignore.ModelValue,
                     dpi = deviceModel.DPI.ModelValue,
                     pollingRate = deviceModel.PollRate.ModelValue,
+                    // Driver defaults for poll-time clamping + extra-info passthrough,
+                    // not yet exposed in the UI. maximumTime/minimumTime bound the
+                    // per-packet time delta (ms) the driver trusts. Keep in sync if
+                    // these ever become user-configurable.
                     pollTimeLock = false,
                     setExtraInfo = false,
                     maximumTime = 200,

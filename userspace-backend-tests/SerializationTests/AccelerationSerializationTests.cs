@@ -82,6 +82,30 @@ namespace userspace_backend_tests.SerializationTests
             Assert.AreEqual(0.001, actualLinearAccel.Acceleration);
         }
 
+        // Ensures all formula types deserialize to their expected runtime type.
+        [TestMethod]
+        [DataRow("Classic", typeof(ClassicAccel))]
+        [DataRow("Linear", typeof(LinearAccel))]
+        [DataRow("Synchronous", typeof(SynchronousAccel))]
+        [DataRow("Power", typeof(PowerAccel))]
+        [DataRow("Natural", typeof(NaturalAccel))]
+        [DataRow("Jump", typeof(JumpAccel))]
+        public void DeserializeFormulaAccel_AllSubtypes(string formulaType, Type expectedRuntimeType)
+        {
+            string textToDeserialize = $$"""
+                {
+                    "Acceleration": {
+                        "Type": "Formula/{{formulaType}}",
+                        "Gain": false
+                    }
+                }
+                """;
+
+            var deserialized = JsonSerializer.Deserialize<AccelerationOnlyObject>(textToDeserialize);
+            Assert.IsNotNull(deserialized.Acceleration);
+            Assert.IsInstanceOfType(deserialized.Acceleration, expectedRuntimeType);
+        }
+
         [TestMethod]
         public void DeserializeLookupTableVelocity()
         {
@@ -157,12 +181,12 @@ namespace userspace_backend_tests.SerializationTests
                   ],
                   "Anisotropy": {
                     "Domain": {
-                      "X": 0,
-                      "Y": 0
+                      "X": 1,
+                      "Y": 1
                     },
                     "Range": {
-                      "X": 0,
-                      "Y": 0
+                      "X": 1,
+                      "Y": 1
                     },
                     "LPNorm": 2,
                     "CombineXYComponents": false

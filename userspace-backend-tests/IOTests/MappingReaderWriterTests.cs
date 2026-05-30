@@ -13,7 +13,7 @@ namespace userspace_backend_tests.IOTests
     [TestClass]
     public class MappingReaderWriterTests
     {
-        public static string TestDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"TestFiles\MappingReaderWriter");
+        public static string TestDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestFiles", "MappingReaderWriter");
         public static string ExpectedOutputs = Path.Combine(TestDirectory, "ExpectedOutputs");
         public static string TestInputs = Path.Combine(TestDirectory, "Inputs");
 

@@ -6,23 +6,6 @@ using System.Linq;
 using userspace_backend.Model.EditableSettings;
 using DATA = userspace_backend.Data;
 
-/**
- * TODO: Fix circular dependency and initialization order issues with ProfileNameValidator
- * 
- * - ProfilesModel needs ProfileNameValidator to create ProfileModel instances
- * - ProfileNameValidator needs ProfilesModel to check for duplicate names
- * 
- *  - Base constructor calls InitEditableSettingsAndCollections() BEFORE derived constructor can set NameValidator property, causing validator to be null
- *  
- *  - SOLUTION (Implement after DI PR from _m00se):
- *  
- *  Create IProfileNameChecker interface for duplicate name validation
- *  Have ProfilesModel implement IProfileNameChecker
- *  Inject IProfileNameChecker into ProfileNameValidator constructor
- *  Register ProfileNameValidator in DI container
- *  Inject ProfileNameValidator into ProfilesModel constructor
- */
-
 namespace userspace_backend.Model
 {
     public interface IProfilesModel : IEditableSettingsList<IProfileModel, DATA.Profile>
@@ -40,7 +23,7 @@ namespace userspace_backend.Model
 
     public class ProfilesModel : EditableSettingsList<IProfileModel, DATA.Profile>, IProfilesModel
     {
-        // Default profile is created during BackEnd.Load() if it doesn't exist
+        // Default profile is created by BackEnd.Load() if absent.
 
         public ProfilesModel(IServiceProvider serviceProvider)
             : base(serviceProvider, [], [])
@@ -49,7 +32,8 @@ namespace userspace_backend.Model
 
         public ReadOnlyObservableCollection<IProfileModel> Profiles => Elements;
 
-        public IProfileModel? DefaultProfile => Elements.FirstOrDefault(p => p.Name.ModelValue == "default");
+        public IProfileModel? DefaultProfile =>
+            Elements.FirstOrDefault(p => string.Equals(p.Name.ModelValue, "default", StringComparison.InvariantCultureIgnoreCase));
 
         public bool TryGetProfile(string name, out IProfileModel? profile) => TryGetElement(name, out profile);
 
@@ -87,6 +71,18 @@ namespace userspace_backend.Model
         protected override string GetNameFromData(DATA.Profile data)
         {
             return data.Name;
+        }
+    }
+
+    public class ProfileNameValidator(IProfilesModel profiles) : IModelValueValidator<string>
+    {
+        protected IProfilesModel Profiles { get; } = profiles;
+
+        public bool Validate(string value)
+        {
+            return !string.IsNullOrEmpty(value)
+                && value.Length <= MaxNameLengthValidator.MaxNameLength
+                && !Profiles.TryGetProfile(value, out _);
         }
     }
 }

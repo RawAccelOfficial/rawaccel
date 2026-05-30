@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Model.EditableSettings;
+using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Model.ProfileComponents
 {
@@ -17,6 +18,10 @@ namespace userspace_backend.Model.ProfileComponents
         IEditableSettingSpecific<double> LPNorm { get; }
 
         IEditableSettingSpecific<bool> CombineXYComponents { get; }
+
+        Vec2D MapDomainToDriver();
+
+        Vec2D MapRangeToDriver();
     }
 
     public class AnisotropyModel : EditableSettingsCollectionV2<Anisotropy>, IAnisotropyModel
@@ -57,6 +62,10 @@ namespace userspace_backend.Model.ProfileComponents
 
         public IEditableSettingSpecific<bool> CombineXYComponents { get; set; }
 
+        public Vec2D MapDomainToDriver() => new Vec2D { x = DomainX.ModelValue, y = DomainY.ModelValue };
+
+        public Vec2D MapRangeToDriver() => new Vec2D { x = RangeX.ModelValue, y = RangeY.ModelValue };
+
         public override Anisotropy MapToData()
         {
             return new Anisotropy()
@@ -64,6 +73,7 @@ namespace userspace_backend.Model.ProfileComponents
                 Domain = new Vector2() { X = DomainX.ModelValue, Y = DomainY.ModelValue },
                 Range = new Vector2() { X = RangeX.ModelValue, Y = RangeY.ModelValue },
                 LPNorm = LPNorm.ModelValue,
+                CombineXYComponents = CombineXYComponents.ModelValue,
             };
         }
 
@@ -77,10 +87,20 @@ namespace userspace_backend.Model.ProfileComponents
         {
             if (data == null) return false;
 
-            return DomainX.TryUpdateModelDirectly(data.Domain.X)
-                & DomainY.TryUpdateModelDirectly(data.Domain.Y)
-                & RangeX.TryUpdateModelDirectly(data.Range.X)
-                & RangeY.TryUpdateModelDirectly(data.Range.Y)
+            // Identity ((1,1),(1,1)) is the only meaningful default; (0,0) was
+            // written by an older buggy fallback and produces a flat curve.
+            // Substitute identity for that shape on load.
+            Vector2 domain = (data.Domain == null || (data.Domain.X == 0 && data.Domain.Y == 0))
+                ? new Vector2 { X = 1, Y = 1 }
+                : data.Domain;
+            Vector2 range = (data.Range == null || (data.Range.X == 0 && data.Range.Y == 0))
+                ? new Vector2 { X = 1, Y = 1 }
+                : data.Range;
+
+            return DomainX.TryUpdateModelDirectly(domain.X)
+                & DomainY.TryUpdateModelDirectly(domain.Y)
+                & RangeX.TryUpdateModelDirectly(range.X)
+                & RangeY.TryUpdateModelDirectly(range.Y)
                 & LPNorm.TryUpdateModelDirectly(data.LPNorm)
                 & CombineXYComponents.TryUpdateModelDirectly(data.CombineXYComponents);
         }

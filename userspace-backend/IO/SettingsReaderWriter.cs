@@ -6,10 +6,9 @@ namespace userspace_backend.IO
 {
     public class SettingsReaderWriter : ReaderWriterBase<Settings>
     {
-        public static JsonSerializerOptions JsonOptions = new JsonSerializerOptions 
-        { 
+        public static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
             WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
         protected override string FileType => "Settings";
@@ -21,14 +20,9 @@ namespace userspace_backend.IO
 
         public override Settings Deserialize(string toRead)
         {
-            try
-            {
-                return JsonSerializer.Deserialize<Settings>(toRead, JsonOptions) ?? new Settings();
-            }
-            catch (JsonException)
-            {
-                return new Settings();
-            }
+            // Literal "null" -> defaults; malformed JSON throws for the caller
+            // (BackEndLoader.LoadSettings) to handle, matching sibling readers.
+            return JsonSerializer.Deserialize<Settings>(toRead, JsonOptions) ?? new Settings();
         }
     }
 }

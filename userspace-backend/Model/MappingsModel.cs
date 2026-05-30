@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -184,7 +185,9 @@ namespace userspace_backend.Model
                 displayName: "Name",
                 initialValue: mappingToAdd.Name,
                 parser: ServiceProvider.GetRequiredService<IUserInputParser<string>>(),
-                validator: NameValidator);
+                validator: NameValidator,
+                logger: ServiceProvider.GetService<ILoggerFactory>()
+                    ?.CreateLogger(EditableSettingV2<string>.LoggerCategoryName));
 
             // Construct MappingModel with DI pattern
             MappingModel mapping = new MappingModel(nameSetting, NameValidator, DeviceGroups, Profiles, mappingToAdd);

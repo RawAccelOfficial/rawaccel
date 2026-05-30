@@ -14,6 +14,9 @@ namespace userinterface.ViewModels.Profile
             RangeX = new EditableFieldViewModel(AnisotropyBE.RangeX);
             RangeY = new EditableFieldViewModel(AnisotropyBE.RangeY);
             LPNorm = new NamedEditableFieldViewModel(AnisotropyBE.LPNorm, localizationService);
+            // autoCommit so the toggle reaches the backend immediately; the chart
+            // watches this to switch between one and two current-speed lines.
+            CombineXY = new EditableBoolViewModel(AnisotropyBE.CombineXYComponents, localizationService, autoCommit: true);
         }
 
         protected BE.IAnisotropyModel AnisotropyBE { get; }
@@ -27,5 +30,7 @@ namespace userinterface.ViewModels.Profile
         public EditableFieldViewModel RangeY { get; set; }
 
         public NamedEditableFieldViewModel LPNorm { get; set; }
+
+        public EditableBoolViewModel CombineXY { get; set; }
     }
 }

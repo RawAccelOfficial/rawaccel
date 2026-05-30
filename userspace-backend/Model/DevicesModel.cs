@@ -16,13 +16,15 @@ namespace userspace_backend.Model
     {
         public DevicesModel(
             IServiceProvider serviceProvider,
-            ISystemDevicesProvider systemDevicesProvider)
+            ISystemDevicesProvider systemDevicesProvider,
+            DeviceGroups deviceGroups)
             : base(serviceProvider, [], [])
         {
             SystemDevices = systemDevicesProvider;
+            DeviceGroups = deviceGroups;
         }
 
-        public DeviceGroups DeviceGroups { get; set; }
+        public DeviceGroups DeviceGroups { get; }
 
         public ISystemDevicesProvider SystemDevices { get; protected set; }
 

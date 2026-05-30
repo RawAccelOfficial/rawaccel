@@ -1,11 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using userspace_backend.Display.Calculations;
+using userspace_backend.Driver;
+using RaProfile = RawAccel.Contracts.RawAccelProfile;
 
 namespace userspace_backend.Display
 {
@@ -13,30 +12,33 @@ namespace userspace_backend.Display
     {
         ObservableCollection<CurvePoint> Points { get; }
 
-        void GeneratePoints(Profile profile);
+        void GeneratePoints(RaProfile profile);
 
         void SetPoints(IEnumerable<CurvePoint> points);
     }
 
     public class CurvePreview : ICurvePreview
     {
-        public CurvePreview()
+        private readonly IAccelEvaluator evaluator;
+
+        public CurvePreview(IAccelEvaluator evaluator)
         {
+            this.evaluator = evaluator;
             Points = new ObservableCollection<CurvePoint>();
             InitPoints();
         }
 
         public ObservableCollection<CurvePoint> Points { get; }
 
-        public void GeneratePoints(Profile profile)
+        public void GeneratePoints(RaProfile profile)
         {
-            ManagedAccel accel = new ManagedAccel(profile).CreateStatelessCopy();
+            using IAccelInstance instance = evaluator.CreateInstance(profile);
 
             foreach (CurvePoint point in Points)
             {
-                var output = accel.Accelerate(point.MouseSpeed, 0, 1, 1);
-                var outputSpeed = Math.Sqrt(Math.Pow(output.Item1, 2) + Math.Pow(output.Item2, 2));
-                point.Output = outputSpeed / point.MouseSpeed;
+                var (ox, oy) = instance.Accelerate(point.MouseSpeed, 0, dpiFactor: 1, timeMs: 1);
+                var outputSpeed = Math.Sqrt(ox * ox + oy * oy);
+                point.Output = point.MouseSpeed > 0 ? outputSpeed / point.MouseSpeed : 0.0;
             }
         }
 
@@ -49,9 +51,9 @@ namespace userspace_backend.Display
             }
         }
 
-        protected void InitPoints()
+        private void InitPoints()
         {
-            ICollection<double> speeds = CurveCalculationHelpers.CalculateCurvePointSpeeds();
+            IReadOnlyList<double> speeds = CurveCalculationHelpers.CalculateCurvePointSpeeds();
             
             foreach (double speed in speeds)
             {

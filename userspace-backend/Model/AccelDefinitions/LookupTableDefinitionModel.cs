@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using userspace_backend.Data.Profiles;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Model.EditableSettings;
 using static userspace_backend.Data.Profiles.Accel.LookupTableAccel;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions
 {
@@ -34,15 +36,19 @@ namespace userspace_backend.Model.AccelDefinitions
 
         public IEditableSettingSpecific<LookupTableData> Data { get; set; }
 
-        public AccelArgs MapToDriver()
+        public RaAccelArgs MapToDriver()
         {
             // data in driver profile must be predefined length for marshalling purposes
-            var accelArgsData = new float[AccelArgs.MaxLutPoints*2];
-            Data.ModelValue.Data.Select(Convert.ToSingle).ToArray().CopyTo(accelArgsData, 0);
-
-            return new AccelArgs
+            double[] lutData = Data.ModelValue.Data;
+            var accelArgsData = new float[RaAccelArgs.MaxLutPoints*2];
+            for (int i = 0; i < lutData.Length; i++)
             {
-                mode = AccelMode.lut,
+                accelArgsData[i] = (float)lutData[i];
+            }
+
+            return new RaAccelArgs
+            {
+                mode = RaAccelMode.lut,
                 data = accelArgsData,
                 length = Data.ModelValue.Data.Length,
             };
@@ -80,20 +86,13 @@ namespace userspace_backend.Model.AccelDefinitions
 
         public int CompareTo(object? obj)
         {
-            if (obj == null)
-            {
-                return -1;
-            }
-
-            double[]? compareTo = obj as double[];
-
-            if (compareTo == null)
+            if (obj is not LookupTableData other)
             {
                 return -1;
             }
 
             // We are using CompareTo as a stand-in for equality
-            return Data.SequenceEqual(compareTo) ? 0 : -1;
+            return Data.SequenceEqual(other.Data) ? 0 : -1;
         }
     }
 }

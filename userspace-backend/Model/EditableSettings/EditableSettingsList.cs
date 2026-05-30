@@ -68,6 +68,7 @@ namespace userspace_backend.Model.EditableSettings
 
             if (!ContainsElementWithName(name))
             {
+                element.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
                 ElementsInternal.Insert(index, element);
                 return true;
             }
@@ -111,7 +112,14 @@ namespace userspace_backend.Model.EditableSettings
 
         public bool TryRemoveElement(T element)
         {
-            return ElementsInternal.Remove(element);
+            bool removed = ElementsInternal.Remove(element);
+
+            if (removed)
+            {
+                element.AnySettingChanged -= EditableSettingsCollectionChangedEventHandler;
+            }
+
+            return removed;
         }
 
         protected bool ContainsElementWithName(string name) => TryGetElement(name, out T? _);
@@ -120,6 +128,7 @@ namespace userspace_backend.Model.EditableSettings
 
         protected void AddElement(T element)
         {
+            element.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
             ElementsInternal.Add(element);
         }
 
@@ -141,18 +150,30 @@ namespace userspace_backend.Model.EditableSettings
         {
             bool result = true;
 
+            var incomingNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
             foreach (U dataElement in data)
             {
                 string elementName = GetNameFromData(dataElement);
+                incomingNames.Add(elementName);
 
                 if (!TryGetElement(elementName, out T? element))
                 {
                     element = GenerateDefaultElement(elementName);
-                    
+
                     AddElement(element);
                 }
 
                 result &= element!.TryMapFromData(dataElement);
+            }
+
+            // The incoming data is the source of truth: drop elements it no longer contains.
+            // OS-detected devices are merged separately (ImportSystemDevices), not through here.
+            foreach (T stale in ElementsInternal
+                .Where(e => !incomingNames.Contains(GetNameFromElement(e)))
+                .ToList())
+            {
+                TryRemoveElement(stale);
             }
 
             return result;

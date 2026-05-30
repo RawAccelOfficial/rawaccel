@@ -779,6 +779,15 @@ namespace userinterface.Properties.Resources {
                 return ResourceManager.GetString("MainWindowSettingsAppliedSuccess", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to apply settings. Check the log for details..
+        /// </summary>
+        public static string MainWindowSettingsAppliedFailure {
+            get {
+                return ResourceManager.GetString("MainWindowSettingsAppliedFailure", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Add Entry.

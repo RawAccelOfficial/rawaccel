@@ -15,7 +15,7 @@ namespace userspace_backend_tests.IOTests
     [TestClass]
     public class ProfileReaderWriterTests
     {
-        public static string TestDirectory = Path.Combine(Directory.GetCurrentDirectory(), @"TestFiles\ProfileReaderWriter");
+        public static string TestDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestFiles", "ProfileReaderWriter");
         public static string ExpectedOutputs = Path.Combine(TestDirectory, "ExpectedOutputs");
         public static string TestInputs = Path.Combine(TestDirectory, "Inputs");
 
@@ -27,9 +27,8 @@ namespace userspace_backend_tests.IOTests
                 Name = "default",
                 OutputDPI = 1200,
                 YXRatio = 1.3333,
-                Acceleration = new Acceleration()
+                Acceleration = new NoAcceleration()
                 {
-                    Type = Acceleration.AccelerationDefinitionType.None,
                     Anisotropy = new Anisotropy()
                     {
                         Domain = new Vector2()

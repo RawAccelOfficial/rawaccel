@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +8,7 @@ using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.AccelDefinitions.Formula;
 using userspace_backend.Model.EditableSettings;
 using static userspace_backend.Data.Profiles.Accel.FormulaAccel;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
 
 namespace userspace_backend.Model.AccelDefinitions
 {
@@ -40,7 +41,7 @@ namespace userspace_backend.Model.AccelDefinitions
 
         public IEditableSettingSpecific<bool> Gain { get; set; }
 
-        public AccelArgs MapToDriver() => ((IAccelDefinitionModel)Selected)?.MapToDriver() ?? new AccelArgs();
+        public RaAccelArgs MapToDriver() => ((IAccelDefinitionModel)Selected)?.MapToDriver() ?? new RaAccelArgs();
 
         protected override bool TryMapEditableSettingsCollectionsFromData(FormulaAccel data)
         {
@@ -49,7 +50,8 @@ namespace userspace_backend.Model.AccelDefinitions
 
         protected override bool TryMapEditableSettingsFromData(FormulaAccel data)
         {
-            return Gain.TryUpdateModelDirectly(data.Gain);
+            return FormulaType.TryUpdateModelDirectly(data.FormulaType)
+                 & Gain.TryUpdateModelDirectly(data.Gain);
         }
     }
 }

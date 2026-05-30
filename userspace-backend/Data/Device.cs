@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+using System;
 using System.Text.Json.Serialization;
 
 namespace userspace_backend.Data
@@ -22,17 +21,24 @@ namespace userspace_backend.Data
         public override bool Equals(object? obj)
         {
             return obj is Device device &&
-                   Name == device.Name &&
-                   HWID == device.HWID &&
+                   string.Equals(Name, device.Name, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(HWID, device.HWID, StringComparison.OrdinalIgnoreCase) &&
                    DPI == device.DPI &&
                    PollingRate == device.PollingRate &&
                    Ignore == device.Ignore &&
-                   DeviceGroup == device.DeviceGroup;
+                   string.Equals(DeviceGroup, device.DeviceGroup, StringComparison.OrdinalIgnoreCase);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, HWID, DPI, PollingRate, DeviceGroup);
+            HashCode hash = new HashCode();
+            hash.Add(Name, StringComparer.OrdinalIgnoreCase);
+            hash.Add(HWID, StringComparer.OrdinalIgnoreCase);
+            hash.Add(DPI);
+            hash.Add(PollingRate);
+            hash.Add(Ignore);
+            hash.Add(DeviceGroup, StringComparer.OrdinalIgnoreCase);
+            return hash.ToHashCode();
         }
     }
 }

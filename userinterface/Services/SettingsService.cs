@@ -83,7 +83,7 @@ public class SettingsService : ISettingsService
         errorMessage = null;
         try
         {
-            backEnd.Apply();
+            backEnd.SaveToDisk();
             return true;
         }
         catch (Exception ex)

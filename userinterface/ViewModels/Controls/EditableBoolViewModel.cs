@@ -13,10 +13,16 @@ namespace userinterface.ViewModels.Controls
 
         private readonly LocalizationService localizationService;
 
-        public EditableBoolViewModel(BE.IEditableSetting settingBE, LocalizationService localizationService)
+        // When true, toggling commits straight to the backend (so the chart reacts
+        // immediately). Default false keeps the deferred-commit behavior.
+        private readonly bool autoCommit;
+        private bool suppressAutoCommit;
+
+        public EditableBoolViewModel(BE.IEditableSetting settingBE, LocalizationService localizationService, bool autoCommit = false)
         {
             SettingBE = settingBE;
             this.localizationService = localizationService;
+            this.autoCommit = autoCommit;
             ResetValueFromBackEnd();
 
             // Subscribe to language changes to update the Name property
@@ -40,8 +46,14 @@ namespace userinterface.ViewModels.Controls
             return wasSet;
         }
 
-        private void ResetValueFromBackEnd() =>
+        private void ResetValueFromBackEnd()
+        {
+            // Suppress auto-commit while mirroring the backend value in, or the
+            // change event would re-commit and recurse.
+            suppressAutoCommit = true;
             ValueInDisplay = bool.TryParse(SettingBE.InterfaceValue, out bool result) && result;
+            suppressAutoCommit = false;
+        }
 
         private string GetLocalizedName()
         {
@@ -68,6 +80,10 @@ namespace userinterface.ViewModels.Controls
         partial void OnValueInDisplayChanged(bool value)
         {
             OnPropertyChanged(nameof(Value));
+            if (autoCommit && !suppressAutoCommit)
+            {
+                TrySetFromInterface();
+            }
         }
     }
 }

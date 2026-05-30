@@ -58,8 +58,7 @@ namespace userspace_backend
                 return [];
             }
             string devicesText = File.ReadAllText(devicesFile);
-            IEnumerable<DATA.Device> devicesData = DevicesReaderWriter.Deserialize(devicesText);
-            return devicesData;
+            return DevicesReaderWriter.Deserialize(devicesText) ?? [];
         }
 
         public DATA.MappingSet LoadMappings()
@@ -70,8 +69,7 @@ namespace userspace_backend
                 return new DATA.MappingSet { Mappings = [] };
             }
             string mappingsText = File.ReadAllText(mappingsFile);
-            DATA.MappingSet mappingsData = MappingsReaderWriter.Deserialize(mappingsText);
-            return mappingsData;
+            return MappingsReaderWriter.Deserialize(mappingsText) ?? new DATA.MappingSet { Mappings = [] };
         }
 
         public IEnumerable<DATA.Profile> LoadProfiles()
@@ -87,8 +85,11 @@ namespace userspace_backend
             foreach (string profileFile in profileFiles)
             {
                 string profileText = File.ReadAllText(profileFile);
-                DATA.Profile profileData = ProfileReaderWriter.Deserialize(profileText);
-                profiles.Add(profileData);
+                DATA.Profile? profileData = ProfileReaderWriter.Deserialize(profileText);
+                if (profileData != null)
+                {
+                    profiles.Add(profileData);
+                }
             }
 
             return profiles;
@@ -133,30 +134,47 @@ namespace userspace_backend
         {
             IEnumerable<DATA.Device> devicesData = devices.Select(d => d.MapToData());
             string devicesFileText = DevicesReaderWriter.Serialize(devicesData);
-            string devicesFilePath = GetDevicesFile(SettingsDirectory);
-            File.WriteAllText(devicesFilePath, devicesFileText);
+            WriteFileAtomic(GetDevicesFile(SettingsDirectory), devicesFileText);
         }
 
         protected void WriteMappings(MappingsModel mappings)
         {
             DATA.MappingSet mappingsData = mappings.MapToData();
             string mappingsFileText = MappingsReaderWriter.Serialize(mappingsData);
-            string mappingsFilePath = GetMappingsFile(SettingsDirectory);
-            File.WriteAllText(mappingsFilePath, mappingsFileText);
+            WriteFileAtomic(GetMappingsFile(SettingsDirectory), mappingsFileText);
         }
-        
+
         protected void WriteProfiles(IEnumerable<IProfileModel> profiles)
         {
             string profilesDirectory = GetProfilesDirectory(SettingsDirectory);
             Directory.CreateDirectory(profilesDirectory);
 
+            HashSet<string> writtenFiles = [];
             foreach (var profile in profiles)
             {
                 DATA.Profile profileData = profile.MapToData();
                 string profileFileText = ProfileReaderWriter.Serialize(profileData);
                 string profileFilePath = GetProfileFile(profilesDirectory, profileData.Name);
-                File.WriteAllText(profileFilePath, profileFileText);
+                WriteFileAtomic(profileFilePath, profileFileText);
+                writtenFiles.Add(profileFilePath);
             }
+
+            // Remove profile files left behind by profiles that no longer exist.
+            foreach (string existing in Directory.GetFiles(profilesDirectory, "*.json"))
+            {
+                if (!writtenFiles.Contains(existing))
+                {
+                    File.Delete(existing);
+                }
+            }
+        }
+
+        // Temp-then-rename so a crash mid-write can't corrupt the previous good file.
+        private static void WriteFileAtomic(string path, string contents)
+        {
+            string tempPath = path + ".tmp";
+            File.WriteAllText(tempPath, contents);
+            File.Move(tempPath, path, overwrite: true);
         }
 
         protected static string GetDevicesFile(string settingsDirectory) => Path.Combine(settingsDirectory, "devices.json");
@@ -165,7 +183,19 @@ namespace userspace_backend
 
         protected static string GetProfilesDirectory(string settingsDirectory) => Path.Combine(settingsDirectory, "profiles");
 
-        protected static string GetProfileFile(string profileDirectory, string profileName) => Path.Combine(profileDirectory, $"{profileName}.json");
+        protected static string GetProfileFile(string profileDirectory, string profileName) => Path.Combine(profileDirectory, $"{SanitizeFileName(profileName)}.json");
+
+        // User-supplied profile names may contain filename-illegal chars
+        // ('/', '\\', ':', ...); replace so the write doesn't throw. The on-disk
+        // name isn't authoritative -- load reads Name from the file body.
+        private static string SanitizeFileName(string name)
+        {
+            foreach (char invalid in Path.GetInvalidFileNameChars())
+            {
+                name = name.Replace(invalid, '_');
+            }
+            return name;
+        }
 
         protected static string GetSettingsFile(string settingsDirectory) => Path.Combine(settingsDirectory, "settings.json");
     }

@@ -13,8 +13,8 @@ internal sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // This is for crash logging. It Installs global exception sinks BEFORE 
-        // Avalonia starts so a crash during startup or on a worker thread should still get 
+        // This is for crash logging. It Installs global exception sinks BEFORE
+        // Avalonia starts so a crash during startup or on a worker thread should still get
         // written to logs/crash.log before the process exits.
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             WriteCrashLog("AppDomain.UnhandledException", e.ExceptionObject as Exception);

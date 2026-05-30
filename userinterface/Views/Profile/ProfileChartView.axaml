@@ -82,9 +82,11 @@
 			                    Classes="interactive-chart"
 			                    SyncContext="{Binding Sync}"
 			                    Series="{Binding Series}"
+			                    Sections="{Binding Sections, Mode=OneWay}"
 			                    XAxes="{Binding XAxes}"
 			                    YAxes="{Binding YAxes}"
 			                    TooltipPosition="Top"
+			                    TooltipFindingStrategy="CompareOnlyXTakeClosest"
 			                    TooltipTextPaint="{Binding TooltipTextPaint}"
 			                    TooltipBackgroundPaint="{Binding TooltipBackgroundPaint}"
 			                    TooltipTextSize="12"
@@ -107,6 +109,12 @@
 				        Command="{Binding FitToDataCommand}"
 				        ToolTip.Tip="{ext:Localized ProfileFitToData}">
 					<PathIcon Data="{StaticResource full_screen_zoom_regular}"/>
+				</Button>
+				<Button Classes="chart-control"
+				        Command="{Binding ToggleSpeedLinesCommand}"
+				        ToolTip.Tip="Show or hide the current-speed lines">
+					<PathIcon Data="M7,3 H9.5 V21 H7 Z M14.5,3 H17 V21 H14.5 Z"
+					          Opacity="{Binding SpeedLinesIconOpacity}"/>
 				</Button>
 			</StackPanel>
 		</Grid>

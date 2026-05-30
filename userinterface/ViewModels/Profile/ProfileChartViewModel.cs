@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
+using Avalonia.Threading;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -18,6 +19,7 @@ using userinterface.Commands;
 using userinterface.Interfaces;
 using userinterface.Services;
 using userspace_backend.Display;
+using userspace_backend.Driver;
 using userspace_backend.Model.EditableSettings;
 using BE = userspace_backend.Model;
 
@@ -45,6 +47,13 @@ namespace userinterface.ViewModels.Profile
         private const int StandardStrokeThickness = 1;
         private const float SubStrokeThickness = 0.5f;
 
+        // Speed-line smoothing: a UI-thread timer eases the displayed line toward
+        // the latest ~30 Hz poll target. TimeConstant = glide speed (larger is
+        // smoother/laggier); SettleEpsilon = chart-unit "arrived" threshold.
+        private const int TweenIntervalMs = 16;            // ~60 Hz
+        private const double TweenTimeConstantMs = 60.0;
+        private const double SpeedSettleEpsilon = 0.05;
+
         // Color transparency values
         private const byte SubSeparatorAlpha = 100;
 
@@ -65,32 +74,76 @@ namespace userinterface.ViewModels.Profile
         private readonly IThemeService themeService;
         private readonly LocalizationService localizationService;
         private readonly PreviewChartRenderer previewRenderer;
+        private readonly MouseSpeedPollingService speedPoller;
         private BE.IProfileModel currentProfileModel = null!;
-        
+
+        // Tween state: target* is the latest poll sample, disp* the eased position
+        // rendered. tweenTimer pumps disp -> target and self-stops once settled.
+        private DispatcherTimer? tweenTimer;
+        private DateTime lastTweenTick;
+        private double targetSpeedX, targetSpeedY, targetSpeedCombined;
+        private double dispSpeedX, dispSpeedY, dispSpeedCombined;
+
         // Cached paint objects to avoid recreation
         private SolidColorPaint? cachedXStroke;
         private SolidColorPaint? cachedYStroke;
-        
+
+        // Active profile's "combine X and Y" flag: one (combined) or two (per-axis)
+        // current-speed lines.
+        private IEditableSettingSpecific<bool> CombineXY { get; set; } = null!;
+
         // Sync object for thread safety - single allocation
         private readonly object syncObject = new object();
 
-        public ProfileChartViewModel(IThemeService themeService, LocalizationService localizationService, PreviewChartRenderer previewRenderer)
+        public ProfileChartViewModel(IThemeService themeService, LocalizationService localizationService, PreviewChartRenderer previewRenderer, MouseSpeedPollingService speedPoller)
         {
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
             this.localizationService = localizationService ?? throw new ArgumentNullException(nameof(localizationService));
             this.previewRenderer = previewRenderer ?? throw new ArgumentNullException(nameof(previewRenderer));
+            this.speedPoller = speedPoller ?? throw new ArgumentNullException(nameof(speedPoller));
 
             RecreateAxesCommand = new RelayCommand(() => 
             {
                 EnsureInteractiveChartLoaded();
                 RecreateAxes();
             });
-            FitToDataCommand = new RelayCommand(() => 
+            FitToDataCommand = new RelayCommand(() =>
             {
                 EnsureInteractiveChartLoaded();
                 FitToData();
             });
+            ToggleSpeedLinesCommand = new RelayCommand(() => ShowSpeedLines = !ShowSpeedLines);
         }
+
+        private bool showSpeedLines = true;
+
+        // Whether the live current-speed line(s) are shown; toggled from the button bar.
+        public bool ShowSpeedLines
+        {
+            get => showSpeedLines;
+            set
+            {
+                if (showSpeedLines == value) return;
+                showSpeedLines = value;
+                OnPropertyChanged(nameof(ShowSpeedLines));
+                OnPropertyChanged(nameof(SpeedLinesIconOpacity));
+                if (showSpeedLines)
+                {
+                    // Reflect current positions immediately, then ease toward target.
+                    RebuildSpeedSections();
+                    EnsureTweenRunning();
+                }
+                else
+                {
+                    StopTween();
+                    Sections = Array.Empty<RectangularSection>();
+                    OnPropertyChanged(nameof(Sections));
+                }
+            }
+        }
+
+        // Dims the toggle button's icon when the lines are hidden.
+        public double SpeedLinesIconOpacity => ShowSpeedLines ? 1.0 : 0.35;
 
         public bool IsInitialized { get; private set; }
 
@@ -123,6 +176,10 @@ namespace userinterface.ViewModels.Profile
             YXRatio = profileModel.YXRatio;
 
             YXRatio.PropertyChanged += OnYXRatioChanged;
+
+            CombineXY = profileModel.Acceleration.Anisotropy.CombineXYComponents;
+            CombineXY.PropertyChanged += OnCombineXYChanged;
+            RebuildSpeedSections();
         }
 
 
@@ -293,16 +350,24 @@ namespace userinterface.ViewModels.Profile
             
             // Small delay to ensure chart is rendered
             await Task.Delay(100);
-            
+
             // Fade in interactive chart
             ChartOpacity = 1.0;
             OnPropertyChanged(nameof(ChartOpacity));
+
+            // Begin polling live mouse speed now that the chart is on screen.
+            StartSpeedPollingIfPossible();
         }
 
         public Task SwitchToProfileAsync(BE.IProfileModel profileModel)
         {
             if (currentProfileModel == profileModel && IsInitialized)
                 return Task.CompletedTask;
+
+            if (YXRatio != null)
+                YXRatio.PropertyChanged -= OnYXRatioChanged;
+            if (CombineXY != null)
+                CombineXY.PropertyChanged -= OnCombineXYChanged;
 
             currentProfileModel = profileModel;
             XCurvePreview = profileModel.XCurvePreview;
@@ -311,6 +376,10 @@ namespace userinterface.ViewModels.Profile
 
             YXRatio.PropertyChanged += OnYXRatioChanged;
 
+            CombineXY = profileModel.Acceleration.Anisotropy.CombineXYComponents;
+            CombineXY.PropertyChanged += OnCombineXYChanged;
+            RebuildSpeedSections();
+
             // Update chart data synchronously for instant response
             CreateSeries();
 
@@ -318,6 +387,11 @@ namespace userinterface.ViewModels.Profile
         }
 
         public ObservableCollection<ISeries> Series { get; set; } = new ObservableCollection<ISeries>();
+
+        // Vertical current-speed line(s) bound to CartesianChart.Sections: one in
+        // combined mode, two (X/Y) in separate. Reassigned fresh each update because
+        // LiveCharts won't redraw a section mutated in place.
+        public IEnumerable<RectangularSection> Sections { get; private set; } = Array.Empty<RectangularSection>();
 
         public Axis[] XAxes { get; set; } = new Axis[] { new Axis { Name = "Loading...", MinLimit = 0, MaxLimit = 1 } };
 
@@ -330,6 +404,8 @@ namespace userinterface.ViewModels.Profile
         public ICommand RecreateAxesCommand { get; }
 
         public ICommand FitToDataCommand { get; }
+
+        public ICommand ToggleSpeedLinesCommand { get; }
 
         // ================================================================================================
         // PUBLIC METHODS
@@ -380,7 +456,18 @@ namespace userinterface.ViewModels.Profile
             localizationService.PropertyChanged -= OnLocalizationChanged;
             if (YXRatio != null)
                 YXRatio.PropertyChanged -= OnYXRatioChanged;
-            
+            if (CombineXY != null)
+                CombineXY.PropertyChanged -= OnCombineXYChanged;
+
+            // Stop and release the live-speed poller and its tween pump.
+            speedPoller.Dispose();
+            if (tweenTimer != null)
+            {
+                tweenTimer.Stop();
+                tweenTimer.Tick -= OnTweenTick;
+                tweenTimer = null;
+            }
+
             // Dispose cached paint objects
             if (cachedXStroke != null)
             {
@@ -392,7 +479,7 @@ namespace userinterface.ViewModels.Profile
                 cachedYStroke.Dispose();
                 cachedYStroke = null;
             }
-            
+
             // Clear preview renderer cache for memory cleanup
             previewRenderer.ClearCache();
         }
@@ -482,16 +569,155 @@ namespace userinterface.ViewModels.Profile
         }
 
         // ================================================================================================
+        // LIVE CURRENT-SPEED INDICATOR LINES
+        // ================================================================================================
+
+        // Vertical zero-width line (Xi == Xj) at the given speed; non-positive
+        // speed -> NaN bounds, which render nothing. Fresh paint per call: a shared
+        // one gets disposed by LiveCharts when its section is removed.
+        private static RectangularSection MakeSpeedLine(double speed, SKColor color)
+        {
+            double x = speed > 0 ? speed : double.NaN;
+            return new RectangularSection
+            {
+                Xi = x,
+                Xj = x,
+                Fill = null,
+                Stroke = new SolidColorPaint(color) { StrokeThickness = MainStrokeThickness },
+            };
+        }
+
+        // Builds the indicator line(s) for the sample and reassigns Sections.
+        private void PublishSpeedSections(MouseSpeedSample sample)
+        {
+            if (!ShowSpeedLines)
+            {
+                Sections = Array.Empty<RectangularSection>();
+                OnPropertyChanged(nameof(Sections));
+                return;
+            }
+
+            bool combined = CombineXY?.CurrentValidatedValue ?? true;
+
+            // X/Y lines match the curve colors; combined uses a neutral theme color.
+            Sections = combined
+                ? new[] { MakeSpeedLine(sample.Combined, themeService.GetCachedColor(AxisLabelsBrush)) }
+                : new[]
+                {
+                    MakeSpeedLine(sample.X, SKColors.CornflowerBlue),
+                    MakeSpeedLine(sample.Y, SKColors.OrangeRed),
+                };
+            OnPropertyChanged(nameof(Sections));
+        }
+
+        // Republishes section(s) at the current eased positions. Called on init and
+        // when the combine-X/Y mode or show toggle changes.
+        private void RebuildSpeedSections() =>
+            PublishSpeedSections(new MouseSpeedSample(dispSpeedX, dispSpeedY, dispSpeedCombined));
+
+        // Poller callback (UI thread): record the new target; the tween eases toward it.
+        private void ApplySpeedSample(MouseSpeedSample sample)
+        {
+            targetSpeedX = sample.X;
+            targetSpeedY = sample.Y;
+            targetSpeedCombined = sample.Combined;
+            EnsureTweenRunning();
+        }
+
+        // Starts the tween pump if there's anything to animate; no-op once settled.
+        private void EnsureTweenRunning()
+        {
+            if (!IsInteractiveMode || !ShowSpeedLines) return;
+            if (IsSpeedSettled()) return;
+
+            if (tweenTimer == null)
+            {
+                tweenTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(TweenIntervalMs) };
+                tweenTimer.Tick += OnTweenTick;
+            }
+            if (!tweenTimer.IsEnabled)
+            {
+                lastTweenTick = DateTime.UtcNow;
+                tweenTimer.Start();
+            }
+        }
+
+        private void StopTween() => tweenTimer?.Stop();
+
+        // True when every axis' displayed position has effectively reached its target.
+        private bool IsSpeedSettled() =>
+            SpeedAxisSettled(dispSpeedX, targetSpeedX) &&
+            SpeedAxisSettled(dispSpeedY, targetSpeedY) &&
+            SpeedAxisSettled(dispSpeedCombined, targetSpeedCombined);
+
+        private static bool SpeedAxisSettled(double disp, double target) =>
+            Math.Abs(disp - target) < SpeedSettleEpsilon;
+
+        // Frame-rate-independent exponential ease toward target; a fading line
+        // (target <= 0) snaps to 0 so MakeSpeedLine hides it.
+        private static double EaseSpeedAxis(double disp, double target, double alpha)
+        {
+            double next = disp + (target - disp) * alpha;
+            if (target <= 0 && next < SpeedSettleEpsilon) next = 0;
+            return next;
+        }
+
+        private void OnTweenTick(object? sender, EventArgs e)
+        {
+            var now = DateTime.UtcNow;
+            double dtMs = (now - lastTweenTick).TotalMilliseconds;
+            lastTweenTick = now;
+            if (dtMs <= 0) dtMs = TweenIntervalMs;
+
+            double alpha = 1.0 - Math.Exp(-dtMs / TweenTimeConstantMs);
+            if (alpha < 0) alpha = 0;
+            else if (alpha > 1) alpha = 1;
+
+            dispSpeedX = EaseSpeedAxis(dispSpeedX, targetSpeedX, alpha);
+            dispSpeedY = EaseSpeedAxis(dispSpeedY, targetSpeedY, alpha);
+            dispSpeedCombined = EaseSpeedAxis(dispSpeedCombined, targetSpeedCombined, alpha);
+
+            PublishSpeedSections(new MouseSpeedSample(dispSpeedX, dispSpeedY, dispSpeedCombined));
+
+            if (IsSpeedSettled())
+            {
+                // Snap off residual sub-epsilon error, then idle until the next target.
+                dispSpeedX = targetSpeedX;
+                dispSpeedY = targetSpeedY;
+                dispSpeedCombined = targetSpeedCombined;
+                StopTween();
+            }
+        }
+
+        private void StartSpeedPollingIfPossible()
+        {
+            if (IsInteractiveMode)
+            {
+                speedPoller.Start(ApplySpeedSample);
+            }
+        }
+
+        // ================================================================================================
         // EVENT HANDLERS
         // ================================================================================================
 
         private void OnYXRatioChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(EditableSetting<double>.CurrentValidatedValue))
+            if (e.PropertyName == nameof(IEditableSettingSpecific<double>.CurrentValidatedValue))
             {
                 CreateSeries();
                 OnPropertyChanged(nameof(Series));
             }
+        }
+
+        private void OnCombineXYChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // ModelValue is the observable property that raises change events;
+            // CurrentValidatedValue is a plain getter that never notifies.
+            if (e.PropertyName != nameof(IEditableSettingSpecific<bool>.ModelValue))
+                return;
+
+            Avalonia.Threading.Dispatcher.UIThread.Post(RebuildSpeedSections);
         }
 
         // ================================================================================================
@@ -598,6 +824,8 @@ namespace userinterface.ViewModels.Profile
         {
             TooltipTextPaint.Color = themeService.GetCachedColor(AxisTitleBrush);
             TooltipBackgroundPaint.Color = themeService.GetCachedColor(TooltipBackgroundBrush).WithAlpha(TooltipBackgroundAlpha);
+            // The combined-speed line reads its theme color fresh on each poll
+            // (see PublishSpeedSections), so no paint update is needed here.
 
             var currentXMin = XAxes?[0]?.MinLimit;
             var currentXMax = XAxes?[0]?.MaxLimit;

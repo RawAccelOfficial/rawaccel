@@ -11,13 +11,13 @@ namespace userspace_backend
     // TODO: remove before release
     public class Bootstrapper : IBackEndLoader
     {
-        public DATA.Device[] DevicesToLoad { get; set; }
+        public DATA.Device[] DevicesToLoad { get; set; } = [];
 
-        public DATA.MappingSet MappingsToLoad { get; set; }
+        public DATA.MappingSet MappingsToLoad { get; set; } = new DATA.MappingSet { Mappings = [] };
 
-        public DATA.Profile[] ProfilesToLoad { get; set; }
+        public DATA.Profile[] ProfilesToLoad { get; set; } = [];
 
-        public DATA.Settings SettingsToLoad { get; set; }
+        public DATA.Settings? SettingsToLoad { get; set; }
 
         // Allows us to test parts of BackEndLoader as desired
         public BackEndLoader BackEndLoader { get; set; }

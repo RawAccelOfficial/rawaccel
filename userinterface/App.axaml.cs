@@ -36,7 +36,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-#if DEBUG
+#if DEBUG && WINDOWS
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool AllocConsole();
@@ -82,7 +82,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-#if DEBUG
+#if DEBUG && WINDOWS
         // Attach a console so backend ILogger output is visible alongside the UI window.
         AllocConsole();
         AttachConsoleStreams();
@@ -104,7 +104,7 @@ public partial class App : Application
 #endif
         });
 
-        string settingsDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+        string settingsDirectory = ResolveSettingsDirectory();
         services.AddSingleton<IBackEndLoader>(sp =>
         {
             var devicesRW = sp.GetRequiredService<DevicesReaderWriter>();
@@ -123,6 +123,7 @@ public partial class App : Application
         services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<FrameTimerService>();
+        services.AddTransient<MouseSpeedPollingService>();
         services.AddSingleton<PreviewChartRenderer>();
         services.AddSingleton<IAnimationStateService, AnimationStateService>();
         services.AddSingleton<ISettingsService, SettingsService>();
@@ -130,8 +131,6 @@ public partial class App : Application
         RegisterViewModels(services);
 
         Services = BackEndComposer.Compose(services);
-
-        EditableSettingLog.Configure(Services.GetRequiredService<ILoggerFactory>());
 
         IBackEnd backEnd = Services.GetRequiredService<IBackEnd>();
         backEnd.Load();
@@ -170,6 +169,21 @@ public partial class App : Application
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"[SHUTDOWN] SaveToDisk failed: {ex.Message}");
+                }
+            };
+
+            // ShutdownRequested only fires on a normal window close. A Ctrl+C under
+            // `dotnet run` sends SIGINT, which skips that but still hits ProcessExit;
+            // mirror the save there so dev sessions don't drop unsaved edits.
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                try
+                {
+                    backEnd.SaveToDisk();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[PROCESS_EXIT] SaveToDisk failed: {ex.Message}");
                 }
             };
 
@@ -368,17 +382,9 @@ public partial class App : Application
         }
     }
 
-    /* 
-     * This was originally intended to preload libraries that cause stutter 
-     * but it seems to not have much effect. Will leave it here for now.
-     * 
-     * Could also do these
-     * System.Runtime.Intrinsics
-     * System.Text.Json
-     * System.Text.Encodings.Web
-     * System.Text.Encoding.Extensions
-     * System.IO.Pipelines
-    */
+    // Preloads libraries that can cause first-use stutter. Limited effect in
+    // practice; kept for now. Candidates: System.Runtime.Intrinsics,
+    // System.Text.Json/Encodings.Web/Encoding.Extensions, System.IO.Pipelines.
     private async Task PreloadLibrariesAsync()
     {
         try
@@ -415,6 +421,27 @@ public partial class App : Application
         {
             Debug.WriteLine($"[PRELOAD] Preload task failed: {ex.Message}");
         }
+    }
+
+    // On Linux, settings live under $XDG_CONFIG_HOME/rawaccel ($HOME/.config/rawaccel
+    // if unset); other OSes write next to the executable.
+    private static string ResolveSettingsDirectory()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return AppDomain.CurrentDomain.BaseDirectory;
+        }
+
+        var xdg = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
+        if (string.IsNullOrEmpty(xdg) || !Path.IsPathRooted(xdg))
+        {
+            var home = Environment.GetFolderPath(
+                Environment.SpecialFolder.UserProfile);
+            xdg = Path.Combine(home, ".config");
+        }
+        var dir = Path.Combine(xdg, "rawaccel");
+        Directory.CreateDirectory(dir);
+        return dir;
     }
 
     private void ApplyStartupSettings()

@@ -194,6 +194,9 @@
   <data name="MainWindowSettingsAppliedSuccess" xml:space="preserve">
     <value>設定を反映しました！</value>
   </data>
+  <data name="MainWindowSettingsAppliedFailure" xml:space="preserve">
+    <value>設定の反映に失敗しました。ログを確認してください。</value>
+  </data>
   <data name="SettingsLanguageChangedTo" xml:space="preserve">
     <value>言語を{0}に変更しました</value>
   </data>

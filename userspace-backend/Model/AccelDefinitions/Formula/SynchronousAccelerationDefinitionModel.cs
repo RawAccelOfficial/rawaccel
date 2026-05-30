@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -17,7 +19,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class SynchronousAccelerationDefinitionModel
-        : EditableSettingsSelectable<SynchronousAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<SynchronousAccel>,
         ISynchronousAccelerationDefinitionModel
     {
         public const string SyncSpeedDIKey = $"{nameof(SynchronousAccelerationDefinitionModel)}.{nameof(SyncSpeed)}";
@@ -30,7 +32,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             [FromKeyedServices(MotivityDIKey)]IEditableSettingSpecific<double> motivity,
             [FromKeyedServices(GammaDIKey)]IEditableSettingSpecific<double> gamma,
             [FromKeyedServices(SmoothnessDIKey)]IEditableSettingSpecific<double> smoothness)
-            : base([syncSpeed, motivity, gamma, smoothness], [])
+            : base([syncSpeed, motivity, gamma, smoothness])
         {
             SyncSpeed = syncSpeed;
             Motivity = motivity;
@@ -46,11 +48,11 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Smoothness { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.synchronous,
+                mode = RaAccelMode.synchronous,
                 syncSpeed = SyncSpeed.ModelValue,
                 motivity = Motivity.ModelValue,
                 gamma = Gamma.ModelValue,
@@ -75,11 +77,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
                 & Motivity.TryUpdateModelDirectly(data.Motivity)
                 & Gamma.TryUpdateModelDirectly(data.Gamma)
                 & Smoothness.TryUpdateModelDirectly(data.Smoothness);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(SynchronousAccel data)
-        {
-            return true;
         }
     }
 }

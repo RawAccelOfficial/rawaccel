@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -10,7 +12,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class NaturalAccelerationDefinitionModel
-        : EditableSettingsSelectable<NaturalAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<NaturalAccel>,
         INaturalAccelerationDefinitionModel
     {
         public const string DecayRateDIKey = $"{nameof(NaturalAccelerationDefinitionModel)}.{nameof(DecayRate)}";
@@ -21,7 +23,7 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             [FromKeyedServices(DecayRateDIKey)]IEditableSettingSpecific<double> decayRate,
             [FromKeyedServices(InputOffsetDIKey)]IEditableSettingSpecific<double> inputOffset,
             [FromKeyedServices(LimitDIKey)]IEditableSettingSpecific<double> limit)
-            : base([decayRate, inputOffset, limit], [])
+            : base([decayRate, inputOffset, limit])
         {
             DecayRate = decayRate;
             InputOffset = inputOffset;
@@ -34,11 +36,11 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Limit { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.natural,
+                mode = RaAccelMode.natural,
                 decayRate = DecayRate.ModelValue,
                 inputOffset = InputOffset.ModelValue,
                 limit = Limit.ModelValue,
@@ -60,11 +62,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             return DecayRate.TryUpdateModelDirectly(data.DecayRate)
                 & InputOffset.TryUpdateModelDirectly(data.InputOffset)
                 & Limit.TryUpdateModelDirectly(data.Limit);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(NaturalAccel data)
-        {
-            return true;
         }
     }
 }

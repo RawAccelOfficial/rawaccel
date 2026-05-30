@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using userspace_backend.Data.Profiles.Accel;
 using userspace_backend.Data.Profiles.Accel.Formula;
 using userspace_backend.Model.EditableSettings;
+using RaAccelArgs = RawAccel.Contracts.RawAccelAccelArgs;
+using RaAccelMode = RawAccel.Contracts.AccelMode;
+using Vec2D = RawAccel.Contracts.Vec2<double>;
 
 namespace userspace_backend.Model.AccelDefinitions.Formula
 {
@@ -10,18 +13,18 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
     }
 
     public class JumpAccelerationDefinitionModel
-        : EditableSettingsSelectable<JumpAccel, FormulaAccel>,
+        : FormulaAccelerationDefinitionModel<JumpAccel>,
         IJumpAccelerationDefinitionModel
     {
-        public const string SmoothDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Smooth)}";
-        public const string InputDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Input)}";
-        public const string OutputDIKey = $"{nameof(ClassicAccelerationDefinitionModel)}.{nameof(Output)}";
+        public const string SmoothDIKey = $"{nameof(JumpAccelerationDefinitionModel)}.{nameof(Smooth)}";
+        public const string InputDIKey = $"{nameof(JumpAccelerationDefinitionModel)}.{nameof(Input)}";
+        public const string OutputDIKey = $"{nameof(JumpAccelerationDefinitionModel)}.{nameof(Output)}";
 
         public JumpAccelerationDefinitionModel(
             [FromKeyedServices(SmoothDIKey)]IEditableSettingSpecific<double> smooth,
             [FromKeyedServices(InputDIKey)]IEditableSettingSpecific<double> input,
             [FromKeyedServices(OutputDIKey)]IEditableSettingSpecific<double> output)
-            : base([smooth, input, output], [])
+            : base([smooth, input, output])
         {
             Smooth = smooth;
             Input = input;
@@ -34,13 +37,13 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
 
         public IEditableSettingSpecific<double> Output { get; set; }
 
-        public AccelArgs MapToDriver()
+        public override RaAccelArgs MapToDriver()
         {
-            return new AccelArgs
+            return new RaAccelArgs
             {
-                mode = AccelMode.jump,
+                mode = RaAccelMode.jump,
                 smooth = Smooth.ModelValue,
-                cap = new Vec2<double> { x = Input.ModelValue, y = Output.ModelValue },
+                cap = new Vec2D { x = Input.ModelValue, y = Output.ModelValue },
             };
         }
 
@@ -59,11 +62,6 @@ namespace userspace_backend.Model.AccelDefinitions.Formula
             return Smooth.TryUpdateModelDirectly(data.Smooth)
                 & Input.TryUpdateModelDirectly(data.Input)
                 & Output.TryUpdateModelDirectly(data.Output);
-        }
-
-        protected override bool TryMapEditableSettingsCollectionsFromData(JumpAccel data)
-        {
-            return true;
         }
     }
 }
