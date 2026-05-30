@@ -67,11 +67,11 @@ namespace userspace_backend.Model
             XCurvePreview = xCurvePreview;
             YCurvePreview = yCurvePreview;
 
-            // Name + OutputDPI don't affect the curve preview.
+            // Name and Output DPI do not need to generate a new curve preview
             Name!.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
             OutputDPI.PropertyChanged += AnyNonPreviewPropertyChangedEventHandler;
 
-            // Everything else does.
+            // The rest of settings should generate a new curve preview
             YXRatio.PropertyChanged += AnyCurvePreviewPropertyChangedEventHandler;
             Acceleration.AnySettingChanged += AnyCurveSettingCollectionChangedEventHandler;
             Hidden.AnySettingChanged += AnyCurveSettingCollectionChangedEventHandler;
@@ -187,8 +187,10 @@ namespace userspace_backend.Model
         {
             RecalculateDriverData();
 
+            // Generate X curve points (original behavior)
             XCurvePreview.GeneratePoints(CurrentValidatedDriverProfile);
-            // Y points = X outputs * YX ratio.
+
+            // Generate Y curve points by multiplying X curve outputs by YX ratio
             GenerateYCurvePoints();
         }
 

@@ -62,13 +62,14 @@ namespace userspace_backend.Model.EditableSettings
         public T LastWrittenValue { get; protected set; }
 
         /// <summary>
-        /// Set when the value arrives whole (e.g. menu selection) rather than piecewise (typing).
+        /// Interface can set this for cases when new value arrives all at once (such as menu selection)
+        /// instead of cases where new value arrives in parts (typing)
         /// </summary>
         public bool AutoUpdateFromInterface { get; set; }
 
         private IUserInputParser<T> Parser { get; }
 
-        //TODO: rework settings-collection init to make this private for non-static validators.
+        //TODO: change settings collections init so that this can be made private for non-static validators
         public IModelValueValidator<T> Validator { get; set; }
 
         private bool AllowAutoUpdateFromInterface { get; set; } = true;

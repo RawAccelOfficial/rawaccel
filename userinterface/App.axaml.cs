@@ -60,8 +60,10 @@ public partial class App : Application
 
     private static void AttachConsoleStreams()
     {
-        // After AllocConsole, open CONOUT$ / CONIN$ directly: the CLR cached Stream.Null
-        // for Console.Out at WinExe startup. Writing over CONOUT$ is the standard fix.
+        // After AllocConsole, open CONOUT$ / CONIN$ directly. Bypasses the CLR's cached
+        // Stream.Null for Console.Out that was set when we started as a WinExe with no
+        // attached console. Console.SetOut with a writer over CONOUT$ is the canonical
+        // workaround for GUI-process logging.
         var stdoutPtr = CreateFile("CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, IntPtr.Zero,
             OPEN_EXISTING, 0, IntPtr.Zero);
         if (stdoutPtr != IntPtr.Zero && stdoutPtr.ToInt64() != -1)

@@ -29,10 +29,12 @@ namespace userspace_backend.Model.EditableSettings
         public T CurrentValidatedValue { get; }
 
         /// <summary>
-        /// Updates the model directly, validating as if parsed from the interface.
-        /// Prefer setting InterfaceValue + TryUpdateFromInterface() from UI code.
+        /// Attempts to update the model directly. Validates the input as if it had been parsed from interface.
+        /// This method should probably not be called from the interface. Instead, set InterfaceValue and
+        /// call TryUpdateFromInterface().
         /// </summary>
-        /// <returns>true on success.</returns>
+        /// <param name="data">Value to which model should be tried to be set.</param>
+        /// <returns>bool indicating success</returns>
         public bool TryUpdateModelDirectly(T data);
     }
 }

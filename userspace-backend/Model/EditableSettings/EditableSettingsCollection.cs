@@ -103,8 +103,8 @@ namespace userspace_backend.Model.EditableSettings
         {
             AllContainedEditableSettingsCollections = EnumerateEditableSettingsCollections();
 
-            // TODO: split "All" vs "currently selected" so collections that mutate
-            // this via use don't get wired up incorrectly here.
+            // TODO: separate "All" and "currently selected" settings collections
+            // so that incorrect assignment is not done here for collections that alter this through use
             foreach (var settingsCollection in AllContainedEditableSettingsCollections)
             {
                 settingsCollection.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
@@ -145,8 +145,8 @@ namespace userspace_backend.Model.EditableSettings
                 }
             }
 
-            // TODO: split "All" vs "currently selected" so collections that mutate
-            // this via use don't get wired up incorrectly here.
+            // TODO: separate "All" and "currently selected" settings collections
+            // so that incorrect assignment is not done here for collections that alter this through use
             foreach (var settingsCollection in AllContainedEditableSettingsCollections)
             {
                 settingsCollection.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;

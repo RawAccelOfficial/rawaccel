@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace userspace_backend.Model
 {
     /// <summary>
-    /// Observable system-device collection with on-demand refresh.
+    /// Holds system devices in observable collection and refreshes list when desired.
     /// </summary>
     public interface ISystemDevicesProvider
     {

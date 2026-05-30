@@ -633,7 +633,7 @@ namespace userspace_backend_tests.ModelTests
             Assert.AreEqual(1.0, aniso.RangeY.ModelValue);
         }
 
-        // User-reported flow: boot with a Default profile of Type=None, switch
+        // Boot with a Default profile of Type=None, switch
         // DefinitionType to Formula, pick Classic, edit a coefficient. The chained
         // Apply must see the Classic args in the driver's RawAccelConfig.
         [TestMethod]
@@ -750,9 +750,10 @@ namespace userspace_backend_tests.ModelTests
         [TestMethod]
         public void ImportSystemDevices_SyncsInterfaceValueSoUiReflectsRealValues()
         {
-            // Regression: TryUpdateModelDirectly updated ModelValue but not InterfaceValue,
-            // which the UI binds to, so imported devices showed the DI placeholder. Assert
-            // both properties update.
+            // Regression: EditableSettingV2.TryUpdateModelDirectly used to update ModelValue
+            // but not InterfaceValue. The UI binds to InterfaceValue via EditableFieldViewModel,
+            // so imported devices showed the DI placeholder ("name", "hwid") even though
+            // ModelValue was correct. Guard against that by asserting both properties update.
             var systemDevices = new List<ISystemDevice>
             {
                 new StubSystemDevice { Name = "RealMouseName", HWID = @"HID\VID_1234&PID_5678" },

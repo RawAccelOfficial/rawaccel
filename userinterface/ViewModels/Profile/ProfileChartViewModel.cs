@@ -183,7 +183,9 @@ namespace userinterface.ViewModels.Profile
         }
 
 
-        // --- Initialization & setup ---
+        // ================================================================================================
+        // INITIALIZATION & SETUP
+        // ================================================================================================
 
         public Task InitializeAsync()
         {
@@ -405,7 +407,9 @@ namespace userinterface.ViewModels.Profile
 
         public ICommand ToggleSpeedLinesCommand { get; }
 
-        // --- Public methods ---
+        // ================================================================================================
+        // PUBLIC METHODS
+        // ================================================================================================
 
         public void FitToData()
         {
@@ -442,7 +446,9 @@ namespace userinterface.ViewModels.Profile
             OnPropertyChanged(nameof(YAxes));
         }
 
-        // --- Cleanup & disposal ---
+        // ================================================================================================
+        // CLEANUP & DISPOSAL
+        // ================================================================================================
 
         public void Dispose()
         {
@@ -478,7 +484,9 @@ namespace userinterface.ViewModels.Profile
             previewRenderer.ClearCache();
         }
 
-        // --- Chart data management ---
+        // ================================================================================================
+        // CHART DATA MANAGEMENT
+        // ================================================================================================
 
         private ISeries[] CreateSeriesData()
         {
@@ -560,7 +568,9 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // --- Live current-speed indicator lines ---
+        // ================================================================================================
+        // LIVE CURRENT-SPEED INDICATOR LINES
+        // ================================================================================================
 
         // Vertical zero-width line (Xi == Xj) at the given speed; non-positive
         // speed -> NaN bounds, which render nothing. Fresh paint per call: a shared
@@ -687,7 +697,9 @@ namespace userinterface.ViewModels.Profile
             }
         }
 
-        // --- Event handlers ---
+        // ================================================================================================
+        // EVENT HANDLERS
+        // ================================================================================================
 
         private void OnYXRatioChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -708,7 +720,9 @@ namespace userinterface.ViewModels.Profile
             Avalonia.Threading.Dispatcher.UIThread.Post(RebuildSpeedSections);
         }
 
-        // --- Chart axes creation ---
+        // ================================================================================================
+        // CHART AXES CREATION
+        // ================================================================================================
 
         private Axis[] CreateXAxes(double? minLimit = null, double? maxLimit = null)
         {
@@ -763,7 +777,9 @@ namespace userinterface.ViewModels.Profile
         }
 
 
-        // --- Axis limits management ---
+        // ================================================================================================
+        // AXIS LIMITS MANAGEMENT
+        // ================================================================================================
 
         private void SetDefaultLimits()
         {

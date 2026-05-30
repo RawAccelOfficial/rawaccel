@@ -88,8 +88,9 @@ namespace userspace_backend.Model.EditableSettings
                 var subModel = serviceProvider.GetRequiredKeyedService<IEditableSettingsCollectionSpecific<U>>(key);
                 SelectionLookup.Add(value, subModel);
 
-                // Bubble AnySettingChanged so enclosing models (e.g. ProfileModel)
-                // recompute derived state when nested params change.
+                // Bubble AnySettingChanged from every sub model up through this selector so
+                // enclosing models (e.g. ProfileModel) recompute derived state when nested
+                // parameters change.
                 subModel.AnySettingChanged += EditableSettingsCollectionChangedEventHandler;
             }
         }

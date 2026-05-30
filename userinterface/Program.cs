@@ -7,13 +7,15 @@ namespace userinterface;
 
 internal sealed class Program
 {
-    // Don't use Avalonia, third-party APIs, or SynchronizationContext-reliant
-    // code before AppMain is called: nothing is initialized yet.
+    // Initialization code. Don't use any Avalonia, third-party APIs or any
+    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+    // yet and stuff might break.
     [STAThread]
     public static void Main(string[] args)
     {
-        // Install global exception sinks before Avalonia starts so startup or
-        // worker-thread crashes still reach logs/crash.log.
+        // This is for crash logging. It Installs global exception sinks BEFORE
+        // Avalonia starts so a crash during startup or on a worker thread should still get
+        // written to logs/crash.log before the process exits.
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             WriteCrashLog("AppDomain.UnhandledException", e.ExceptionObject as Exception);
 

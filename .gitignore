@@ -353,5 +353,8 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# Linux build directory
+# Linux build directories and Rust/CMake artifacts
 linux/build/
+linux/build-*/
+linux/target/
+Testing/
