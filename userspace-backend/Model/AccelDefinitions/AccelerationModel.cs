@@ -80,7 +80,7 @@ namespace userspace_backend.Model.AccelDefinitions
                     Domain = new Vector2(),
                     Range = new Vector2(),
                     LPNorm = 2.0,
-                    CombineXYComponents = false
+                    CombineXYComponents = true
                 });
 
             result &= Coalescion.TryMapFromData(data?.Coalescion);

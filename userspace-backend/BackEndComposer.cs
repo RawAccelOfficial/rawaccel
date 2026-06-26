@@ -165,7 +165,7 @@ namespace userspace_backend
                 AnisotropyModel.CombineXYComponentsDIKey, (IServiceProvider services, object? key) =>
                     new EditableSettingV2<bool>(
                         displayName: "Combine X and Y Components",
-                        initialValue: false,
+                        initialValue: true,
                         parser: services.GetRequiredService<IUserInputParser<bool>>(),
                         validator: services.GetRequiredService<IModelValueValidator<bool>>()));
 
