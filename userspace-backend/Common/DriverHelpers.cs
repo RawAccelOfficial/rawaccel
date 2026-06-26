@@ -17,6 +17,7 @@ namespace userspace_backend.Common
                 outputDPI = model.OutputDPI.ModelValue,
                 yxOutputDPIRatio = model.YXRatio.ModelValue,
                 argsX = model.Acceleration.MapToDriver(),
+                argsY = model.Acceleration.MapToDriver(),
                 domainXY = new Vec2<double>
                 {
                     x = model.Acceleration.Anisotropy.DomainX.ModelValue,

@@ -28,7 +28,7 @@ namespace userspace_backend.Data.Profiles
             Domain = new Vector2(),
             Range = new Vector2(),
             LPNorm = 2.0,
-            CombineXYComponents = false
+            CombineXYComponents = true
         };
 
         public Coalescion Coalescion { get; set; } = new Coalescion();
