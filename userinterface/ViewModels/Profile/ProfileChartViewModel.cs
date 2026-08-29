@@ -427,7 +427,7 @@ namespace userinterface.ViewModels.Profile
             {
                 seriesArray[1] = CreateOptimizedLineSeries(reducedYPoints, cachedYStroke, "Y Curve Profile", "Y Output");
             }
-
+            
             return seriesArray;
         }
 

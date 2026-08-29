@@ -28,6 +28,12 @@
 
 	<Application.Styles>
 		<FluentTheme />
+		<!-- Override default theme transitions to make switching instantaneous -->
+		<Style Selector="Window, UserControl">
+			<Setter Property="Transitions">
+				<Transitions />
+			</Setter>
+		</Style>
 		<StyleInclude Source="/Styles/Icons.axaml"/>
 		<StyleInclude Source="/Styles/NoInteractionButtonView.axaml"/>
 	</Application.Styles>

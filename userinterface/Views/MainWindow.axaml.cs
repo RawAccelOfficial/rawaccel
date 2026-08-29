@@ -32,6 +32,14 @@ public partial class MainWindow : Window
         ThemeService.ThemeChanged += OnThemeChanged;
     }
 
+    private void OnTitleBarPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            this.BeginMoveDrag(e);
+        }
+    }
+
     private INotificationService NotificationService =>
         App.Services!.GetRequiredService<INotificationService>();
     

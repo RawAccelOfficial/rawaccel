@@ -438,7 +438,8 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     private double CalculatePositionForIndex(int itemIndex)
     {
-        return itemIndex == 0 ? 0 : (itemIndex * (animationStateService.Config.ProfileHeight + animationStateService.Config.ProfileSpacing)) + animationStateService.Config.FirstIndexOffset;
+        // Replaced hardcoded vertical offset calculation with 0 since we now use a standard StackPanel for layout instead of absolute positioned items
+        return 0; // StackPanel handles positioning
     }
 
     private void UpdateAllZIndexes()
@@ -459,7 +460,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             var profileBorder = CreateProfileBorder(null!, i);
             profileBorder.ZIndex = 1000;
             profileBorder.Opacity = 1.0;
-            // Elements start in collapsed state with Y=0 margin (already set in CreateProfileBorder)
 
             int itemIndex = i + 1; // +1 for add button
             allItems.Insert(itemIndex, profileBorder);
@@ -477,20 +477,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
         if (elementIndex >= allItems.Count) return;
 
         var element = allItems[elementIndex];
-        var targetY = CalculatePositionForIndex(position);
-        var targetMargin = new Thickness(8, targetY, 8, animationStateService.Config.ProfileSpacing);
         
-        // Get current margin to ensure we're changing from a different state
-        var currentY = element.Margin.Top;
-        
-        // Skip animation if already at target position
-        if (Math.Abs(currentY - targetY) < 0.1)
-        {
-            element.ZIndex = position;
-            return;
-        }
-        
-        // Add animation class to enable CSS transitions
         element.Classes.Add("animate-position");
         
         if (staggerIndex > 0)
@@ -498,7 +485,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             await Task.Delay(staggerIndex * animationStateService.Config.StaggerDelayMs);
         }
 
-        element.Margin = targetMargin;
+        element.Margin = new Thickness(0);
         element.ZIndex = position;
     }
 
@@ -516,17 +503,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             if (i >= allItems.Count) break;
             
             int targetPosition = i + 1;
-            var targetY = CalculatePositionForIndex(targetPosition);
-            
-            // Check if already at target position
-            var currentY = allItems[i].Margin.Top;
-            if (Math.Abs(currentY - targetY) < 0.1)
-            {
-                allItems[i].ZIndex = targetPosition;
-                continue;
-            }
 
-            // Calculate stagger based on focus index
             int staggerIndex = 0;
             if (focusIndex >= 0)
             {
@@ -546,7 +523,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             try
             {
                 await Task.WhenAll(animationTasks);
-                
                 await Task.Delay(animationStateService.Config.AnimationCompleteDelayMs);
             }
             catch (Exception)
@@ -623,9 +599,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
     public async Task ExpandElements()
     {
-        // Small delay to ensure elements are rendered before animating
         await Task.Delay(animationStateService.Config.ElementRenderDelayMs);
-        
         await AnimateAllElementsToPositions(-1);
     }
 
@@ -666,7 +640,6 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
 
         var element = allItems[elementIndex];
         
-        // Add animation class to enable CSS transitions
         element.Classes.Add("animate-position");
         
         if (delayMs > 0)
@@ -674,7 +647,7 @@ public partial class ProfileListView : UserControl, INotifyPropertyChanged
             await Task.Delay(delayMs);
         }
 
-        element.Margin = new Thickness(8, 0, 8, animationStateService.Config.ProfileSpacing);
+        element.Margin = new Thickness(0);
     }
 
     public bool AreAnimationsActive => animationStateService.AreAnimationsActive;

@@ -237,9 +237,8 @@
 	</UserControl.Styles>
 
 	<!-- Profile Items Container -->
-	<Panel x:Name="ProfileContainer" 
+	<StackPanel x:Name="ProfileContainer" 
 	       Background="Transparent"
-	       MinHeight="50"
-	       Margin="0,-52,0,0">
-	</Panel>
+	       Spacing="4">
+	</StackPanel>
 </UserControl>

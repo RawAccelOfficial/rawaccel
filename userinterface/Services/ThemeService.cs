@@ -53,7 +53,17 @@ namespace userinterface.Services
                 return cachedColor;
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var color = ResolveThemeColor(resourceKey);
+            
+            SKColor color;
+            // Added explicit UI thread check and Invoke to prevent InvalidOperationException when resolving resources from background threads
+            if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            {
+                color = ResolveThemeColor(resourceKey);
+            }
+            else
+            {
+                color = Avalonia.Threading.Dispatcher.UIThread.Invoke(() => ResolveThemeColor(resourceKey));
+            }
             
             if (stopwatch.ElapsedMilliseconds >= 10)
             {
@@ -72,7 +82,8 @@ namespace userinterface.Services
         private SKColor ResolveThemeColor(string resourceKey)
         {
             var app = Application.Current;
-            if (app?.Resources == null || !app.Resources.TryGetResource(resourceKey, app.ActualThemeVariant, out var resource))
+            // Changed from app.Resources.TryGetResource to app.TryGetResource to ensure nested theme dictionaries (like DarkTheme.axaml) are properly resolved
+            if (app == null || !app.TryGetResource(resourceKey, app.ActualThemeVariant, out var resource))
                 return GetFallbackColor(resourceKey);
 
             return resource switch

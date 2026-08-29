@@ -11,7 +11,8 @@ namespace userinterface.ViewModels.Controls;
 
 public class DualColumnLabelFieldViewModel : INotifyPropertyChanged
 {
-    private const double DefaultLabelWidth = 120.0;
+    // Reduced DefaultLabelWidth from 160 to 150 to provide more room for ComboBoxes (e.g., 'Synchronous' formula type)
+    private const double DefaultLabelWidth = 150.0;
     private double labelWidth = DefaultLabelWidth;
     private readonly LocalizationService localizationService;
 

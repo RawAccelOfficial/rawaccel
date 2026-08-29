@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:userinterface.ViewModels.Profile"
              xmlns:v="using:userinterface.Views"
+             xmlns:vp="using:userinterface.Views.Profile"
+             xmlns:ext="using:userinterface.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="userinterface.Views.Profile.ProfileView"
              x:DataType="vm:ProfileViewModel">
@@ -18,17 +20,28 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Grid ColumnDefinitions="3*,7*">
+	<!-- Increased width from 420 to 460 to ensure wider ComboBox items like 'Synchronous' fit without truncation -->
+	<Grid ColumnDefinitions="460,*">
 		<Border Grid.Column="0"
-				Classes="SectionBorder"
-				Margin="0,0,8,0">
-			<ContentControl Content="{Binding Settings}"/>
+				Margin="0,0,16,0"
+				VerticalAlignment="Stretch"
+				Background="{DynamicResource CardBackgroundBrush}"
+				CornerRadius="8">
+			<ScrollViewer VerticalScrollBarVisibility="Auto">
+				<StackPanel Margin="16">
+					<!-- Profile Selection List -->
+					<TextBlock Text="{ext:Localized MainWindowProfilesButton}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" Foreground="{DynamicResource PrimaryTextBrush}"/>
+					<vp:ProfileListView Name="ProfileListView" DataContext="{Binding ProfileList}" Margin="0,0,0,24"/>
+					
+					<!-- Settings Content -->
+					<ContentControl Content="{Binding Settings}"/>
+				</StackPanel>
+			</ScrollViewer>
 		</Border>
 
-		<Border Grid.Column="1"
-				Classes="SectionBorder"
-				Margin="8,0,0,0">
-			<ContentControl Content="{Binding Chart}"/>
-		</Border>
+		<ContentControl Grid.Column="1" 
+					   Content="{Binding Chart}" 
+					   HorizontalAlignment="Stretch" 
+					   VerticalAlignment="Stretch"/>
 	</Grid>
 </UserControl>

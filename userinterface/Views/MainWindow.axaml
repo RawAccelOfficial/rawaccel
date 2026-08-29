@@ -12,7 +12,8 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/mouse.ico"
         Title="userinterface"
-        Background="{DynamicResource AppBackgroundBrush}">
+        Background="{DynamicResource AppBackgroundBrush}"
+        ExtendClientAreaToDecorationsHint="True">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
@@ -83,25 +84,18 @@
 
 		<!-- Navigation Button Styles -->
 		<Style Selector="Button.NavButton">
-			<Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-			<Setter Property="Margin" Value="8,4"/>
+			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="Margin" Value="4,0"/>
 			<Setter Property="FontSize" Value="16"/>
 			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-			<Setter Property="CornerRadius" Value="8"/>
-			<Setter Property="HorizontalContentAlignment" Value="Left"/>
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="MinHeight" Value="48"/>
+			<Setter Property="CornerRadius" Value="6"/>
 			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Padding" Value="15"/>
 			<Setter Property="Template">
 				<ControlTemplate>
 					<Border Name="PART_LayoutRoot"
 							Background="{TemplateBinding Background}"
-							BorderBrush="{TemplateBinding BorderBrush}"
-							BorderThickness="{TemplateBinding BorderThickness}"
 							CornerRadius="{TemplateBinding CornerRadius}"
 							Padding="{TemplateBinding Padding}">
 						<TextBlock Text="{TemplateBinding Content}"
@@ -109,7 +103,7 @@
 								   FontSize="{TemplateBinding FontSize}"
 								   FontWeight="{TemplateBinding FontWeight}"
 								   Foreground="{TemplateBinding Foreground}"
-								   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								   HorizontalAlignment="Center"
 								   VerticalAlignment="Center"
 								   Background="Transparent"/>
 					</Border>
@@ -119,24 +113,20 @@
 
 		<Style Selector="Button.NavButton:pointerover">
 			<Setter Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="RenderTransform" Value="scale(1.02)"/>
 		</Style>
 
 		<Style Selector="Button.NavButton.Selected">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonBrush}"/>
 			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBrush}"/>
 		</Style>
 
 		<Style Selector="Button.NavButton.Selected:pointerover">
 			<Setter Property="Background" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonHoverBrush}"/>
 		</Style>
 
 		<Style Selector="Button.NavButton:pressed">
-			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
 		<!-- Content Area Styles -->
@@ -286,11 +276,11 @@
 		</Style>
 
 		<!-- Transitions -->
+		<!-- Transitions -->
+		<!-- Removed BrushTransition for Background and BorderBrush to prevent grey interpolation flashes and ClearType fringing artifacts during hover state changes -->
 		<Style Selector="Button.NavButton">
 			<Setter Property="Transitions">
 				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.2"/>
-					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
 				</Transitions>
 			</Setter>
@@ -299,8 +289,6 @@
 		<Style Selector="Button.ApplyButton">
 			<Setter Property="Transitions">
 				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.15"/>
-					<BrushTransition Property="BorderBrush" Duration="0:0:0.25"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
 				</Transitions>
 			</Setter>
@@ -309,8 +297,6 @@
 		<Style Selector="ToggleButton.ThemeToggle">
 			<Setter Property="Transitions">
 				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.2"/>
-					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
 				</Transitions>
 			</Setter>
@@ -319,85 +305,57 @@
 		<Style Selector="Button.SettingsButton">
 			<Setter Property="Transitions">
 				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.2"/>
-					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
 					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
 				</Transitions>
 			</Setter>
 		</Style>
 	</Window.Styles>
 
-	<Panel>
-		<Border Classes="SidebarBorder" HorizontalAlignment="Left" VerticalAlignment="Stretch">
-			<DockPanel>
-				<StackPanel DockPanel.Dock="Bottom">
-					<Grid>
-						<Button Classes="ApplyButton"
-								Name="ApplyButton"
-								IsEnabled="True"
-								Content="{ext:Localized MainWindowApplySettingsButton}"/>
-						<ProgressBar Classes="LoadingBar"
-									 Name="LoadingProgress"
-									 IsVisible="False"
-									 IsIndeterminate="True"
-									 VerticalAlignment="Bottom"/>
-					</Grid>
+	<DockPanel>
+		<!-- TOP NAVIGATION BAR -->
+		<Border DockPanel.Dock="Top" 
+				Height="64" 
+				Background="{DynamicResource CardBackgroundBrush}" 
+				BorderBrush="{DynamicResource BorderBrush}" 
+				BorderThickness="0,0,0,1"
+				PointerPressed="OnTitleBarPointerPressed"
+				BackgroundSizing="InnerBorderEdge">
+			<Grid ColumnDefinitions="Auto, *, Auto">
+				
+				<!-- Brand -->
+				<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
+					<!-- Optional Icon: <PathIcon Data="{StaticResource mouse_regular}" Width="24" Height="24" Foreground="{DynamicResource PrimaryButtonBrush}"/> -->
+					<TextBlock Text="Raw Accel" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}"/>
 				</StackPanel>
 
-				<ScrollViewer VerticalScrollBarVisibility="Auto">
-					<StackPanel>
-						<DockPanel Margin="0,0,0,16">
-							<StackPanel DockPanel.Dock="Right"
-										Orientation="Horizontal"
-										Spacing="8"
-										VerticalAlignment="Center">
-								<Button Classes="SettingsButton"
-										Name="SettingsButton">
-									<PathIcon Data="{StaticResource settings_regular}"
-											  Width="16"
-											  Height="16"/>
-								</Button>
-								<ToggleButton Classes="ThemeToggle"
-											  Name="ThemeToggleButton">
-									<PathIcon Data="{StaticResource weather_moon_regular}"
-											  Width="16"
-											  Height="16"
-											  Name="ThemeIcon"/>
-								</ToggleButton>
-							</StackPanel>
-							<TextBlock Classes="SidebarTitle"
-									   Text="{ext:Localized MainWindowNavigationTitle}"
-									   VerticalAlignment="Center"/>
-						</DockPanel>
+				<!-- Navigation Tabs -->
+				<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+					<Button Classes="NavButton" Name="ProfilesButton" Tag="Profiles" Content="{ext:Localized MainWindowProfilesButton}"/>
+					<Button Classes="NavButton" Name="DevicesButton" Tag="Devices" Content="{ext:Localized MainWindowDevicesButton}"/>
+					<Button Classes="NavButton" Name="MappingsButton" Tag="Mappings" Content="{ext:Localized MainWindowMappingsButton}"/>
+				</StackPanel>
 
-						<StackPanel Spacing="4">
-							<Button Classes="NavButton"
-									Name="DevicesButton"
-									Tag="Devices"
-									Content="{ext:Localized MainWindowDevicesButton}"/>
-							<Button Classes="NavButton"
-									Name="MappingsButton"
-									Tag="Mappings"
-									Content="{ext:Localized MainWindowMappingsButton}"/>
-							<Button Classes="NavButton"
-									Name="ProfilesButton"
-									Tag="Profiles"
-									Content="{ext:Localized MainWindowProfilesButton}"
-									ZIndex="1"/>
-							<vp:ProfileListView Name="ProfileListView" DataContext="{Binding ProfilesPage.ProfileListView}"/>
-						</StackPanel>
-					</StackPanel>
-				</ScrollViewer>
-			</DockPanel>
+				<!-- Actions -->
+				<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,140,0" Spacing="16">
+					<Button Classes="SettingsButton" Name="SettingsButton">
+						<PathIcon Data="{StaticResource settings_regular}" Width="16" Height="16"/>
+					</Button>
+					<ToggleButton Classes="ThemeToggle" Name="ThemeToggleButton">
+						<PathIcon Data="{StaticResource weather_moon_regular}" Width="16" Height="16" Name="ThemeIcon"/>
+					</ToggleButton>
+					
+					<Button Classes="ApplyButton" Name="ApplyButton" Content="{ext:Localized MainWindowApplySettingsButton}" Padding="16,8" Margin="0"/>
+					
+					<ProgressBar Classes="LoadingBar" Name="LoadingProgress" IsVisible="False" IsIndeterminate="True"/>
+				</StackPanel>
+			</Grid>
 		</Border>
 
-		<Border Classes="ContentArea" Margin="432,16,16,16">
-			<ContentControl Content="{Binding CurrentPageContent}"/>
-		</Border>
-
-		<controls:ToastView DataContext="{Binding ToastViewModel}" />
-
-		<!-- Modal Overlay -->
-		<controls:ModalOverlay Name="ModalOverlay" />
-	</Panel>
+		<!-- MAIN CONTENT -->
+		<Panel>
+			<ContentControl Content="{Binding CurrentPageContent}" Margin="24"/>
+			<controls:ToastView DataContext="{Binding ToastViewModel}" />
+			<controls:ModalOverlay Name="ModalOverlay" />
+		</Panel>
+	</DockPanel>
 </Window>

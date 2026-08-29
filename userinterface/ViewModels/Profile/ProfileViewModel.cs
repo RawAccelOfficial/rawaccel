@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using userinterface.Services;
+using Microsoft.Extensions.DependencyInjection;
 using BE = userspace_backend.Model;
 
 namespace userinterface.ViewModels.Profile
@@ -24,6 +25,8 @@ namespace userinterface.ViewModels.Profile
         public ProfileSettingsViewModel Settings { get; private set; } = null!;
 
         public ProfileChartViewModel Chart { get; private set; } = null!;
+
+        public ProfileListViewModel ProfileList => App.Services!.GetRequiredService<ProfileListViewModel>();
 
         public void Initialize(BE.IProfileModel profileModel)
         {

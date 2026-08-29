@@ -1,11 +1,12 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<!-- Backgrounds -->
-	<SolidColorBrush x:Key="AppBackgroundBrush">#1E1E1E</SolidColorBrush>
-	<SolidColorBrush x:Key="CardBackgroundBrush">#2D2D30</SolidColorBrush>
-	<SolidColorBrush x:Key="ControlBackgroundBrush">#1E1E1E</SolidColorBrush>
-	<SolidColorBrush x:Key="HoverBackgroundBrush">#252526</SolidColorBrush>
-	<SolidColorBrush x:Key="SelectedBackgroundBrush">#0E639C</SolidColorBrush>
+	<!-- Updated all primary background, border, and text colors to modern flat dark mode aesthetics (e.g. #0F0F0F for app background) -->
+	<SolidColorBrush x:Key="AppBackgroundBrush">#0F0F0F</SolidColorBrush>
+	<SolidColorBrush x:Key="CardBackgroundBrush">#1E1E24</SolidColorBrush>
+	<SolidColorBrush x:Key="ControlBackgroundBrush">#1E1E24</SolidColorBrush>
+	<SolidColorBrush x:Key="HoverBackgroundBrush">#25252D</SolidColorBrush>
+	<SolidColorBrush x:Key="SelectedBackgroundBrush">#6366F1</SolidColorBrush>
 
 	<!-- Borders -->
 	<SolidColorBrush x:Key="BorderBrush">#3F3F46</SolidColorBrush>
@@ -17,9 +18,9 @@
 	<SolidColorBrush x:Key="DisabledTextBrush">#666666</SolidColorBrush>
 
 	<!-- Buttons -->
-	<SolidColorBrush x:Key="PrimaryButtonBrush">#0E639C</SolidColorBrush>
-	<SolidColorBrush x:Key="PrimaryButtonHoverBrush">#1177BB</SolidColorBrush>
-	<SolidColorBrush x:Key="PrimaryButtonPressedBrush">#0D5A94</SolidColorBrush>
+	<SolidColorBrush x:Key="PrimaryButtonBrush">#6366F1</SolidColorBrush>
+	<SolidColorBrush x:Key="PrimaryButtonHoverBrush">#818CF8</SolidColorBrush>
+	<SolidColorBrush x:Key="PrimaryButtonPressedBrush">#4F46E5</SolidColorBrush>
 	<SolidColorBrush x:Key="DisabledButtonBrush">#4A4A4A</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonBrush">#DC2626</SolidColorBrush>
 	<SolidColorBrush x:Key="DangerButtonHoverBrush">#EF4444</SolidColorBrush>
@@ -27,8 +28,8 @@
 	<SolidColorBrush x:Key="RenameButtonBrush">#FFA500</SolidColorBrush>
 	<SolidColorBrush x:Key="RenameButtonHoverBrush">#FFA500</SolidColorBrush>
 	<SolidColorBrush x:Key="ButtonIconOnHoverBrush">#FFFFFF</SolidColorBrush>
-	<SolidColorBrush x:Key="AccentBrush">#0E639C</SolidColorBrush>
-	<SolidColorBrush x:Key="AccentHoverBrush">#1177BB</SolidColorBrush>
+	<SolidColorBrush x:Key="AccentBrush">#6366F1</SolidColorBrush>
+	<SolidColorBrush x:Key="AccentHoverBrush">#818CF8</SolidColorBrush>
 	<SolidColorBrush x:Key="AccentForegroundBrush">#FFFFFF</SolidColorBrush>
 	<SolidColorBrush x:Key="SuccessButtonBrush">#059669</SolidColorBrush>
 	<SolidColorBrush x:Key="SuccessButtonHoverBrush">#10B981</SolidColorBrush>
