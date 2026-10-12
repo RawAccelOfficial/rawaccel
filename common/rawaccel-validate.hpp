@@ -130,6 +130,26 @@ namespace rawaccel {
 
 		};
 
+		auto check_sector = [&error](
+			double multiplier,
+			double half_width,
+			double min_speed,
+			double feather)
+		{
+			if (multiplier <= 0) {
+				error("sector sensitivity multiplier must be positive");
+			}
+			if (half_width < 0 || half_width > 180) {
+				error("sector half width must be between 0 and 180 degrees");
+			}
+			if (min_speed < 0) {
+				error("sector minimum speed can not be negative");
+			}
+			if (feather < 0 || feather > half_width) {
+				error("sector feather must be between 0 and half width");
+			}
+		};
+
 		check_accel(args.accel_x);
 
 		if (!args.speed_processor_args.whole) {
@@ -169,6 +189,23 @@ namespace rawaccel {
 		if (args.lr_output_dpi_ratio <= 0 || args.ud_output_dpi_ratio <= 0) {
 			error("output DPI ratio must be positive");
 		}
+
+		check_sector(args.sector_right_multiplier, args.sector_right_half_width_degrees,
+			args.sector_right_min_speed, args.sector_right_feather_degrees);
+		check_sector(args.sector_se_multiplier, args.sector_se_half_width_degrees,
+			args.sector_se_min_speed, args.sector_se_feather_degrees);
+		check_sector(args.sector_down_multiplier, args.sector_down_half_width_degrees,
+			args.sector_down_min_speed, args.sector_down_feather_degrees);
+		check_sector(args.sector_sw_multiplier, args.sector_sw_half_width_degrees,
+			args.sector_sw_min_speed, args.sector_sw_feather_degrees);
+		check_sector(args.sector_left_multiplier, args.sector_left_half_width_degrees,
+			args.sector_left_min_speed, args.sector_left_feather_degrees);
+		check_sector(args.sector_nw_multiplier, args.sector_nw_half_width_degrees,
+			args.sector_nw_min_speed, args.sector_nw_feather_degrees);
+		check_sector(args.sector_up_multiplier, args.sector_up_half_width_degrees,
+			args.sector_up_min_speed, args.sector_up_feather_degrees);
+		check_sector(args.sector_ne_multiplier, args.sector_ne_half_width_degrees,
+			args.sector_ne_min_speed, args.sector_ne_feather_degrees);
 
 		if (args.speed_processor_args.lp_norm <= 0) {
 			error("Lp norm must be positive (default=2)");

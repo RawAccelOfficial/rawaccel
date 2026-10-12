@@ -89,6 +89,48 @@ namespace rawaccel {
         double lr_output_dpi_ratio = 1;
         double ud_output_dpi_ratio = 1;
 
+        // Fixed-center angle-sector sensitivity. A half-width of 0 disables a sector.
+        // Keep this field order mirrored by wrapper/Profile.
+        double sector_right_multiplier = 1;
+        double sector_right_half_width_degrees = 0;
+        double sector_right_min_speed = 0;
+        double sector_right_feather_degrees = 0;
+
+        double sector_se_multiplier = 1;
+        double sector_se_half_width_degrees = 0;
+        double sector_se_min_speed = 0;
+        double sector_se_feather_degrees = 0;
+
+        double sector_down_multiplier = 1;
+        double sector_down_half_width_degrees = 0;
+        double sector_down_min_speed = 0;
+        double sector_down_feather_degrees = 0;
+
+        double sector_sw_multiplier = 1;
+        double sector_sw_half_width_degrees = 0;
+        double sector_sw_min_speed = 0;
+        double sector_sw_feather_degrees = 0;
+
+        double sector_left_multiplier = 1;
+        double sector_left_half_width_degrees = 0;
+        double sector_left_min_speed = 0;
+        double sector_left_feather_degrees = 0;
+
+        double sector_nw_multiplier = 1;
+        double sector_nw_half_width_degrees = 0;
+        double sector_nw_min_speed = 0;
+        double sector_nw_feather_degrees = 0;
+
+        double sector_up_multiplier = 1;
+        double sector_up_half_width_degrees = 0;
+        double sector_up_min_speed = 0;
+        double sector_up_feather_degrees = 0;
+
+        double sector_ne_multiplier = 1;
+        double sector_ne_half_width_degrees = 0;
+        double sector_ne_min_speed = 0;
+        double sector_ne_feather_degrees = 0;
+
         double degrees_rotation = 0;
 
         double degrees_snap = 0;

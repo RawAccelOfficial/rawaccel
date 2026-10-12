@@ -40,6 +40,7 @@ namespace rawaccel {
         bool apply_directional_weight = 0;
         bool apply_dir_mul_x = 0;
         bool apply_dir_mul_y = 0;
+        bool apply_sector_sensitivity = 0;
 
         modifier_flags(const profile& args) 
         {
@@ -51,6 +52,15 @@ namespace rawaccel {
             compute_ref_angle = apply_snap || apply_directional_weight;
             apply_dir_mul_x = args.lr_output_dpi_ratio != 1;
             apply_dir_mul_y = args.ud_output_dpi_ratio != 1;
+            apply_sector_sensitivity =
+                (args.sector_right_half_width_degrees > 0 && args.sector_right_multiplier != 1) ||
+                (args.sector_se_half_width_degrees > 0 && args.sector_se_multiplier != 1) ||
+                (args.sector_down_half_width_degrees > 0 && args.sector_down_multiplier != 1) ||
+                (args.sector_sw_half_width_degrees > 0 && args.sector_sw_multiplier != 1) ||
+                (args.sector_left_half_width_degrees > 0 && args.sector_left_multiplier != 1) ||
+                (args.sector_nw_half_width_degrees > 0 && args.sector_nw_multiplier != 1) ||
+                (args.sector_up_half_width_degrees > 0 && args.sector_up_multiplier != 1) ||
+                (args.sector_ne_half_width_degrees > 0 && args.sector_ne_multiplier != 1);
         }
 
         modifier_flags() = default;
@@ -305,6 +315,94 @@ namespace rawaccel {
 
     static_assert(alignof(io_base) == alignof(modifier_settings) && alignof(modifier_settings) == alignof(device_settings));
 
+    inline double sector_angle_difference(double a, double b)
+    {
+        double diff = fabs(a - b);
+        return diff > 180 ? 360 - diff : diff;
+    }
+
+    inline void sector_consider(
+        double multiplier,
+        double half_width,
+        double min_speed,
+        double feather,
+        double center,
+        double angle,
+        double input_speed,
+        double& best_diff,
+        double& best_scale)
+    {
+        if (half_width <= 0 || multiplier <= 0 || input_speed < min_speed) {
+            return;
+        }
+
+        half_width = minsd(half_width, 180.0);
+        double diff = sector_angle_difference(angle, center);
+
+        // Overlapping sectors use the closest center.
+        if (diff > half_width || diff >= best_diff) {
+            return;
+        }
+
+        feather = clampsd(feather, 0.0, half_width);
+        double blend = 1;
+
+        if (feather > 0) {
+            const double feather_start = half_width - feather;
+            if (diff > feather_start) {
+                blend = clampsd((half_width - diff) / feather, 0.0, 1.0);
+            }
+        }
+
+        best_diff = diff;
+        best_scale = 1 + (multiplier - 1) * blend;
+    }
+
+    inline double sector_sensitivity_multiplier(
+        const vec2d& raw_input,
+        double input_speed,
+        const profile& args)
+    {
+        if (raw_input.x == 0 && raw_input.y == 0) {
+            return 1;
+        }
+
+        double angle = atan2(raw_input.y, raw_input.x) * 180.0 / M_PI;
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        double best_diff = 1e300;
+        double best_scale = 1;
+
+        sector_consider(args.sector_right_multiplier, args.sector_right_half_width_degrees,
+            args.sector_right_min_speed, args.sector_right_feather_degrees,
+            0, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_se_multiplier, args.sector_se_half_width_degrees,
+            args.sector_se_min_speed, args.sector_se_feather_degrees,
+            45, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_down_multiplier, args.sector_down_half_width_degrees,
+            args.sector_down_min_speed, args.sector_down_feather_degrees,
+            90, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_sw_multiplier, args.sector_sw_half_width_degrees,
+            args.sector_sw_min_speed, args.sector_sw_feather_degrees,
+            135, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_left_multiplier, args.sector_left_half_width_degrees,
+            args.sector_left_min_speed, args.sector_left_feather_degrees,
+            180, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_nw_multiplier, args.sector_nw_half_width_degrees,
+            args.sector_nw_min_speed, args.sector_nw_feather_degrees,
+            225, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_up_multiplier, args.sector_up_half_width_degrees,
+            args.sector_up_min_speed, args.sector_up_feather_degrees,
+            270, angle, input_speed, best_diff, best_scale);
+        sector_consider(args.sector_ne_multiplier, args.sector_ne_half_width_degrees,
+            args.sector_ne_min_speed, args.sector_ne_feather_degrees,
+            315, angle, input_speed, best_diff, best_scale);
+
+        return best_scale;
+    }
+
     class modifier {
     public:
 #ifdef _KERNEL_MODE
@@ -318,6 +416,7 @@ namespace rawaccel {
 
             double reference_angle = 0;
             double ips_factor = dpi_factor / time;
+            const vec2d sector_input = in;
 
             if (flags.apply_rotate) in = rotate(in, data.rot_direction);
 
@@ -419,6 +518,17 @@ namespace rawaccel {
 
             if (flags.apply_dir_mul_y && in.y < 0) {
                 in.y *= args.ud_output_dpi_ratio;
+            }
+
+            if (flags.apply_sector_sensitivity &&
+                (sector_input.x != 0 || sector_input.y != 0)) {
+                const double sector_input_speed = magnitude(sector_input) * ips_factor;
+                const double sector_scale = sector_sensitivity_multiplier(
+                    sector_input, sector_input_speed, args);
+
+                // One scalar on both output components preserves direction.
+                in.x *= sector_scale;
+                in.y *= sector_scale;
             }
         }
 

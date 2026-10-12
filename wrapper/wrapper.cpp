@@ -233,6 +233,89 @@ public ref struct Profile
     [JsonProperty("U/D output DPI ratio (up sens multiplier)")]
     double udOutputDPIRatio;
 
+    // Optional for backwards compatibility with existing settings.json files.
+    // Keep this order exactly mirrored with rawaccel::profile.
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorRightMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorRightHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorRightMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorRightFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorSEMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorSEHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorSEMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorSEFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorDownMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorDownHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorDownMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorDownFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorSWMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorSWHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorSWMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorSWFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorLeftMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorLeftHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorLeftMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorLeftFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorNWMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorNWHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorNWMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorNWFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorUpMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorUpHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorUpMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorUpFeatherDegrees;
+
+    [ComponentModel::DefaultValue(1.0)]
+    [JsonProperty(Required = Required::Default)]
+    double sectorNEMultiplier;
+    [JsonProperty(Required = Required::Default)]
+    double sectorNEHalfWidthDegrees;
+    [JsonProperty(Required = Required::Default)]
+    double sectorNEMinSpeed;
+    [JsonProperty(Required = Required::Default)]
+    double sectorNEFeatherDegrees;
+
+
     [JsonProperty("Degrees of rotation")]
     double rotation;
 
