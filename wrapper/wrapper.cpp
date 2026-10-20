@@ -166,7 +166,7 @@ public value struct AccelArgs
                     break;
                 }
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < length / 2; i++)
                 {
                     int index = i * 2;
                     if (data[index] != other.data[index] ||
