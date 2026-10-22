@@ -19,6 +19,12 @@ namespace rawaccel {
     inline constexpr size_t LUT_RAW_DATA_CAPACITY = 514;
     inline constexpr size_t LUT_POINTS_CAPACITY = LUT_RAW_DATA_CAPACITY / 2;
 
+    inline constexpr size_t DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY = 256;
+    inline constexpr size_t DIRECTIONAL_MULTIPLIER_POINTS_CAPACITY = DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY / 2;
+
+    inline constexpr double DIRECTIONAL_MULTIPLIER_MIN = 0.5;
+    inline constexpr double DIRECTIONAL_MULTIPLIER_MAX = 2;
+
     inline constexpr double MAX_NORM = 16;
 
     // At this DPI, one count per ms equals one inch per second.
@@ -88,6 +94,10 @@ namespace rawaccel {
         double yx_output_dpi_ratio = 1;
         double lr_output_dpi_ratio = 1;
         double ud_output_dpi_ratio = 1;
+
+        // (angle, multiplier) pairs, angle in degrees: 0 = right, 90 = down, 180 = left, 270 = up
+        int directional_multiplier_length = 0;
+        float directional_multiplier_data[DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY] = {};
 
         double degrees_rotation = 0;
 

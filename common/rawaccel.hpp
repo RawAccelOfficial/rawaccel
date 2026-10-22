@@ -40,6 +40,7 @@ namespace rawaccel {
         bool apply_directional_weight = 0;
         bool apply_dir_mul_x = 0;
         bool apply_dir_mul_y = 0;
+        bool apply_directional_multiplier = 0;
 
         modifier_flags(const profile& args) 
         {
@@ -51,6 +52,9 @@ namespace rawaccel {
             compute_ref_angle = apply_snap || apply_directional_weight;
             apply_dir_mul_x = args.lr_output_dpi_ratio != 1;
             apply_dir_mul_y = args.ud_output_dpi_ratio != 1;
+            // bounds checked here as well, data written to the driver is not validated
+            apply_directional_multiplier = args.directional_multiplier_length >= 2 &&
+                args.directional_multiplier_length <= DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY;
         }
 
         modifier_flags() = default;
@@ -162,11 +166,64 @@ namespace rawaccel {
         }
     };
 
+    /// <summary>
+    /// Tracks the direction of recent input for the directional multiplier.
+    /// A single packet of +-1 counts has only 8 possible directions,
+    /// so slow movement would make the multiplier jitter without this.
+    /// </summary>
+    struct direction_smoother {
+
+        // Older counts are weighted at half after this many ms,
+        // so a pause of a few multiples of it starts over in the new direction.
+        static constexpr milliseconds halflife = 8;
+
+        // Upper bound on the length of the tracked vector in counts,
+        // keeps fast movement responsive to changes in direction.
+        static constexpr double max_counts = 16;
+
+        // Input turning away from the tracked direction by more than 120 degrees replaces it.
+        static constexpr double reversal_cos = -0.5;
+
+        vec2d total = {};
+
+        void init()
+        {
+            total = {};
+        }
+
+        vec2d smooth(const vec2d& in, const milliseconds time)
+        {
+            double decay = pow(0.5, time / halflife);
+            total.x *= decay;
+            total.y *= decay;
+
+            double dot = in.x * total.x + in.y * total.y;
+
+            if (dot < reversal_cos * magnitude(in) * magnitude(total)) {
+                total = in;
+            }
+            else {
+                total.x += in.x;
+                total.y += in.y;
+            }
+
+            double mag = magnitude(total);
+
+            if (mag > max_counts) {
+                total.x *= max_counts / mag;
+                total.y *= max_counts / mag;
+            }
+
+            return total;
+        }
+    };
+
     struct speed_processor_flags
     {
         bool should_smooth_input = false;
         bool should_smooth_scale = false;
         bool should_smooth_output = false;
+        bool should_smooth_direction = false;
         distance_mode dist_mode = {};
     };
 
@@ -186,6 +243,7 @@ namespace rawaccel {
         speed_processor_flags speed_flags = {};
         smoother smoother_x = {};
         smoother smoother_y = {};
+        direction_smoother dir_smoother = {};
 
         static constexpr double input_trend_halflife = 1.25;
         static constexpr double output_trend_halflife = 0.7;
@@ -212,6 +270,9 @@ namespace rawaccel {
             speed_flags.should_smooth_input = in_args.input_speed_smooth_halflife > 0;
             speed_flags.should_smooth_scale = in_args.scale_smooth_halflife > 0;
             speed_flags.should_smooth_output = in_args.output_speed_smooth_halflife > 0;
+            speed_flags.should_smooth_direction = true;
+
+            dir_smoother.init();
 
             if (speed_flags.should_smooth_input)
             {
@@ -305,6 +366,46 @@ namespace rawaccel {
 
     static_assert(alignof(io_base) == alignof(modifier_settings) && alignof(modifier_settings) == alignof(device_settings));
 
+    /// <summary>
+    /// Linear interpolation between (angle, multiplier) points sorted by angle.
+    /// The curve is periodic: the last point connects to the first through 360 degrees.
+    /// </summary>
+    inline double directional_multiplier(const profile& args, double degrees)
+    {
+        auto* points = reinterpret_cast<const vec2<float>*>(args.directional_multiplier_data);
+        int size = args.directional_multiplier_length / 2;
+
+        auto& first = points[0];
+        auto& last = points[size - 1];
+
+        if (degrees < first.x || degrees >= last.x) {
+            double offset = degrees - last.x;
+            if (offset < 0) offset += 360;
+            double t = offset / (first.x + 360 - last.x);
+            return lerp(last.y, first.y, t);
+        }
+
+        // first.x <= degrees < last.x
+        int lo = 0;
+        int hi = size - 1;
+
+        while (hi - lo > 1) {
+            int mid = (lo + hi) / 2;
+
+            if (points[mid].x <= degrees) {
+                lo = mid;
+            }
+            else {
+                hi = mid;
+            }
+        }
+
+        auto& a = points[lo];
+        auto& b = points[hi];
+        double t = (degrees - a.x) / (b.x - a.x);
+        return lerp(a.y, b.y, t);
+    }
+
     class modifier {
     public:
 #ifdef _KERNEL_MODE
@@ -341,6 +442,15 @@ namespace rawaccel {
                         }
                     }
                 }
+            }
+
+            double dir_mul = 1;
+
+            if (flags.apply_directional_multiplier) {
+                vec2d dir = speed_processor.speed_flags.should_smooth_direction ?
+                    speed_processor.dir_smoother.smooth(in, time) :
+                    in;
+                dir_mul = directional_multiplier(args, angle_degrees(dir));
             }
 
             if (flags.clamp_speed) {
@@ -419,6 +529,11 @@ namespace rawaccel {
 
             if (flags.apply_dir_mul_y && in.y < 0) {
                 in.y *= args.ud_output_dpi_ratio;
+            }
+
+            if (flags.apply_directional_multiplier) {
+                in.x *= dir_mul;
+                in.y *= dir_mul;
             }
         }
 

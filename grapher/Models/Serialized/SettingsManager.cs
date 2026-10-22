@@ -203,6 +203,8 @@ namespace grapher.Models.Serialized
             settings.minimumSpeed = UserProfile.minimumSpeed;
             settings.lrOutputDPIRatio = UserProfile.lrOutputDPIRatio;
             settings.udOutputDPIRatio = UserProfile.udOutputDPIRatio;
+            settings.directionalMultiplierLength = UserProfile.directionalMultiplierLength;
+            settings.directionalMultiplier = (float[])UserProfile.directionalMultiplier.Clone();
             settings.inputSpeedArgs.inputSmoothHalflife = UserProfile.inputSpeedArgs.inputSmoothHalflife;
             settings.inputSpeedArgs.scaleSmoothHalflife = UserProfile.inputSpeedArgs.scaleSmoothHalflife;
             settings.inputSpeedArgs.outputSmoothHalflife = UserProfile.inputSpeedArgs.outputSmoothHalflife;
