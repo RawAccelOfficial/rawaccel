@@ -170,6 +170,53 @@ namespace rawaccel {
 			error("output DPI ratio must be positive");
 		}
 
+		static_assert(DIRECTIONAL_MULTIPLIER_POINTS_CAPACITY == 128, "update error msg");
+		static_assert(DIRECTIONAL_MULTIPLIER_MIN == 0.5 && DIRECTIONAL_MULTIPLIER_MAX == 2, "update error msg");
+
+		if (args.directional_multiplier_length < 0 ||
+			args.directional_multiplier_length % 2 != 0) {
+			error("directional multiplier requires (angle, multiplier) pairs");
+		}
+		else if (args.directional_multiplier_length > DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY) {
+			error("too many directional multiplier points (max=128)");
+		}
+		else {
+			auto* points = reinterpret_cast<const vec2<float>*>(args.directional_multiplier_data);
+			int size = args.directional_multiplier_length / 2;
+
+			bool angle_out_of_range = false;
+			bool angle_not_increasing = false;
+			bool mult_out_of_range = false;
+
+			for (int i = 0; i < size; i++) {
+				auto& p = points[i];
+
+				if (!(p.x >= 0 && p.x < 360)) {
+					angle_out_of_range = true;
+				}
+
+				if (i > 0 && !(p.x > points[i - 1].x)) {
+					angle_not_increasing = true;
+				}
+
+				if (!(p.y >= DIRECTIONAL_MULTIPLIER_MIN && p.y <= DIRECTIONAL_MULTIPLIER_MAX)) {
+					mult_out_of_range = true;
+				}
+			}
+
+			if (angle_out_of_range) {
+				error("directional multiplier angles must be at least 0 and less than 360");
+			}
+
+			if (angle_not_increasing) {
+				error("directional multiplier angles must be increasing");
+			}
+
+			if (mult_out_of_range) {
+				error("directional multiplier must be between 0.5 and 2");
+			}
+		}
+
 		if (args.speed_processor_args.lp_norm <= 0) {
 			error("Lp norm must be positive (default=2)");
 		}

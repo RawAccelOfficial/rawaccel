@@ -233,6 +233,13 @@ public ref struct Profile
     [JsonProperty("U/D output DPI ratio (up sens multiplier)")]
     double udOutputDPIRatio;
 
+    [JsonIgnore]
+    int directionalMultiplierLength;
+
+    [JsonProperty("Directional multiplier (angle, multiplier pairs; 0 = right, 90 = down)", Required = Required::Default)]
+    [MarshalAs(UnmanagedType::ByValArray, SizeConst = ra::DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY)]
+    array<float>^ directionalMultiplier;
+
     [JsonProperty("Degrees of rotation")]
     double rotation;
 
@@ -247,6 +254,21 @@ public ref struct Profile
     Profile(ra::profile& args)
     {
         Marshal::PtrToStructure(IntPtr(&args), this);
+    }
+
+    [OnDeserializing]
+    void OnDeserializingMethod(StreamingContext context)
+    {
+        // optional, settings files from older versions don't have it
+        directionalMultiplier = Array::Empty<float>();
+    }
+
+    [OnDeserialized]
+    void OnDeserializedMethod(StreamingContext context)
+    {
+        // directionalMultiplier->Length must match SizeConst when marshalling
+        directionalMultiplierLength = directionalMultiplier == nullptr ? 0 : directionalMultiplier->Length;
+        array<float>::Resize(directionalMultiplier, ra::DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY);
     }
 
     Profile() :
@@ -564,7 +586,9 @@ public:
         profile->inputSpeedArgs.scaleSmoothHalflife = 0;
         profile->inputSpeedArgs.outputSmoothHalflife = 0;
 
-        return gcnew ManagedAccel(profile);
+        ManagedAccel^ copy = gcnew ManagedAccel(profile);
+        copy->speed_instance->speed_calculator.speed_flags.should_smooth_direction = false;
+        return copy;
     }
 
     Tuple<double, double>^ Accelerate(int x, int y, double dpi_factor, double time)
@@ -766,6 +790,9 @@ public:
         auto empty = Array::Empty<float>();
 
         for each (auto prof in profiles) {
+            // like LUT data below, only serialize the points in use
+            Array::Resize(prof->directionalMultiplier, prof->directionalMultiplierLength);
+
             if (prof->argsX.mode == AccelMode::lut) {
                 // data->Length is fixed for interop, 
                 // temporary resize avoids serializing a bunch of zeros
@@ -794,6 +821,8 @@ public:
         jObject->AddFirst(gcnew JProperty("### Accel modes ###", accelModes));
 
         for each (auto prof in profiles) {
+            Array::Resize(prof->directionalMultiplier, ra::DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY);
+
             if (prof->argsX.mode == AccelMode::lut) {
                 Array::Resize(prof->argsX.data, ra::LUT_RAW_DATA_CAPACITY);
             }

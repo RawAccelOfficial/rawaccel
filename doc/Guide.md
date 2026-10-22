@@ -121,6 +121,13 @@ Caps are only applicable to the [Classic](#classic), [Linear](#linear), and [Pow
 ### Anisotropy
 See "[Horizontal and Vertical](#horizontal-and-vertical)" in the philosophy section to understand what these options do.
 
+### Directional Multiplier
+The directional multiplier scales output by an amount that depends on the direction of movement. It is a list of (angle, multiplier) points, where the angle is in degrees: 0 is right, 90 is down, 180 is left and 270 is up. Between points the multiplier is linearly interpolated, and the curve wraps around, so the last point connects to the first through 360 degrees. A single point gives a constant multiplier. The multiplier is applied to the whole output vector after acceleration and the sens multiplier, Y/X, L/R and U/D ratios, so it changes the distance the cursor moves but never its direction. The direction is taken after rotation and angle snapping.
+
+Because a single slow packet of 1 count can only point in 8 directions, the direction used is that of the last few counts of movement. It starts over after a short pause or a sharp reversal.
+
+This setting is currently exposed only in the settings file, as a list of numbers in the same format as the look up table data: `"Directional multiplier (angle, multiplier pairs; 0 = right, 90 = down)": [0, 1.01, 90, 0.92, 180, 1.1, 270, 0.97]`. Angles must be increasing and at least 0 and less than 360, multipliers must be between 0.5 and 2, and up to 128 points are allowed. An empty list (the default) turns it off.
+
 ### Last Mouse Move
 The Raw Accel GUI reads the output of the raw input stream, and thus the output of the Raw Accel Driver, and displays on the graphs red points corresponding to the last mouse movements. These calulations should be fast and your graph responsive, but it comes at the cost of higher CPU usage due to needing to refresh the graph often. This feature can be turned off in the "Charts" menu.
 

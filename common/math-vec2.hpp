@@ -17,6 +17,13 @@ inline vec2d direction(double degrees)
     return { cos(radians), sin(radians) };
 }
 
+// inverse of direction, result in [0, 360]
+inline double angle_degrees(const vec2d& v)
+{
+    double degrees = atan2(v.y, v.x) * 180 / M_PI;
+    return (degrees < 0) ? degrees + 360 : degrees;
+}
+
 constexpr vec2d rotate(const vec2d& v, const vec2d& direction)
 {
     return {
