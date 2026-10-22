@@ -52,7 +52,9 @@ namespace rawaccel {
             compute_ref_angle = apply_snap || apply_directional_weight;
             apply_dir_mul_x = args.lr_output_dpi_ratio != 1;
             apply_dir_mul_y = args.ud_output_dpi_ratio != 1;
-            apply_directional_multiplier = args.directional_multiplier_length >= 2;
+            // bounds checked here as well, data written to the driver is not validated
+            apply_directional_multiplier = args.directional_multiplier_length >= 2 &&
+                args.directional_multiplier_length <= DIRECTIONAL_MULTIPLIER_RAW_DATA_CAPACITY;
         }
 
         modifier_flags() = default;
