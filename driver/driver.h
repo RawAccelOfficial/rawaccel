@@ -19,6 +19,7 @@ using counter_t = long long;
 namespace ra = rawaccel;
 
 typedef struct _DEVICE_EXTENSION {
+    KSPIN_LOCK state_lock;
     bool enable;
     bool keep_time;
     bool set_extra_info;
