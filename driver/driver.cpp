@@ -14,7 +14,6 @@
 #pragma alloc_text (PAGE, EvtIoInternalDeviceControl)
 #pragma alloc_text (PAGE, RawaccelControl)
 #pragma alloc_text (PAGE, DeviceCleanup)
-#pragma alloc_text (PAGE, DeviceSetup)
 #pragma alloc_text (PAGE, WriteDelay)
 #endif
 
@@ -308,9 +307,9 @@ Return Value:
                 WdfWaitLockRelease(global.collection_lock);
             }
             else if (buffer_length == total_size) {
-                void* pool = ExAllocatePoolWithTag(PagedPool, alloc_size, POOL_TAG);
+                void* pool = ExAllocatePoolWithTag(NonPagedPoolNx, alloc_size, POOL_TAG);
                 if (!pool) {
-                    DebugPrint(("ExAllocatePoolWithTag (PagedPool) failed"));
+                    DebugPrint(("ExAllocatePoolWithTag (NonPagedPoolNx) failed"));
                     status = STATUS_UNSUCCESSFUL;
                     break;
                 }
