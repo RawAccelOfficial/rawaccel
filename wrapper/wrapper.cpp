@@ -493,7 +493,7 @@ public:
             }
 
             for each (auto msg in elem->messages) {
-                sb->AppendFormat("\tx: {0}\n", msg);
+                sb->AppendFormat("\t{0}\n", msg);
             }
         }
 
