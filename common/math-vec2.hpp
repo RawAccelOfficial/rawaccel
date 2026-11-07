@@ -11,6 +11,7 @@ struct vec2 {
 
 using vec2d = vec2<double>;
 
+// /fp:fast merges cos and sin into a user-mode CRT call the driver can't link
 #pragma float_control(precise, on, push)
 inline vec2d direction(double degrees)
 {

@@ -307,6 +307,7 @@ Return Value:
                 WdfWaitLockRelease(global.collection_lock);
             }
             else if (buffer_length == total_size) {
+                // DeviceSetup reads this while holding state_lock, so it can't be paged
                 void* pool = ExAllocatePoolWithTag(NonPagedPoolNx, alloc_size, POOL_TAG);
                 if (!pool) {
                     DebugPrint(("ExAllocatePoolWithTag (NonPagedPoolNx) failed"));
