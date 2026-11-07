@@ -132,6 +132,9 @@ namespace rawaccel {
 						(int)idx_f;
 				}
 
+				// past the filled range, extrapolate from the last segment
+				idx = min(idx, range.size() - 2);
+
 				if (idx < capacity - 1) {
 					double y = lerp(data[idx], data[idx + 1], idx_f - idx);
 					if (velocity) y /= x;
