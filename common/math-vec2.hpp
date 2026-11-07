@@ -11,11 +11,13 @@ struct vec2 {
 
 using vec2d = vec2<double>;
 
+#pragma float_control(precise, on, push)
 inline vec2d direction(double degrees)
 {
     double radians = degrees * M_PI / 180;
     return { cos(radians), sin(radians) };
 }
+#pragma float_control(pop)
 
 constexpr vec2d rotate(const vec2d& v, const vec2d& direction)
 {
