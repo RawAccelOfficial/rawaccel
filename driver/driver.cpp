@@ -584,6 +584,9 @@ Return Value:
     WDFQUEUE                    queue;
     DECLARE_CONST_UNICODE_STRING(ntDeviceName, NTDEVICE_NAME);
     DECLARE_CONST_UNICODE_STRING(symbolicLinkName, SYMBOLIC_NAME_STRING);
+    // interactive users can write so settings apply without elevation, others are read-only
+    DECLARE_CONST_UNICODE_STRING(controlDeviceSddl,
+        L"D:P(A;;GA;;;SY)(A;;GRGWGX;;;BA)(A;;GRGW;;;IU)(A;;GR;;;WD)(A;;GR;;;RC)");
 
     DebugPrint(("Creating Control Device\n"));
 
@@ -594,9 +597,7 @@ Return Value:
     //
     pInit = WdfControlDeviceInitAllocate(
         Driver,
-        // SYSTEM/admin get full access; Everyone gets read-only.  WRITE uses
-        // FILE_WRITE_ACCESS, so a non-admin handle cannot issue it.
-        &SDDL_DEVOBJ_SYS_ALL_ADM_RWX_WORLD_R_RES_R
+        &controlDeviceSddl
     );
 
     if (pInit == NULL) {
