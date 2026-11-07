@@ -317,8 +317,7 @@ Return Value:
                 RtlCopyMemory(pool, static_cast<BYTE*>(buffer) + SIZEOF_BASE, alloc_size);
 
                 auto* new_mods = static_cast<ra::modifier_settings*>(pool);
-                auto* new_devs = static_cast<ra::device_settings*>(
-                    static_cast<BYTE*>(pool) + modifier_bytes);
+                auto* new_devs = reinterpret_cast<ra::device_settings*>(static_cast<BYTE*>(pool) + modifier_bytes);
 
                 if (!ValidateAndInitSettings(input, new_mods, new_devs)) {
                     ExFreePoolWithTag(pool, POOL_TAG);
