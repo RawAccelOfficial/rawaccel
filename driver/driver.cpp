@@ -583,9 +583,6 @@ Return Value:
     WDFQUEUE                    queue;
     DECLARE_CONST_UNICODE_STRING(ntDeviceName, NTDEVICE_NAME);
     DECLARE_CONST_UNICODE_STRING(symbolicLinkName, SYMBOLIC_NAME_STRING);
-    // interactive users can write so settings apply without elevation, others are read-only
-    DECLARE_CONST_UNICODE_STRING(controlDeviceSddl,
-        L"D:P(A;;GA;;;SY)(A;;GRGWGX;;;BA)(A;;GRGW;;;IU)(A;;GR;;;WD)(A;;GR;;;RC)");
 
     DebugPrint(("Creating Control Device\n"));
 
@@ -596,7 +593,7 @@ Return Value:
     //
     pInit = WdfControlDeviceInitAllocate(
         Driver,
-        &controlDeviceSddl
+        &SDDL_DEVOBJ_SYS_ALL_ADM_RWX_WORLD_RW_RES_R
     );
 
     if (pInit == NULL) {
