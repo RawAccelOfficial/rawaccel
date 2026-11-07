@@ -747,7 +747,7 @@ public:
 
         DeviceErrors^ devErrors = gcnew DeviceErrors(devices);
         if (!devErrors->Empty()) {
-            sb->Append(profErrors->ToString());
+            sb->Append(devErrors->ToString());
         }
 
         devices->RemoveAt(devices->Count - 1);
