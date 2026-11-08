@@ -493,7 +493,7 @@ public:
             }
 
             for each (auto msg in elem->messages) {
-                sb->AppendFormat("\tx: {0}\n", msg);
+                sb->AppendFormat("\t{0}\n", msg);
             }
         }
 
@@ -747,7 +747,7 @@ public:
 
         DeviceErrors^ devErrors = gcnew DeviceErrors(devices);
         if (!devErrors->Empty()) {
-            sb->Append(profErrors->ToString());
+            sb->Append(devErrors->ToString());
         }
 
         devices->RemoveAt(devices->Count - 1);

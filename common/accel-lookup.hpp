@@ -57,7 +57,10 @@ namespace rawaccel {
 			auto* points = reinterpret_cast<const vec2<float>*>(args.data);
 
 			int lo = 0;
-			int hi = size - 2;
+			int n = size;
+			if (n < 0) n = 0;
+			else if (n > capacity) n = capacity;
+			int hi = n - 2;
 
 			if (x <= 0) return 0;
 

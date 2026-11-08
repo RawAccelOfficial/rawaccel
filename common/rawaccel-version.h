@@ -2,7 +2,7 @@
 
 #define RA_VER_MAJOR 1
 #define RA_VER_MINOR 7
-#define RA_VER_PATCH 0
+#define RA_VER_PATCH 2
 
 #define RA_OS "Win10+"
 
@@ -30,7 +30,7 @@ namespace rawaccel {
 
     inline constexpr version_t version = { RA_VER_MAJOR, RA_VER_MINOR, RA_VER_PATCH };
 #ifndef _KERNEL_MODE
-    inline constexpr version_t min_driver_version = { 1, 7, 0 };
+    inline constexpr version_t min_driver_version = { 1, 7, 2 };
 #endif
 
 }

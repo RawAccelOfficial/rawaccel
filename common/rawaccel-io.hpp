@@ -13,10 +13,20 @@ namespace rawaccel {
     {
         HANDLE ra_handle = INVALID_HANDLE_VALUE;
 
-        ra_handle = CreateFileW(L"\\\\.\\rawaccel", 0, 0, 0, OPEN_EXISTING, 0, 0);
+        // open with the access this IOCTL requires (CTL_CODE bits 14-15)
+        const DWORD required = (code >> 14) & 3u;
+        DWORD access = 0;
+        if (required & FILE_READ_ACCESS) access |= GENERIC_READ;
+        if (required & FILE_WRITE_ACCESS) access |= GENERIC_WRITE;
+        if (access == 0) access = GENERIC_READ;
+
+        ra_handle = CreateFileW(L"\\\\.\\rawaccel", access,
+            FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 
         if (ra_handle == INVALID_HANDLE_VALUE) {
-            throw install_error();
+            const DWORD error = GetLastError();
+            if (error == ERROR_FILE_NOT_FOUND) throw install_error();
+            throw sys_error("CreateFileW failed", error);
         }
 
         DWORD dummy;
