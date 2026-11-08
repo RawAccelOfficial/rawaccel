@@ -38,7 +38,10 @@ namespace rawaccel {
 		auto check_accel = [&error](const accel_args& args) {
 			static_assert(LUT_POINTS_CAPACITY == 257, "update error msg");
 
-			if (args.mode == accel_mode::lookup) {
+			if (args.length < 0) {
+				error("data size can not be negative");
+			}
+			else if (args.mode == accel_mode::lookup) {
 				if (args.length < 4) {
 					error("lookup mode requires at least 2 points");
 				}
@@ -182,7 +185,7 @@ namespace rawaccel {
 	}
 
 	template <typename MsgHandler = noop>
-	valid_device_ret_t valid(const device_settings& args, MsgHandler fn = {})
+	valid_device_ret_t valid(const device_config& args, MsgHandler fn = {})
 	{
 		valid_device_ret_t ret;
 
@@ -192,22 +195,28 @@ namespace rawaccel {
 		};
 
 
-		if (args.config.dpi < 0) {
+		if (args.dpi < 0) {
 			error("dpi"" can not be negative");
 		}
 
-		if (args.config.polling_rate < 0) {
+		if (args.polling_rate < 0) {
 			error("polling rate"" can not be negative");
 		}
 
-		if (args.config.clamp.min <= 0) {
+		if (args.clamp.min <= 0) {
 			error("minimum time"" must be positive");
 		}
 
-		if (args.config.clamp.max < args.config.clamp.min) {
+		if (args.clamp.max < args.clamp.min) {
 			error("max time is less than min time");
 		}
 
 		return ret;
+	}
+
+	template <typename MsgHandler = noop>
+	valid_device_ret_t valid(const device_settings& args, MsgHandler fn = {})
+	{
+		return valid(args.config, fn);
 	}
 }

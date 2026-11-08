@@ -146,6 +146,8 @@ namespace grapher.Models.Serialized
         private string SelectedTheme { get; set; }
         private Form Form { get; set; }
 
+        public event Action WriteFailed;
+
         #endregion Properties
 
         #region Methods
@@ -153,7 +155,7 @@ namespace grapher.Models.Serialized
         public void ResetDriver()
         {
             ActiveConfig = DriverConfig.GetDefault();
-            new Thread(() => DriverConfig.Deactivate()).Start();
+            WriteInBackground(() => DriverConfig.Deactivate());
         }
 
         public void UpdateFieldsFromGUISettings()
@@ -190,10 +192,36 @@ namespace grapher.Models.Serialized
                 ActiveConfig = settings;
                 File.WriteAllText(Constants.DefaultSettingsFileName, settings.ToJSON());
 
-                new Thread(() => ActiveConfig.Activate()).Start();
+                WriteInBackground(() => ActiveConfig.Activate());
             }
 
             return errors == null;
+        }
+
+        private void WriteInBackground(Action write)
+        {
+            new Thread(() =>
+            {
+                try
+                {
+                    write();
+                }
+                catch (InteropException e)
+                {
+                    MessageBox.Show($"Settings were not applied.\n\n{e.Message}", "Error");
+
+                    // the startup write can fail before the window exists
+                    if (Form.IsHandleCreated) Form.BeginInvoke(new Action(RestoreActiveFromDriver));
+                }
+            }).Start();
+        }
+
+        // the driver kept its old settings, so those are what's active
+        private void RestoreActiveFromDriver()
+        {
+            ActiveConfig = DriverConfig.GetActive();
+            SetActiveHandles();
+            WriteFailed?.Invoke();
         }
 
         public void SetHiddenOptions(Profile settings)

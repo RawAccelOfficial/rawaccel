@@ -363,6 +363,7 @@ namespace grapher
                 {
                     if (!gui) lnk.Arguments = Constants.DefaultSettingsFileName;
                     lnk.TargetPath = $@"{Application.StartupPath}\{name}.exe";
+                    lnk.WorkingDirectory = Application.StartupPath;
                     lnk.Save();
                 }
                 finally

@@ -2,6 +2,8 @@
 
 #include "accel-lookup.hpp"
 
+#include <climits>
+
 namespace rawaccel {
 
 	template <bool Gain> struct activation_framework;
@@ -109,14 +111,29 @@ namespace rawaccel {
 		{
 			auto* data = args.data;
 
-			int e = min(ilogb(x), range.stop - 1);
+			int e = ilogb(x);
 
-			if (e >= range.start) {
-				int idx_int_log_part = e - range.start;
+			// long long so range.stop - 1 can't overflow
+			long long stop_m1 = (long long)range.stop - 1;
+			if (stop_m1 < INT_MIN) stop_m1 = INT_MIN;
+			if ((long long)e > stop_m1) e = (int)stop_m1;
+
+			if ((long long)e >= range.start) {
+				long long idx_int_log_part = (long long)e - range.start;
 				double idx_frac_lin_part = scalbn(x, -e) - 1;
-				double idx_f = range.num * (idx_int_log_part + idx_frac_lin_part);
+				double idx_f = (double)range.num *
+					((double)idx_int_log_part + idx_frac_lin_part);
 
-				unsigned idx = min(static_cast<int>(idx_f), range.size() - 2);
+				// bound first, out of range float to int conversion is UB
+				int idx = 0;
+				if (idx_f > 0) {
+					idx = idx_f >= (double)capacity ?
+						(int)capacity :
+						(int)idx_f;
+				}
+
+				// past the filled range, extrapolate from the last segment
+				idx = min(idx, range.size() - 2);
 
 				if (idx < capacity - 1) {
 					double y = lerp(data[idx], data[idx + 1], idx_f - idx);

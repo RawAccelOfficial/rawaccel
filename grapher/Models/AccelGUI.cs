@@ -38,6 +38,7 @@ namespace grapher
             ScaleMenuItem = scaleMenuItem;
             DeviceMenuItem = deviceMenuItem;
             Settings = settings;
+            Settings.WriteFailed += RefreshActive;
             DefaultButtonFont = WriteButton.Font;
             SmallButtonFont = new Font(WriteButton.Font.Name, WriteButton.Font.Size * Constants.SmallButtonSizeFactor);
             MouseWatcher = mouseWatcher;

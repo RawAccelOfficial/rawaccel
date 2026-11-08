@@ -3,6 +3,7 @@
 #include <rawaccel.hpp>
 #include <rawaccel-io-def.h>
 #include <rawaccel-version.h>
+#include <rawaccel-validate.hpp>
 
 
 #ifdef ALLOC_PRAGMA
@@ -13,11 +14,16 @@
 #pragma alloc_text (PAGE, EvtIoInternalDeviceControl)
 #pragma alloc_text (PAGE, RawaccelControl)
 #pragma alloc_text (PAGE, DeviceCleanup)
-#pragma alloc_text (PAGE, DeviceSetup)
 #pragma alloc_text (PAGE, WriteDelay)
 #endif
 
 using milliseconds = double;
+
+// shows as 'Racl' in poolmon
+static constexpr ULONG POOL_TAG = 0x6c636152u;
+
+static constexpr size_t MAX_SETTINGS_POOL_BYTES = 64 * 1024 * 1024;
+static constexpr unsigned MAX_SETTINGS_COUNT = 8192;
 
 struct {
     bool initialized;
@@ -30,6 +36,31 @@ struct {
 } global = {};
 
 extern "C" PULONG InitSafeBootMode;
+
+static bool ValidateAndInitSettings(
+    const ra::io_base& base,
+    ra::modifier_settings* mods,
+    ra::device_settings* devs)
+{
+    if (ra::valid(base.default_dev_cfg).count != 0) {
+        return false;
+    }
+
+    for (auto i = 0u; i < base.modifier_data_size; i++) {
+        if (ra::valid(mods[i].prof).count != 0) {
+            return false;
+        }
+        ra::init_data(mods[i]);
+    }
+
+    for (auto i = 0u; i < base.device_data_size; i++) {
+        if (ra::valid(devs[i]).count != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 // precise behavior required to handle NaN (UB with /fp:fast)
 #pragma float_control(precise, on, push)
@@ -76,6 +107,10 @@ Arguments:
     PDEVICE_EXTENSION devExt = FilterGetData(hDevice);
 
     auto num_packets = InputDataEnd - InputDataStart;
+
+    // DeviceSetup rewrites these fields from another CPU
+    KIRQL oldIrql;
+    KeAcquireSpinLock(&devExt->state_lock, &oldIrql);
 
     if (num_packets > 0 &&
         !(InputDataStart->Flags & MOUSE_MOVE_ABSOLUTE) &&
@@ -131,6 +166,8 @@ Arguments:
         } while (++it != InputDataEnd);
 
     }
+
+    KeReleaseSpinLock(&devExt->state_lock, oldIrql);
 
     (*(PSERVICE_CALLBACK_ROUTINE)devExt->UpperConnectData.ClassService)(
         devExt->UpperConnectData.ClassDeviceObject,
@@ -231,8 +268,6 @@ Return Value:
             DebugPrint(("RetrieveInputBuffer failed: 0x%x\n", status));
         }
         else {
-            WriteDelay();
-
             ra::io_base& input = *static_cast<ra::io_base*>(buffer);
 
             auto modifier_bytes = size_t(input.modifier_data_size) * sizeof(ra::modifier_settings);
@@ -241,19 +276,24 @@ Return Value:
             auto total_size = alloc_size + SIZEOF_BASE;
 
             auto max_u32 = unsigned(-1);
-            if (modifier_bytes > max_u32 || device_bytes > max_u32 || total_size > max_u32) {
-                status = STATUS_CANCELLED;
+            if (modifier_bytes > max_u32 || device_bytes > max_u32 || total_size > max_u32 ||
+                alloc_size > MAX_SETTINGS_POOL_BYTES ||
+                input.modifier_data_size > MAX_SETTINGS_COUNT ||
+                input.device_data_size > MAX_SETTINGS_COUNT) {
+                status = STATUS_INVALID_PARAMETER;
                 break;
             }
 
             if (input.modifier_data_size == 0) {
                 // clear data and disable all devices
+                WriteDelay();
+
                 WdfWaitLockAcquire(global.collection_lock, NULL);
 
                 global.base_data = {};
 
                 if (global.modifier_data) {
-                    ExFreePoolWithTag(global.modifier_data, 'g');
+                    ExFreePoolWithTag(global.modifier_data, POOL_TAG);
                     global.modifier_data = NULL;
                     global.device_data = NULL;
                 }
@@ -267,25 +307,34 @@ Return Value:
                 WdfWaitLockRelease(global.collection_lock);
             }
             else if (buffer_length == total_size) {
-                void* pool = ExAllocatePoolWithTag(PagedPool, alloc_size, 'g');
+                // DeviceSetup reads this while holding state_lock, so it can't be paged
+                void* pool = ExAllocatePoolWithTag(NonPagedPoolNx, alloc_size, POOL_TAG);
                 if (!pool) {
-                    DebugPrint(("ExAllocatePoolWithTag (PagedPool) failed"));
+                    DebugPrint(("ExAllocatePoolWithTag (NonPagedPoolNx) failed"));
                     status = STATUS_UNSUCCESSFUL;
                     break;
                 }
                 RtlCopyMemory(pool, static_cast<BYTE*>(buffer) + SIZEOF_BASE, alloc_size);
 
+                auto* new_mods = static_cast<ra::modifier_settings*>(pool);
+                auto* new_devs = reinterpret_cast<ra::device_settings*>(static_cast<BYTE*>(pool) + modifier_bytes);
+
+                if (!ValidateAndInitSettings(input, new_mods, new_devs)) {
+                    ExFreePoolWithTag(pool, POOL_TAG);
+                    status = STATUS_INVALID_PARAMETER;
+                    break;
+                }
+
+                WriteDelay();
+
                 WdfWaitLockAcquire(global.collection_lock, NULL);
 
                 if (global.modifier_data) {
-                    ExFreePoolWithTag(global.modifier_data, 'g');
+                    ExFreePoolWithTag(global.modifier_data, POOL_TAG);
                 }
 
-                void* dev_data = static_cast<BYTE*>(pool) + modifier_bytes;
-                global.device_data = input.device_data_size > 0 ?
-                    static_cast<ra::device_settings*>(dev_data) :
-                    NULL;
-                global.modifier_data = static_cast<ra::modifier_settings*>(pool);
+                global.device_data = input.device_data_size > 0 ? new_devs : NULL;
+                global.modifier_data = new_mods;
                 global.base_data = input;
 
                 auto count = WdfCollectionGetCount(global.device_collection);
@@ -297,7 +346,7 @@ Return Value:
                 WdfWaitLockRelease(global.collection_lock);
             }
             else {
-                status = STATUS_CANCELLED;
+                status = STATUS_INVALID_PARAMETER;
             }
         }
         break;
@@ -370,6 +419,9 @@ DeviceSetup(WDFOBJECT hDevice)
 {
     auto* devExt = FilterGetData(hDevice);
 
+    KIRQL oldIrql;
+    KeAcquireSpinLock(&devExt->state_lock, &oldIrql);
+
     auto set_ext_from_cfg = [devExt](const ra::device_config& cfg) {
         devExt->enable = !cfg.disable;
         devExt->set_extra_info = cfg.set_extra_info;
@@ -408,6 +460,7 @@ DeviceSetup(WDFOBJECT hDevice)
     if (!global.modifier_data) {
         devExt->enable = false;
         devExt->mod = {};
+        KeReleaseSpinLock(&devExt->state_lock, oldIrql);
         return;
     }
     
@@ -429,6 +482,8 @@ DeviceSetup(WDFOBJECT hDevice)
             break;
         }
     }
+
+    KeReleaseSpinLock(&devExt->state_lock, oldIrql);
 }
 
 VOID
@@ -695,38 +750,48 @@ Return Value:
         return status;
     }
 
+    auto* devExt = FilterGetData(hDevice);
+    KeInitializeSpinLock(&devExt->state_lock);
+    devExt->dev_id[0] = L'\0';
+
     //
     // get device id from bus driver
     //
     DEVICE_OBJECT* pdo = WdfDeviceWdmGetPhysicalDevice(hDevice);
-    
-    KEVENT ke;
-    KeInitializeEvent(&ke, NotificationEvent, FALSE);
+
     IO_STATUS_BLOCK iosb = {};
-    PIRP Irp = IoBuildSynchronousFsdRequest(IRP_MJ_PNP,
-        pdo, NULL, 0, NULL, &ke, &iosb);
-    Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
-    PIO_STACK_LOCATION stack = IoGetNextIrpStackLocation(Irp);
-    stack->MinorFunction = IRP_MN_QUERY_ID;
-    stack->Parameters.QueryId.IdType = BusQueryDeviceID;
+    NTSTATUS tmp = STATUS_UNSUCCESSFUL;
 
-    NTSTATUS tmp = IoCallDriver(pdo, Irp);
+    if (pdo != NULL) {
+        KEVENT ke;
+        KeInitializeEvent(&ke, NotificationEvent, FALSE);
 
-    if (tmp == STATUS_PENDING) {
-        KeWaitForSingleObject(&ke, Executive, KernelMode, FALSE, NULL);
-        tmp = iosb.Status;
+        PIRP Irp = IoBuildSynchronousFsdRequest(IRP_MJ_PNP,
+            pdo, NULL, 0, NULL, &ke, &iosb);
+
+        if (Irp != NULL) {
+            Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+            PIO_STACK_LOCATION stack = IoGetNextIrpStackLocation(Irp);
+            stack->MinorFunction = IRP_MN_QUERY_ID;
+            stack->Parameters.QueryId.IdType = BusQueryDeviceID;
+
+            tmp = IoCallDriver(pdo, Irp);
+
+            if (tmp == STATUS_PENDING) {
+                KeWaitForSingleObject(&ke, Executive, KernelMode, FALSE, NULL);
+                tmp = iosb.Status;
+            }
+        }
     }
 
-    auto* devExt = FilterGetData(hDevice);
-
-    if (NT_SUCCESS(tmp)) {
+    if (NT_SUCCESS(tmp) && iosb.Information != 0) {
         auto* id_ptr = reinterpret_cast<WCHAR*>(iosb.Information);
-        wcsncpy(devExt->dev_id, id_ptr, ra::MAX_DEV_ID_LEN);
+        wcsncpy(devExt->dev_id, id_ptr, ra::MAX_DEV_ID_LEN - 1);
+        devExt->dev_id[ra::MAX_DEV_ID_LEN - 1] = L'\0';
         ExFreePool(id_ptr);
     }
     else {
         DebugPrint(("IoCallDriver failed with status 0x%x\n", tmp));
-        *devExt->dev_id = L'\0';
     }
 
     WdfWaitLockAcquire(global.collection_lock, NULL);
