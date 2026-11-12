@@ -83,7 +83,9 @@ public class SettingsService : ISettingsService
         errorMessage = null;
         try
         {
-            backEnd.Apply();
+            // UI preferences only persist to settings.json; driver and profile
+            // files are written by the explicit Apply/shutdown paths.
+            backEnd.WriteSettings();
             return true;
         }
         catch (Exception ex)

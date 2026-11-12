@@ -17,6 +17,8 @@ namespace userspace_backend
 
         void Apply();
 
+        void WriteSettings();
+
         void SaveToDisk();
 
         void ImportSystemDevices();
@@ -259,6 +261,11 @@ namespace userspace_backend
             }
 
             WriteSettingsToDisk();
+        }
+
+        public void WriteSettings()
+        {
+            BackEndLoader.WriteSettings(Settings);
         }
 
         private void LogDriverConfigSummary(MappingModel mapping, DriverConfig config)

@@ -456,11 +456,13 @@ public:
     virtual ~ManagedAccel()
     {
         delete instance;
+        delete speed_instance;
     }
 
     !ManagedAccel()
     {
         delete instance;
+        delete speed_instance;
     }
 
     /// <summary>

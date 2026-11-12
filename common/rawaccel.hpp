@@ -63,6 +63,8 @@ namespace rawaccel {
 
         double windowCoefficient = 0;
         double cutoffCoefficient = 0;
+        double windowLogCoefficient = 0;
+        double cutoffLogCoefficient = 0;
 
         void init(const double halfLife)
         {
@@ -71,6 +73,8 @@ namespace rawaccel {
 
             windowCoefficient = halfLife > 0 ? pow(0.5, 1 / halfLife) : 0;
             cutoffCoefficient = 1.0 - sqrt(1.0 - windowCoefficient);
+            windowLogCoefficient = log(windowCoefficient);
+            cutoffLogCoefficient = log(cutoffCoefficient);
         }
 
         double windowTotal = 0;
@@ -78,9 +82,9 @@ namespace rawaccel {
 
         double smooth(const double speed, const milliseconds time)
         {
-            // compute coefficients
-            double timeAdjustedWindowCoefficient = 1 - pow(windowCoefficient, time);
-            double timeAdjustedCutoffCoefficient = 1 - pow(cutoffCoefficient, time);
+            // compute coefficients: exp(t*log(c)) == pow(c, t); t == 0 matches pow(c, 0) == 1
+            double timeAdjustedWindowCoefficient = time > 0 ? 1 - exp(time * windowLogCoefficient) : 0;
+            double timeAdjustedCutoffCoefficient = time > 0 ? 1 - exp(time * cutoffLogCoefficient) : 0;
 
             // adjust total based on coefficient and difference between new value and total
             windowTotal += timeAdjustedWindowCoefficient * (speed - windowTotal);
@@ -103,6 +107,10 @@ namespace rawaccel {
         double cutoffCoefficient = 0;
         double windowTrendCoefficient = 0;
         double cutoffTrendCoefficient = 0;
+        double windowLogCoefficient = 0;
+        double cutoffLogCoefficient = 0;
+        double windowTrendLogCoefficient = 0;
+        double cutoffTrendLogCoefficient = 0;
         bool is_init = false;
 
         void init(const double halfLife, const double trendHalfLife)
@@ -116,6 +124,10 @@ namespace rawaccel {
             windowTrendCoefficient = trendHalfLife > 0 ? pow(0.5, 1 / trendHalfLife) : 0;
             cutoffCoefficient = 1.0 - sqrt(1.0 - windowCoefficient);
             cutoffTrendCoefficient = 1.0 - sqrt(1.0 - windowTrendCoefficient);
+            windowLogCoefficient = log(windowCoefficient);
+            cutoffLogCoefficient = log(cutoffCoefficient);
+            windowTrendLogCoefficient = log(windowTrendCoefficient);
+            cutoffTrendLogCoefficient = log(cutoffTrendCoefficient);
         }
 
         double windowTotal = 0;
@@ -125,12 +137,12 @@ namespace rawaccel {
 
         double smooth(const double speed, const milliseconds time)
         {
-            // compute coefficients
-            double timeAdjustedWindowCoefficient = 1 - pow(windowCoefficient, time);
-            double timeAdjustedCutoffCoefficient = 1 - pow(cutoffCoefficient, time);
+            // compute coefficients: exp(t*log(c)) == pow(c, t); t == 0 matches pow(c, 0) == 1
+            double timeAdjustedWindowCoefficient = time > 0 ? 1 - exp(time * windowLogCoefficient) : 0;
+            double timeAdjustedCutoffCoefficient = time > 0 ? 1 - exp(time * cutoffLogCoefficient) : 0;
 
-            double timeAdjustedWindowTrendCoefficient = 1 - pow(windowTrendCoefficient, time);
-            double timeAdjustedCutoffTrendCoefficient = 1 - pow(cutoffTrendCoefficient, time);
+            double timeAdjustedWindowTrendCoefficient = time > 0 ? 1 - exp(time * windowTrendLogCoefficient) : 0;
+            double timeAdjustedCutoffTrendCoefficient = time > 0 ? 1 - exp(time * cutoffTrendLogCoefficient) : 0;
 
             // save old totals for trend adjustment
             double oldWindowTotal = windowTotal;
